@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RealDealEstate — Zoning Demo (Live Data)</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0f1419; color: #e8eaed; padding: 40px 20px; margin: 0; }
+  .container { max-width: 1100px; margin: 0 auto; }
+  .hero { text-align: center; margin-bottom: 40px; }
+  .hero h1 { font-size: 36px; margin: 0 0 8px; background: linear-gradient(135deg, #4ade80, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { color: #94a3b8; margin: 4px 0; }
+  .pill { display: inline-block; padding: 4px 12px; background: #1e293b; border-radius: 999px; font-size: 13px; color: #4ade80; margin: 0 4px; }
+  .card { background: #1a1f2e; border: 1px solid #2a3142; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  .card-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid #2a3142; }
+  .card-label { font-size: 20px; font-weight: 600; color: #4ade80; }
+  .card-addr { color: #94a3b8; font-size: 14px; }
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 720px) { .card-grid { grid-template-columns: 1fr; } }
+  .section h3 { font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin: 0 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  table td { padding: 6px 0; border-bottom: 1px solid #2a3142; vertical-align: top; }
+  table td:first-child { color: #94a3b8; width: 40%; }
+  table.permits { font-size: 12px; }
+  table.permits th { text-align: left; color: #64748b; font-weight: normal; padding: 4px 8px 8px 0; }
+  table.permits td { padding: 4px 8px 4px 0; }
+  .bylaw-link { color: #06b6d4; text-decoration: none; font-size: 13px; margin-top: 12px; display: inline-block; }
+  .bylaw-link:hover { text-decoration: underline; }
+  .thesis { margin-top: 20px; padding: 16px; background: #0a3a2e; border-left: 3px solid #4ade80; border-radius: 4px; font-size: 14px; line-height: 1.5; }
+  .muted { color: #64748b; font-style: italic; }
+  .footer { text-align: center; color: #64748b; font-size: 13px; margin-top: 40px; padding: 20px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <h1>RealDealEstate.app — Zoning Engine Demo</h1>
+      <p>Live property data, fetched in real-time from City of Edmonton Open Data</p>
+      <p>
+        <span class="pill">✅ Zoning</span>
+        <span class="pill">✅ Assessment</span>
+        <span class="pill">✅ Permits</span>
+        <span class="pill">✅ AI Thesis</span>
+      </p>
+      <p style="margin-top: 16px; font-size: 14px;">Showing 4 of your own active projects</p>
+    </div>
+    
+    <div class="card">
+      <div class="card-header">
+        <div class="card-label">Allendale 6-Plex</div>
+        <div class="card-addr">10646 61 Avenue NW, Edmonton, AB</div>
+      </div>
+      <div class="card-grid">
+        <div class="section">
+          <h3>🏛 Zoning</h3>
+          <table>
+            <tr><td>Zone</td><td><strong>RS</strong> — Small Scale Residential</td></tr>
+            <tr><td>Max storeys</td><td>2.5</td></tr>
+            <tr><td>Max height</td><td>10 m</td></tr>
+            <tr><td>Max FAR</td><td>0.7</td></tr>
+            <tr><td>Max units</td><td>up to 4 dwellings</td></tr>
+          </table>
+          <a class="bylaw-link" href="https://zoningbylaw.edmonton.ca/part-2-standard-zones-and-overlays/residential-zones/210-rs-small-scale-residential-zone" target="_blank">View official bylaw →</a>
+        </div>
+
+        <div class="section">
+          <h3>💰 Property Assessment</h3>
+          <table>
+            <tr><td>Assessed value</td><td><strong>$348,000</strong></td></tr>
+            <tr><td>Address</td><td>10646 61 AVENUE NW</td></tr>
+            <tr><td>Tax class</td><td>Residential</td></tr>
+            <tr><td>Neighbourhood</td><td>ALLENDALE</td></tr>
+            <tr><td>Ward</td><td>papastew</td></tr>
+            <tr><td>Garage</td><td>Y</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>🏗 Nearby Development Permits (10 found, last 2yr, 1km radius)</h3>
+        <table class="permits">
+          <thead><tr><th>Date</th><th>Work</th><th>Address</th></tr></thead>
+          <tbody>
+          <tr><td>2026-05-29</td><td>—</td><td>6729 - 106 STREET NW</td></tr><tr><td>2026-05-27</td><td>(03) Interior Alterations</td><td>706, 5241 - CALGARY TRAIL NW</td></tr><tr><td>2026-05-21</td><td>—</td><td>10633 - 60A AVENUE NW</td></tr><tr><td>2026-05-21</td><td>(03) Interior Alterations</td><td>6703 - 112 STREET NW</td></tr><tr><td>2026-05-19</td><td>—</td><td>5416 - 109 STREET NW</td></tr><tr><td>2026-05-15</td><td>—</td><td>10813 - 64 AVENUE NW</td></tr><tr><td>2026-05-14</td><td>(01) Building - New</td><td>6333G - 109A STREET NW</td></tr><tr><td>2026-05-14</td><td>—</td><td>10818B - 60 AVENUE NW</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="thesis">
+        🤖 <strong>AI Thesis Hint:</strong>
+        This lot zoned RS allows up to 4 dwellings. Assessed at $348,000 suggests current low-density use — redevelopment to multi-unit may unlock material NOI.
+      </div>
+    </div>
+    
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-label">Allendale 5-Plex</div>
+        <div class="card-addr">6408 106 Street NW, Edmonton, AB</div>
+      </div>
+      <div class="card-grid">
+        <div class="section">
+          <h3>🏛 Zoning</h3>
+          <table>
+            <tr><td>Zone</td><td><strong>RS</strong> — Small Scale Residential</td></tr>
+            <tr><td>Max storeys</td><td>2.5</td></tr>
+            <tr><td>Max height</td><td>10 m</td></tr>
+            <tr><td>Max FAR</td><td>0.7</td></tr>
+            <tr><td>Max units</td><td>up to 4 dwellings</td></tr>
+          </table>
+          <a class="bylaw-link" href="https://zoningbylaw.edmonton.ca/part-2-standard-zones-and-overlays/residential-zones/210-rs-small-scale-residential-zone" target="_blank">View official bylaw →</a>
+        </div>
+
+        <div class="section">
+          <h3>💰 Property Assessment</h3>
+          <table>
+            <tr><td>Assessed value</td><td><strong>$319,500</strong></td></tr>
+            <tr><td>Address</td><td>6408 106 STREET NW</td></tr>
+            <tr><td>Tax class</td><td>Residential</td></tr>
+            <tr><td>Neighbourhood</td><td>ALLENDALE</td></tr>
+            <tr><td>Ward</td><td>papastew</td></tr>
+            <tr><td>Garage</td><td>N</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>🏗 Nearby Development Permits (10 found, last 2yr, 1km radius)</h3>
+        <table class="permits">
+          <thead><tr><th>Date</th><th>Work</th><th>Address</th></tr></thead>
+          <tbody>
+          <tr><td>2026-05-29</td><td>—</td><td>6729 - 106 STREET NW</td></tr><tr><td>2026-05-21</td><td>—</td><td>10633 - 60A AVENUE NW</td></tr><tr><td>2026-05-21</td><td>—</td><td>7104 - 105 STREET NW</td></tr><tr><td>2026-05-19</td><td>—</td><td>10991 - 74 AVENUE NW</td></tr><tr><td>2026-05-15</td><td>—</td><td>10813 - 64 AVENUE NW</td></tr><tr><td>2026-05-14</td><td>—</td><td>10818B - 60 AVENUE NW</td></tr><tr><td>2026-05-14</td><td>(01) Building - New</td><td>6333G - 109A STREET NW</td></tr><tr><td>2026-05-11</td><td>(01) Building - New</td><td>11122 - 64 AVENUE NW</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="thesis">
+        🤖 <strong>AI Thesis Hint:</strong>
+        This lot zoned RS allows up to 4 dwellings. Assessed at $319,500 suggests current low-density use — redevelopment to multi-unit may unlock material NOI.
+      </div>
+    </div>
+    
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-label">Verum (Jasper Park)</div>
+        <div class="card-addr">9121 152 Street NW, Edmonton, AB</div>
+      </div>
+      <div class="card-grid">
+        <div class="section">
+          <h3>🏛 Zoning</h3>
+          <table>
+            <tr><td>Zone</td><td><strong>RS</strong> — Small Scale Residential</td></tr>
+            <tr><td>Max storeys</td><td>2.5</td></tr>
+            <tr><td>Max height</td><td>10 m</td></tr>
+            <tr><td>Max FAR</td><td>0.7</td></tr>
+            <tr><td>Max units</td><td>up to 4 dwellings</td></tr>
+          </table>
+          <a class="bylaw-link" href="https://zoningbylaw.edmonton.ca/part-2-standard-zones-and-overlays/residential-zones/210-rs-small-scale-residential-zone" target="_blank">View official bylaw →</a>
+        </div>
+
+        <div class="section">
+          <h3>💰 Property Assessment</h3>
+          <p class="muted">Not in residential assessment dataset (likely commercial parcel)</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>🏗 Nearby Development Permits (10 found, last 2yr, 1km radius)</h3>
+        <table class="permits">
+          <thead><tr><th>Date</th><th>Work</th><th>Address</th></tr></thead>
+          <tbody>
+          <tr><td>2026-05-29</td><td>—</td><td>9215 - 148 STREET NW</td></tr><tr><td>2026-05-29</td><td>—</td><td>15220 - 91 AVENUE NW</td></tr><tr><td>2026-05-29</td><td>(01) Building - New</td><td>9018 - 153 STREET NW</td></tr><tr><td>2026-05-29</td><td>(01) Building - New</td><td>9102 - 152 STREET NW</td></tr><tr><td>2026-05-28</td><td>(03) Interior Alterations</td><td>140, 1 - MEADOWLARK PARK SHOPPING CENTRE NW</td></tr><tr><td>2026-05-27</td><td>(01) Building - New</td><td>15212G - 93 AVENUE NW</td></tr><tr><td>2026-05-27</td><td>—</td><td>8904 - 147 STREET NW</td></tr><tr><td>2026-05-25</td><td>—</td><td>9022 - 153 STREET NW</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="thesis">
+        🤖 <strong>AI Thesis Hint:</strong>
+        This lot zoned RS (Small Scale Residential). Permits in the 1km radius suggest active development activity in the neighbourhood.
+      </div>
+    </div>
+    
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-label">Emanation (Sherbrooke)</div>
+        <div class="card-addr">12020 129 Street NW, Edmonton, AB</div>
+      </div>
+      <div class="card-grid">
+        <div class="section">
+          <h3>🏛 Zoning</h3>
+          <table>
+            <tr><td>Zone</td><td><strong>RS</strong> — Small Scale Residential</td></tr>
+            <tr><td>Max storeys</td><td>2.5</td></tr>
+            <tr><td>Max height</td><td>10 m</td></tr>
+            <tr><td>Max FAR</td><td>0.7</td></tr>
+            <tr><td>Max units</td><td>up to 4 dwellings</td></tr>
+          </table>
+          <a class="bylaw-link" href="https://zoningbylaw.edmonton.ca/part-2-standard-zones-and-overlays/residential-zones/210-rs-small-scale-residential-zone" target="_blank">View official bylaw →</a>
+        </div>
+
+        <div class="section">
+          <h3>💰 Property Assessment</h3>
+          <table>
+            <tr><td>Assessed value</td><td><strong>$378,500</strong></td></tr>
+            <tr><td>Address</td><td>12020 129 STREET NW</td></tr>
+            <tr><td>Tax class</td><td>Residential</td></tr>
+            <tr><td>Neighbourhood</td><td>SHERBROOKE</td></tr>
+            <tr><td>Ward</td><td>Anirniq</td></tr>
+            <tr><td>Garage</td><td>Y</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>🏗 Nearby Development Permits (10 found, last 2yr, 1km radius)</h3>
+        <table class="permits">
+          <thead><tr><th>Date</th><th>Work</th><th>Address</th></tr></thead>
+          <tbody>
+          <tr><td>2026-05-21</td><td>(01) Building - New</td><td>1, 11831 - 134 STREET NW</td></tr><tr><td>2026-05-21</td><td>—</td><td>12123 - 123 STREET NW</td></tr><tr><td>2026-05-21</td><td>—</td><td>11719 - 122 STREET NW</td></tr><tr><td>2026-05-19</td><td>(01) Building - New</td><td>12603 - 122 AVENUE NW</td></tr><tr><td>2026-05-15</td><td>—</td><td>1, 11831 - 134 STREET NW</td></tr><tr><td>2026-05-13</td><td>(01) Building - New</td><td>12502 - 121 AVENUE NW</td></tr><tr><td>2026-05-13</td><td>—</td><td>11540A - 123 STREET NW</td></tr><tr><td>2026-05-07</td><td>(01) Building - New</td><td>11839 - 124 STREET NW</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="thesis">
+        🤖 <strong>AI Thesis Hint:</strong>
+        This lot zoned RS allows up to 4 dwellings. Assessed at $378,500 suggests current low-density use — redevelopment to multi-unit may unlock material NOI.
+      </div>
+    </div>
+    
+    <div class="footer">
+      Generated locally from City of Edmonton Open Data API · No deploy required<br>
+      File: <code>~/flip-analyzer/demo_zoning_preview.html</code> · refresh to re-fetch
+    </div>
+  </div>
+</body>
+</html>

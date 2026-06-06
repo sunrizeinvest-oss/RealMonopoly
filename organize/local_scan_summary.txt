@@ -1,0 +1,68 @@
+LOCAL SCAN SUMMARY
+==================
+
+files scanned: 1022
+files hashed:  1022
+uncategorized (no project guess): 740 (72%)
+uncategorized subfolder:          655 (64%)
+
+DUPLICATES (by MD5 exact match)
+  duplicate groups: 104
+  redundant files:  169
+  bytes recoverable: 98.5 MB
+
+TOP PROJECTS DETECTED
+    740  (unknown)
+    146  Allendale
+     25  10612 127 Street
+     20  9121 152
+     18  Jasper Park
+     18  6408 106
+      7  15981 110B Ave
+      7  Mayfield 110
+      5  10646 61
+      5  10612 127
+      4  106 Street Property
+      4  Mayfield
+      4  Lake Ridge
+      3  10407 45
+      3  10646 61 Ave
+      2  Distressed Property Outreach
+      2  High Park
+      2  Allendale 6-Plex
+      1  Allendale 5-Plex
+      1  2025 03
+      1  9724 82
+      1  10848 153 St
+      1  10636 127
+      1  Manhattan
+      1  10646 106
+
+SUBFOLDER DISTRIBUTION
+    655  (uncategorized)
+    168  Photos
+     82  Contracts
+     78  Financials
+     17  Plans & Permits
+     10  Marketing & OM
+      8  Investor Docs
+      3  Reports
+      1  Legal
+
+FILE TYPES
+    482  .pdf
+    219  .xlsx
+     63  .csv
+     61  .docx
+     56  .jpg
+     46  .png
+     41  .heic
+     18  .jpeg
+     14  .zip
+      6  .numbers
+      6  .md
+      3  .svg
+      2  .webp
+      2  .txt
+      2  .gif
+      1  .xls

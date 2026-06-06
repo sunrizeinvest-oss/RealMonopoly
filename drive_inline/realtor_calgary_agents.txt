@@ -1,0 +1,49 @@
+Name,Brokerage,Phone
+Donna Abbott,RE/MAX First,(403) 828-5115
+Renee Acorn,RE/MAX First,(403) 710-9068
+Tom Albrecht,RE/MAX First,(587) 700-7123
+Breanna Albrecht,RE/MAX First,(587) 700-7123
+Zian Alladina,RE/MAX First,(604) 786-6612
+Terry Allwarden,RE/MAX First,(403) 540-0486
+Garth Anderson,RE/MAX First,(403) 620-1700
+LaShaun Andrews,RE/MAX First,(403) 850-4593
+Kim Arndt,RE/MAX First,(403) 606-5646
+Jake Ashton,RE/MAX First,(403) 830-3627
+Chris Audette,RE/MAX First,(403) 465-0060
+Mariangela Avila,RE/MAX First,(403) 402-4906
+Dom Talerico,RE/MAX Landan Real Estate,(403) 560-6782
+Jordan Smeaton,RE/MAX Realty Professionals,(403) 826-8812
+Charmaine Richter,RE/MAX Real Estate (Mountain View),(403) 465-1666
+Dylan Bathory,RE/MAX House of Real Estate,(403) 554-4554
+Sally Befus,RE/MAX Realty Professionals,(403) 874-4715
+Derek Little,RE/MAX House of Real Estate,(403) 690-4960
+David Rhydderch,RE/MAX First,(403) 990-1278
+Paula Leemans,RE/MAX Realty Professionals,(403) 863-4913
+John Preston,RE/MAX Real Estate (Mountain View),(403) 617-6009
+Ariel Buenaventura,RE/MAX First,(403) 680-4540
+Brent Livingstone,RE/MAX First,(403) 850-3241
+Paul Chou,RE/MAX First,(587) 215-0605
+Ron Garneau,RE/MAX House of Real Estate,(403) 830-1009
+Ryan Sexton,RE/MAX Complete Realty,(403) 608-6427
+Kristina Dominguez,RE/MAX First,(403) 629-2925
+Eric Boyd,RE/MAX House of Real Estate,(403) 809-4307
+Mark Lofgren,RE/MAX First,(403) 796-2127
+Mel Star,RE/MAX House of Real Estate,(403) 861-9944
+Beth Irving,RE/MAX First,(403) 971-0820
+Peter Appleby,RE/MAX Realty Professionals,(403) 461-4141
+Michael Beckett,RE/MAX Realty Professionals,(403) 862-0546
+Todd Renneberg,RE/MAX First,(403) 512-4132
+Doug Marjorie Kevin McKay,RE/MAX Real Estate (Mountain View),(403) 207-1776
+Shilo Storey,RE/MAX First,(403) 771-9002
+Sheila Thomson,CIR Realty,403-861-8366
+Steve Scherschel,CIR Realty,403-861-4858
+Susan King,CIR Realty,403-874-5464
+Tamara Desjardins,CIR Realty,403-874-6486
+Ali Abdalla,Century 21 Bravo Realty,403-862-0309
+Hasen Aboughoche,Century 21 Bravo Realty,403-336-2005
+Maha Abuhafeetha,Century 21 Bravo Realty,403-408-9314
+Chris Zaharko,Royal LePage Benchmark,403-253-1901
+Royal LePage Solutions South,Royal LePage Solutions South,403-289-3322
+Royal LePage Solutions,Royal LePage Solutions,403-252-5900
+eXp Realty Office Calgary,eXp Realty,587-802-3356
+Keller Williams Bold Realty,Keller Williams Bold Realty,403-930-4025

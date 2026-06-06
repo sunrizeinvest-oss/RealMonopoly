@@ -1,0 +1,51 @@
+Section 8 Buyer Hit List — institutional CA Section 8 / affordable housing buyers
+Tier,Company,Decision Maker,Phone,Email,HQ
+Tier 1,Avanath Capital Management,Daryl Carter,(949) 207-4670,info@avanath.com,Irvine CA
+Tier 1,Thomas Safran & Associates,Tyler Monroe,(310) 820-0234,info@tsahousing.com,Los Angeles CA
+Tier 1,Decro Corporation,Jim Seymour,(818) 788-8000,info@decro.org,Sherman Oaks CA
+Tier 1,LINC Housing,Rebecca Clark,(562) 684-1100,info@linchousing.org,Long Beach CA
+Tier 1,Abode Communities,Robin Hughes,(213) 225-2550,info@abodecommunities.org,Los Angeles CA
+Tier 1,Meta Housing Corporation,Kasey Burke,(310) 575-3543,info@metahousing.com,Los Angeles CA
+Tier 1,Western Community Housing,Graham Espley-Jones,(949) 756-8835,info@wchinc.org,Newport Beach CA
+Tier 1,Retirement Housing Foundation (RHF),Deborah Stone,(562) 257-5100,info@rhf.org,Long Beach CA
+Tier 1,Community HousingWorks,Sue Reynolds,(858) 282-2600,info@chworks.org,San Diego CA
+Tier 2,Standard Communities,Jeffrey Jaeger,(212) 376-3635,info@standardrep.com,New York NY
+Tier 2,Dominium,Paul Sween,(763) 354-5500,info@dominiumapartments.com,Plymouth MN
+Tier 2,McCormack Baron Salazar,Vincent Bennett,(314) 621-3400,info@mccormackbaron.com,St Louis MO
+Tier 2,Related Affordable,Hal Fetner,(212) 801-1000,info@related.com,New York NY
+Tier 2,Jonathan Rose Companies,Jonathan FP Rose,(212) 629-0363,info@rosecompanies.com,New York NY
+Tier 2,Preservation of Affordable Housing,Aaron Gornstein,(617) 261-9898,info@poah.org,Boston MA
+Tier 2,Hunt Capital Partners,Dana Mayo,(818) 380-6122,info@huntcompanies.com,Encino CA
+Tier 2,National Community Renaissance,Steve PonTell,(909) 483-2444,info@nationalcore.org,Rancho Cucamonga CA
+Tier 2,Eden Housing,Linda Mandolini,(510) 582-1460,info@edenhousing.org,Hayward CA
+Tier 2,MidPen Housing,Matthew Franklin,(650) 356-2900,info@midpen-housing.org,Foster City CA
+Tier 2,BRIDGE Housing,Kimberly McKay,(415) 989-1111,info@bridgehousing.com,San Francisco CA
+Tier 2,EAH Housing,Laura Hall,(415) 258-1800,info@eahhousing.org,San Rafael CA
+Tier 2,Mercy Housing,Ismael Guerrero,(303) 830-3300,info@mercyhousing.org,Denver CO
+Tier 2,WNC & Associates,Michael Gaber,(714) 662-5565,info@wncinc.com,Irvine CA
+Tier 2,National Church Residences,Mark Ricketts,(614) 451-2151,info@nationalchurchresidences.org,Columbus OH
+Tier 3,CBRE Affordable Housing,Jeffrey Kunitz,(213) 613-3333,jeffrey.kunitz@cbre.com,Los Angeles CA
+Tier 3,IPA Marcus & Millichap,Alex Kane,(818) 212-2700,alex.kane@ipausa.com,Encino CA
+Tier 3,Berkadia Affordable Housing,Adam Greene,(212) 801-1000,adam.greene@berkadia.com,New York NY
+Tier 3,Walker & Dunlop Affordable,Kris Mikkelsen,(310) 734-2730,kmikkelsen@walkerdunlop.com,Santa Monica CA
+Tier 3,JLL Affordable Housing,Blake Okland,(704) 526-2800,blake.okland@jll.com,Charlotte NC
+Tier 3,Greystone Affordable Housing,Tanya Eastwood,(212) 649-9700,taestwood@greyco.com,New York NY
+Tier 3,Colliers Affordable Housing,Will Mathews,(404) 877-9292,will.mathews@colliers.com,Atlanta GA
+Tier 3,Newmark Affordable Housing,Armand Tiberio,(415) 445-5100,armand.tiberio@nmrk.com,San Francisco CA
+Tier 4,TruAmerica Multifamily,Robert Hart,(310) 903-5300,info@truamerica.com,Los Angeles CA
+Tier 4,Decron Properties,David Nagel,(310) 478-4488,info@decron.com,Los Angeles CA
+Tier 4,Westland Real Estate Group,Yanki Alevy,(562) 984-7000,info@westlandreg.com,Long Beach CA
+Tier 4,NMS Properties,Neil Shekhter,(310) 829-1776,info@nmsproperties.com,Santa Monica CA
+Tier 4,Post Investment Group,Jason Post,(310) 278-6900,info@postinvgroup.com,Beverly Hills CA
+Tier 4,Hamilton Zanze,Mark Hamilton,(415) 561-6800,info@hamiltonzanze.com,San Francisco CA
+Tier 4,MG Properties,Mark Gleiberman,(858) 658-0500,info@mgproperties.com,San Diego CA
+Tier 4,IMT Residential,Adam Yarnold,(818) 380-1100,acquisitions@imtresidential.com,Sherman Oaks CA
+Tier 4,Waterford Property Company,Sean Rawson,(949) 999-6000,info@waterfordpropertyco.com,Newport Beach CA
+Tier 4,Kennedy Wilson,William McMorrow,(310) 887-6400,info@kennedywilson.com,Beverly Hills CA
+Tier 4,Pacific Urban Investors,Allan Schilling,(650) 493-9200,info@pacificurban.com,Palo Alto CA
+Tier 4,Interstate Equities Corporation,Brent Barkett,(650) 493-5900,info@iecinvest.com,Los Altos CA
+Tier 4,Tower 16 Capital Partners,Tyler Pruett,(858) 848-1800,info@tower16cap.com,Solana Beach CA
+Tier 4,Harbor Group International,Jordan Slone,(757) 640-8600,info@harborgi.com,Norfolk VA
+Tier 4,FPA Multifamily,Gregory Fowler,(415) 288-9505,info@fpamultifamily.com,San Francisco CA
+Tier 4,Blackstone Real Estate,Kathleen McCarthy,(212) 583-5000,info@blackstone.com,New York NY
+Tier 4,April Housing,Alice Carr,(212) 583-5000,info@aprilhousing.com,New York NY

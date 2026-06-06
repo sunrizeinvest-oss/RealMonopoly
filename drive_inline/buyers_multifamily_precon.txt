@@ -1,0 +1,36 @@
+Buyers_Multifamily_PreCon
+Name,Email,Phone
+Nelson,,7804546931
+Jagdeep,Jagdeepg84@yahoo.com,
+Harpal,,7809068111
+Raj Kunduru,Rajkunduru@gmail.com,
+Edelly,,5877786085
+Rob Tarulli,robtarulli@mac.com,7807183896
+Loren,lfotzeu@gmail.com,
+Waseem,Wabdulgany@remax.net,
+Ran,info@ransandhu.com,7807000192
+Benhail,,7809012314
+Anh,tmaianhftu@yahoo.com,
+Lucas,,7806048071
+Isaac,inyameky@ualberta.ca,7806803788
+Sasa,sasalivancic@gmail.com,7807094525
+Ahmed,ahmedcph@gmail.com,7807426952
+Khalida,,7809193812
+Lori,,7803943504
+Satya,,5065435281
+Susie,,7802982256
+Daniel,danfamily8@gmail.com,
+Raghav,sharmaraghav0052@gmail.com,
+Diagnaaz,naztherealtor@gmail.com,
+Toyemi,Yemz2004@gmail.com,7802140299
+Satwinder,Satwinder_basra@yahoo.ca,
+Efrain,sales-operations@smithsm.com,
+Sean,Sean@solbak.ca,
+Hakan,Hakantk9@hotmail.com,
+Manji Rentals,Nashir786@yahoo.ca,
+Jim,Jim@queststudios.ca,7807223092
+Mandy,Lalaine_javier18@yahoo.com,
+Buyer,inyameky@ualberta.ca,
+Rob,ROBTARULLI@mac.com,
+Pavi,Pavi_dhaliwal01@hotmail.ca,17788232027
+Dave,dave@pkdevelopments.ca,

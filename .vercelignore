@@ -1,0 +1,24 @@
+# Local data + research artifacts — not part of the app
+*.csv
+*.jsonl
+*.zip
+local_contacts_raw.json
+drive_*.json
+costar_*.json
+organized_contacts.csv
+
+# Local-only directories
+drive_inline/
+organize/
+outreach/
+.claude/
+
+# One-off scripts + demo previews
+*.py
+demo_*.html
+demo_*_preview.html
+REALDEALESTATE_*.md
+START_HERE.md
+
+# Source export
+realdealestate-app-source-*.zip

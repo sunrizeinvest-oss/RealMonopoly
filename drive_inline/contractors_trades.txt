@@ -1,0 +1,29 @@
+Name,Title,Phone,Email,Notes
+Chris Ducharme,COO,7802467904,Octanechris2020@gmail.com,General Contractor Apple
+Lyn,,5879219383,Jerseylyn123@gmail.com,Gc company text best
+Jason Goodon,,7803991578,jigoody420@outlook.com,Contractor
+Matt Natasha,,7802429839,matthomes97@gmail.com,Gc sub contractor
+Jonas Kelly,JK Custom Woodwork,7809527526,kcustomwoodwork@live.ca,carpentry framing decks
+Dusty,,5879919485,customconcrete01@gmail.com,Concrete
+Carpenter Sticks and Stones,,5879886767,sticksandstonesconcepts@gmail.com,full turn key builds
+Dave,,,Daveboss621@gmail.com,General contractor 15 yr
+Narbuckle,,,narbuckle737@gmail.com,Gc
+Clinton,,7809055148,uptonc41@gmail.com,General contractor
+Patrick Dahl,,,patdahl52@gmail.com,Gc
+Jeff,88Contractors,7808933845,jeffrode29@gmail.com,
+Inaseemh,,,inaseemh@gmail.com,Gc
+Shaun Pullin,,5873367819,spullin@icloud.com,20+ years general contractor
+Nehiyaw Aski,,8259256861,mprsc111@gmail.com,10 yr multi family
+Evan Boyce,,,paisleyparkconstruction@gmail.com,Gc
+AA,,,akijiji2@yahoo.com,Gc
+William,,7809052436,wbgconstruction.reno@gmail.com,all types of construction
+Jay,,,swag3720@gmail.com,Contractor
+Brar,,,brar0049@gmail.com,Gc
+Jenn,,,mandelmcarthurj@mymacewan.ca,Gc
+Flako,,,flako399@hotmail.com,carpentry steel and wood framing
+Shaun good,,7809207574,shaungood@hotmail.com,supervisor
+Renan Marinho,,7806077717,unitedtradescompany@gmail.com,
+Clayton Upton,Project Manager,7809055148,Uptonc41@gmail.com,
+Surveyor Myles,,5873380791,,Topographic survey Plot plan
+ULCO Franken,,17807203748,ulco1@hotmail.com,1.5M to build 8 plex
+Alyssa Proulx,,17804583814,alyssa@harrisonbowker.com,Appraiser

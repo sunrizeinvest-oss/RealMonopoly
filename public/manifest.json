@@ -1,0 +1,21 @@
+{
+  "name": "Real Deal — Real Estate Analyzer",
+  "short_name": "Real Deal",
+  "description": "Analyze fix & flip, BRRRR, and multifamily deals in minutes.",
+  "start_url": "/analyze",
+  "display": "standalone",
+  "background_color": "#07090f",
+  "theme_color": "#07090f",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any maskable" },
+    { "src": "/apple-touch-icon.png", "type": "image/png", "sizes": "180x180" }
+  ],
+  "categories": ["finance", "business", "utilities"],
+  "shortcuts": [
+    { "name": "Analyze a Deal",   "url": "/analyze",   "description": "Search a property address" },
+    { "name": "Flip Calculator",  "url": "/app",        "description": "Fix & Flip analyzer" },
+    { "name": "Deal Pipeline",    "url": "/pipeline",   "description": "Your deal CRM" },
+    { "name": "Submit a Deal",    "url": "/submit",     "description": "Submit an off-market deal" }
+  ]
+}

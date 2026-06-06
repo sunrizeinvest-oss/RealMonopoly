@@ -1,0 +1,22 @@
+DRIVE DEDUP SUMMARY
+====================
+Total Drive files scanned: 3322
+  Folders: skipped
+  Binary files (PDF, xlsx, docx, jpg, etc.): 2952
+  Google-native (Docs, Sheets): 370
+
+BINARY DUPLICATES (exact title+size match — high confidence)
+  Duplicate groups: 203
+  Redundant copies: 250
+  Wasted storage: 599.1 MB
+  Files I can trash for you (you own them): 174
+
+GOOGLE-NATIVE DUPLICATES (title-only — review carefully)
+  Duplicate groups: 9
+  Redundant copies: 17
+  (NOT auto-trashed — these need manual review)
+
+NEXT STEPS:
+  1. Review: open organize/drive_dupes_report.csv
+  2. To execute trash: paste organize/trash_dupes.gs into Apps Script editor, run trashDupes()
+  3. To undo within 30 days: run restoreAll() in same script

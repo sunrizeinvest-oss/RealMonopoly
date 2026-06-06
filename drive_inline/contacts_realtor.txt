@@ -1,0 +1,62 @@
+Name,Email,Phone
+Aziz Dhamani,realtor.azizsells@gmail.com,7807091979,connection to developers Lots Infill Lot
+Naveen Monga,naveen@naveenmonga.ca,7807772608,Retail and industrial Development Commercial
+Kunal Sachdeva,kunalsrealty@gmail.com,7807080221,Lots
+Jessey Touchette,jessey@treeholm.com,4038707355,multi family 4-30 units
+Hunninder Mann,,7806040011,Realtor
+Hassan Haymour,hassan@sablerealty.ca,7809077504,Corner Lots
+Hee Su Kim,hkim@cirrealty.ca,4034373236,triplex or fourplex
+Jatinderpal Sing Virk,msing1047@gmail.com,3067158774,Lots
+Michael Maclean,mike@greengroup.estate,7808609066,
+Geeta N,Geetanayyar.realtor@gmail.com,,Commercial
+Dustin Racine,dustinracine@hotmail.com,,Flips
+Karan Sidhu,karan.sidhu@exprealty.com,,Commercial freestanding
+Maninder Grewal,maninder.grewal@exprealty.com,7802050532,Lots
+Chris Miller,Chris@yhsg.pro,7809665954,Commercial
+Alex Boileau,,7802332965,50x150 inside lots
+Fadi Georgi,Fadi@edmrealtygroup.ca,,
+Pawandeep Rana Prec,pawanranac21@gmail.com,7782420143,Businesses Car wash
+Russ,russRLHcorp@gmail.com,7808849367,Wants Corner Lots Bonnie Doon Under 400k
+Pankaj Dua,dua@rapidsellgroup.ca,,
+Mike Sheret,,7802311008,Lots w house 380-500K Infill
+Gurveen Bindra,gbindra@barcalystreet.com,3062211322,Industrial Hospitality Hotels
+Atinder Shoker,atinder@shokerrealestate.com,,
+El-Ray,,5878410210,Commercial
+Michell Pederson,,5874157123,Flip Greater Edmonton
+Carrie Hadden Lucier,sunflowergirlhomes@gmail.com,,
+Calvin Hexter,calvin@calvinrealty.ca,,Commercial
+Annette Pucell,3sonshomeinvestments@gmail.com,5876462872,Fix Flip Infill Townhouse
+Andrew Joseph,Realestate@andrewjoseph.ca,,
+Megan,Megan@calvinrealty.ca,,Off Market Multifamily Commercial
+Ray Chand,estateinvestors007@gmail.com,4168222655,Mortgage Broker from Ontario
+Fraser Chapman,fraser@yegpropertysearch.com,,
+Dignaaz Grewal,,7802339551,
+Kirat Bawa,Kiratsells@gmail.com,,
+Noah Issa,noah@sablerealty.ca,7802365723,Realtor
+Gagan Rai,Primeplexlivinginc@gmail.com,4379970303,Lots
+John Percia,,7809831433,Wants Lots
+Mel,,4039035551,Flips Infill
+Kat Sieg,katsellsyeg@gmail.com,7808930787,Lots
+Jessica,jessica@familyfirsthousebuyer.ca,4038796211,
+Pawan,pawan07oct@gmail.com,,Mortgage broker Lots
+Dignaaz Grewal,Naztherealtor@gmail.com,7802339551,Realtor inquired on duplex
+Alex Taraiev,Alex.Taraieve@igwpm.ca,6475377825,Calgary
+Mir Kahan,babaloka123@hotmail.com,7809644190,Anything
+Brandon Rosser,Brandon.Rosser@cwedm.com,7804454048,Wellness Clinics Cushman Wakefield Commercial
+Michael MacLean,michael.maclean@exprealty.com,,Commercial Realtor
+Dil Sekhon,dil@dilsekhon.ca,7803010101,Lots
+Aaro Farrell,aaron.compassgrop@gmail.com,7808193560,
+Jacob Mclntyre,jacob.mclntyre@avisonyoung.com,,
+Ryland Strass,rylandjstrauss@gmail.com,5878797796,Agent Parents are home builders
+M Basar Ozgun,basarozgun@hotmail.com,7809742874,Multifamily Eastwood
+Mason Saleme,masonsalame@gmail.com,7808181818,Multifamily
+Jesse,jesse@naiedmonton.com,7804463638,Land Lots
+Melissa Sabourin,melissa.c.sabourin@gmail.com,7803076386,Investor
+Julia Youm,juliayoum@royallepage.ca,7807225071,
+Hasan Razan,hasan.raza@exprealty.com,,
+Ryan Gillen,Gillenrealty@gmail.com,,Distressed Multifamily
+Basar Ozgun,basarozgun@hotmail.com,7809742874,MF
+David Rojek,david@rojekrealty.com,5877784144,Commercial
+Solomon Davies,solomon.davies@yahoo.ca,7806550211,
+Magh Pael,meghpatel@royallepage.ca,4038945439,Commercial Agent
+Jr Rahall,jr@sablerealty.ca,7809998000,Distressed strip malls multifamily

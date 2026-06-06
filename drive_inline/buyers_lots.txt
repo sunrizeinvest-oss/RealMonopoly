@@ -1,0 +1,4 @@
+Buyers_Lots
+Name,Email
+Hakan Kocabiyikci,Hakantk9@hotmail.com
+M Gill,Mgill786@hotmail.com
