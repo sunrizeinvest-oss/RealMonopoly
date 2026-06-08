@@ -13,7 +13,50 @@ import { useAuth } from "../AuthContext";
  *
  * The active route is highlighted inside the dropdown so the user always knows
  * where they are within the platform.
+ *
+ * Each tool button also fires its dynamic import() on hover/focus so the
+ * route chunk is in browser cache by the time the user clicks. Makes
+ * navigation feel instant on a code-split bundle.
  */
+
+// Route → dynamic-import thunk. Hovering a tool kicks off the import; the
+// bundler caches the chunk so the subsequent click renders with zero latency.
+// Mirrors the lazy() routes declared in src/main.jsx.
+const PRELOAD = {
+  "/app":        () => import("../App.jsx"),
+  "/brrrr":      () => import("../BRRRRCalculator.jsx"),
+  "/commercial": () => import("../CommercialAnalyzer.jsx"),
+  "/compare":    () => import("../DealComparison.jsx"),
+  "/loans":      () => import("../LoanCompare.jsx"),
+  "/qualify":    () => import("../MortgageQualifier.jsx"),
+  "/property":   () => import("../PropertyIntelligence.jsx"),
+  "/worth":      () => import("../PropertyWorth.jsx"),
+  "/screen":     () => import("../DealScreener.jsx"),
+  "/distress":   () => import("../DistressChecker.jsx"),
+  "/dashboard":  () => import("../Dashboard.jsx"),
+  "/pipeline":   () => import("../Pipeline.jsx"),
+  "/portfolio":  () => import("../Portfolio.jsx"),
+  "/networth":   () => import("../NetWorth.jsx"),
+  "/budget":     () => import("../BudgetTracker.jsx"),
+  "/alerts":     () => import("../DealAlerts.jsx"),
+  "/rehab":      () => import("../RehabCalculator.jsx"),
+  "/tax":        () => import("../TaxCalculator.jsx"),
+  "/learn":      () => import("../Learn.jsx"),
+  "/quiz":       () => import("../Quiz.jsx"),
+};
+
+// Dedupe so each chunk is requested at most once even if the user hovers
+// over the same item dozens of times.
+const preloaded = new Set();
+function preloadRoute(route) {
+  if (preloaded.has(route)) return;
+  const thunk = PRELOAD[route];
+  if (!thunk) return;
+  preloaded.add(route);
+  // Fire-and-forget; if the import rejects, mark as un-preloaded so a
+  // future hover can try again.
+  thunk().catch(() => preloaded.delete(route));
+}
 
 const TOOLS = [
   {
@@ -178,6 +221,8 @@ export default function TopNav({ section = null }) {
                       key={t.route}
                       className={`tn-mega-tool ${active ? "active" : ""}`}
                       style={active ? { borderLeftColor: cat.color, color: cat.color } : undefined}
+                      onMouseEnter={() => preloadRoute(t.route)}
+                      onFocus={() => preloadRoute(t.route)}
                       onClick={go(t.route)}
                     >
                       <span className="tn-mega-tool-icon">{t.icon}</span>
