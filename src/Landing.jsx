@@ -167,23 +167,25 @@ export default function Landing() {
     .ld-nav-btn:hover{background:#5aabff;transform:translateY(-1px)}
 
     /* ── HERO ── */
-    .ld-hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:100px 24px 60px;position:relative;overflow:hidden}
+    .ld-hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:96px 24px 56px;position:relative;overflow:hidden}
     .ld-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(59,158,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,158,255,0.03) 1px,transparent 1px);background-size:56px 56px;pointer-events:none}
     .ld-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(59,158,255,0.09) 0%,transparent 65%);pointer-events:none;animation:breathe 5s ease-in-out infinite}
     @keyframes breathe{0%,100%{opacity:1}50%{opacity:0.55}}
-    .ld-hero-inner{max-width:1140px;width:100%;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;position:relative;z-index:1}
-    .ld-eyebrow{font-family:'Fira Code',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+    .ld-hero-inner{max-width:1320px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:28px;position:relative;z-index:1}
+    .ld-hero-head{text-align:center;max-width:820px;margin:0 auto}
+    .ld-eyebrow{font-family:'Fira Code',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);margin-bottom:18px;display:inline-flex;align-items:center;gap:8px}
     .ld-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:blink 2s infinite;flex-shrink:0}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-    .ld-h1{font-size:clamp(36px,5vw,60px);font-weight:800;line-height:1.06;letter-spacing:-2.5px;color:var(--text);margin-bottom:20px}
+    .ld-h1{font-size:clamp(36px,5.4vw,64px);font-weight:800;line-height:1.04;letter-spacing:-2.5px;color:var(--text);margin-bottom:14px}
     .ld-h1 span{color:var(--blue)}
-    .ld-hero-p{font-size:17px;color:var(--sub);line-height:1.75;margin-bottom:32px;max-width:460px}
-    .ld-hero-trust{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:32px}
+    .ld-hero-p{font-size:17px;color:var(--sub);line-height:1.7;margin:0 auto;max-width:620px}
+    .ld-hero-foot{display:flex;flex-direction:column;gap:16px;align-items:center;max-width:980px;margin:0 auto;width:100%}
+    .ld-hero-trust{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:0}
     .ld-trust-pill{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text);font-weight:500;font-family:'Fira Code',ui-monospace,monospace;border:1px solid var(--borderf);border-radius:4px;padding:6px 11px;background:rgba(255,255,255,0.02);letter-spacing:0.1px}
     .ld-trust-pill:hover{border-color:var(--border);background:rgba(255,255,255,0.04)}
 
     /* Live activity strip */
-    .ld-activity{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:0;margin-bottom:28px;overflow:hidden}
+    .ld-activity{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:0;margin:0 auto;width:100%;max-width:720px;overflow:hidden}
     .ld-activity-head{padding:8px 14px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
     .ld-activity-glyph{color:var(--green);animation:blink 2s infinite}
     .ld-activity-rows{display:flex;flex-direction:column}
@@ -203,6 +205,13 @@ export default function Landing() {
     .ld-stat-val{font-family:'Fira Code',ui-monospace,monospace;font-size:24px;font-weight:700;color:var(--blue);letter-spacing:-0.3px;line-height:1}
     .ld-stat-lbl{font-family:'Fira Code',ui-monospace,monospace;font-size:9.5px;font-weight:600;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-top:5px;display:flex;align-items:center;gap:5px}
     .ld-stat-lbl::before{content:"▸";color:var(--blue);font-size:8px}
+    .ld-stats{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;margin-top:4px}
+
+    /* ── WHY WE BUILT — motion-graphic sizzle reel section ── */
+    .ld-why{padding:80px 24px 40px;position:relative;background:linear-gradient(180deg,transparent,rgba(52,217,138,0.025),transparent)}
+    .ld-why-inner{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+    .ld-why-head{text-align:center;max-width:760px;margin:0 auto}
+    .ld-whyvid{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--green);border-radius:8px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(52,217,138,0.06) inset}
 
     /* ── HERO DEMO VIDEO (replaces auth card in hero) ── */
     .ld-herovid{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(52,217,138,0.06) inset}
@@ -450,15 +459,39 @@ export default function Landing() {
       <section className="ld-hero">
         <div className="ld-glow" />
         <div className="ld-hero-inner">
-          <div>
+          <div className="ld-hero-head">
             <div className="ld-eyebrow">
               <div className="ld-eyebrow-dot" />
               ● LIVE — REAL DEAL TERMINAL · US &amp; CANADA
             </div>
-            <h1 className="ld-h1">Know if it's a<br /><span>real deal.</span><br />In minutes.</h1>
+            <h1 className="ld-h1">Know if it's a <span>real deal.</span><br />In minutes.</h1>
             <p className="ld-hero-p">Stop wasting hours on spreadsheets. Get instant property evaluation — ARV estimate, full cost breakdown, and a plain-English <strong style={{color:"var(--green)"}}>Go</strong> / <strong style={{color:"var(--red)"}}>No-Go</strong> verdict. Clarity before you commit.</p>
+          </div>
 
-            {/* Live activity strip — fills the space my terse codes left empty */}
+          {/* Hero Demo Video — 45s autoplay walkthrough of the whole product */}
+          <div className="ld-herovid">
+            <div className="ld-herovid-bar">
+              <span className="ld-herovid-dot" />
+              <span className="ld-herovid-bar-label">REAL DEAL TERMINAL · FULL WALKTHROUGH</span>
+              <span className="ld-herovid-bar-status">▸ LIVE</span>
+            </div>
+            <video
+              src="/hero-demo.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              poster=""
+              style={{display:"block",width:"100%",height:"auto",background:"#07090f"}}
+            >
+              Your browser doesn&rsquo;t support inline video. The full product is at <a href="#auth-section">signup</a>.
+            </video>
+            <a href="#try-it-live" className="ld-herovid-cta">▶ Try it yourself — no signup</a>
+          </div>
+
+          <div className="ld-hero-foot">
+            {/* Live activity strip */}
             <div className="ld-activity">
               <div className="ld-activity-head">
                 <span className="ld-activity-glyph">▸</span>
@@ -482,33 +515,33 @@ export default function Landing() {
                 </div>
               ))}
             </div>
+
             <div className="ld-stats">
               <div><div className="ld-stat-val" id="cDeals">0</div><div className="ld-stat-lbl">Deals analyzed</div></div>
               <div><div className="ld-stat-val" id="cProfit">$0</div><div className="ld-stat-lbl">Avg net profit</div></div>
               <div><div className="ld-stat-val" id="cROI">0%</div><div className="ld-stat-lbl">Avg ROI</div></div>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Hero Demo Video — 12s autoplay loop of the actual app analyzing a Calgary triplex */}
-          <div className="ld-herovid">
-            <div className="ld-herovid-bar">
-              <span className="ld-herovid-dot" />
-              <span className="ld-herovid-bar-label">REAL DEAL TERMINAL · LIVE DEMO</span>
-              <span className="ld-herovid-bar-status">▸ 12s LOOP</span>
-            </div>
+      {/* ── WHY WE BUILT THIS — motion-graphic sizzle reel ── */}
+      <section className="ld-why fade">
+        <div className="ld-why-inner">
+          <div className="ld-why-head">
+            <div className="ld-section-tag">// Why we built this</div>
+            <h2 className="ld-section-title">A story we kept hearing.<br /><span>So we did something about it.</span></h2>
+          </div>
+          <div className="ld-whyvid">
             <video
-              src="/hero-demo.mp4"
+              src="/why-we-built.mp4"
               autoPlay
               muted
               loop
               playsInline
               preload="auto"
-              poster=""
               style={{display:"block",width:"100%",height:"auto",background:"#07090f"}}
-            >
-              Your browser doesn&rsquo;t support inline video. The full product is at <a href="#auth-section">signup</a>.
-            </video>
-            <a href="#try-it-live" className="ld-herovid-cta">▶ Try it yourself — no signup</a>
+            />
           </div>
         </div>
       </section>
