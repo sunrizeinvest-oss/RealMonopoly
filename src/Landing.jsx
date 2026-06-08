@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 
@@ -44,6 +44,30 @@ export default function Landing() {
   const [submitted, setSubmitted] = useState(false);
   const [mode, setMode] = useState("signup");
   const [installOpen, setInstallOpen] = useState(false);
+
+  // Lazy-load the WhyWeBuilt sizzle (3.8MB, below-the-fold).
+  // Only attach src once the video element scrolls within 200px of the viewport.
+  const whyVideoRef = useRef(null);
+  const [whyVideoLoaded, setWhyVideoLoaded] = useState(false);
+  useEffect(() => {
+    if (whyVideoLoaded || !whyVideoRef.current) return;
+    if (typeof IntersectionObserver === "undefined") {
+      // Old browsers: just load it immediately
+      setWhyVideoLoaded(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setWhyVideoLoaded(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "200px" }  // start loading just before it's visible
+    );
+    io.observe(whyVideoRef.current);
+    return () => io.disconnect();
+  }, [whyVideoLoaded]);
 
   // Live demo state
   const [dArv, setDArv] = useState("385000");
@@ -682,13 +706,14 @@ export default function Landing() {
           </div>
           <div className="ld-whyvid">
             <video
-              src="/why-we-built.mp4"
+              ref={whyVideoRef}
+              src={whyVideoLoaded ? "/why-we-built.mp4" : undefined}
               autoPlay
               muted
               loop
               playsInline
-              preload="auto"
-              style={{display:"block",width:"100%",height:"auto",background:"#07090f"}}
+              preload={whyVideoLoaded ? "auto" : "none"}
+              style={{display:"block",width:"100%",height:"auto",aspectRatio:"16/9",background:"#07090f"}}
             />
           </div>
         </div>
