@@ -2,6 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import TopNav from "./components/TopNav";
 import RecentDeals from "./components/RecentDeals";
+import OnboardingTour from "./components/OnboardingTour";
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
@@ -82,7 +83,7 @@ export default function Hub() {
         <div className="hub-glow" />
         <h1>What are you analyzing today?</h1>
         <p>Type an address to get everything — property data, comps, rent estimates, AI analysis, and calculators — all on one page.</p>
-        <div style={{maxWidth:600,margin:"20px auto 0",display:"flex",gap:10}}>
+        <div data-tour="search" style={{maxWidth:600,margin:"20px auto 0",display:"flex",gap:10}}>
           <input
             style={{flex:1,background:"var(--card2)",border:"1px solid var(--borderf)",borderRadius:10,padding:"12px 16px",fontSize:14,color:"var(--text)",fontFamily:"'DM Sans',sans-serif",outline:"none"}}
             placeholder="Enter any address — US or Canadian property"
@@ -101,7 +102,7 @@ export default function Hub() {
       {/* Resume the user's recent saved deals — silent empty state when none */}
       <RecentDeals limit={6} />
 
-      <div className="hub-cards">
+      <div className="hub-cards" data-tour="hub-cards">
         {/* Flip Card */}
         <div className="hub-card" onClick={() => navigate("/app")}>
           <div className="hub-card-badge" style={{background:"linear-gradient(135deg,var(--purple),var(--blue))"}}>🤖 AI</div>
@@ -393,6 +394,8 @@ export default function Hub() {
         </div>
 
       </div>
+
+      <OnboardingTour />
     </div>
   );
 }

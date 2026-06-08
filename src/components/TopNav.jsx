@@ -159,6 +159,7 @@ export default function TopNav({ section = null }) {
 
         <div className="tn-center">
           <button
+            data-tour="tools-btn"
             className={`tn-tools-btn ${toolsOpen ? "open" : ""}`}
             onClick={() => { setToolsOpen(v => !v); setAcctOpen(false); }}
             aria-expanded={toolsOpen}
@@ -190,6 +191,13 @@ export default function TopNav({ section = null }) {
                   <button className="tn-acct-menu-item" onClick={go("/dashboard")}>📋 Dashboard</button>
                   <button className="tn-acct-menu-item" onClick={go("/pipeline")}>📈 Pipeline</button>
                   <button className="tn-acct-menu-item" onClick={go("/pricing")}>⭐ Pricing</button>
+                  <div className="tn-acct-menu-divider"/>
+                  <button className="tn-acct-menu-item" onClick={() => {
+                    setAcctOpen(false);
+                    if (location.pathname !== "/analyze") navigate("/analyze");
+                    // Defer so OnboardingTour on /analyze has mounted before the event fires
+                    setTimeout(() => window.dispatchEvent(new CustomEvent("rde:start-tour")), 300);
+                  }}>🧭 Take the tour</button>
                   <div className="tn-acct-menu-divider"/>
                   <button className="tn-acct-menu-item danger" onClick={() => { setAcctOpen(false); signOut?.(); navigate("/"); }}>
                     Sign out
