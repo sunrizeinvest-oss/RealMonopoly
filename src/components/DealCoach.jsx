@@ -363,4 +363,7 @@ const css = `
   }
   .dc-fab{ right:16px; bottom:16px; }
 }
+@media(max-width:480px){
+  .dc-personas{ grid-template-columns:repeat(2, 1fr); }
+}
 `;

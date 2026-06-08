@@ -229,12 +229,14 @@ export default function PropertyIntelCard({ address }) {
               </div>
             )}
           </div>
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           <div style={{
             display: "grid", gridTemplateColumns: "90px 1.3fr 1.3fr 90px 55px", gap: 8,
             fontSize: 10, fontWeight: 700, color: "var(--dim, #3a4a60)", letterSpacing: "0.5px",
             textTransform: "uppercase", paddingBottom: 6,
             borderBottom: "1px solid var(--borderf, rgba(255,255,255,0.05))",
             fontFamily: "'Fira Code',ui-monospace,monospace",
+            minWidth: 560,
           }}>
             <span>Date</span>
             <span>Work / Type</span>
@@ -242,7 +244,7 @@ export default function PropertyIntelCard({ address }) {
             <span style={{ textAlign: "right" }}>Value</span>
             <span style={{ textAlign: "right" }}>Units</span>
           </div>
-          <div style={{ maxHeight: 280, overflowY: "auto" }}>
+          <div style={{ maxHeight: 280, overflowY: "auto", minWidth: 560 }}>
             {permits.map((p, i) => {
               const work = p.work_type || p.permit_type || p.work_type_group || "—";
               const bldg = p.building_type ? ` · ${p.building_type.replace(/\s*\(\d+\)\s*/, "")}` : "";
@@ -285,6 +287,7 @@ export default function PropertyIntelCard({ address }) {
                 </div>
               );
             })}
+          </div>
           </div>
           <div style={{
             marginTop: 6,

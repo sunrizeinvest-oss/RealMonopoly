@@ -445,9 +445,9 @@ export default function Landing() {
     .ld-an-metric{background:rgba(255,255,255,0.025);border:1px solid var(--borderf);border-radius:4px;padding:12px}
     .ld-an-metric-lbl{font-family:'Fira Code',monospace;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:1px;text-transform:uppercase}
     .ld-an-metric-val{font-family:'Fira Code',monospace;font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-top:4px}
-    .ld-an-table{margin-top:10px;background:rgba(255,255,255,0.02);border:1px solid var(--borderf);border-radius:4px;overflow:hidden;font-family:'Fira Code',monospace;font-size:12px}
-    .ld-an-table-head{display:grid;grid-template-columns:1.6fr repeat(5,1fr);padding:8px 14px;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--borderf)}
-    .ld-an-table-row{display:grid;grid-template-columns:1.6fr repeat(5,1fr);padding:7px 14px}
+    .ld-an-table{margin-top:10px;background:rgba(255,255,255,0.02);border:1px solid var(--borderf);border-radius:4px;overflow-x:auto;font-family:'Fira Code',monospace;font-size:12px;-webkit-overflow-scrolling:touch}
+    .ld-an-table-head{display:grid;grid-template-columns:1.6fr repeat(5,1fr);padding:8px 14px;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--borderf);min-width:520px}
+    .ld-an-table-row{display:grid;grid-template-columns:1.6fr repeat(5,1fr);padding:7px 14px;min-width:520px}
     .ld-an-table-row.bold{background:rgba(52,217,138,0.05);font-weight:700;color:var(--green)}
     .ld-an-table-row:not(:last-child){border-bottom:1px solid rgba(255,255,255,0.04)}
     .ld-an-thesis{padding:18px;background:linear-gradient(135deg,rgba(52,217,138,0.08),rgba(59,158,255,0.03));border-radius:6px;border:1px solid rgba(52,217,138,0.2)}
@@ -610,6 +610,21 @@ export default function Landing() {
       .ld-h1{letter-spacing:-1.5px}
       .ld-section{padding:60px 16px}
       .ld-stats{gap:20px}
+    }
+    @media(max-width:480px){
+      .ld-an-metric-grid{grid-template-columns:1fr;gap:8px}
+      .ld-toolkit-grid{grid-template-columns:1fr}
+      .ld-anatomy{padding:60px 14px}
+      .ld-pro{padding:48px 14px 60px}
+      .ld-chrome{padding:48px 14px 60px}
+      .ld-toolkit{padding:60px 14px 48px}
+      .ld-anatomy-step{gap:12px}
+      .ld-anatomy-deal-bar{font-size:10px;padding:7px 12px}
+      .ld-anatomy-deal-bar span:last-child{word-break:break-word}
+      .ld-rd-popup{width:170px;top:36px;right:6px}
+      .ld-pro-doc-watermark{display:none}
+      .ld-anatomy-title{font-size:20px}
+      .ld-anatomy-desc{font-size:13px}
     }
     input,select{font-size:16px!important}
   `;
