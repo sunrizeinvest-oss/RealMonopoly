@@ -39,12 +39,6 @@ const BLANK_EXPENSE = {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#07090f;--card:#0d1119;--card2:#0a0e18;
-    --borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;
-    --dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;
-    --amber:#f0a030;--purple:#a782ff
-  }
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* ── Nav ── */
@@ -62,7 +56,7 @@ const CSS = `
   .bt-page-sub{font-size:13px;color:var(--sub);margin-bottom:24px}
 
   /* ── Deal selector bar ── */
-  .bt-deal-bar{background:var(--card);border:1px solid var(--borderf);border-radius:14px;padding:20px;margin-bottom:24px}
+  .bt-deal-bar{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:20px;margin-bottom:24px}
   .bt-deal-bar-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
   .bt-field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
   .bt-field label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
@@ -87,7 +81,7 @@ const CSS = `
   .bt-dash{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
   @media(max-width:760px){.bt-dash{grid-template-columns:repeat(2,1fr)}}
   @media(max-width:420px){.bt-dash{grid-template-columns:1fr}}
-  .bt-dash-card{background:var(--card);border:1px solid var(--borderf);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:4px}
+  .bt-dash-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 20px;display:flex;flex-direction:column;gap:4px}
   .bt-dash-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
   .bt-dash-value{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1.1;color:var(--text)}
   .bt-dash-sub{font-size:12px;color:var(--sub)}
@@ -96,15 +90,15 @@ const CSS = `
   .bt-dash-card.good .bt-dash-value{color:var(--green)}
 
   /* ── Progress bar ── */
-  .bt-prog-wrap{background:var(--card);border:1px solid var(--borderf);border-radius:14px;padding:18px 20px;margin-bottom:24px}
+  .bt-prog-wrap{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 20px;margin-bottom:24px}
   .bt-prog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
   .bt-prog-title{font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.4px}
   .bt-prog-pct{font-size:15px;font-weight:800;color:var(--text)}
-  .bt-prog-track{height:12px;background:var(--card2);border-radius:99px;overflow:hidden;border:1px solid var(--borderf)}
-  .bt-prog-fill{height:100%;border-radius:99px;transition:width 0.4s cubic-bezier(.4,0,.2,1),background 0.3s}
+  .bt-prog-track{height:12px;background:var(--card2);border-radius:3px;overflow:hidden;border:1px solid var(--borderf)}
+  .bt-prog-fill{height:100%;border-radius:3px;transition:width 0.4s cubic-bezier(.4,0,.2,1),background 0.3s}
 
   /* ── Section header ── */
-  .bt-section{background:var(--card);border:1px solid var(--borderf);border-radius:14px;overflow:hidden;margin-bottom:20px}
+  .bt-section{background:var(--card);border:1px solid var(--borderf);border-radius:6px;overflow:hidden;margin-bottom:20px}
   .bt-section-head{padding:16px 20px;border-bottom:1px solid var(--borderf);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
   .bt-section-title{font-size:15px;font-weight:800;color:var(--text);letter-spacing:-0.2px}
   .bt-section-body{padding:20px}

@@ -1,68 +1,152 @@
+/* ── Design Tokens ──────────────────────────────────────────────────────────
+ *
+ * Single source of truth for colors, type scale, radius, and spacing.
+ * Each component USED to redeclare these — that's been removed so this file
+ * is the only place to change the palette.
+ *
+ * Audience: real estate investors who want numbers-first, organized, dense
+ * interfaces. The visual direction is institutional terminal (think
+ * Bloomberg / CoStar), not consumer-friendly SaaS. Optimize for at-a-glance
+ * reading, persistent color coding, and tabular alignment.
+ */
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* ── Colors — dark institutional terminal ─────────────────────────── */
+  --bg:       #07090f;                            /* page */
+  --card:     #0d1119;                            /* card surface */
+  --card2:    #0a0e18;                            /* nested surface (e.g. card header) */
+  --text:     #dde4ef;                            /* primary text */
+  --sub:      #6b7d96;                            /* secondary text */
+  --dim:      #3a4a60;                            /* tertiary text / disabled */
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  /* Semantic accent palette — same hex in every tool. Status colors stay
+     consistent so users learn "green = good, red = bad" pattern-match. */
+  --blue:     #3b9eff;                            /* informational / primary action */
+  --green:    #34d98a;                            /* positive / GO / above threshold */
+  --red:      #f25c5c;                            /* negative / PASS / below threshold */
+  --amber:    #f0a030;                            /* warning / HOLD / marginal */
+  --purple:   #a782ff;                            /* equity / forced appreciation */
 
+  /* Borders — thin and dark by default; brighter on focus/hover */
+  --border:   rgba(59,158,255,0.12);              /* accented border */
+  --borderf:  rgba(255,255,255,0.07);             /* faint divider */
+
+  /* ── Border-radius scale ───────────────────────────────────────────
+     Locked at 6 values. New components: pick one of these, not a custom px. */
+  --r-xs:  2px;                                   /* badges, tags */
+  --r-sm:  4px;                                   /* inputs, terminal cards */
+  --r-md:  6px;                                   /* default card */
+  --r-lg:  10px;                                  /* prominent panels */
+  --r-xl:  16px;                                  /* hero / marketing cards */
+  --r-pill: 999px;                                /* pills / round buttons */
+
+  /* ── Type scale ───────────────────────────────────────────────────
+     Locked at 8 values. Pick the closest — no custom font-sizes. */
+  --fs-2xs: 10px;                                 /* badge text */
+  --fs-xs:  11px;                                 /* labels, secondary */
+  --fs-sm:  12px;                                 /* table cells, dense data */
+  --fs-md:  13px;                                 /* body text default */
+  --fs-lg:  15px;                                 /* prominent body */
+  --fs-xl:  18px;                                 /* card titles */
+  --fs-2xl: 24px;                                 /* metric values */
+  --fs-3xl: 36px;                                 /* hero metrics, big verdicts */
+
+  /* ── Spacing scale (4px base) ─────────────────────────────────────
+     Pick one of these for padding/margin/gap. */
+  --sp-1:  4px;
+  --sp-2:  8px;
+  --sp-3:  12px;
+  --sp-4:  16px;
+  --sp-5:  24px;
+  --sp-6:  32px;
+  --sp-7:  48px;
+  --sp-8:  64px;
+
+  /* ── Font families ────────────────────────────────────────────────
+     DM Sans for UI / copy. Fira Code for ALL numeric data so columns
+     line up across rows. */
+  --font-sans: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, 'Liberation Mono', monospace;
+
+  /* Form rendering */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
+/* ── Resets / base ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
 
-body {
+html, body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  padding: 0;
   min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* Prevent iOS zoom on input focus */
+input, select, textarea { font-size: 16px; }
+
+/* Tabular numerics — $1,234 stacks neatly column-aligned in tables */
+input[type="number"], .num, [data-num] {
+  font-variant-numeric: tabular-nums;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
+/* Better link defaults — components override per-context */
+a { color: var(--blue); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Buttons — components define their own; this just removes UA default ugliness */
+button { font-family: inherit; cursor: pointer; border: none; background: transparent; color: inherit; }
+
+/* ── Optional utility classes ──────────────────────────────────────
+ * Use these in inline JSX to avoid one-off styles. Components that want
+ * the terminal aesthetic can use these for instant consistency. */
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.2px; }
+.mono { font-family: var(--font-mono); }
+.text-pos { color: var(--green); }
+.text-neg { color: var(--red); }
+.text-warn { color: var(--amber); }
+
+/* ── Mobile responsive overrides ──────────────────────────────────────
+ * Many components were built with `style={{gridTemplateColumns:"repeat(N,1fr)"}}`
+ * inline styles (rendered to the DOM as `grid-template-columns: repeat(N, 1fr)`).
+ * These rules globally stack those grids on small screens without needing to
+ * refactor every component. Inline styles win specificity, so we use !important. */
+@media (max-width: 640px) {
+  /* 3-col → 2-col */
+  [style*="grid-template-columns: repeat(3"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  /* 4-col → 2-col */
+  [style*="grid-template-columns: repeat(4"] {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+@media (max-width: 480px) {
+  /* Everything stacks to 1-col on phones */
+  [style*="grid-template-columns: repeat(2"],
+  [style*="grid-template-columns: repeat(3"],
+  [style*="grid-template-columns: repeat(4"],
+  [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Tighten card padding generally on phone */
+  [style*="padding: 14px 16px"],
+  [style*="padding:14px 16px"] {
+    padding: 10px 12px !important;
+  }
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* ── Mobile-friendly horizontal scrolling for data tables ────────────
+ * Components wrapping tables in `overflow-x: auto` already handle this; this
+ * just ensures dense tables stay readable. */
+@media (max-width: 480px) {
+  table { font-size: 11px; }
 }

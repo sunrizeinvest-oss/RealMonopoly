@@ -4,7 +4,6 @@ import { useAuth } from "./AuthContext";
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#07090f;--card:#0d1119;--card2:#0a0e18;--border:rgba(59,158,255,0.12);--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;--amber:#f0a030}
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
 
   .hub-wrap{min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
@@ -26,23 +25,25 @@ const CSS = `
 
   /* Cards */
   .hub-cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:960px;margin:0 auto;padding:0 24px 80px;width:100%}
-  .hub-section-label{grid-column:1/-1;font-size:11px;font-weight:800;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;padding-top:8px}
+  .hub-section-label{grid-column:1/-1;font-family:'Fira Code',ui-monospace,monospace;font-size:10.5px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1.4px;padding-top:8px}
+  .hub-section-label::before{content:"// "}
   .hub-card.worth{border-color:rgba(255,180,60,0.25);background:linear-gradient(135deg,rgba(255,180,60,0.04) 0%,var(--card) 60%)}
   .hub-card.worth:hover{border-color:rgba(255,180,60,0.5);box-shadow:0 16px 48px rgba(255,180,60,0.08)}
-  .hub-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:36px 32px;cursor:pointer;transition:all 0.2s;position:relative;display:flex;flex-direction:column;gap:14px}
-  .hub-card:hover{border-color:rgba(59,158,255,0.3);transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,0,0,0.4)}
-  .hub-card.featured{border-color:rgba(52,217,138,0.25);background:linear-gradient(135deg,rgba(52,217,138,0.04) 0%,var(--card) 60%)}
-  .hub-card.featured:hover{border-color:rgba(52,217,138,0.5);box-shadow:0 16px 48px rgba(52,217,138,0.1)}
+  .hub-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:28px 26px;cursor:pointer;transition:all 0.18s;position:relative;display:flex;flex-direction:column;gap:12px}
+  .hub-card:hover{border-color:rgba(59,158,255,0.45);transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,0.45)}
+  .hub-card::before{content:"";position:absolute;top:14px;left:18px;font-family:'Fira Code',monospace;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:0.7px}
+  .hub-card.featured{border-color:rgba(52,217,138,0.3);background:linear-gradient(135deg,rgba(52,217,138,0.04) 0%,var(--card) 60%)}
+  .hub-card.featured:hover{border-color:rgba(52,217,138,0.55);box-shadow:0 12px 36px rgba(52,217,138,0.1)}
 
-  .hub-card-badge{position:absolute;top:20px;right:20px;background:linear-gradient(135deg,#34d98a,#3b9eff);color:#fff;font-size:10px;font-weight:800;letter-spacing:1px;padding:3px 10px;border-radius:99px}
-  .hub-card-icon{font-size:40px;line-height:1}
-  .hub-card-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
-  .hub-card-sub{font-size:14px;color:var(--sub);line-height:1.55}
+  .hub-card-badge{position:absolute;top:18px;right:18px;background:rgba(52,217,138,0.08);color:var(--green);border:1px solid rgba(52,217,138,0.4);font-family:'Fira Code',monospace;font-size:9px;font-weight:700;letter-spacing:0.8px;padding:3px 8px;border-radius:3px}
+  .hub-card-icon{font-size:34px;line-height:1;margin-top:14px}
+  .hub-card-title{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-0.4px}
+  .hub-card-sub{font-size:13px;color:var(--sub);line-height:1.55}
   .hub-card-divider{height:1px;background:var(--borderf);margin:4px 0}
   .hub-card-pills{display:flex;flex-wrap:wrap;gap:6px}
-  .hub-pill{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:99px;padding:3px 10px;font-size:11px;color:var(--dim);font-weight:500}
-  .hub-card.featured .hub-pill{border-color:rgba(52,217,138,0.15);color:var(--sub)}
-  .hub-card-cta{margin-top:auto;padding-top:8px;font-size:14px;font-weight:700;color:var(--blue);display:flex;align-items:center;gap:6px}
+  .hub-pill{background:rgba(255,255,255,0.025);border:1px solid var(--borderf);border-radius:3px;padding:2px 8px;font-family:'Fira Code',monospace;font-size:10px;color:var(--sub);font-weight:600;letter-spacing:0.3px}
+  .hub-card.featured .hub-pill{border-color:rgba(52,217,138,0.18);color:var(--sub)}
+  .hub-card-cta{margin-top:auto;padding-top:10px;font-family:'Fira Code',monospace;font-size:12px;font-weight:700;letter-spacing:0.6px;color:var(--blue);display:flex;align-items:center;gap:6px;text-transform:uppercase}
   .hub-card.featured .hub-card-cta{color:var(--green)}
 
   @media(max-width:640px){
@@ -393,7 +394,7 @@ export default function Hub() {
         <div className="hub-card" style={{borderColor:"rgba(59,158,255,0.2)"}} onClick={() => navigate("/learn")}>
           <div className="hub-card-icon">📖</div>
           <div className="hub-card-title">Investor Education Hub</div>
-          <div className="hub-card-sub">Searchable glossary of 20+ key metrics, strategy breakdowns, quick-reference rules (70% Rule, 1% Rule, DSCR > 1.25), red flags to watch, and market timing signals.</div>
+          <div className="hub-card-sub">Searchable glossary of 20+ key metrics, strategy breakdowns, quick-reference rules (70% Rule, 1% Rule, DSCR ≥ 1.25), red flags to watch, and market timing signals.</div>
           <div className="hub-card-divider" />
           <div className="hub-card-pills">
             {["Glossary", "Formulas", "Rules of Thumb", "Red Flags", "Market Signals", "Searchable"].map(p => (

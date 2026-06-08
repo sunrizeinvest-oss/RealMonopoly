@@ -19,12 +19,6 @@ const PREFILL_KEY = "rde_prefill";
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#07090f;--card:#0d1119;--card2:#0a0e18;
-    --borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;
-    --dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;
-    --amber:#f0a030;--purple:#a782ff
-  }
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* ── Nav ── */
@@ -46,12 +40,12 @@ const CSS = `
   /* ── Address strip ── */
   .ds-addr-wrap{margin-bottom:16px}
   .ds-addr-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;display:block}
-  .ds-addr-input{background:var(--card);border:1px solid var(--borderf);border-radius:12px;padding:12px 16px;font-size:15px;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:border-color 0.15s}
+  .ds-addr-input{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:12px 16px;font-size:15px;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:border-color 0.15s}
   .ds-addr-input:focus{border-color:var(--blue)}
   .ds-addr-input::placeholder{color:var(--dim)}
 
   /* ── Big input card ── */
-  .ds-input-card{background:var(--card);border:1px solid var(--borderf);border-radius:18px;padding:20px 20px 18px;margin-bottom:12px;transition:border-color 0.2s}
+  .ds-input-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:20px 20px 18px;margin-bottom:12px;transition:border-color 0.2s}
   .ds-input-card:focus-within{border-color:rgba(59,158,255,0.4)}
   .ds-input-label{font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block}
   .ds-input-hint{font-size:11px;color:var(--dim);margin-top:4px}
@@ -62,9 +56,9 @@ const CSS = `
   .ds-big-input::placeholder{color:var(--dim)}
 
   /* ── Details toggle ── */
-  .ds-more-btn{background:transparent;border:1px solid var(--borderf);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer;width:100%;font-family:'DM Sans',sans-serif;margin-bottom:12px;transition:all 0.15s;text-align:left;display:flex;align-items:center;justify-content:space-between}
+  .ds-more-btn{background:transparent;border:1px solid var(--borderf);border-radius:6px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer;width:100%;font-family:'DM Sans',sans-serif;margin-bottom:12px;transition:all 0.15s;text-align:left;display:flex;align-items:center;justify-content:space-between}
   .ds-more-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
-  .ds-details-card{background:var(--card);border:1px solid var(--borderf);border-radius:14px;padding:18px;margin-bottom:16px}
+  .ds-details-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px;margin-bottom:16px}
   .ds-details-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
   .ds-sm-field{display:flex;flex-direction:column;gap:4px}
   .ds-sm-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.4px}
@@ -73,7 +67,7 @@ const CSS = `
   .ds-sm-input:focus{border-color:var(--blue)}
 
   /* ── Verdict block ── */
-  .ds-verdict{border-radius:20px;padding:24px 22px;margin-bottom:16px;text-align:center;border:2px solid transparent;transition:all 0.3s}
+  .ds-verdict{border-radius:6px;padding:24px 22px;margin-bottom:16px;text-align:center;border:2px solid transparent;transition:all 0.3s}
   .ds-verdict.strong{background:rgba(52,217,138,0.07);border-color:rgba(52,217,138,0.3)}
   .ds-verdict.thin{background:rgba(240,160,48,0.07);border-color:rgba(240,160,48,0.3)}
   .ds-verdict.pass{background:rgba(242,92,92,0.07);border-color:rgba(242,92,92,0.3)}
@@ -95,14 +89,14 @@ const CSS = `
 
   /* ── Metrics grid ── */
   .ds-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-  .ds-metric-card{background:var(--card);border:1px solid var(--borderf);border-radius:14px;padding:14px 16px}
-  .ds-metric-label{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
-  .ds-metric-value{font-size:20px;font-weight:800;letter-spacing:-0.5px;line-height:1.1;color:var(--text)}
+  .ds-metric-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:14px 16px}
+  .ds-metric-label{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+  .ds-metric-value{font-family:'Fira Code',ui-monospace,monospace;font-size:20px;font-weight:800;letter-spacing:-0.5px;line-height:1.1;color:var(--text)}
   .ds-metric-sub{font-size:11px;color:var(--sub);margin-top:2px}
 
   /* ── Action buttons ── */
   .ds-actions{display:flex;flex-direction:column;gap:10px;margin-top:8px}
-  .ds-btn{border:none;border-radius:14px;padding:16px 20px;font-size:16px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;letter-spacing:-0.2px;transition:opacity 0.15s,transform 0.1s;-webkit-tap-highlight-color:transparent}
+  .ds-btn{border:none;border-radius:6px;padding:16px 20px;font-size:16px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;letter-spacing:-0.2px;transition:opacity 0.15s,transform 0.1s;-webkit-tap-highlight-color:transparent}
   .ds-btn:active{transform:scale(0.98)}
   .ds-btn:hover{opacity:0.88}
   .ds-btn-primary{background:var(--blue);color:#fff}
@@ -112,11 +106,11 @@ const CSS = `
   .ds-btn-row .ds-btn{flex:1}
 
   /* ── Toast ── */
-  .ds-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--green);color:#07090f;border-radius:10px;padding:10px 20px;font-size:13px;font-weight:800;z-index:999;pointer-events:none;animation:ds-fade-in 0.2s ease;white-space:nowrap}
+  .ds-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--green);color:#07090f;border-radius:6px;padding:10px 20px;font-size:13px;font-weight:800;z-index:999;pointer-events:none;animation:ds-fade-in 0.2s ease;white-space:nowrap}
   @keyframes ds-fade-in{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
   /* ── Rule of thumb callout ── */
-  .ds-rule{background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.15);border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--sub);line-height:1.5}
+  .ds-rule{background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.15);border-radius:6px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--sub);line-height:1.5}
   .ds-rule strong{color:var(--blue)}
 
   /* ── Divider ── */

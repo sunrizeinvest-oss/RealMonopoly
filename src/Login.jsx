@@ -5,11 +5,12 @@ import { useNavigate } from "react-router-dom";
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#07090f;--card:#0d1119;--border:rgba(59,158,255,0.15);--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c}
   html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
   input{font-size:16px!important;font-family:'DM Sans',sans-serif}
 
-  .lg-wrap{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
+  /* Single-column centered layout — marketing is a slimmer left accent only on very wide screens */
+  .lg-wrap{display:grid;grid-template-columns:1fr;min-height:100vh}
+  @media(min-width:1100px){.lg-wrap{grid-template-columns:minmax(380px, 0.65fr) minmax(440px, 1fr); max-width:1280px; margin:0 auto}}
 
   /* ── Left panel ── */
   .lg-left{position:relative;background:var(--card);border-right:1px solid var(--borderf);display:flex;flex-direction:column;justify-content:space-between;padding:48px 56px;overflow:hidden}
@@ -79,15 +80,14 @@ const CSS = `
   .lg-footer a{color:var(--dim);text-decoration:none;cursor:pointer;margin:0 6px;transition:color 0.15s}
   .lg-footer a:hover{color:var(--sub)}
 
-  /* Mobile */
-  @media(max-width:820px){
-    .lg-wrap{grid-template-columns:1fr}
+  /* Below 1100px → single-column centered form, marketing hidden */
+  @media(max-width:1099px){
     .lg-left{display:none}
-    .lg-right{padding:40px 24px;min-height:100vh}
-    .lg-form-wrap{max-width:100%}
+    .lg-right{padding:48px 32px;min-height:100vh}
+    .lg-form-wrap{max-width:440px}
   }
-  @media(max-width:400px){
-    .lg-right{padding:28px 16px}
+  @media(max-width:480px){
+    .lg-right{padding:32px 18px}
   }
 `;
 

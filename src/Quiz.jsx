@@ -365,7 +365,7 @@ const CSS = `
     margin-bottom: 12px;
   }
 
-  .quiz-score-label {
+  .quiz-score-label {font-family:'Fira Code',ui-monospace,monospace;
     font-size: 13px;
     font-weight: 600;
     color: #dde4ef;
@@ -387,7 +387,7 @@ const CSS = `
     transition: width 0.6s ease;
   }
 
-  .quiz-score-val {
+  .quiz-score-val {font-family:'Fira Code',ui-monospace,monospace;
     font-size: 13px;
     font-weight: 700;
     width: 28px;
@@ -445,7 +445,7 @@ const CSS = `
     .quiz-scores { padding: 20px; }
     .quiz-reasons { padding: 20px; }
     .quiz-cta { padding: 20px; flex-direction: column; }
-    .quiz-score-label { width: 90px; font-size: 12px; }
+    .quiz-score-label {font-family:'Fira Code',ui-monospace,monospace; width: 90px; font-size: 12px; }
   }
 
   .quiz-btn-primary {

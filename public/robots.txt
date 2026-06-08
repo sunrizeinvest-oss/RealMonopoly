@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /pipeline
+Disallow: /portfolio
+Disallow: /networth
+Disallow: /reset-password
+Disallow: /forgot-password
+Disallow: /api/
+
+Sitemap: https://www.realdealestate.app/sitemap.xml

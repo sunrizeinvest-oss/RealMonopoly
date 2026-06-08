@@ -17,8 +17,14 @@
  * Without key → falls back to rule-based analysis (still useful).
  */
 
+import { checkRateLimit } from "./_lib/rate-limit.js";
+
 const ANTHROPIC_API = "https://api.anthropic.com/v1/messages";
-const MODEL = "claude-haiku-4-5-20251001";
+// Sonnet 4.6 for institutional memo quality — matches the 10-section prompt,
+// produces 600-900 word memos with quantified risks + 3-scenario exits.
+// Haiku follows complex prompts less reliably for this format.
+const MODEL = "claude-sonnet-4-6";
+const ANON_DAILY_LIMIT = 3;
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -29,6 +35,17 @@ export default async function handler(req, res) {
 
   const deal = req.body;
   if (!deal) return res.status(400).json({ error: "Deal data required" });
+
+  // ── Rate limit: anonymous users get 3 free Sonnet calls per IP per day.
+  // Authed users (Bearer header present) bypass. Protects Anthropic spend.
+  const rl = await checkRateLimit(req, { limit: ANON_DAILY_LIMIT, name: "ai-analyze" });
+  if (!rl.ok) {
+    return res.status(429).json({
+      error: `Daily free analysis limit (${ANON_DAILY_LIMIT}) reached for your IP. Sign in for unlimited access.`,
+      remaining: 0,
+      limit: ANON_DAILY_LIMIT,
+    });
+  }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
@@ -53,13 +70,19 @@ export default async function handler(req, res) {
             { role: "user", content: buildInstitutionalPrompt(deal, context) },
           ],
         }),
+        // 45s timeout — Sonnet 4.6 at max_tokens 4096 typically returns in
+        // 15-30s for a full institutional memo. Longer than 45s indicates
+        // a stuck request; we'd rather fall through to the rule-based memo
+        // than block the serverless slot. Vercel Pro timeout is 60s, so this
+        // leaves headroom for the response + JSON parse + send.
+        signal: AbortSignal.timeout(45000),
       });
 
       if (anthropicRes.ok) {
         const data = await anthropicRes.json();
         const text = data.content?.[0]?.text || "";
         return res.status(200).json({
-          source: "claude-sonnet-4-6",
+          source: MODEL,
           analysis: text,
           parsed: parseAnalysis(text),
           enrichedContext: {

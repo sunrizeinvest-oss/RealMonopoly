@@ -73,7 +73,6 @@ function win(a, b, higher=true) {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#07090f;--card:#0d1119;--card2:#0a0e18;--border:rgba(59,158,255,0.12);--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;--amber:#f0a030;--purple:#a782ff}
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
   input,select{font-family:'DM Sans',sans-serif;font-size:14px!important}
 
@@ -91,14 +90,14 @@ const CSS = `
   .cmp-hero{text-align:center;padding:44px 24px 32px;position:relative;overflow:hidden}
   .cmp-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(59,158,255,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(59,158,255,0.02) 1px,transparent 1px);background-size:56px 56px;pointer-events:none}
   .cmp-glow{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(59,158,255,0.06) 0%,transparent 65%);pointer-events:none}
-  .cmp-hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(59,158,255,0.08);border:1px solid rgba(59,158,255,0.2);border-radius:99px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--blue);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:18px;position:relative;z-index:1}
+  .cmp-hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(59,158,255,0.08);border:1px solid rgba(59,158,255,0.2);border-radius:3px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--blue);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:18px;position:relative;z-index:1}
   .cmp-hero h1{font-size:clamp(22px,4vw,36px);font-weight:800;letter-spacing:-1.5px;color:var(--text);line-height:1.1;margin-bottom:10px;position:relative;z-index:1}
   .cmp-hero p{font-size:15px;color:var(--sub);max-width:500px;margin:0 auto;line-height:1.65;position:relative;z-index:1}
 
   /* Mode toggle */
   .cmp-mode-bar{display:flex;justify-content:center;gap:0;margin-bottom:28px}
   .cmp-mode-btn{padding:10px 28px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--borderf);background:var(--card);color:var(--sub);transition:all 0.15s;font-family:'DM Sans',sans-serif}
-  .cmp-mode-btn:first-child{border-radius:10px 0 0 10px;border-right:none}
+  .cmp-mode-btn:first-child{border-radius:6px 0 0 10px;border-right:none}
   .cmp-mode-btn:last-child{border-radius:0 10px 10px 0;border-left:none}
   .cmp-mode-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 
@@ -110,7 +109,7 @@ const CSS = `
   @media(max-width:760px){.cmp-cols{grid-template-columns:1fr}}
 
   /* Input card */
-  .cmp-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+  .cmp-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden}
   .cmp-card.deal-a{border-color:rgba(59,158,255,0.25)}
   .cmp-card.deal-b{border-color:rgba(52,217,138,0.25)}
   .cmp-card-header{padding:14px 18px 12px;border-bottom:1px solid var(--borderf);background:var(--card2);display:flex;align-items:center;justify-content:space-between}
@@ -133,7 +132,7 @@ const CSS = `
   .cmp-divider{height:1px;background:var(--borderf);margin:2px 0}
 
   /* Results section */
-  .cmp-results{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px}
+  .cmp-results{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:20px}
   .cmp-results-hdr{padding:16px 20px;background:var(--card2);border-bottom:1px solid var(--borderf);display:flex;align-items:center;justify-content:space-between}
   .cmp-results-title{font-size:13px;font-weight:800;color:var(--text);letter-spacing:0.5px;text-transform:uppercase}
 
@@ -160,15 +159,15 @@ const CSS = `
   .cmp-tval.pos{color:var(--green)}
   .cmp-tval.neg{color:var(--red)}
   .cmp-tval.neutral{color:var(--text)}
-  .cmp-win-badge{font-size:9px;font-weight:800;letter-spacing:0.5px;background:var(--green);color:#0a1f15;padding:2px 6px;border-radius:99px;font-family:'DM Sans',sans-serif}
+  .cmp-win-badge{font-size:9px;font-weight:800;letter-spacing:0.5px;background:var(--green);color:#0a1f15;padding:2px 6px;border-radius:3px;font-family:'DM Sans',sans-serif}
 
   /* Winner summary */
   .cmp-verdict{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:20px;border-top:1px solid var(--borderf)}
-  .cmp-verdict-card{border-radius:14px;padding:20px 20px 16px;display:flex;flex-direction:column;gap:6px}
+  .cmp-verdict-card{border-radius:6px;padding:20px 20px 16px;display:flex;flex-direction:column;gap:6px}
   .cmp-verdict-card.winner-card{background:rgba(52,217,138,0.06);border:1.5px solid rgba(52,217,138,0.3)}
   .cmp-verdict-card.loser-card{background:rgba(255,255,255,0.02);border:1px solid var(--borderf)}
   .cmp-verdict-name{font-size:16px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px}
-  .cmp-verdict-badge{font-size:10px;font-weight:800;letter-spacing:0.5px;padding:3px 10px;border-radius:99px}
+  .cmp-verdict-badge{font-size:10px;font-weight:800;letter-spacing:0.5px;padding:3px 10px;border-radius:3px}
   .cmp-verdict-badge.win{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff}
   .cmp-verdict-badge.tie{background:var(--amber);color:#0a0e18}
   .cmp-verdict-sub{font-size:13px;color:var(--sub);line-height:1.5}

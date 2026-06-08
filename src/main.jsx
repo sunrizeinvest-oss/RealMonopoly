@@ -2,7 +2,14 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './AuthContext'
+import ErrorBoundary from './ErrorBoundary.jsx'
 import './index.css'
+import { installGlobalErrorCapture } from './lib/errors'
+// Defer to next tick so React boots first — if errors.js itself ever throws
+// (e.g., Supabase client init issue), the page still renders.
+setTimeout(() => {
+  try { installGlobalErrorCapture() } catch (e) { console.warn("error-capture install failed:", e?.message) }
+}, 0)
 import Login from './Login.jsx'
 import Hub from './Hub.jsx'
 import PropertyHub from './PropertyHub.jsx'
@@ -35,6 +42,7 @@ import BudgetTracker from './BudgetTracker.jsx'
 import DealScreener from './DealScreener.jsx'
 import DealAlerts from './DealAlerts.jsx'
 import PropertyIntelligence from './PropertyIntelligence.jsx'
+import LoanCompare from './LoanCompare.jsx'
 
 // Logged-in users go straight to the analyzer, visitors see the landing page
 function Home() {
@@ -45,6 +53,7 @@ function Home() {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
+    <ErrorBoundary>
     <BrowserRouter>
       <AuthProvider>
         <IntercomProvider>
@@ -57,6 +66,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/analyze" element={<PropertyHub />} />
           <Route path="/commercial" element={<CommercialAnalyzer />} />
           <Route path="/brrrr" element={<BRRRRCalculator />} />
+          <Route path="/loans" element={<LoanCompare />} />
           <Route path="/compare" element={<DealComparison />} />
           <Route path="/worth" element={<PropertyWorth />} />
           <Route path="/dashboard" element={<Dashboard />} />
@@ -84,5 +94,6 @@ createRoot(document.getElementById('root')).render(
         </IntercomProvider>
       </AuthProvider>
     </BrowserRouter>
+    </ErrorBoundary>
   </StrictMode>,
 )

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useMemo } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "./AuthContext"
+import { useDocMeta } from "./lib/seo"
+import { celebrateFirstSave } from "./lib/celebrate"
 
 // ─── Formatters ──────────────────────────────────────────────────────────────
 const fmt = (n) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n || 0)
@@ -32,22 +34,6 @@ function getDealGrade(roi, margin, aboveMAO, annualCoc) {
 // ─── CSS ──────────────────────────────────────────────────────────────────────
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
-
-  :root {
-    --bg: #07090f;
-    --card: #0d1119;
-    --card2: #0a0e18;
-    --borderf: rgba(255,255,255,0.07);
-    --border: rgba(59,158,255,0.12);
-    --text: #dde4ef;
-    --sub: #6b7d96;
-    --dim: #3a4a60;
-    --blue: #3b9eff;
-    --green: #34d98a;
-    --red: #f25c5c;
-    --amber: #f0a030;
-    --purple: #a782ff;
-  }
 
   .pi-root {
     min-height: 100vh;
@@ -755,8 +741,96 @@ function ResultItem({ label, value, color }) {
   )
 }
 
+// Hacker-style terminal loader that ticks through enrichment steps.
+// The steps don't perfectly map to the actual fetches — they're paced for
+// perceived feedback, not literal progress. By the time the last step lands
+// the real data is usually in. If not, the last step just sits "running"
+// until property state populates and this unmounts.
+function TerminalLoader({ query, ca }) {
+  const allSteps = [
+    { label: `geocoding "${(query || "").slice(0, 50)}${(query || "").length > 50 ? "…" : ""}"`, delay: 350 },
+    { label: ca ? "querying City Open Data (zoning, assessment, permits)..." : "looking up property record (RentCast)...", delay: 700 },
+    { label: ca ? "running CMHC rent model + breakdown..." : "loading sale + rental comps...", delay: 600 },
+    { label: ca ? "fetching active listings from realtor.ca..." : "computing market snapshot...", delay: 550 },
+    { label: "generating AI thesis (claude-haiku-4-5)...", delay: 800 },
+  ]
+  const [done, setDone] = useState(0) // index of last completed step
+
+  useEffect(() => {
+    setDone(0)
+    let cancelled = false
+    let acc = 0
+    const timers = allSteps.map((s, i) => {
+      acc += s.delay
+      return setTimeout(() => {
+        if (!cancelled) setDone(d => Math.max(d, i + 1))
+      }, acc)
+    })
+    return () => { cancelled = true; timers.forEach(clearTimeout) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, ca])
+
+  return (
+    <div style={{
+      background: "var(--card)",
+      border: "1px solid var(--borderf)",
+      borderRadius: "var(--r-md, 6px)",
+      padding: "24px 28px",
+      maxWidth: 720, margin: "32px auto",
+      fontFamily: "'Fira Code', ui-monospace, monospace"
+    }}>
+      <div style={{
+        display: "flex", alignItems: "center", gap: 10,
+        paddingBottom: 12, marginBottom: 14, borderBottom: "1px solid var(--borderf)"
+      }}>
+        <span style={{
+          width: 8, height: 8, borderRadius: "50%",
+          background: "var(--green)", boxShadow: "0 0 8px var(--green)",
+          animation: "pi-blink 1.4s infinite"
+        }} />
+        <span style={{ fontSize: 10.5, fontWeight: 700, color: "var(--blue)", letterSpacing: "0.7px" }}>
+          [ ANALYZING · LIVE FETCH IN PROGRESS ]
+        </span>
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {allSteps.map((s, i) => {
+          const isDone = i < done
+          const isRunning = i === done
+          const isPending = i > done
+          return (
+            <div key={i} style={{
+              display: "flex", alignItems: "center", gap: 10,
+              opacity: isPending ? 0.35 : 1,
+              transition: "opacity 0.25s"
+            }}>
+              <span style={{
+                width: 14, textAlign: "center", fontSize: 12,
+                color: isDone ? "var(--green)" : isRunning ? "var(--amber)" : "var(--dim)"
+              }}>
+                {isDone ? "✓" : isRunning ? "▸" : "·"}
+              </span>
+              <span style={{ fontSize: 12.5, color: isDone ? "var(--sub)" : "var(--text)" }}>
+                {s.label}
+                {isRunning && <span style={{ marginLeft: 6, color: "var(--amber)", animation: "pi-dots 1.4s infinite" }}>_</span>}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+      <style>{`
+        @keyframes pi-blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+        @keyframes pi-dots { 0%,100%{opacity:1} 50%{opacity:0} }
+      `}</style>
+    </div>
+  )
+}
+
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function PropertyIntelligence() {
+  useDocMeta({
+    title: "Property Intelligence",
+    description: "Live zoning, assessment, permit activity, rent estimate, comps, and AI thesis for any US or Canadian address.",
+  });
   const navigate = useNavigate()
   const { user, signOut, getAccessToken } = useAuth()
 
@@ -770,6 +844,22 @@ export default function PropertyIntelligence() {
   const [rentComps, setRentComps] = useState(null)
   const [caComps, setCaComps] = useState(null)
   const [cmhcData, setCmhcData] = useState(null)
+  // CMHC-anchored model estimate for Canadian addresses (RentCast has no CA coverage)
+  const [predictedRent, setPredictedRent] = useState(null)
+  const [predictBeds, setPredictBeds] = useState(2)
+
+  // Zoning + assessment + permits panel for Canadian addresses (Edmonton + Calgary live)
+  const [zoningData, setZoningData] = useState(null)
+  // AI thesis hint — one-sentence institutional insight over the zoning data.
+  // Lazy-fetched after zoning lands; doesn't block initial render.
+  const [zoningThesis, setZoningThesis] = useState(null)
+
+  // Tracks why property-lookup returned what it did, so we can show a helpful
+  // notice instead of the silent empty state on 403 (RentCast subscription down).
+  const [lookupStatus, setLookupStatus] = useState(null) // null | 'ok' | 'down' | 'not-found' | 'error'
+
+  // Save Deal — localStorage-backed, matches BRRRR/Commercial pattern
+  const [savedFlash, setSavedFlash] = useState(false)
 
   // Calculator
   const [activeTab, setActiveTab] = useState("flip")
@@ -816,30 +906,101 @@ export default function PropertyIntelligence() {
   async function handleSearch(overrideAddr) {
     const addr = overrideAddr || query
     if (!addr.trim()) return
+    // Persist recent searches (dedupe, cap at 8). Used by the empty-state.
+    try {
+      const prior = JSON.parse(localStorage.getItem("rde_recent_searches") || "[]")
+      const next = [addr.trim(), ...prior.filter(p => p !== addr.trim())].slice(0, 8)
+      localStorage.setItem("rde_recent_searches", JSON.stringify(next))
+    } catch {}
     setLoading(true)
     setProperty(null)
     setSaleComps(null)
     setRentComps(null)
     setCaComps(null)
     setCmhcData(null)
+    setPredictedRent(null)
+    setZoningData(null)
+    setZoningThesis(null)
+    setLookupStatus(null)
 
     const ca = isCanadian(addr)
 
     try {
       // Always fetch base property
       const propRes = await fetch(`/api/property-lookup?address=${encodeURIComponent(addr)}`)
-      const propData = propRes.ok ? await propRes.json() : null
-      setProperty(propData)
+      let propData = null
+      if (propRes.ok) {
+        propData = await propRes.json()
+        setLookupStatus("ok")
+      } else if (propRes.status === 403) {
+        // RentCast subscription / billing issue — keep the rest of the page useful
+        setLookupStatus("down")
+      } else if (propRes.status === 404) {
+        setLookupStatus("not-found")
+      } else {
+        setLookupStatus("error")
+      }
 
       if (ca) {
-        // Canadian: Realtor.ca + CMHC
-        const [caRes, cmhcRes] = await Promise.allSettled([
+        // Canadian: Realtor.ca + CMHC + per-property model rent + live zoning
+        const [caRes, cmhcRes, predRes, zonRes] = await Promise.allSettled([
           fetch(`/api/realtor-ca?address=${encodeURIComponent(addr)}`).then(r => r.ok ? r.json() : null),
           fetch(`/api/cmhc-rental?city=${encodeURIComponent(addr.split(",")[1]?.trim() || addr)}`).then(r => r.ok ? r.json() : null),
+          // Per-property rent from /api/predict-rent — RentCast has no CA coverage,
+          // so this is the only way to surface a *property-specific* rent estimate.
+          // Default to 2BR; user can refine via the inline bed selector.
+          fetch(`/api/predict-rent`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ address: addr, bedrooms: predictBeds }),
+          }).then(r => r.ok ? r.json() : null),
+          // Live zoning + assessment + permits (Edmonton + Calgary). Returns
+          // graceful { zoning: null, error: "..." } for unsupported cities.
+          fetch(`/api/zoning?address=${encodeURIComponent(addr)}`).then(r => r.ok ? r.json() : null),
         ])
         if (caRes.status === "fulfilled") setCaComps(caRes.value)
         if (cmhcRes.status === "fulfilled") setCmhcData(cmhcRes.value)
+        if (zonRes.status === "fulfilled") {
+          setZoningData(zonRes.value)
+          // Fire-and-forget AI thesis hint over the zoning data.
+          // 1-2 sentence insight, ~$0.0001/call on Haiku, doesn't block render.
+          if (zonRes.value?.zoning?.found) {
+            fetch(`/api/ai-chat`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                mode: "zoning-thesis",
+                zoning: zonRes.value.zoning,
+                assessment: zonRes.value.assessment,
+                permits: zonRes.value.nearbyPermits,
+                address: addr,
+              }),
+            }).then(r => r.ok ? r.json() : null)
+              .then(t => { if (t?.thesis) setZoningThesis(t) })
+              .catch(() => {})
+          }
+        }
+        if (predRes.status === "fulfilled" && predRes.value?.ok) {
+          setPredictedRent(predRes.value)
+          // Merge into property so the existing rent card renders. Mark the
+          // source so the UI can show "MODEL ESTIMATE" badge.
+          setProperty({
+            ...(propData || { address: addr }),
+            rentEstimate:     predRes.value.predictedRent,
+            rentEstimateLow:  predRes.value.range?.low,
+            rentEstimateHigh: predRes.value.range?.high,
+            rentSource:       "predicted",
+          })
+          // Seed the BRRRR/flip rental calculator with the model estimate.
+          setMonthlyRent(String(predRes.value.predictedRent))
+        } else {
+          // Even without rent, render the property header so zoning/comps still display
+          setProperty(propData || { address: addr })
+        }
       } else {
+        // Same fallback for US — if RentCast is down (403), still surface the address
+        // so the user sees we registered their search instead of the silent empty state.
+        setProperty(propData || { address: addr })
         // US: sale comps + rental comps
         const [saleRes, rentRes] = await Promise.allSettled([
           fetch(`/api/comps?type=sale&address=${encodeURIComponent(addr)}`).then(r => r.ok ? r.json() : null),
@@ -849,17 +1010,45 @@ export default function PropertyIntelligence() {
         if (rentRes.status === "fulfilled") setRentComps(rentRes.value)
       }
 
-      // Pre-fill calculator inputs
+      // Pre-fill calculator inputs from RentCast property data (US).
+      // Canadian rent is seeded inside the predict-rent success path above.
       if (propData) {
         if (propData.lastSalePrice) setPurchasePrice(String(propData.lastSalePrice))
         if (propData.estimatedValue) setArv(String(propData.estimatedValue))
-        if (propData.rentEstimate) setMonthlyRent(String(propData.rentEstimate))
+        if (!ca && propData.rentEstimate) setMonthlyRent(String(propData.rentEstimate))
       }
     } catch (err) {
       setProperty({ error: true, address: addr })
     }
 
     setLoading(false)
+  }
+
+  // ─── Re-predict rent when user changes the bedroom count inline ──────────
+  // Lightweight: only fires after a property is loaded for a Canadian address.
+  // Updates monthlyRent so the calculator below reflects the new estimate.
+  async function repredictRent(beds) {
+    setPredictBeds(beds)
+    if (!isCanadian(query) || !property?.address) return
+    try {
+      const res = await fetch(`/api/predict-rent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: property.address || query, bedrooms: beds }),
+      })
+      if (!res.ok) return
+      const data = await res.json()
+      if (!data?.ok) return
+      setPredictedRent(data)
+      setProperty(p => p ? {
+        ...p,
+        rentEstimate:     data.predictedRent,
+        rentEstimateLow:  data.range?.low,
+        rentEstimateHigh: data.range?.high,
+        rentSource:       "predicted",
+      } : p)
+      setMonthlyRent(String(data.predictedRent))
+    } catch {}
   }
 
   // ─── Calc: Flip ────────────────────────────────────────────────────────────
@@ -1053,17 +1242,129 @@ export default function PropertyIntelligence() {
               }
             </div>
 
-            {/* Empty state */}
-            {!loading && !property && (
-              <div className="pi-empty">
-                <div className="pi-empty-icon">🏠</div>
-                <div className="pi-empty-title">Property Intelligence Command Center</div>
-                <div className="pi-empty-sub">
-                  Enter any US or Canadian address above to instantly get estimated value,
-                  rental income, comparable sales, deal analysis calculators, and AI-powered insights — all in one place.
-                </div>
-              </div>
+            {/* Terminal loading sequence — makes the 3s search feel intentional */}
+            {loading && (
+              <TerminalLoader query={query} ca={isCanadian(query)} />
             )}
+
+            {/* Empty state — terminal redesigned */}
+            {!loading && !property && (() => {
+              const EXAMPLES = [
+                {addr:"2424 Westmount Rd NW, Calgary, AB",      tag:"R-CG · 4-plex zoning",    cls:"green"},
+                {addr:"10646 61 Avenue NW, Edmonton, AB",        tag:"RS · multifamily infill", cls:"green"},
+                {addr:"100 Front St W, Toronto, ON",             tag:"CMHC 2BR $2,345/mo",      cls:"blue"},
+                {addr:"1234 Robson St, Vancouver, BC",           tag:"Vancouver CMA",           cls:"purple"},
+              ]
+              let recent = []
+              try { recent = JSON.parse(localStorage.getItem("rde_recent_searches") || "[]").slice(0, 4) } catch {}
+
+              const dot = ({color}) => (
+                <span style={{width:6,height:6,borderRadius:"50%",background:color,display:"inline-block",marginRight:8,flexShrink:0}}/>
+              )
+
+              return (
+                <div style={{padding:"32px 0"}}>
+                  {/* Terminal banner */}
+                  <div style={{
+                    background:"var(--card)",border:"1px solid var(--borderf)",
+                    borderRadius:"var(--r-md,6px)",overflow:"hidden",
+                    maxWidth:720,margin:"0 auto"
+                  }}>
+                    <div style={{
+                      padding:"10px 16px",background:"rgba(59,158,255,0.04)",
+                      borderBottom:"1px solid var(--borderf)",
+                      display:"flex",alignItems:"center",gap:10
+                    }}>
+                      <span style={{width:8,height:8,borderRadius:"50%",background:"var(--green)",boxShadow:"0 0 8px var(--green)"}}/>
+                      <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,fontWeight:700,color:"var(--blue)",letterSpacing:"0.7px"}}>
+                        [ PROPERTY TERMINAL · IDLE · READY FOR ADDRESS ]
+                      </span>
+                    </div>
+                    <div style={{padding:"24px 28px"}}>
+                      <div style={{fontSize:18,fontWeight:800,color:"var(--text)",letterSpacing:"-0.3px",marginBottom:6}}>
+                        Drop an address. Get everything.
+                      </div>
+                      <div style={{fontSize:13,color:"var(--sub)",lineHeight:1.6,marginBottom:20}}>
+                        Live zoning, assessment, recent permits, CMHC-anchored rent, comps, and an AI thesis hint — all in one panel, in under 3 seconds.
+                      </div>
+
+                      {/* Recent searches if any */}
+                      {recent.length > 0 && (
+                        <div style={{marginBottom:18}}>
+                          <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--dim)",letterSpacing:"0.6px",marginBottom:8}}>
+                            ▸ RECENT SEARCHES
+                          </div>
+                          <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                            {recent.map((r,i) => (
+                              <button key={i} onClick={() => { setQuery(r); handleSearch(r); }}
+                                style={{
+                                  display:"flex",alignItems:"center",justifyContent:"space-between",
+                                  padding:"8px 12px",background:"rgba(255,255,255,0.02)",
+                                  border:"1px solid var(--borderf)",borderRadius:"var(--r-sm,4px)",
+                                  fontFamily:"'Fira Code',monospace",fontSize:12,color:"var(--text)",
+                                  cursor:"pointer",textAlign:"left",transition:"all 0.15s"
+                                }}
+                                onMouseOver={e => e.currentTarget.style.borderColor = "var(--blue)"}
+                                onMouseOut={e => e.currentTarget.style.borderColor = "var(--borderf)"}
+                              >
+                                <span>{r}</span>
+                                <span style={{color:"var(--dim)",fontSize:10}}>↵ RUN</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Try this — examples */}
+                      <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--dim)",letterSpacing:"0.6px",marginBottom:8}}>
+                        ▸ TRY THIS
+                      </div>
+                      <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                        {EXAMPLES.map(({addr, tag, cls}) => (
+                          <button key={addr} onClick={() => { setQuery(addr); handleSearch(addr); }}
+                            style={{
+                              display:"flex",alignItems:"center",justifyContent:"space-between",
+                              padding:"10px 12px",background:"rgba(255,255,255,0.02)",
+                              border:"1px solid var(--borderf)",borderRadius:"var(--r-sm,4px)",
+                              cursor:"pointer",textAlign:"left",transition:"all 0.15s"
+                            }}
+                            onMouseOver={e => e.currentTarget.style.borderColor = "var(--blue)"}
+                            onMouseOut={e => e.currentTarget.style.borderColor = "var(--borderf)"}
+                          >
+                            <div style={{display:"flex",alignItems:"center",flex:1,minWidth:0}}>
+                              {dot({color: cls==="green"?"var(--green)":cls==="blue"?"var(--blue)":"var(--purple)"})}
+                              <span style={{fontFamily:"'Fira Code',monospace",fontSize:12,color:"var(--text)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                                {addr}
+                              </span>
+                            </div>
+                            <span style={{
+                              fontFamily:"'Fira Code',monospace",fontSize:10,color:`var(--${cls})`,
+                              fontWeight:600,letterSpacing:"0.3px",marginLeft:10,whiteSpace:"nowrap"
+                            }}>
+                              {tag}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+
+                      <div style={{marginTop:18,paddingTop:14,borderTop:"1px solid var(--borderf)",display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12}}>
+                        {[
+                          {l:"COVERAGE",v:"US + Canada"},
+                          {l:"ZONING LIVE",v:"YEG + YYC"},
+                          {l:"CMHC CMAs",v:"26 cities"},
+                          {l:"AI MODEL",v:"Sonnet 4.6"},
+                        ].map(({l,v}) => (
+                          <div key={l}>
+                            <div style={{fontFamily:"'Fira Code',monospace",fontSize:9,fontWeight:700,color:"var(--dim)",letterSpacing:"0.7px"}}>{l}</div>
+                            <div style={{fontFamily:"'Fira Code',monospace",fontSize:12,color:"var(--text)",fontWeight:700,marginTop:3}}>{v}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )
+            })()}
 
             {/* ── Property Data (after search) ── */}
             {property && (
@@ -1083,7 +1384,75 @@ export default function PropertyIntelligence() {
                       </span>
                     </div>
                   </div>
+                  {/* Save Deal — persists property snapshot to localStorage */}
+                  <button
+                    onClick={() => {
+                      try {
+                        const snapshot = {
+                          id: Date.now(),
+                          type: "property-intel",
+                          address: property.address || query,
+                          savedAt: new Date().toISOString(),
+                          ca,
+                          rentEstimate: property.rentEstimate || null,
+                          rentSource: property.rentSource || null,
+                          estimatedValue: property.estimatedValue || null,
+                          zoning: zoningData?.zoning?.found ? {
+                            zone: zoningData.zoning.zone,
+                            maxUnits: zoningData.zoning.maxUnits,
+                            maxStoreys: zoningData.zoning.maxStoreys,
+                          } : null,
+                          assessment: zoningData?.assessment ? {
+                            assessedValue: zoningData.assessment.assessedValue,
+                            yearBuilt: zoningData.assessment.yearBuilt,
+                            neighbourhood: zoningData.assessment.neighbourhood,
+                          } : null,
+                          thesis: zoningThesis?.thesis || null,
+                        }
+                        const prior = JSON.parse(localStorage.getItem("rde_property_deals") || "[]")
+                        const next = [snapshot, ...prior.filter(d => d.address !== snapshot.address)].slice(0, 30)
+                        localStorage.setItem("rde_property_deals", JSON.stringify(next))
+                        setSavedFlash(true)
+                        setTimeout(() => setSavedFlash(false), 2400)
+                        celebrateFirstSave({ kind: "property", onNext: () => navigate("/compare") })
+                      } catch {}
+                    }}
+                    style={{
+                      fontFamily:"'Fira Code',monospace",fontSize:10.5,fontWeight:700,letterSpacing:"0.6px",
+                      padding:"8px 14px",
+                      border: savedFlash ? "1px solid var(--green)" : "1px solid rgba(59,158,255,0.4)",
+                      borderRadius:"var(--r-sm,4px)",
+                      color: savedFlash ? "var(--green)" : "var(--blue)",
+                      background: savedFlash ? "rgba(52,217,138,0.08)" : "rgba(59,158,255,0.06)",
+                      cursor:"pointer",whiteSpace:"nowrap",
+                      transition:"all 0.18s"
+                    }}>
+                    {savedFlash ? "✓ SAVED" : "💾 SAVE DEAL"}
+                  </button>
                 </div>
+
+                {/* Data provider down notice — surface only when there's no
+                    alternate data path that recovered for this address. */}
+                {lookupStatus === "down" && !property.rentEstimate && !zoningData?.zoning?.found && (
+                  <div style={{
+                    background:"rgba(240,160,48,0.06)",
+                    border:"1px solid rgba(240,160,48,0.25)",
+                    borderRadius:"var(--r-md,6px)",
+                    padding:"12px 14px",
+                    marginBottom:16,
+                    display:"flex",alignItems:"flex-start",gap:10
+                  }}>
+                    <span style={{fontSize:16,lineHeight:1}}>⚠️</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontFamily:"'Fira Code',monospace",fontSize:10,fontWeight:700,color:"var(--amber)",letterSpacing:"0.6px",marginBottom:3}}>
+                        DATA PROVIDER TEMPORARILY UNAVAILABLE
+                      </div>
+                      <div style={{fontSize:12.5,color:"var(--sub)",lineHeight:1.5}}>
+                        Property record lookup is offline. Zoning, rent estimate, and AI analysis can still run for supported markets.
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Property Facts Grid */}
                 {!property.error && (
@@ -1179,13 +1548,51 @@ export default function PropertyIntelligence() {
                     )}
                     {property.rentEstimate && (
                       <div className="pi-card" style={{ margin: 0 }}>
-                        <div className="pi-card-title">🏘️ Rental Estimate</div>
+                        <div className="pi-card-title" style={{display:"flex",alignItems:"center",gap:8}}>
+                          <span>🏘️ Rental Estimate</span>
+                          {property.rentSource === "predicted" && (
+                            <span style={{
+                              fontFamily:"'Fira Code',monospace",fontSize:9,fontWeight:700,
+                              letterSpacing:"0.7px",padding:"2px 6px",borderRadius:"var(--r-xs,2px)",
+                              border:"1px solid rgba(167,130,255,0.4)",color:"var(--purple)",
+                              background:"rgba(167,130,255,0.08)"
+                            }}>MODEL · CMHC-ANCHORED</span>
+                          )}
+                        </div>
                         <div style={{ fontSize: 28, fontWeight: 800, color: "var(--blue)", marginBottom: 4 }}>
                           {currency(property.rentEstimate)}/mo
                         </div>
                         {property.rentEstimateLow && property.rentEstimateHigh && (
                           <div style={{ fontSize: 12, color: "var(--sub)", marginBottom: 8 }}>
                             Range: {currency(property.rentEstimateLow)} – {currency(property.rentEstimateHigh)}
+                            {predictedRent?.range?.spreadPct && property.rentSource === "predicted" && (
+                              <span style={{color:"var(--dim)"}}> · ±{predictedRent.range.spreadPct}% spread</span>
+                            )}
+                          </div>
+                        )}
+                        {/* Bedroom selector — only for model-estimated rent (Canadian) */}
+                        {property.rentSource === "predicted" && (
+                          <div style={{marginTop:10,marginBottom:10}}>
+                            <div style={{fontSize:10,fontWeight:700,color:"var(--dim)",letterSpacing:"0.5px",textTransform:"uppercase",marginBottom:5}}>Unit type</div>
+                            <div style={{display:"flex",gap:4}}>
+                              {[
+                                {b:0, lbl:"Bach"},
+                                {b:1, lbl:"1BR"},
+                                {b:2, lbl:"2BR"},
+                                {b:3, lbl:"3BR+"},
+                              ].map(({b,lbl}) => (
+                                <button key={b} onClick={()=>repredictRent(b)}
+                                  style={{
+                                    flex:1,padding:"5px 0",fontSize:11,fontWeight:700,
+                                    fontFamily:"'Fira Code',monospace",
+                                    border:`1px solid ${predictBeds===b?"var(--blue)":"var(--borderf)"}`,
+                                    borderRadius:"var(--r-sm,4px)",
+                                    background:predictBeds===b?"rgba(59,158,255,0.12)":"transparent",
+                                    color:predictBeds===b?"var(--blue)":"var(--sub)",
+                                    cursor:"pointer",transition:"all 0.15s"
+                                  }}>{lbl}</button>
+                              ))}
+                            </div>
                           </div>
                         )}
                         {property.estimatedValue && (
@@ -1202,9 +1609,181 @@ export default function PropertyIntelligence() {
                             </div>
                           </>
                         )}
+                        {/* Predicted-rent breakdown — how the model got to the number */}
+                        {property.rentSource === "predicted" && predictedRent?.breakdown && (
+                          <div style={{marginTop:12,paddingTop:10,borderTop:"1px solid var(--borderf)"}}>
+                            <div style={{fontSize:10,fontWeight:700,color:"var(--dim)",letterSpacing:"0.5px",textTransform:"uppercase",marginBottom:6}}>How the model got there</div>
+                            <div style={{fontFamily:"'Fira Code',monospace",fontSize:11,color:"var(--sub)",lineHeight:1.7}}>
+                              <div style={{display:"flex",justifyContent:"space-between"}}>
+                                <span>{predictedRent.breakdown.base?.source || "CMHC base"}</span>
+                                <span style={{color:"var(--text)"}}>{currency(predictedRent.breakdown.base?.value)}</span>
+                              </div>
+                              {["size","age","condition","neighbourhood"].map(k => {
+                                const m = predictedRent.breakdown[k]
+                                if (!m || m.multiplier == null) return null
+                                return (
+                                  <div key={k} style={{display:"flex",justifyContent:"space-between"}}>
+                                    <span style={{color:"var(--dim)"}}>× {m.reason}</span>
+                                    <span style={{color: m.multiplier > 1 ? "var(--green)" : m.multiplier < 1 ? "var(--red)" : "var(--sub)"}}>×{m.multiplier?.toFixed(2)}</span>
+                                  </div>
+                                )
+                              })}
+                              <div style={{display:"flex",justifyContent:"space-between",marginTop:4,paddingTop:4,borderTop:"1px dashed var(--borderf)",color:"var(--blue)",fontWeight:700}}>
+                                <span>= predicted rent</span>
+                                <span>{currency(predictedRent.predictedRent)}/mo</span>
+                              </div>
+                            </div>
+                            <div style={{fontSize:10,color:"var(--dim)",marginTop:6,fontStyle:"italic"}}>{predictedRent.source}</div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
+                )}
+
+                {/* ── Live Zoning + Assessment + Permits (Edmonton + Calgary) ── */}
+                {zoningData?.zoning?.found && (
+                  <>
+                    <div className="pi-section-title">Zoning &amp; Development</div>
+                    <div style={{
+                      background:"var(--card)",border:"1px solid var(--borderf)",
+                      borderRadius:"var(--r-md,6px)",padding:0,marginBottom:20,overflow:"hidden"
+                    }}>
+                      {/* Terminal header: ZON code + live tag + bylaw link */}
+                      <div style={{
+                        padding:"10px 14px",background:"rgba(52,217,138,0.04)",
+                        borderBottom:"1px solid var(--borderf)",display:"flex",alignItems:"center",gap:10
+                      }}>
+                        <div style={{
+                          width:32,height:22,border:"1px solid rgba(52,217,138,0.4)",
+                          borderRadius:"var(--r-xs,2px)",display:"flex",alignItems:"center",justifyContent:"center",
+                          fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.5px"
+                        }}>ZON</div>
+                        <div style={{flex:1}}>
+                          <div style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"var(--green)",fontWeight:700,letterSpacing:"0.6px"}}>
+                            [ LIVE · {zoningData.zoning.city?.toUpperCase()} OPEN DATA ]
+                          </div>
+                          <div style={{fontSize:13,fontWeight:700,color:"var(--text)",marginTop:2}}>
+                            {zoningData.zoning.zone}{zoningData.zoning.zoneDescription ? ` — ${zoningData.zoning.zoneDescription}` : ""}
+                          </div>
+                        </div>
+                        {zoningData.zoning.bylawUrl && (
+                          <a href={zoningData.zoning.bylawUrl} target="_blank" rel="noopener" style={{
+                            fontFamily:"'Fira Code',monospace",fontSize:10,fontWeight:600,color:"var(--blue)",
+                            textDecoration:"none",padding:"4px 8px",border:"1px solid rgba(59,158,255,0.3)",borderRadius:"var(--r-xs,2px)"
+                          }}>BYLAW ↗</a>
+                        )}
+                      </div>
+
+                      {/* 2-column body — Zoning details left, Assessment right */}
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:1,background:"var(--borderf)"}}>
+                        {/* ── LEFT: Zoning details ───────────────────────── */}
+                        <div style={{background:"var(--card)",padding:"14px 16px"}}>
+                          <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.6px",marginBottom:10}}>
+                            ▸ ZONING
+                          </div>
+                          <div style={{display:"flex",flexDirection:"column",gap:7,fontSize:12.5}}>
+                            {[
+                              {lbl:"Zone",        val: `${zoningData.zoning.zone}${zoningData.zoning.zoneDescription ? ` — ${zoningData.zoning.zoneDescription}` : ""}`, mono:false, strong:true},
+                              {lbl:"Max storeys", val: zoningData.zoning.maxStoreys ?? "—", mono:true},
+                              {lbl:"Max height",  val: zoningData.zoning.maxHeightM ? `${zoningData.zoning.maxHeightM} m` : "—", mono:true},
+                              {lbl:"Max FAR",     val: zoningData.zoning.maxFAR ?? "—", mono:true},
+                              {lbl:"Max units",   val: zoningData.zoning.maxUnits ? `up to ${zoningData.zoning.maxUnits} dwelling${zoningData.zoning.maxUnits === 1 ? "" : "s"}` : "—", mono:false, strong:true},
+                            ].map(({lbl,val,mono,strong}) => (
+                              <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:10,paddingBottom:5,borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
+                                <span style={{color:"var(--sub)",fontSize:12}}>{lbl}</span>
+                                <span style={{
+                                  color:"var(--text)",
+                                  fontWeight: strong ? 700 : 500,
+                                  fontFamily: mono ? "'Fira Code',monospace" : "inherit",
+                                  textAlign:"right"
+                                }}>{val}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* ── RIGHT: Property Assessment OR empty state ───── */}
+                        <div style={{background:"var(--card)",padding:"14px 16px"}}>
+                          <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--amber)",letterSpacing:"0.6px",marginBottom:10}}>
+                            ▸ PROPERTY ASSESSMENT
+                          </div>
+                          {zoningData.assessment ? (
+                            <div style={{display:"flex",flexDirection:"column",gap:7,fontSize:12.5}}>
+                              {[
+                                {lbl:"Assessed value", val: zoningData.assessment.assessedValue ? currency(zoningData.assessment.assessedValue) : "—", mono:true, strong:true},
+                                {lbl:"Year built",     val: zoningData.assessment.yearBuilt ?? "—", mono:true},
+                                {lbl:"Neighbourhood",  val: zoningData.assessment.neighbourhood ?? "—", mono:false},
+                                {lbl:"Tax class",      val: zoningData.assessment.taxClass ?? zoningData.assessment.buildingClass ?? "—", mono:false},
+                                {lbl:"Garage",         val: zoningData.assessment.garage ?? "—", mono:false},
+                              ].map(({lbl,val,mono,strong}) => (
+                                <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:10,paddingBottom:5,borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
+                                  <span style={{color:"var(--sub)",fontSize:12}}>{lbl}</span>
+                                  <span style={{
+                                    color:"var(--text)",
+                                    fontWeight: strong ? 700 : 500,
+                                    fontFamily: mono ? "'Fira Code',monospace" : "inherit",
+                                    textAlign:"right"
+                                  }}>{val}</span>
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <div style={{fontSize:12.5,color:"var(--dim)",fontStyle:"italic",lineHeight:1.6,padding:"8px 0"}}>
+                              Not in residential assessment dataset (likely commercial parcel or address-match failed in city records).
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* ── Nearby permits — full width, all rows ─────────────── */}
+                      {zoningData.nearbyPermits?.length > 0 && (
+                        <div style={{padding:"12px 16px 14px",borderTop:"1px solid var(--borderf)"}}>
+                          <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--dim)",letterSpacing:"0.6px",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+                            <span>▸ NEARBY DEV PERMITS · {zoningData.nearbyPermits.length} IN 1KM / 2YR</span>
+                          </div>
+                          <div style={{display:"grid",gridTemplateColumns:"100px 1fr 1.4fr",gap:8,fontSize:10,fontWeight:700,color:"var(--dim)",letterSpacing:"0.5px",textTransform:"uppercase",paddingBottom:6,borderBottom:"1px solid var(--borderf)",fontFamily:"'Fira Code',monospace"}}>
+                            <span>Date</span><span>Work</span><span>Address</span>
+                          </div>
+                          <div style={{maxHeight:240,overflowY:"auto"}}>
+                            {zoningData.nearbyPermits.map((p, i) => (
+                              <div key={i} style={{display:"grid",gridTemplateColumns:"100px 1fr 1.4fr",gap:8,padding:"6px 0",borderBottom: i < zoningData.nearbyPermits.length - 1 ? "1px dashed rgba(255,255,255,0.04)" : "none",fontSize:11.5,alignItems:"baseline"}}>
+                                <span style={{fontFamily:"'Fira Code',monospace",color:"var(--dim)"}}>
+                                  {(p.permit_date || p.applieddate || "").slice(0,10) || "—"}
+                                </span>
+                                <span style={{color:"var(--sub)"}}>{p.work_type || p.permit_type || p.work_type_group || "—"}</span>
+                                <span style={{color:"var(--text)",fontFamily:"'Fira Code',monospace",fontSize:11}}>{p.address || p.house_number || "—"}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── AI Thesis Hint — green callout, fades in when fetched ── */}
+                      {zoningThesis?.thesis && (
+                        <div style={{
+                          margin:"0 16px 14px",
+                          padding:"12px 14px",
+                          background:"rgba(52,217,138,0.06)",
+                          borderLeft:"3px solid var(--green)",
+                          borderRadius:"0 var(--r-sm,4px) var(--r-sm,4px) 0",
+                          display:"flex",
+                          gap:10,
+                          alignItems:"flex-start"
+                        }}>
+                          <span style={{fontSize:14,lineHeight:1.4}}>🤖</span>
+                          <div style={{flex:1}}>
+                            <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:4}}>
+                              AI THESIS HINT {zoningThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:6}}>· {zoningThesis.source}</span>}
+                            </div>
+                            <div style={{fontSize:12.5,color:"var(--text)",lineHeight:1.55}}>
+                              {zoningThesis.thesis}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </>
                 )}
 
                 {/* Market Snapshot */}

@@ -1,6 +1,12 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, lazy, Suspense } from "react";
 import { exportMFPDF } from "./pdfExport";
 import { useAuth } from "./AuthContext";
+import { irr as solveIRR, withCumulative } from "./lib/finance";
+import { useDocMeta } from "./lib/seo";
+import { celebrateFirstSave } from "./lib/celebrate";
+
+// Lazy-load charts (recharts is the heavy dep)
+const CommercialCharts = lazy(() => import("./components/CommercialCharts"));
 
 const num = v => parseFloat(String(v).replace(/,/g,"")) || 0;
 const fmt  = n => new Intl.NumberFormat("en-CA",{style:"currency",currency:"CAD",maximumFractionDigits:0}).format(n||0);
@@ -32,7 +38,6 @@ const DEFAULT_UNITS = [
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#07090f;--card:#0d1119;--card2:#0a0e18;--border:rgba(59,158,255,0.12);--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;--amber:#f0a030;--purple:#a782ff}
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
   input,select{font-family:'DM Sans',sans-serif}
 
@@ -198,10 +203,15 @@ function Field({label, value, onChange, type="number", prefix}) {
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function CommercialAnalyzer() {
+  useDocMeta({
+    title: "Multifamily Underwriter",
+    description: "Institutional multifamily underwriting: NOI, cap rate, DSCR, true IRR, year-by-year cash flow, sensitivity grids, and AI thesis hint.",
+  });
   const { user, signOut, getSubscription } = useAuth();
   const [isPro, setIsPro]       = useState(false);
   const [proChecked, setProChecked] = useState(false);
   const [mfSaved, setMfSaved] = useState(false);
+  const [aiThesis, setAiThesis] = useState(null);
 
   useEffect(() => {
     async function check() {
@@ -337,14 +347,10 @@ export default function CommercialAnalyzer() {
     const sellCosts  = exitVal * (num(closingSellPct)/100);
     const loanBal    = loanBalance(loanAmt, num(interestRate), num(amortYears), hold);
     const netProceeds= exitVal - sellCosts - loanBal;
-    const totalCF    = BTCF * hold;
-    const totalReturn= netProceeds + totalCF;
-    const eqMultiple = totalCashIn > 0 ? totalReturn/totalCashIn : 0;
-    const annReturn  = eqMultiple > 0 ? Math.pow(eqMultiple, 1/hold) - 1 : 0;
 
-    // 5-year projection
-    const years = [1,2,3,4,5];
-    const proj = years.map(yr => {
+    // Year-by-year projection — length follows holdYears (was hardcoded to 5).
+    const years = Array.from({length: Math.max(1, hold)}, (_, i) => i + 1);
+    const projBase = years.map(yr => {
       const gprYr   = GPR * Math.pow(1+rg, yr-1);
       const vacYr   = -gprYr * (num(vacancyPct)/100);
       const egiYr   = gprYr + vacYr + other;
@@ -355,6 +361,31 @@ export default function CommercialAnalyzer() {
       const cocYr   = totalCashIn > 0 ? btcfYr/totalCashIn : 0;
       return {yr, gprYr, vacYr, egiYr, opexYr, noiYr, btcfYr, dscrYr, cocYr};
     });
+    const proj = withCumulative(projBase, "btcfYr", "cumBtcf");
+
+    // Use REAL summed BTCF (was BTCF × hold — Yr1 amount × years, ignoring growth).
+    const totalCF    = proj.reduce((a, p) => a + p.btcfYr, 0);
+    const totalReturn= netProceeds + totalCF;
+    const eqMultiple = totalCashIn > 0 ? totalReturn/totalCashIn : 0;
+    // CAGR — kept for backwards-compat comparison. NOT the same as IRR.
+    const annReturn  = eqMultiple > 0 ? Math.pow(eqMultiple, 1/hold) - 1 : 0;
+
+    // True IRR — solve NPV = 0 across actual yearly cash flows.
+    //   Year 0:    -totalCashIn (equity in)
+    //   Year 1..N: +BTCF_yr
+    //   Year N also gets +netProceeds (lumped into the exit year)
+    const irrFlows = [-totalCashIn, ...proj.map((p,i) =>
+      i === proj.length - 1 ? p.btcfYr + netProceeds : p.btcfYr
+    )];
+    const irrValue = solveIRR(irrFlows);
+
+    // Cumulative cash-out-of-pocket curve for the equity-buildup area chart.
+    // At year 0 the investor is -totalCashIn; each year adds BTCF; exit
+    // year also adds netProceeds. Crossing zero = capital recovered.
+    const equityCurve = [{ yr: 0, cum: -totalCashIn }, ...proj.map((p, i) => ({
+      yr: p.yr,
+      cum: -totalCashIn + p.cumBtcf + (i === proj.length - 1 ? netProceeds : 0),
+    }))];
 
     // Sensitivity: DSCR & CoC vs vacancy rates at different interest rates
     const vacRates = [3,5,7,10,12,15];
@@ -372,6 +403,34 @@ export default function CommercialAnalyzer() {
       return totalCashIn > 0 ? (noi2-ads2)/totalCashIn : 0;
     }));
 
+    // ── Exit-driven sensitivity: IRR across rent growth × exit cap ────
+    // Recomputes the full proj for each rent-growth value, then exit value
+    // at each cap rate. This is the classic institutional grid that drives
+    // the deal-or-no-deal call once leverage is decided.
+    const rgValues = [0, 0.01, 0.02, 0.03, 0.04, 0.05];
+    const ecValues = [0.045, 0.05, 0.055, 0.06, 0.065, 0.07];
+    const sensIRR = rgValues.map(rgX => {
+      // Build projection at this rent growth
+      const projX = years.map(yr => {
+        const gprYr  = GPR * Math.pow(1+rgX, yr-1);
+        const vacYr  = -gprYr * (num(vacancyPct)/100);
+        const egiYr  = gprYr + vacYr + other;
+        const opexYr = totalOpex * Math.pow(1+og, yr-1);
+        const noiYr  = egiYr - opexYr;
+        return noiYr - ADS;
+      });
+      const yrNOI_X = NOI * Math.pow(1+rgX, hold);
+      return ecValues.map(ecX => {
+        const exitValX = ecX > 0 ? yrNOI_X / ecX : 0;
+        const sellX = exitValX * (num(closingSellPct)/100);
+        const netX = exitValX - sellX - loanBal;
+        if (totalCashIn <= 0) return 0;
+        // IRR over [-cashIn, ...btcf, +netProceeds at hold-end]
+        const flows = [-totalCashIn, ...projX.map((b, i) => i === projX.length - 1 ? b + netX : b)];
+        return solveIRR(flows) || 0;
+      });
+    });
+
     return {
       totalUnits, gprCurrent, gprMarket, rentUpside,
       GPR, vacancyLoss, other, EGI,
@@ -382,7 +441,9 @@ export default function CommercialAnalyzer() {
       monthlyPMT, ADS, DSCR,
       totalCashIn, BTCF, CoC, cfPerUnit, BER, yieldOnCost,
       yr5NOI, exitVal, sellCosts, loanBal, netProceeds, totalCF, totalReturn, eqMultiple, annReturn,
+      irr: irrValue, equityCurve,
       proj, sensDSCR, sensCoC, vacRates, intRates,
+      sensIRR, rgValues, ecValues,
     };
   }, [unitMix, purchasePrice, downPct, renoBudget, vacancyPct, otherIncome,
       holdYears, rentGrowth, opexGrowth, entryCap, exitCap, interestRate, amortYears,
@@ -390,6 +451,42 @@ export default function CommercialAnalyzer() {
       utilities, landscape, advertising, admin, resPerUnit]);
 
   const c = calc;
+
+  // ── Deal Thesis Hint (Haiku) — debounced fetch on metrics change ───────
+  useEffect(() => {
+    if (!c) return;
+    const handle = setTimeout(() => {
+      fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "deal-thesis",
+          strategy: "Multifamily",
+          address: propertyAddress,
+          metrics: {
+            totalUnits:   c.totalUnits,
+            NOI:          c.NOI,
+            capRate:      c.actualCap,
+            DSCR:         c.DSCR,
+            coc:          c.CoC,
+            GRM:          c.GRM,
+            OER:          c.OER,
+            yieldOnCost:  c.yieldOnCost,
+            irr:          c.irr,
+            eqMultiple:   c.eqMultiple,
+            annReturn:    c.annReturn,
+            BTCF:         c.BTCF,
+            exitVal:      c.exitVal,
+            netProceeds:  c.netProceeds,
+          },
+        }),
+      })
+        .then(r => r.ok ? r.json() : null)
+        .then(t => { if (t?.thesis) setAiThesis(t); })
+        .catch(() => {});
+    }, 600);
+    return () => clearTimeout(handle);
+  }, [c?.NOI, c?.DSCR, c?.CoC, c?.irr, c?.eqMultiple, propertyAddress]);
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -429,6 +526,38 @@ export default function CommercialAnalyzer() {
           <div className="mf-tag">🎉 Free During Launch · Multifamily Underwriter</div>
           <h1>Commercial Deal Analysis</h1>
           <p>Full institutional underwriting — NOI, DSCR, cap rate, 5-year projections, sensitivity analysis. Everything a lender or investor wants to see.</p>
+
+          {/* Try Sample Deal — activation primer */}
+          <div style={{display:"inline-flex",alignItems:"center",gap:10,marginTop:14,padding:"8px 14px",background:"rgba(52,217,138,0.08)",border:"1px solid rgba(52,217,138,0.3)",borderRadius:"var(--r-sm,4px)"}}>
+            <span style={{fontFamily:"'Fira Code',monospace",fontSize:10.5,color:"var(--green)",fontWeight:700,letterSpacing:"0.6px"}}>NEW HERE?</span>
+            <button
+              type="button"
+              onClick={() => {
+                setUnitMix([
+                  {type:"Bachelor / Studio", units:6, sqft:560, currentRent:1100, marketRent:1250},
+                  {type:"1 Bed / 1 Bath",    units:10,sqft:720, currentRent:1450, marketRent:1600},
+                  {type:"2 Bed / 1 Bath",    units:6, sqft:920, currentRent:1800, marketRent:1950},
+                  {type:"3 Bed / 2 Bath",    units:2, sqft:1180,currentRent:2200, marketRent:2400},
+                ]);
+                setPurchasePrice(4200000); setDownPct(25); setRenoBudget(180000);
+                setVacancyPct(6); setOtherIncome(5500); setHoldYears(5);
+                setRentGrowth(3); setOpexGrowth(2); setEntryCap(5.5); setExitCap(5.75);
+                setInterestRate(6.25); setAmortYears(30);
+                setClosingBuyPct(1.5); setClosingSellPct(4.0);
+                setPropTax(22000); setInsurance(9500); setMgmtPct(8);
+                setMaintPerUnit(950); setUtilities(7200); setLandscape(4800);
+                setAdvertising(2400); setAdmin(3600); setResPerUnit(450);
+                setPropertyAddress("8814 99 St NW, Edmonton, AB");
+                setTimeout(() => window.scrollTo({top: window.scrollY + 500, behavior: "smooth"}), 80);
+              }}
+              style={{
+                fontFamily:"'Fira Code',monospace",fontSize:11,fontWeight:700,letterSpacing:"0.6px",
+                padding:"6px 14px",border:"1px solid var(--green)",borderRadius:"var(--r-sm,4px)",
+                color:"#07090f",background:"var(--green)",cursor:"pointer"
+              }}>
+              ▶ LOAD EDMONTON 24-UNIT
+            </button>
+          </div>
         </div>
 
         {/* ── DEAL RED FLAGS ────────────────────────────────────────────────── */}
@@ -468,6 +597,25 @@ export default function CommercialAnalyzer() {
         {/* ── SCORECARD ─────────────────────────────────────────────────────── */}
         <div className="mf-card" style={{marginBottom:24}}>
           <SectionHead title="Deal Scorecard" sub="Live"/>
+          {/* AI Thesis at the top — the insight is the headline, numbers are the proof */}
+          {aiThesis?.thesis && (
+            <div style={{
+              margin:"14px 20px 4px",padding:"14px 16px",
+              background:"linear-gradient(135deg, rgba(52,217,138,0.10), rgba(59,158,255,0.04))",
+              border:"1px solid rgba(52,217,138,0.35)",
+              borderLeft:"4px solid var(--green)",
+              borderRadius:"var(--r-md,6px)",
+              display:"flex",gap:12,alignItems:"flex-start"
+            }}>
+              <span style={{fontSize:18,lineHeight:1.4}}>🤖</span>
+              <div style={{flex:1}}>
+                <div style={{fontFamily:"'Fira Code',monospace",fontSize:10,fontWeight:700,color:"var(--green)",letterSpacing:"0.8px",marginBottom:5}}>
+                  AI THESIS{aiThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:8}}>· {aiThesis.source}</span>}
+                </div>
+                <div style={{fontSize:14,color:"var(--text)",lineHeight:1.55,letterSpacing:"-0.1px"}}>{aiThesis.thesis}</div>
+              </div>
+            </div>
+          )}
           <div className="mf-scorecard">
             {[
               {lbl:"NOI",          val:fmt(c.NOI),         color:"var(--green)", bench:"Net Operating Income"},
@@ -691,7 +839,7 @@ export default function CommercialAnalyzer() {
           <MetricRow label="Less: Remaining Loan Balance" value={fmt(-c.loanBal)} bench="Remaining mortgage principal at sale" indent isNeg/>
           <MetricRow label="NET SALE PROCEEDS (Equity Out)" value={fmt(c.netProceeds)} bench="Exit value − costs − loan balance" bold color="pos"/>
           <div style={{height:1,background:"var(--borderf)",margin:"4px 0"}}/>
-          <MetricRow label={`Total Cash Flow Over Hold (${holdYears} yrs)`} value={fmt(c.totalCF)} bench="Yr1 BTCF × hold years (simplified)" indent/>
+          <MetricRow label={`Total Cash Flow Over Hold (${holdYears} yrs)`} value={fmt(c.totalCF)} bench="Sum of year-by-year BTCF (with rent + opex growth)" indent/>
           <MetricRow label="Total Return" value={fmt(c.totalReturn)} bench="Net proceeds + total cash flow" indent bold/>
           <div className="mf-metric-row total" style={{background:"rgba(52,217,138,0.05)"}}>
             <span className="mf-metric-label bold" style={{fontSize:15}}>Equity Multiple</span>
@@ -699,19 +847,24 @@ export default function CommercialAnalyzer() {
             <span className="mf-metric-bench">2.0x over {holdYears}yr = strong / 1.5x = ok</span>
             <span className="mf-metric-status"><Badge val={c.eqMultiple} good={2.0} warn={1.5}/></span>
           </div>
-          <MetricRow label="Annualised Return" value={fmtPct(c.annReturn)} bench={`Equity Multiple^(1/${holdYears}) − 1`} bold color="pos"
-            badge={<Badge val={c.annReturn} good={0.15} warn={0.10}/>}/>
+          <div className="mf-metric-row total" style={{background:"rgba(59,158,255,0.05)"}}>
+            <span className="mf-metric-label bold" style={{fontSize:15}}>IRR (true)</span>
+            <span className="mf-metric-val bold" style={{fontSize:18,color:c.irr!=null && c.irr>=0.15?"var(--green)":c.irr!=null && c.irr>=0.10?"var(--amber)":"var(--red)"}}>{c.irr!=null?fmtPct(c.irr):"—"}</span>
+            <span className="mf-metric-bench">NPV-solver across actual yearly CFs + exit. LP standard.</span>
+            <span className="mf-metric-status">{c.irr!=null && <Badge val={c.irr} good={0.15} warn={0.10}/>}</span>
+          </div>
+          <MetricRow label="Annualised Return (CAGR)" value={fmtPct(c.annReturn)} bench={`Equity Multiple^(1/${holdYears}) − 1. Differs from IRR — IRR weights early CFs more.`} indent color="pos"/>
         </div>
 
-        {/* ── 5-YEAR PROJECTION ─────────────────────────────────────────────── */}
+        {/* ── YEAR-BY-YEAR PROJECTION ───────────────────────────────────────── */}
         <div className="mf-card">
-          <SectionHead title="5-Year Cash Flow Projection" sub={`${rentGrowth}% rent growth / ${opexGrowth}% OpEx growth`}/>
+          <SectionHead title={`${holdYears}-Year Cash Flow Projection`} sub={`${rentGrowth}% rent growth / ${opexGrowth}% OpEx growth`}/>
           <div style={{overflowX:"auto",padding:"0 0 12px"}}>
-            <table className="mf-proj-table" style={{minWidth:640}}>
+            <table className="mf-proj-table" style={{minWidth:Math.max(640, 160 + 90*c.proj.length)}}>
               <thead>
                 <tr>
                   <th style={{textAlign:"left",paddingLeft:20}}>Line Item</th>
-                  {[1,2,3,4,5].map(y=><th key={y}>Year {y}</th>)}
+                  {c.proj.map(p=><th key={p.yr}>Year {p.yr}</th>)}
                   <th>Total</th>
                 </tr>
               </thead>
@@ -735,7 +888,7 @@ export default function CommercialAnalyzer() {
                     </tr>
                   );
                 })}
-                <tr className="proj-section"><td colSpan={7} style={{paddingLeft:20}}>Key Metrics by Year</td></tr>
+                <tr className="proj-section"><td colSpan={c.proj.length + 2} style={{paddingLeft:20}}>Key Metrics by Year</td></tr>
                 <tr>
                   <td style={{paddingLeft:20}}>DSCR</td>
                   {c.proj.map((p,i)=><td key={i} style={{color:p.dscrYr>=1.25?"var(--green)":p.dscrYr>=1.0?"var(--amber)":"var(--red)"}}>{fmtX(p.dscrYr)}</td>)}
@@ -750,6 +903,17 @@ export default function CommercialAnalyzer() {
             </table>
           </div>
         </div>
+
+        {/* ── VISUAL ANALYTICS (lazy-loaded) ─────────────────────────────────── */}
+        <Suspense fallback={
+          <div className="mf-card" style={{borderRadius:6,padding:"40px 16px",textAlign:"center"}}>
+            <div style={{fontFamily:"'Fira Code',monospace",fontSize:11,color:"var(--dim)",letterSpacing:"0.6px"}}>
+              ▸ LOADING CHARTS…
+            </div>
+          </div>
+        }>
+          <CommercialCharts c={c} holdYears={holdYears}/>
+        </Suspense>
 
         {/* ── SENSITIVITY ANALYSIS ──────────────────────────────────────────── */}
         <div className="mf-card">
@@ -807,6 +971,37 @@ export default function CommercialAnalyzer() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          {/* IRR grid: rent growth × exit cap (the institutional exit-driven view) */}
+          <div style={{padding:"0 20px 20px"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:8,fontFamily:"'Fira Code',monospace"}}>
+              ▸ IRR · RENT GROWTH × EXIT CAP RATE
+            </div>
+            <div style={{overflowX:"auto"}}>
+              <table className="mf-sens-table">
+                <thead>
+                  <tr>
+                    <th>Rent Growth ↓ / Exit Cap →</th>
+                    {c.ecValues.map(ec => <th key={ec}>{(ec*100).toFixed(2)}%</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {c.sensIRR.map((row, ri) => (
+                    <tr key={ri}>
+                      <td className="sens-label">{(c.rgValues[ri]*100).toFixed(0)}% rent / yr</td>
+                      {row.map((val, ci) => {
+                        const cls = val >= 0.15 ? "mf-sens-good" : val >= 0.10 ? "mf-sens-warn" : "mf-sens-bad";
+                        return <td key={ci} className={cls}>{fmtPct(val)}</td>;
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{fontSize:10.5,color:"var(--dim)",marginTop:8,fontFamily:"'Fira Code',monospace"}}>
+              Holds vacancy, opex growth, interest rate, hold years constant. Green ≥ 15% / Amber ≥ 10% / Red &lt; 10%.
             </div>
           </div>
         </div>
@@ -873,6 +1068,7 @@ export default function CommercialAnalyzer() {
               localStorage.setItem("rde_brrrr_deals", JSON.stringify(existing.slice(0, 20)));
               setMfSaved(true);
               setTimeout(() => setMfSaved(false), 5000);
+              celebrateFirstSave({ kind: "multifamily" });
             }}
             style={{width:"100%",background:"linear-gradient(135deg,rgba(52,217,138,0.12),rgba(59,158,255,0.08))",border:"1px solid rgba(52,217,138,0.25)",borderRadius:12,padding:"14px 18px",color:"var(--text)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}
           >

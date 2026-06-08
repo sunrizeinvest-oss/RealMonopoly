@@ -58,12 +58,6 @@ function saveAlerts(arr) {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#07090f;--card:#0d1119;--card2:#0a0e18;
-    --borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;
-    --dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;
-    --amber:#f0a030;--purple:#a782ff
-  }
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* ── Nav ── */
@@ -83,7 +77,7 @@ const CSS = `
 
   /* ── Hero ── */
   .da-hero{text-align:center;margin-bottom:40px}
-  .da-hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(59,158,255,0.1);border:1px solid rgba(59,158,255,0.25);border-radius:99px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--blue);margin-bottom:16px;letter-spacing:0.2px}
+  .da-hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(59,158,255,0.1);border:1px solid rgba(59,158,255,0.25);border-radius:3px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--blue);margin-bottom:16px;letter-spacing:0.2px}
   .da-hero-title{font-size:36px;font-weight:800;letter-spacing:-1px;line-height:1.1;margin-bottom:10px;color:var(--text)}
   .da-hero-sub{font-size:15px;color:var(--sub);line-height:1.6;max-width:520px;margin:0 auto}
 
@@ -92,7 +86,7 @@ const CSS = `
   .da-section-title::after{content:'';flex:1;height:1px;background:var(--borderf)}
 
   /* ── Create form card ── */
-  .da-form-card{background:var(--card);border:1px solid var(--borderf);border-radius:20px;padding:28px 28px 24px;margin-bottom:40px}
+  .da-form-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:28px 28px 24px;margin-bottom:40px}
   .da-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
   @media(max-width:560px){.da-form-grid{grid-template-columns:1fr}}
   .da-form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
@@ -101,13 +95,13 @@ const CSS = `
   .da-field{display:flex;flex-direction:column;gap:5px}
   .da-field.full{grid-column:1/-1}
   .da-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
-  .da-input{background:var(--card2);border:1px solid var(--borderf);border-radius:10px;padding:10px 14px;font-size:14px;font-weight:500;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:border-color 0.15s;-moz-appearance:textfield}
+  .da-input{background:var(--card2);border:1px solid var(--borderf);border-radius:6px;padding:10px 14px;font-size:14px;font-weight:500;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:border-color 0.15s;-moz-appearance:textfield}
   .da-input::-webkit-outer-spin-button,.da-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .da-input:focus{border-color:var(--blue)}
   .da-input::placeholder{color:var(--dim)}
 
   /* Country toggle */
-  .da-toggle{display:flex;background:var(--card2);border:1px solid var(--borderf);border-radius:10px;padding:3px;gap:3px}
+  .da-toggle{display:flex;background:var(--card2);border:1px solid var(--borderf);border-radius:6px;padding:3px;gap:3px}
   .da-toggle-btn{flex:1;padding:8px 12px;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;background:transparent;color:var(--sub)}
   .da-toggle-btn.on{background:var(--blue);color:#fff}
 
@@ -124,18 +118,18 @@ const CSS = `
   .da-type-btn.on{background:rgba(167,130,255,0.12);border-color:rgba(167,130,255,0.4);color:var(--purple)}
 
   /* Create button */
-  .da-create-btn{width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:-0.2px;transition:opacity 0.15s;margin-top:8px}
+  .da-create-btn{width:100%;padding:13px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;letter-spacing:-0.2px;transition:opacity 0.15s;margin-top:8px}
   .da-create-btn:hover{opacity:0.88}
   .da-create-btn:disabled{opacity:0.45;cursor:not-allowed}
 
   /* ── Toast ── */
-  .da-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--green);color:#07090f;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:800;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:da-fadein 0.2s ease}
+  .da-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--green);color:#07090f;border-radius:6px;padding:12px 24px;font-size:14px;font-weight:800;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:da-fadein 0.2s ease}
   @keyframes da-fadein{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
   /* ── Alert cards ── */
   .da-empty{text-align:center;padding:48px 20px;color:var(--sub);font-size:14px}
   .da-empty-icon{font-size:36px;margin-bottom:12px}
-  .da-alert-card{background:var(--card);border:1px solid var(--borderf);border-radius:18px;margin-bottom:16px;overflow:hidden;transition:border-color 0.2s}
+  .da-alert-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;margin-bottom:16px;overflow:hidden;transition:border-color 0.2s}
   .da-alert-card:hover{border-color:rgba(255,255,255,0.12)}
   .da-alert-head{padding:20px 22px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
   .da-alert-left{flex:1;min-width:0}
@@ -143,7 +137,7 @@ const CSS = `
   .da-alert-meta{font-size:13px;color:var(--sub);line-height:1.5}
   .da-alert-meta strong{color:var(--text);font-weight:600}
   .da-alert-badges{display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap}
-  .da-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:0.2px}
+  .da-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:700;letter-spacing:0.2px}
   .da-badge-green{background:rgba(52,217,138,0.1);color:var(--green);border:1px solid rgba(52,217,138,0.2)}
   .da-badge-blue{background:rgba(59,158,255,0.1);color:var(--blue);border:1px solid rgba(59,158,255,0.15)}
   .da-badge-sub{background:rgba(107,125,150,0.12);color:var(--sub);border:1px solid var(--borderf)}
@@ -168,7 +162,7 @@ const CSS = `
   .da-results-none{font-size:13px;color:var(--sub);padding:4px 0 8px}
   .da-listing-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   @media(max-width:560px){.da-listing-grid{grid-template-columns:1fr}}
-  .da-listing-card{background:var(--card2);border:1px solid var(--borderf);border-radius:12px;padding:14px 16px;transition:border-color 0.15s}
+  .da-listing-card{background:var(--card2);border:1px solid var(--borderf);border-radius:6px;padding:14px 16px;transition:border-color 0.15s}
   .da-listing-card:hover{border-color:rgba(59,158,255,0.3)}
   .da-listing-addr{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .da-listing-city{font-size:11px;color:var(--sub);margin-bottom:8px}
@@ -184,15 +178,15 @@ const CSS = `
   .da-how{margin-top:56px}
   .da-how-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:4px}
   @media(max-width:640px){.da-how-cards{grid-template-columns:1fr}}
-  .da-how-card{background:var(--card);border:1px solid var(--borderf);border-radius:16px;padding:22px 20px}
-  .da-how-num{width:32px;height:32px;border-radius:10px;background:rgba(59,158,255,0.1);border:1px solid rgba(59,158,255,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--blue);margin-bottom:14px}
+  .da-how-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:22px 20px}
+  .da-how-num{width:32px;height:32px;border-radius:6px;background:rgba(59,158,255,0.1);border:1px solid rgba(59,158,255,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--blue);margin-bottom:14px}
   .da-how-title{font-size:14px;font-weight:800;color:var(--text);margin-bottom:6px}
   .da-how-text{font-size:13px;color:var(--sub);line-height:1.6}
-  .da-how-note{margin-top:18px;padding:14px 18px;background:rgba(167,130,255,0.06);border:1px solid rgba(167,130,255,0.15);border-radius:12px;font-size:13px;color:var(--sub);line-height:1.6}
+  .da-how-note{margin-top:18px;padding:14px 18px;background:rgba(167,130,255,0.06);border:1px solid rgba(167,130,255,0.15);border-radius:6px;font-size:13px;color:var(--sub);line-height:1.6}
   .da-how-note strong{color:var(--purple)}
 
   /* ── Error state ── */
-  .da-error{background:rgba(242,92,92,0.08);border:1px solid rgba(242,92,92,0.2);border-radius:10px;padding:12px 16px;font-size:13px;color:var(--red);margin-top:8px}
+  .da-error{background:rgba(242,92,92,0.08);border:1px solid rgba(242,92,92,0.2);border-radius:6px;padding:12px 16px;font-size:13px;color:var(--red);margin-top:8px}
 `;
 
 // ─── Component ────────────────────────────────────────────────────────────────

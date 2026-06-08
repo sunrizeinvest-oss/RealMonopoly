@@ -252,7 +252,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   align-items: center;
   gap: 16px;
 }
-.sd-score-label {
+.sd-score-label {font-family:'Fira Code',ui-monospace,monospace;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
@@ -260,7 +260,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   color: #6b7d96;
   margin-bottom: 4px;
 }
-.sd-score-value {
+.sd-score-value {font-family:'Fira Code',ui-monospace,monospace;
   font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.3px;

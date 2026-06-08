@@ -32,6 +32,28 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: `Webhook Error: ${err.message}` });
   }
 
+  // ── Idempotency check — Stripe retries webhooks at-least-once.
+  // First-write-wins on event.id; if we've already processed this event,
+  // short-circuit and return 200 so Stripe stops retrying.
+  // Requires Supabase table (run once in SQL editor):
+  //   CREATE TABLE IF NOT EXISTS processed_stripe_events (
+  //     event_id TEXT PRIMARY KEY,
+  //     processed_at TIMESTAMPTZ DEFAULT now()
+  //   );
+  const { error: dedupeErr } = await supabase
+    .from('processed_stripe_events')
+    .insert({ event_id: event.id });
+  if (dedupeErr) {
+    // 23505 = unique violation → already processed
+    if (dedupeErr.code === '23505') {
+      console.log('Stripe event already processed:', event.id);
+      return res.status(200).json({ received: true, duplicate: true });
+    }
+    // Table missing or other error → fail-open (log + continue) so we don't
+    // block real webhook processing on infra hiccups
+    console.warn('Idempotency check skipped:', dedupeErr.message);
+  }
+
   const session = event.data.object;
 
   switch (event.type) {

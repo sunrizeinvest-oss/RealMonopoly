@@ -69,7 +69,6 @@ function scoreDeal(purchasePrice, repairCost, arvMid, rentMid) {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#07090f;--card:#0d1119;--card2:#0a0e18;--border:rgba(59,158,255,0.12);--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;--amber:#f0a030}
   html,body{overflow-x:hidden}
   body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
   input,select,textarea{font-size:16px!important;font-family:'DM Sans',sans-serif}
@@ -328,6 +327,39 @@ export default function DealAnalyzer() {
             </div>
           </div>
           <div className="da-card-body">
+            {/* Try Sample Deal — activation primer */}
+            <div style={{
+              background:"linear-gradient(135deg, rgba(52,217,138,0.08), rgba(59,158,255,0.06))",
+              border:"1px solid rgba(52,217,138,0.25)",
+              borderRadius:"var(--r-md,6px)",
+              padding:"10px 12px",marginBottom:14,
+              display:"flex",alignItems:"center",justifyContent:"space-between",gap:10
+            }}>
+              <div>
+                <div style={{fontFamily:"'Fira Code',monospace",fontSize:9,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:2}}>
+                  ▸ TRY SAMPLE
+                </div>
+                <div style={{fontSize:12,color:"var(--text)"}}>Edmonton flip · pre-filled</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setForm({
+                    address: "10646 61 Avenue NW, Edmonton, AB",
+                    purchasePrice: "385000", repairCost: "65000",
+                    sqft: "1450", beds: "3", baths: "2",
+                  });
+                  setDealType("flip");
+                  setTimeout(() => setAnalyzed(true), 100);
+                }}
+                style={{
+                  fontFamily:"'Fira Code',monospace",fontSize:10.5,fontWeight:700,letterSpacing:"0.5px",
+                  padding:"6px 12px",border:"1px solid var(--green)",borderRadius:"var(--r-sm,4px)",
+                  color:"#07090f",background:"var(--green)",cursor:"pointer",whiteSpace:"nowrap"
+                }}>
+                ▶ LOAD
+              </button>
+            </div>
             <div className="da-field">
               <div className="da-label">Deal Type</div>
               <div className="da-type-toggle">
@@ -434,6 +466,73 @@ export default function DealAnalyzer() {
                   <div className="da-metric-sub">{fmt(rent.annual)}/yr estimated</div>
                 </div>
               </div>
+
+              {/* ── Profit Waterfall (flip only) ─────────────────────────── */}
+              {dealType === "flip" && arv.mid > 0 && (() => {
+                const pp = num(form.purchasePrice);
+                const rc = num(form.repairCost);
+                // Standard flip costs not in the current model — surface them here
+                // so the chart shows the REAL economics, not the simplified profit.
+                const sellingCosts = arv.mid * 0.085;   // 8.5% — agent + closing + title
+                const acquisitionCosts = pp * 0.02;     // 2% — closing on buy side
+                const holdingCosts = pp * 0.0012 * 4;   // ~0.12%/mo × 4mo typical flip
+                const realProfit = arv.mid - pp - rc - sellingCosts - acquisitionCosts - holdingCosts;
+                const segments = [
+                  {lbl:"PURCHASE",   val: pp,                color:"#3b9eff", pct: arv.mid ? pp/arv.mid : 0},
+                  {lbl:"REPAIRS",    val: rc,                color:"#f0a030", pct: arv.mid ? rc/arv.mid : 0},
+                  {lbl:"SELL COSTS", val: sellingCosts,      color:"#a782ff", pct: 0.085},
+                  {lbl:"ACQUIS.",    val: acquisitionCosts,  color:"#a782ff", pct: arv.mid ? acquisitionCosts/arv.mid : 0},
+                  {lbl:"HOLDING",    val: holdingCosts,      color:"#7888a0", pct: arv.mid ? holdingCosts/arv.mid : 0},
+                  {lbl: realProfit >= 0 ? "PROFIT" : "LOSS",
+                                     val: Math.abs(realProfit),
+                                     color: realProfit >= 0 ? "#34d98a" : "#f25c5c",
+                                     pct: arv.mid ? Math.abs(realProfit)/arv.mid : 0},
+                ];
+                return (
+                  <div style={{
+                    background:"var(--card)",border:"1px solid var(--borderf)",
+                    borderRadius:"var(--r-md,6px)",padding:"14px 16px",marginBottom:16
+                  }}>
+                    <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
+                      <div style={{fontFamily:"'Fira Code',monospace",fontSize:10,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px"}}>
+                        ▸ PROFIT WATERFALL · ARV {fmt(arv.mid)}
+                      </div>
+                      <div style={{fontFamily:"'Fira Code',monospace",fontSize:10.5,fontWeight:700,color: realProfit >= 0 ? "var(--green)" : "var(--red)"}}>
+                        NET {realProfit >= 0 ? "▲" : "▼"} {fmt(Math.abs(realProfit))}
+                      </div>
+                    </div>
+                    {/* Stacked horizontal bar */}
+                    <div style={{display:"flex",height:32,borderRadius:"var(--r-xs,2px)",overflow:"hidden",border:"1px solid var(--borderf)"}}>
+                      {segments.map(s => s.val > 0 && (
+                        <div key={s.lbl} title={`${s.lbl}: ${fmt(s.val)}`} style={{
+                          width:`${(s.pct*100).toFixed(2)}%`,
+                          background:s.color,
+                          minWidth: s.pct > 0.005 ? "auto" : 0,
+                          borderRight: "1px solid rgba(0,0,0,0.25)",
+                          display:"flex",alignItems:"center",justifyContent:"center",
+                          fontFamily:"'Fira Code',monospace",fontSize:9,fontWeight:700,
+                          color:"rgba(0,0,0,0.7)",letterSpacing:"0.4px",overflow:"hidden",whiteSpace:"nowrap"
+                        }}>
+                          {s.pct > 0.06 ? s.lbl : ""}
+                        </div>
+                      ))}
+                    </div>
+                    {/* Segment legend */}
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:10}}>
+                      {segments.filter(s => s.val > 0).map(s => (
+                        <div key={s.lbl} style={{display:"flex",alignItems:"center",gap:6,fontSize:11,fontFamily:"'Fira Code',monospace"}}>
+                          <span style={{width:10,height:10,background:s.color,borderRadius:2,flexShrink:0}}/>
+                          <span style={{color:"var(--sub)",flex:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.lbl}</span>
+                          <span style={{color:"var(--text)",fontWeight:700}}>{fmt(s.val)}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{marginTop:8,fontSize:10,color:"var(--dim)",fontFamily:"'Fira Code',monospace",lineHeight:1.5}}>
+                      Includes 8.5% selling, 2% acquisition, ~0.5% holding (4mo). Scorecard "Net Profit" excludes these — waterfall is the truer number.
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div className="da-reasons">
                 <div className="da-reasons-header">Why this score</div>

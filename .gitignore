@@ -23,3 +23,62 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# ── Private business data — keep strictly local ─────────────────────────
+master_contacts*
+linkedin_*
+gmail_sweep_*
+warm_contacts*
+capital_*
+outreach/
+launch/
+organize/
+drive_inline/
+costar_*
+contacts.csv
+companies_phones.csv
+organized_contacts.csv
+local_contacts_raw.json
+drive_*.json
+drive_*.jsonl
+local_scan.log
+
+# Briefs / notes / one-off docs that aren't product source
+MASTER_BRIEF.*
+SPONSOR_BRIEF.*
+SESSION_RECAP_*
+REALDEALESTATE_*_PLAN.md
+REALDEALESTATE_*_PROGRESS.md
+START_HERE.md
+
+# Data-prep scripts that operate on the above private data
+analyze_linkedin_connections.py
+build_brief_pdf.py
+build_master_brief.py
+build_master_contacts.py
+build_drive_targets.py
+build_outreach_lists.py
+build_priority_segments.py
+contact_extract.py
+costar_extract.py
+drive_extract.py
+merge_contacts.py
+merge_gmail_into_seg0.py
+organize_and_tag.py
+parse_gmail_sent.py
+segment.py
+demo_thesis_html.py
+demo_thesis_preview.html
+demo_zoning.py
+demo_zoning_html.py
+demo_zoning_preview.html
+parse_linkedin_export.py
+parse_takeout_sent.py
+render_sponsor_brief.py
+
+# Private research notes
+research/
+
+# Source export zips
+realdealestate-app-source-*.zip
+*.zip

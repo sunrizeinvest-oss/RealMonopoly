@@ -21,12 +21,6 @@ const fmtShort = (n) => {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#07090f;--card:#0d1119;--card2:#0a0e18;
-    --borderf:rgba(255,255,255,0.07);--border:rgba(59,158,255,0.12);
-    --text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;
-    --blue:#3b9eff;--green:#34d98a;--red:#f25c5c;--amber:#f0a030;--purple:#a782ff;
-  }
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
   input,select,button{font-family:'DM Sans',sans-serif}
 
@@ -44,7 +38,7 @@ const CSS = `
   .tc-hero{text-align:center;padding:44px 24px 32px;position:relative;overflow:hidden}
   .tc-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(52,217,138,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(52,217,138,0.02) 1px,transparent 1px);background-size:56px 56px;pointer-events:none}
   .tc-hero-glow{position:absolute;top:-20%;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(52,217,138,0.07) 0%,transparent 65%);pointer-events:none}
-  .tc-hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.2);border-radius:99px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:18px;position:relative;z-index:1}
+  .tc-hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.2);border-radius:3px;padding:5px 14px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:18px;position:relative;z-index:1}
   .tc-hero h1{font-size:clamp(24px,4.5vw,40px);font-weight:800;letter-spacing:-1.5px;color:var(--text);line-height:1.1;margin-bottom:10px;position:relative;z-index:1}
   .tc-hero h1 span{color:var(--green)}
   .tc-hero p{font-size:15px;color:var(--sub);max-width:560px;margin:0 auto;line-height:1.65;position:relative;z-index:1}
@@ -54,7 +48,7 @@ const CSS = `
   @media(max-width:520px){.tc-body{padding:14px 12px 60px}.tc-hero{padding:28px 16px 20px}}
 
   /* Cards */
-  .tc-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px}
+  .tc-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px}
   .tc-card-head{padding:14px 18px;border-bottom:1px solid var(--borderf);background:var(--card2);display:flex;align-items:center;gap:10px}
   .tc-card-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
   .tc-card-title{font-size:13.5px;font-weight:700;color:var(--text)}
@@ -87,17 +81,17 @@ const CSS = `
   /* Summary Cards */
   .tc-summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
   @media(max-width:600px){.tc-summary-grid{grid-template-columns:1fr}}
-  .tc-metric{background:var(--card2);border:1px solid var(--borderf);border-radius:12px;padding:16px 18px}
-  .tc-metric-label{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
-  .tc-metric-val{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px;line-height:1}
+  .tc-metric{background:var(--card2);border:1px solid var(--borderf);border-radius:6px;padding:16px 18px}
+  .tc-metric-label{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+  .tc-metric-val{font-family:'Fira Code',ui-monospace,monospace;font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px;line-height:1}
   .tc-metric-sub{font-size:10.5px;color:var(--dim);margin-top:5px}
-  .tc-metric.green{border-color:rgba(52,217,138,0.22);background:rgba(52,217,138,0.05)}.tc-metric.green .tc-metric-val{color:var(--green)}
-  .tc-metric.blue{border-color:rgba(59,158,255,0.22);background:rgba(59,158,255,0.05)}.tc-metric.blue .tc-metric-val{color:var(--blue)}
-  .tc-metric.amber{border-color:rgba(240,160,48,0.22);background:rgba(240,160,48,0.05)}.tc-metric.amber .tc-metric-val{color:var(--amber)}
-  .tc-metric.purple{border-color:rgba(167,130,255,0.22);background:rgba(167,130,255,0.05)}.tc-metric.purple .tc-metric-val{color:var(--purple)}
+  .tc-metric.green{border-color:rgba(52,217,138,0.22);background:rgba(52,217,138,0.05)}.tc-metric.green .tc-metric-val{font-family:'Fira Code',ui-monospace,monospace;color:var(--green)}
+  .tc-metric.blue{border-color:rgba(59,158,255,0.22);background:rgba(59,158,255,0.05)}.tc-metric.blue .tc-metric-val{font-family:'Fira Code',ui-monospace,monospace;color:var(--blue)}
+  .tc-metric.amber{border-color:rgba(240,160,48,0.22);background:rgba(240,160,48,0.05)}.tc-metric.amber .tc-metric-val{font-family:'Fira Code',ui-monospace,monospace;color:var(--amber)}
+  .tc-metric.purple{border-color:rgba(167,130,255,0.22);background:rgba(167,130,255,0.05)}.tc-metric.purple .tc-metric-val{font-family:'Fira Code',ui-monospace,monospace;color:var(--purple)}
 
   /* Status Banner */
-  .tc-status{border-radius:12px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px}
+  .tc-status{border-radius:6px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px}
   .tc-status.s-green{background:rgba(52,217,138,0.07);border:1px solid rgba(52,217,138,0.25)}
   .tc-status.s-amber{background:rgba(240,160,48,0.07);border:1px solid rgba(240,160,48,0.25)}
   .tc-status.s-red{background:rgba(242,92,92,0.07);border:1px solid rgba(242,92,92,0.25)}
@@ -106,13 +100,13 @@ const CSS = `
   .tc-status-body{font-size:12.5px;color:var(--sub);line-height:1.6}
 
   /* Info Callout */
-  .tc-info{background:rgba(59,158,255,0.05);border:1px solid rgba(59,158,255,0.18);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+  .tc-info{background:rgba(59,158,255,0.05);border:1px solid rgba(59,158,255,0.18);border-radius:6px;padding:16px 18px;margin-bottom:14px}
   .tc-info-title{font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:7px}
   .tc-info-body{font-size:12.5px;color:var(--sub);line-height:1.65}
   .tc-info-body strong{color:var(--text);font-weight:600}
 
   /* Table */
-  .tc-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--borderf)}
+  .tc-table-wrap{overflow-x:auto;border-radius:6px;border:1px solid var(--borderf)}
   .tc-table{width:100%;border-collapse:collapse;font-size:12.5px}
   .tc-table thead th{background:var(--card2);color:var(--sub);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:10px 12px;text-align:right;border-bottom:1px solid var(--borderf);white-space:nowrap}
   .tc-table thead th:first-child{text-align:left}
@@ -124,7 +118,7 @@ const CSS = `
   /* Cost Seg Comparison */
   .tc-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
   @media(max-width:480px){.tc-compare{grid-template-columns:1fr}}
-  .tc-compare-box{border-radius:12px;padding:16px;border:1px solid var(--borderf)}
+  .tc-compare-box{border-radius:6px;padding:16px;border:1px solid var(--borderf)}
   .tc-compare-box.std{background:rgba(107,125,150,0.08)}
   .tc-compare-box.costseg{background:rgba(52,217,138,0.06);border-color:rgba(52,217,138,0.2)}
   .tc-compare-label{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px}

@@ -260,22 +260,6 @@ const CSS = `
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --bg: #07090f;
-    --card: #0d1119;
-    --card2: #0a0e18;
-    --borderf: rgba(255,255,255,0.07);
-    --border: rgba(59,158,255,0.12);
-    --text: #dde4ef;
-    --sub: #6b7d96;
-    --dim: #3a4a60;
-    --blue: #3b9eff;
-    --green: #34d98a;
-    --red: #f25c5c;
-    --amber: #f0a030;
-    --purple: #a782ff;
-  }
-
   html, body {
     overflow-x: hidden;
   }

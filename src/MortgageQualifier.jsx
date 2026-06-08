@@ -10,12 +10,6 @@ const fmtPct = (n, decimals = 2) => (isNaN(n) || !isFinite(n)) ? "—" : `${(n *
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{
-    --bg:#07090f;--card:#0d1119;--card2:#0a0e18;
-    --borderf:rgba(255,255,255,0.07);
-    --text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;
-    --blue:#3b9eff;--green:#34d98a;--red:#f25c5c;--amber:#f0a030;--purple:#a782ff
-  }
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
   input,select{font-family:'DM Sans',sans-serif;font-size:14px!important}
 
@@ -37,7 +31,7 @@ const CSS = `
 
   /* Inputs Panel */
   .mq-inputs{display:flex;flex-direction:column;gap:16px}
-  .mq-section{background:var(--card);border:1px solid var(--borderf);border-radius:14px;overflow:hidden}
+  .mq-section{background:var(--card);border:1px solid var(--borderf);border-radius:6px;overflow:hidden}
   .mq-section-head{padding:14px 18px;border-bottom:1px solid var(--borderf);display:flex;align-items:center;gap:10px}
   .mq-section-head .sec-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
   .mq-section-head h3{font-size:13px;font-weight:700;color:var(--text);letter-spacing:.04em;text-transform:uppercase}
@@ -70,15 +64,15 @@ const CSS = `
   .mq-results{display:flex;flex-direction:column;gap:16px}
 
   /* Verdict */
-  .mq-verdict{border-radius:14px;padding:20px 22px;border:1px solid}
+  .mq-verdict{border-radius:6px;padding:20px 22px;border:1px solid}
   .mq-verdict.pass{background:rgba(52,217,138,0.08);border-color:rgba(52,217,138,0.25)}
   .mq-verdict.fail{background:rgba(242,92,92,0.08);border-color:rgba(242,92,92,0.25)}
   .mq-verdict.neutral{background:var(--card);border-color:var(--borderf)}
   .mq-verdict-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .mq-verdict-label{font-size:20px;font-weight:800}
-  .mq-verdict.pass .mq-verdict-label{color:var(--green)}
-  .mq-verdict.fail .mq-verdict-label{color:var(--red)}
-  .mq-verdict.neutral .mq-verdict-label{color:var(--sub)}
+  .mq-verdict.pass .mq-verdict-label{font-family:'Fira Code',ui-monospace,monospace;color:var(--green)}
+  .mq-verdict.fail .mq-verdict-label{font-family:'Fira Code',ui-monospace,monospace;color:var(--red)}
+  .mq-verdict.neutral .mq-verdict-label{font-family:'Fira Code',ui-monospace,monospace;color:var(--sub)}
   .mq-verdict-rates{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
   .mq-rate-pill{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600}
   .mq-rate-pill.contract{background:rgba(167,130,255,0.12);color:var(--purple);border:1px solid rgba(167,130,255,0.2)}
@@ -87,15 +81,15 @@ const CSS = `
   /* Metric cards row */
   .mq-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
   @media(max-width:640px){.mq-metrics{grid-template-columns:1fr}}
-  .mq-metric-card{background:var(--card);border:1px solid var(--borderf);border-radius:12px;padding:16px 18px}
+  .mq-metric-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:16px 18px}
   .mq-metric-card.highlight{background:rgba(52,217,138,0.06);border-color:rgba(52,217,138,0.2)}
-  .mq-metric-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
-  .mq-metric-value{font-size:22px;font-weight:800;color:var(--text)}
-  .mq-metric-card.highlight .mq-metric-value{color:var(--green)}
+  .mq-metric-label{font-family:'Fira Code',ui-monospace,monospace;font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+  .mq-metric-value{font-family:'Fira Code',ui-monospace,monospace;font-size:22px;font-weight:800;color:var(--text)}
+  .mq-metric-card.highlight .mq-metric-value{font-family:'Fira Code',ui-monospace,monospace;color:var(--green)}
   .mq-metric-sub{font-size:11px;color:var(--dim);margin-top:3px}
 
   /* GDS/TDS gauges */
-  .mq-gauges{background:var(--card);border:1px solid var(--borderf);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
+  .mq-gauges{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 20px;display:flex;flex-direction:column;gap:16px}
   .mq-gauge-title{font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px}
   .mq-gauge-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
   .mq-gauge-label{font-size:15px;font-weight:700;color:var(--text)}
@@ -109,7 +103,7 @@ const CSS = `
   .mq-gauge-nums{display:flex;justify-content:space-between;font-size:11px;color:var(--sub)}
 
   /* Breakdown tables */
-  .mq-breakdown{background:var(--card);border:1px solid var(--borderf);border-radius:14px;overflow:hidden}
+  .mq-breakdown{background:var(--card);border:1px solid var(--borderf);border-radius:6px;overflow:hidden}
   .mq-breakdown-head{padding:14px 18px;border-bottom:1px solid var(--borderf);font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em}
   .mq-breakdown-body{padding:4px 0}
   .mq-brow{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,0.03)}
@@ -124,7 +118,7 @@ const CSS = `
 
   /* Info boxes */
   .mq-info-boxes{display:flex;flex-direction:column;gap:12px}
-  .mq-info-box{background:var(--card);border:1px solid var(--borderf);border-radius:12px;padding:16px 18px}
+  .mq-info-box{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:16px 18px}
   .mq-info-box h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:8px}
   .mq-info-box h4 .icon{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px}
   .mq-info-box p{font-size:12px;color:var(--sub);line-height:1.6}
@@ -134,7 +128,7 @@ const CSS = `
   .mq-divider{height:1px;background:var(--borderf);margin:4px 0}
 
   /* Afford mode badge */
-  .mq-afford-badge{background:rgba(167,130,255,0.1);border:1px solid rgba(167,130,255,0.2);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--purple);font-weight:600;text-align:center}
+  .mq-afford-badge{background:rgba(167,130,255,0.1);border:1px solid rgba(167,130,255,0.2);border-radius:6px;padding:10px 14px;font-size:12px;color:var(--purple);font-weight:600;text-align:center}
 `;
 
 // ─── Mortgage math ────────────────────────────────────────────────────────────

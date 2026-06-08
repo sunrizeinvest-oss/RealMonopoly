@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#07090f;--card:#0d1119;--border:rgba(59,158,255,0.15);--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;--amber:#f0a030}
   body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
   .pr-wrap{min-height:100vh;background:var(--bg)}
   .pr-nav{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;border-bottom:1px solid var(--borderf);position:sticky;top:0;background:rgba(7,9,15,0.95);backdrop-filter:blur(20px);z-index:100}
@@ -19,14 +18,14 @@ const CSS = `
   .pr-sub{font-size:16px;color:var(--sub);max-width:440px;margin:0 auto;line-height:1.7}
   .pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
   @media(max-width:640px){.pr-grid{grid-template-columns:1fr}}
-  .pr-card{background:var(--card);border:1px solid var(--borderf);border-radius:18px;padding:32px 28px;position:relative}
+  .pr-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:32px 28px;position:relative}
   .pr-card.featured{border-color:var(--blue);box-shadow:0 0 0 1px rgba(59,158,255,0.3),0 20px 60px rgba(59,158,255,0.1)}
-  .pr-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:99px;letter-spacing:0.5px;white-space:nowrap}
+  .pr-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:3px;letter-spacing:0.5px;white-space:nowrap}
   .pr-plan{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
   .pr-price{font-size:48px;font-weight:800;color:var(--text);letter-spacing:-2px;line-height:1;margin-bottom:4px}
   .pr-price span{font-size:16px;font-weight:500;color:var(--sub);letter-spacing:0}
   .pr-price-note{font-size:12px;color:var(--dim);margin-bottom:24px}
-  .pr-btn{width:100%;border:none;border-radius:10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.18s;margin-bottom:28px}
+  .pr-btn{width:100%;border:none;border-radius:6px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.18s;margin-bottom:28px}
   .pr-btn.free{background:rgba(255,255,255,0.06);color:var(--text);border:1px solid var(--borderf)}
   .pr-btn.free:hover{background:rgba(255,255,255,0.1)}
   .pr-btn.pro{background:var(--blue);color:#fff;box-shadow:0 4px 16px rgba(59,158,255,0.3)}

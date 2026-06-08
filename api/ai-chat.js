@@ -18,6 +18,16 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
+  // Multi-mode: this endpoint handles both the conversational chat AND the
+  // one-shot zoning thesis hint. Folded together to stay under Vercel's
+  // 12-function Hobby plan cap.
+  if (req.body?.mode === "zoning-thesis") {
+    return handleZoningThesis(req, res);
+  }
+  if (req.body?.mode === "deal-thesis") {
+    return handleDealThesis(req, res);
+  }
+
   const { messages = [], property = {}, calcs = {} } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
@@ -173,4 +183,179 @@ function generateFallbackReply(msg, p, c) {
   }
 
   return `I can help you analyze this property. Ask me anything: "Is this a good deal?", "What should I offer?", "Would this work as a BRRRR?", "What's the cap rate?", or "What's the best strategy for this property?" — and I'll give you a specific answer based on the real data.`;
+}
+
+// ─── Zoning Thesis Mode ────────────────────────────────────────────────────
+// One-shot 1-2 sentence institutional thesis hint over zoning + assessment +
+// permits data. Powered by Haiku (cheap + fast). Template fallback if no key
+// or API error. Folded into this file (vs. a separate endpoint) to stay
+// under Vercel's 12-function Hobby plan cap.
+async function handleZoningThesis(req, res) {
+  const { zoning, assessment, permits = [], address } = req.body || {};
+  if (!zoning?.zone) return res.status(400).json({ error: "zoning.zone required" });
+
+  const templateThesis = buildTemplateThesis({ zoning, assessment, permits });
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") {
+    return res.status(200).json({ thesis: templateThesis, source: "template" });
+  }
+
+  try {
+    const prompt = buildThesisPrompt({ zoning, assessment, permits, address });
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 160,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!r.ok) {
+      return res.status(200).json({ thesis: templateThesis, source: "template", note: `AI fallback (${r.status})` });
+    }
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim();
+    if (!text) return res.status(200).json({ thesis: templateThesis, source: "template" });
+    return res.status(200).json({ thesis: text, source: "claude-haiku-4-5" });
+  } catch (e) {
+    return res.status(200).json({ thesis: templateThesis, source: "template", note: `AI timeout/error: ${e.message}` });
+  }
+}
+
+function buildThesisPrompt({ zoning, assessment, permits, address }) {
+  const permitCount = permits?.length || 0;
+  const recentPermits = (permits || []).slice(0, 5).map(p => {
+    const date = (p.permit_date || p.applieddate || "").slice(0, 10);
+    const type = p.work_type || p.permit_type || p.work_type_group || "permit";
+    return `  ${date} — ${type}`;
+  }).join("\n");
+
+  return `You are an institutional real estate analyst. In 1-2 SENTENCES TOTAL (no more, no less), write a tight, data-grounded thesis hint for the property below. No fluff, no hedging, no "do your own due diligence." Just the signal.
+
+PROPERTY: ${address || "address unknown"}
+ZONING: ${zoning.zone} (${zoning.zoneDescription || ""})
+  Max units allowed: ${zoning.maxUnits ?? "n/a"}
+  Max storeys: ${zoning.maxStoreys ?? "n/a"}
+  Max FAR: ${zoning.maxFAR ?? "n/a"}
+${assessment ? `ASSESSMENT:
+  Assessed value: ${assessment.assessedValue ? `$${Math.round(assessment.assessedValue).toLocaleString()}` : "n/a"}
+  Year built: ${assessment.yearBuilt ?? "n/a"}
+  Neighbourhood: ${assessment.neighbourhood ?? "n/a"}` : "ASSESSMENT: not in city dataset (likely commercial or unusual parcel)."}
+PERMITS WITHIN 1KM, LAST 2 YEARS: ${permitCount}
+${recentPermits ? `Recent activity:\n${recentPermits}` : ""}
+
+Write 1-2 sentences focusing on: redevelopment potential (if max units > likely current use), permit activity signal (active / moderate / quiet neighbourhood), and any standout opportunity or constraint. Keep under 50 words. Plain English. Start with the zoning fact.`;
+}
+
+function buildTemplateThesis({ zoning, assessment, permits }) {
+  const permitCount = permits?.length || 0;
+  const activityLabel =
+    permitCount >= 15 ? "highly active redevelopment activity" :
+    permitCount >= 8  ? "active redevelopment activity" :
+    permitCount >= 3  ? "moderate development activity" :
+                        "minimal recent permit activity";
+  const zoneStr = `${zoning.zone}${zoning.zoneDescription ? ` (${zoning.zoneDescription})` : ""}`;
+  const densityStr = zoning.maxUnits
+    ? ` Bylaw permits up to ${zoning.maxUnits} dwelling${zoning.maxUnits === 1 ? "" : "s"}${zoning.maxStoreys ? ` and ${zoning.maxStoreys} storeys` : ""}.`
+    : "";
+  const permitStr = ` ${permitCount} permits within 1km in the last 2 years signal ${activityLabel} in the neighbourhood.`;
+  return `Zoned ${zoneStr}.${densityStr}${permitStr}`;
+}
+
+// ─── Deal Thesis Mode ──────────────────────────────────────────────────────
+// One-shot 1-2 sentence institutional read on a deal's metrics. Used by
+// BRRRR + Commercial verdict cards. Same Haiku + template-fallback pattern
+// as the zoning thesis. Folded into this file to stay under Vercel's
+// 12-function Hobby plan cap.
+async function handleDealThesis(req, res) {
+  const { strategy, address, metrics = {}, verdict } = req.body || {};
+  if (!strategy || !Object.keys(metrics).length) {
+    return res.status(400).json({ error: "strategy + metrics required" });
+  }
+
+  const templateThesis = buildDealTemplateThesis({ strategy, metrics, verdict });
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") {
+    return res.status(200).json({ thesis: templateThesis, source: "template" });
+  }
+
+  try {
+    const prompt = buildDealThesisPrompt({ strategy, address, metrics, verdict });
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 180,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (!r.ok) {
+      return res.status(200).json({ thesis: templateThesis, source: "template", note: `AI fallback (${r.status})` });
+    }
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim();
+    if (!text) return res.status(200).json({ thesis: templateThesis, source: "template" });
+    return res.status(200).json({ thesis: text, source: "claude-haiku-4-5" });
+  } catch (e) {
+    return res.status(200).json({ thesis: templateThesis, source: "template", note: `AI timeout/error: ${e.message}` });
+  }
+}
+
+function buildDealThesisPrompt({ strategy, address, metrics, verdict }) {
+  const fmt = n => n != null ? `$${Math.round(n).toLocaleString()}` : "n/a";
+  const pct = n => n != null ? `${(n * 100).toFixed(1)}%` : "n/a";
+  const x = n => n != null ? `${n.toFixed(2)}x` : "n/a";
+
+  const metricLines = Object.entries(metrics).map(([k, v]) => {
+    if (v == null) return null;
+    if (k === "dscr" || k === "eqMultiple") return `  ${k}: ${x(v)}`;
+    if (/Pct$|^irr$|^coc$|^margin$|^roi$|Rate$|annReturn/.test(k)) return `  ${k}: ${pct(v)}`;
+    if (typeof v === "number" && Math.abs(v) > 100) return `  ${k}: ${fmt(v)}`;
+    return `  ${k}: ${v}`;
+  }).filter(Boolean).join("\n");
+
+  return `You are an institutional real estate analyst. In 1-2 SENTENCES TOTAL, write a tight, decisive read on whether this deal works. No fluff, no hedging. Just the signal — what's the standout strength or red flag, and what does the investor do next.
+
+DEAL: ${strategy}${address ? ` · ${address}` : ""}
+${verdict ? `VERDICT: ${verdict}` : ""}
+METRICS:
+${metricLines}
+
+Write 1-2 sentences. Under 50 words. Plain English. Start with the most important number. If the deal pencils, say what makes it work. If it doesn't, say what would need to change.`;
+}
+
+function buildDealTemplateThesis({ strategy, metrics, verdict }) {
+  const dscr = metrics.dscr;
+  const irr = metrics.irr;
+  const coc = metrics.coc;
+  const profit = metrics.netProfit || metrics.equityCreated;
+  const isTrue = metrics.isTrueBRRRR;
+  const fmt = n => n != null ? `$${Math.round(n).toLocaleString()}` : "n/a";
+  const pct = n => n != null ? `${(n * 100).toFixed(1)}%` : "n/a";
+
+  // Strategy-aware template
+  if (strategy.toLowerCase().includes("brrrr")) {
+    if (isTrue) {
+      return `True BRRRR — all capital recouped at refi${dscr ? ` with DSCR of ${dscr.toFixed(2)}x` : ""}. Recycle the equity into the next deal.`;
+    }
+    if (dscr != null && dscr < 1.25) {
+      return `DSCR of ${dscr.toFixed(2)}x is below the 1.25x lender minimum. Reduce purchase price or boost stabilized NOI before refinance.`;
+    }
+    return `${irr != null ? `IRR of ${pct(irr)} ` : ""}${profit != null ? `with ${fmt(profit)} equity created.` : "."} ${verdict || "Review the year-by-year projection."}`;
+  }
+
+  // Generic
+  return `${dscr != null ? `DSCR ${dscr.toFixed(2)}x` : ""}${coc != null ? `, CoC ${pct(coc)}` : ""}${profit != null ? `, ${fmt(profit)} profit` : ""}. ${verdict || "Review the numbers in detail."}`;
 }

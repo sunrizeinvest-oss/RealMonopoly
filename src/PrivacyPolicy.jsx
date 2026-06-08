@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#07090f;--card:#0d1119;--border:rgba(59,158,255,0.12);--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff}
   html,body{overflow-x:hidden}
   body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
   .lp-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
@@ -20,7 +19,7 @@ const CSS = `
   .lp-p a:hover{text-decoration:underline}
   .lp-ul{margin:10px 0 14px 20px;display:flex;flex-direction:column;gap:8px}
   .lp-ul li{font-size:15px;color:var(--sub);line-height:1.7}
-  .lp-highlight{background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.15);border-radius:10px;padding:16px 20px;margin:20px 0}
+  .lp-highlight{background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.15);border-radius:6px;padding:16px 20px;margin:20px 0}
   .lp-highlight p{font-size:14px;color:var(--text);line-height:1.65;margin:0}
   footer{border-top:1px solid var(--borderf);padding:20px 40px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
   .f-logo{font-size:13px;font-weight:700;color:var(--dim)}.f-logo span{color:var(--blue)}

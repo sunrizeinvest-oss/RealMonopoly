@@ -23,7 +23,6 @@ function verdictColor(verdict) {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#07090f;--card:#0d1119;--card2:#0a0e18;--border:rgba(59,158,255,0.12);--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;--amber:#f0a030;--purple:#a782ff}
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
   .db-wrap{min-height:100vh;background:var(--bg)}
 
@@ -43,26 +42,27 @@ const CSS = `
   .db-sub{font-size:14px;color:var(--sub);line-height:1.6}
 
   /* Stats row */
-  .db-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:32px}
-  .db-stat{background:var(--card);border:1px solid var(--borderf);border-radius:12px;padding:16px 18px}
-  .db-stat-val{font-size:22px;font-weight:800;letter-spacing:-0.5px;line-height:1;margin-bottom:4px}
-  .db-stat-lbl{font-size:10.5px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px}
+  .db-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}
+  .db-stat{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:14px 16px;position:relative}
+  .db-stat-val{font-family:'Fira Code',ui-monospace,monospace;font-size:22px;font-weight:700;letter-spacing:-0.3px;line-height:1;margin-bottom:5px}
+  .db-stat-lbl{font-family:'Fira Code',ui-monospace,monospace;font-size:9.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:5px}
+  .db-stat-lbl::before{content:"▸";color:var(--blue);font-size:8px}
 
   /* Filter bar */
-  .db-filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-  .db-filter-btn{background:var(--card2);border:1px solid var(--borderf);border-radius:99px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
-  .db-filter-btn.active{background:rgba(59,158,255,0.1);border-color:rgba(59,158,255,0.3);color:var(--blue)}
-  .db-filter-btn:hover{color:var(--text)}
+  .db-filter-bar{display:flex;align-items:center;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+  .db-filter-btn{background:var(--card2);border:1px solid var(--borderf);border-radius:3px;padding:5px 11px;font-family:'Fira Code',monospace;font-size:11px;font-weight:700;color:var(--sub);cursor:pointer;letter-spacing:0.4px;transition:all 0.15s;text-transform:uppercase}
+  .db-filter-btn.active{background:rgba(59,158,255,0.1);border-color:rgba(59,158,255,0.4);color:var(--blue)}
+  .db-filter-btn:hover{color:var(--text);border-color:var(--blue)}
 
   /* Deal cards */
-  .db-deal-grid{display:flex;flex-direction:column;gap:12px}
-  .db-deal{background:var(--card);border:1px solid var(--borderf);border-radius:16px;padding:22px 24px;transition:all 0.18s;cursor:default}
-  .db-deal:hover{border-color:rgba(59,158,255,0.25);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
-  .db-deal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
-  .db-deal-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-  .db-type-pill{font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px;letter-spacing:0.3px;text-transform:uppercase}
-  .db-verdict-pill{font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px}
-  .db-date{font-size:11px;color:var(--dim)}
+  .db-deal-grid{display:flex;flex-direction:column;gap:10px}
+  .db-deal{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 20px;transition:all 0.18s;cursor:default}
+  .db-deal:hover{border-color:rgba(59,158,255,0.35);box-shadow:0 6px 24px rgba(0,0,0,0.3)}
+  .db-deal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;flex-wrap:wrap}
+  .db-deal-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .db-type-pill{font-family:'Fira Code',monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:0.6px;text-transform:uppercase;border:1px solid currentColor}
+  .db-verdict-pill{font-family:'Fira Code',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:0.5px;border:1px solid currentColor}
+  .db-date{font-family:'Fira Code',monospace;font-size:10.5px;color:var(--dim);letter-spacing:0.3px}
   .db-deal-name{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-0.3px;margin-bottom:4px}
   .db-deal-addr{font-size:12.5px;color:var(--sub)}
   .db-deal-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
@@ -70,8 +70,8 @@ const CSS = `
   .db-score-num{font-size:15px;font-weight:800;line-height:1}
   .db-score-of{font-size:8px;color:var(--dim)}
   .db-deal-metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;padding-top:14px;border-top:1px solid var(--borderf)}
-  .db-metric-val{font-size:15px;font-weight:700;color:var(--text);line-height:1;margin-bottom:3px}
-  .db-metric-lbl{font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+  .db-metric-val{font-family:'Fira Code',monospace;font-size:15px;font-weight:700;color:var(--text);line-height:1;margin-bottom:3px;letter-spacing:-0.2px}
+  .db-metric-lbl{font-family:'Fira Code',monospace;font-size:9.5px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:0.6px}
   .db-deal-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
   .db-action-btn{background:rgba(59,158,255,0.08);border:1px solid rgba(59,158,255,0.2);border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all 0.15s}.db-action-btn:hover{background:rgba(59,158,255,0.15)}
   .db-del-btn{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:13px;padding:6px 8px;border-radius:7px;transition:all 0.15s;font-family:'DM Sans',sans-serif}.db-del-btn:hover{color:var(--red);background:rgba(242,92,92,0.08)}
@@ -268,17 +268,49 @@ export default function Dashboard() {
 
         {/* Filter */}
         {totalDeals > 0 && (
-          <div className="db-filter-bar">
-            {[
-              { key: "all", label: `All (${totalDeals})` },
-              { key: "flip", label: `🏚️ Flip (${flipCount})` },
-              { key: "brrrr", label: `🔄 BRRRR (${brrrrCount})` },
-              { key: "multifamily", label: `🏢 Multifamily (${mfCount})` },
-            ].filter(f => f.key === "all" || allDeals.some(d => d.type === f.key)).map(f => (
-              <button key={f.key} className={`db-filter-btn ${filter === f.key ? "active" : ""}`} onClick={() => setFilter(f.key)}>
-                {f.label}
-              </button>
-            ))}
+          <div className="db-filter-bar" style={{justifyContent:"space-between"}}>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+              {[
+                { key: "all", label: `All (${totalDeals})` },
+                { key: "flip", label: `🏚️ Flip (${flipCount})` },
+                { key: "brrrr", label: `🔄 BRRRR (${brrrrCount})` },
+                { key: "multifamily", label: `🏢 Multifamily (${mfCount})` },
+              ].filter(f => f.key === "all" || allDeals.some(d => d.type === f.key)).map(f => (
+                <button key={f.key} className={`db-filter-btn ${filter === f.key ? "active" : ""}`} onClick={() => setFilter(f.key)}>
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            <button
+              className="db-filter-btn"
+              onClick={() => {
+                // Build CSV from current filtered deals
+                const rows = allDeals.filter(d => filter === "all" || d.type === filter);
+                if (!rows.length) return;
+                // Stable column order — pick the most useful fields
+                const cols = ["savedAt","type","name","address","city","verdict","grade","netProfit","roiTotal","profitMargin","annualizedCoC","dscr","monthlyCF","cashLeftInDeal","equityCreated","arv","purchasePrice","repairCosts","totalCashIn","mao","noi"];
+                const escape = v => {
+                  if (v == null) return "";
+                  const s = String(v).replace(/"/g, '""');
+                  return /[",\n]/.test(s) ? `"${s}"` : s;
+                };
+                const lines = [cols.join(",")];
+                rows.forEach(r => lines.push(cols.map(c => escape(r[c] ?? r.results?.[c] ?? r.inputs?.[c])).join(",")));
+                const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `realdeal-${filter}-${new Date().toISOString().slice(0,10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }}
+              style={{borderColor:"rgba(52,217,138,0.4)",color:"var(--green)"}}
+              title="Export filtered deals to CSV"
+            >
+              ↓ EXPORT CSV
+            </button>
           </div>
         )}
 

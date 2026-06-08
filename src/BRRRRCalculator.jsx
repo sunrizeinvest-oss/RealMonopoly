@@ -1,6 +1,13 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, lazy, Suspense } from "react";
 import { useAuth } from "./AuthContext";
 import { exportBRRRRPDF } from "./pdfExport";
+import { irr as solveIRR, withCumulative } from "./lib/finance";
+import { useDocMeta } from "./lib/seo";
+import { celebrateFirstSave } from "./lib/celebrate";
+
+// Lazy-load the charts card so recharts (~200KB gzipped) doesn't ship in the
+// main bundle. Users only download it when they actually have a deal to view.
+const BRRRRCharts = lazy(() => import("./components/BRRRRCharts"));
 
 // ─── Utilities ───────────────────────────────────────────────────────────────
 const num = v => parseFloat(v) || 0;
@@ -14,11 +21,24 @@ function calcMortgage(principal, annualRate, amortYears) {
   return p*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
 }
 
+function loanBalance(principal, annualRate, amortYears, yearsElapsed) {
+  const p = num(principal), r = num(annualRate)/100/12;
+  const n = num(amortYears)*12, k = num(yearsElapsed)*12;
+  if (!p||!r||!n) return p;
+  return p*(Math.pow(1+r,n)-Math.pow(1+r,k))/(Math.pow(1+r,n)-1);
+}
+
+// Lightweight Canadian-address detector — same heuristic as PropertyIntelligence.
+function isCanadian(addr) {
+  if (!addr) return false;
+  if (/\bcanada\b/i.test(addr)) return true;
+  return /\b(AB|BC|ON|QC|MB|SK|NS|NB|NL|PE|YT|NT|NU)\b/i.test(addr);
+}
+
 // ─── CSS ─────────────────────────────────────────────────────────────────────
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#07090f;--card:#0d1119;--card2:#0a0e18;--border:rgba(59,158,255,0.12);--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;--amber:#f0a030;--purple:#a782ff}
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
   input,select{font-family:'DM Sans',sans-serif;font-size:14px!important}
 
@@ -109,6 +129,10 @@ const CSS = `
 `;
 
 export default function BRRRRCalculator() {
+  useDocMeta({
+    title: "BRRRR Calculator",
+    description: "Model Buy/Rehab/Rent/Refi/Repeat deals with real DSCR, IRR, year-by-year cash flow, and AI deal thesis. Free for US + Canadian investors.",
+  });
   const { user, signOut, getSubscription } = useAuth();
   const [isPro, setIsPro]         = useState(false);
   const [proChecked, setProChecked] = useState(false);
@@ -124,6 +148,12 @@ export default function BRRRRCalculator() {
   }, [user]);
 
   const [saved, setSaved] = useState(false);
+
+  // CMHC-anchored rent prediction state — only used for Canadian addresses
+  const [rentPredicting, setRentPredicting] = useState(false);
+  const [rentPrediction, setRentPrediction] = useState(null); // { predictedRent, range, breakdown }
+  const [predictBeds, setPredictBeds] = useState(2);
+  const [aiThesis, setAiThesis] = useState(null); // { thesis, source }
 
   // ── Pre-fill from PropertyHub ─────────────────────────────────────────────
   const [prefillApplied, setPrefillApplied] = useState(false);
@@ -157,6 +187,12 @@ export default function BRRRRCalculator() {
             refiRate: "5.75",
             refiAmort: "25",
             refiClosingCostsPct: "1.5",
+            // Phase 5: hold + exit assumptions
+            holdYears: "5",
+            rentGrowth: "3",
+            opexGrowth: "2",
+            appreciation: "3",
+            exitSellingPct: "5",
           };
         }
       }
@@ -187,6 +223,12 @@ export default function BRRRRCalculator() {
     refiRate: "5.75",
     refiAmort: "25",
     refiClosingCostsPct: "1.5",
+    // Phase 5: hold + exit
+    holdYears: "5",
+    rentGrowth: "3",
+    opexGrowth: "2",
+    appreciation: "3",
+    exitSellingPct: "5",
   };
   });
 
@@ -221,6 +263,7 @@ export default function BRRRRCalculator() {
     localStorage.setItem("rde_brrrr_deals", JSON.stringify(existing.slice(0, 20)));
     setSaved(true);
     setTimeout(() => setSaved(false), 5000);
+    celebrateFirstSave({ kind: "brrrr" });
   }
 
   const setF = (k, v) => setForm(p => ({ ...p, [k]: v }));
@@ -273,6 +316,68 @@ export default function BRRRRCalculator() {
     const arvOnCost = totalCashIn > 0 ? arv/totalCashIn : 0;
     const refiCap = arv > 0 ? noi/arv : 0;
 
+    // ── Phase 6: Hold-period projection + exit (post-refi cash flow trajectory)
+    const hold = Math.max(1, num(form.holdYears) || 5);
+    const rg   = num(form.rentGrowth)/100;
+    const og   = num(form.opexGrowth)/100;
+    const ap   = num(form.appreciation)/100;
+    const sellPct = num(form.exitSellingPct)/100;
+
+    // OpEx split: variable (mgmt + maint, % of EGI) vs fixed (tax + insurance + utilities)
+    const opexFixed = propTax + insurance + utilities;
+
+    const years = Array.from({length: hold}, (_, i) => i + 1);
+    const projBase = years.map(yr => {
+      const grossYr   = grossRent * Math.pow(1+rg, yr-1);
+      const vacYr     = grossYr * (num(form.vacancyPct)/100);
+      const otherYr   = otherIncome * Math.pow(1+rg, yr-1);
+      const egiYr     = grossYr - vacYr + otherYr;
+      const mgmtYr    = egiYr * (num(form.managementPct)/100);
+      const maintYr   = egiYr * (num(form.maintenancePct)/100);
+      const opexFixedYr = opexFixed * Math.pow(1+og, yr-1);
+      const opexYr    = mgmtYr + maintYr + opexFixedYr;
+      const noiYr     = egiYr - opexYr;
+      const btcfYr    = noiYr - annualDebtService;
+      const dscrYr    = annualDebtService > 0 ? noiYr/annualDebtService : 0;
+      return {yr, grossYr, egiYr, opexYr, noiYr, btcfYr, dscrYr};
+    });
+    const proj = withCumulative(projBase, "btcfYr", "cumBtcf");
+
+    // Exit at year `hold`: appreciated ARV, selling costs, remaining loan balance
+    const exitArv     = arv * Math.pow(1+ap, hold);
+    const exitSellCosts = exitArv * sellPct;
+    const refiLoanBal = loanBalance(refiLoanAmount, form.refiRate, form.refiAmort, hold);
+    const exitProceeds= exitArv - exitSellCosts - refiLoanBal;
+
+    // ── True IRR — investor's effective initial position is cashLeftInDeal
+    // (after the refi recouped refiNetProceeds). Y0 = -cashLeftInDeal, Y1..N
+    // = post-refi BTCF, Year N also gets exitProceeds.
+    let irrValue = null;
+    let irrFlows = null;
+    if (cashLeftInDeal > 0) {
+      irrFlows = [-cashLeftInDeal, ...proj.map((p, i) =>
+        i === proj.length - 1 ? p.btcfYr + exitProceeds : p.btcfYr
+      )];
+      irrValue = solveIRR(irrFlows);
+    } else {
+      // True BRRRR: nothing left in the deal → IRR is infinite/undefined.
+      // Display as ∞ in the UI and skip the solver.
+      irrFlows = [0, ...proj.map((p, i) =>
+        i === proj.length - 1 ? p.btcfYr + exitProceeds : p.btcfYr
+      )];
+      irrValue = Infinity;
+    }
+
+    // Cumulative position curve for the equity-buildup chart
+    const equityCurve = [{ yr: 0, cum: -cashLeftInDeal }, ...proj.map((p, i) => ({
+      yr: p.yr,
+      cum: -cashLeftInDeal + p.cumBtcf + (i === proj.length - 1 ? exitProceeds : 0),
+    }))];
+
+    const totalHoldCF = proj.reduce((a, p) => a + p.btcfYr, 0);
+    const totalReturn = totalHoldCF + exitProceeds;
+    const eqMultiple  = cashLeftInDeal > 0 ? totalReturn/cashLeftInDeal : Infinity;
+
     return {
       pp, rehab, arv,
       closingCostsBuy, holdingCost, totalCashIn,
@@ -283,6 +388,11 @@ export default function BRRRRCalculator() {
       cashLeftInDeal, cashPulledOut, isTrueBRRRR,
       refiMonthlyPayment, annualDebtService, annualCF, monthlyCF,
       dscr, coc, equityCreated, equityOnCost, arvOnCost, refiCap,
+      // hold-period additions
+      hold, exitArv, exitSellCosts, refiLoanBal, exitProceeds,
+      totalHoldCF, totalReturn, eqMultiple,
+      irr: irrValue,
+      proj, equityCurve,
     };
   }, [form]);
 
@@ -300,6 +410,43 @@ export default function BRRRRCalculator() {
     return { icon:"🚫", title:"Doesn't Pencil as BRRRR", sub:`Negative cash flow after refi. Revisit the numbers — purchase price, rehab budget, rents, or exit cap.`, cls:"red", border:"rgba(242,92,92,0.2)", bg:"rgba(242,92,92,0.06)" };
   };
   const verdict = getVerdict();
+
+  // ── Deal Thesis Hint (Haiku) — debounced fetch on calc changes ─────────
+  // Fires 600ms after calc settles, prevents spamming Anthropic while user types.
+  useEffect(() => {
+    if (!calc || !verdict) { setAiThesis(null); return; }
+    const handle = setTimeout(() => {
+      fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "deal-thesis",
+          strategy: "BRRRR",
+          address: form.address,
+          verdict: verdict.title,
+          metrics: {
+            totalCashIn:     calc.totalCashIn,
+            cashLeftInDeal:  calc.cashLeftInDeal,
+            cashPulledOut:   calc.cashPulledOut,
+            isTrueBRRRR:     calc.isTrueBRRRR,
+            noi:             calc.noi,
+            monthlyCF:       calc.monthlyCF,
+            dscr:            calc.dscr,
+            coc:             calc.coc === Infinity ? null : calc.coc,
+            equityCreated:   calc.equityCreated,
+            equityOnCost:    calc.equityOnCost,
+            refiCap:         calc.refiCap,
+            irr:             calc.irr === Infinity ? null : calc.irr,
+            eqMultiple:      calc.eqMultiple === Infinity ? null : calc.eqMultiple,
+          },
+        }),
+      })
+        .then(r => r.ok ? r.json() : null)
+        .then(t => { if (t?.thesis) setAiThesis(t); })
+        .catch(() => {});
+    }, 600);
+    return () => clearTimeout(handle);
+  }, [calc?.totalCashIn, calc?.dscr, calc?.cashLeftInDeal, calc?.isTrueBRRRR, calc?.monthlyCF, calc?.irr, verdict?.title, form.address]);
 
   return (
     <div className="br-wrap">
@@ -340,6 +487,52 @@ export default function BRRRRCalculator() {
 
         {/* ── LEFT: Inputs ── */}
         <div>
+          {/* Try Sample Deal — activation primer */}
+          <div style={{
+            background:"linear-gradient(135deg, rgba(52,217,138,0.08), rgba(59,158,255,0.06))",
+            border:"1px solid rgba(52,217,138,0.25)",
+            borderRadius:"var(--r-md,6px)",
+            padding:"12px 14px",marginBottom:14,
+            display:"flex",alignItems:"center",justifyContent:"space-between",gap:12
+          }}>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:3}}>
+                ▸ NEW HERE? TRY A SAMPLE
+              </div>
+              <div style={{fontSize:12.5,color:"var(--text)",lineHeight:1.4}}>
+                Calgary triplex BRRRR · pre-filled · see the full memo in 5 seconds
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setForm(prev => ({
+                  ...prev,
+                  dealName: "Sample · 142 Birchwood Triplex",
+                  address: "142 Birchwood Dr, Calgary, AB",
+                  purchasePrice: "525000", closingCostsPct: "2",
+                  rehabBudget: "85000", holdingMonths: "4", monthlyHoldingCost: "1800",
+                  monthlyRent: "5400", vacancyPct: "5", otherIncome: "0",
+                  propTax: "4200", insurance: "2400",
+                  managementPct: "8", maintenancePct: "5", utilities: "0",
+                  arv: "780000",
+                  refinanceLTV: "80", refiRate: "5.75", refiAmort: "30", refiClosingCostsPct: "1.5",
+                  holdYears: "5", rentGrowth: "3", opexGrowth: "2", appreciation: "3", exitSellingPct: "5",
+                }));
+                setTimeout(() => window.scrollTo({top: window.scrollY + 400, behavior: "smooth"}), 80);
+              }}
+              style={{
+                fontFamily:"'Fira Code',monospace",fontSize:11,fontWeight:700,letterSpacing:"0.6px",
+                padding:"8px 14px",border:"1px solid var(--green)",borderRadius:"var(--r-sm,4px)",
+                color:"#07090f",background:"var(--green)",cursor:"pointer",whiteSpace:"nowrap",
+                transition:"all 0.15s"
+              }}
+              onMouseOver={e => e.currentTarget.style.transform = "translateY(-1px)"}
+              onMouseOut={e => e.currentTarget.style.transform = ""}>
+              ▶ LOAD SAMPLE
+            </button>
+          </div>
+
           {/* Deal Info */}
           <div className="br-card">
             <div className="br-card-header">
@@ -421,8 +614,86 @@ export default function BRRRRCalculator() {
             <div className="br-card-body">
               <div className="br-row2">
                 <div className="br-field">
-                  <div className="br-label">Monthly Rent</div>
-                  <input className="br-input" type="number" placeholder="2,400" value={form.monthlyRent} onChange={e=>setF("monthlyRent",e.target.value)} />
+                  <div className="br-label" style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <span>Monthly Rent</span>
+                    {isCanadian(form.address) && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (!form.address) return;
+                          setRentPredicting(true);
+                          try {
+                            const r = await fetch("/api/predict-rent", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ address: form.address, bedrooms: predictBeds }),
+                            });
+                            const data = r.ok ? await r.json() : null;
+                            if (data?.ok) {
+                              setRentPrediction(data);
+                              setF("monthlyRent", String(data.predictedRent));
+                            }
+                          } catch {}
+                          setRentPredicting(false);
+                        }}
+                        disabled={!form.address || rentPredicting}
+                        style={{
+                          fontSize:9.5, fontFamily:"'Fira Code',monospace", fontWeight:700,
+                          letterSpacing:"0.5px", padding:"3px 7px",
+                          border:"1px solid rgba(167,130,255,0.4)", borderRadius:"var(--r-xs,2px)",
+                          color: rentPredicting ? "var(--dim)" : "var(--purple)",
+                          background:"rgba(167,130,255,0.08)", cursor: rentPredicting?"wait":"pointer",
+                          opacity: form.address ? 1 : 0.4
+                        }}>
+                        {rentPredicting ? "..." : "🇨🇦 ESTIMATE"}
+                      </button>
+                    )}
+                  </div>
+                  <input className="br-input" type="number" placeholder="2,400" value={form.monthlyRent} onChange={e=>{setF("monthlyRent",e.target.value); setRentPrediction(null);}} />
+                  {rentPrediction && (
+                    <div style={{
+                      marginTop:6, padding:"6px 9px",
+                      background:"rgba(167,130,255,0.06)",
+                      border:"1px solid rgba(167,130,255,0.2)",
+                      borderRadius:"var(--r-sm,4px)",
+                      fontFamily:"'Fira Code',monospace", fontSize:10, color:"var(--sub)"
+                    }}>
+                      <div style={{display:"flex",justifyContent:"space-between",gap:8}}>
+                        <span style={{color:"var(--purple)",fontWeight:700,letterSpacing:"0.4px"}}>CMHC · {rentPrediction.unitType?.toUpperCase()}</span>
+                        <span>{fmt(rentPrediction.range.low)}–{fmt(rentPrediction.range.high)} ±{rentPrediction.range.spreadPct}%</span>
+                      </div>
+                      <div style={{marginTop:5,display:"flex",gap:4}}>
+                        {[{b:0,l:"Bach"},{b:1,l:"1BR"},{b:2,l:"2BR"},{b:3,l:"3BR+"}].map(({b,l}) => (
+                          <button key={b} type="button"
+                            onClick={async () => {
+                              setPredictBeds(b);
+                              setRentPredicting(true);
+                              try {
+                                const r = await fetch("/api/predict-rent", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ address: form.address, bedrooms: b }),
+                                });
+                                const data = r.ok ? await r.json() : null;
+                                if (data?.ok) {
+                                  setRentPrediction(data);
+                                  setF("monthlyRent", String(data.predictedRent));
+                                }
+                              } catch {}
+                              setRentPredicting(false);
+                            }}
+                            style={{
+                              flex:1, padding:"2px 0", fontSize:9.5, fontWeight:700,
+                              border: `1px solid ${predictBeds===b?"var(--purple)":"var(--borderf)"}`,
+                              borderRadius:"var(--r-xs,2px)",
+                              background: predictBeds===b ? "rgba(167,130,255,0.15)" : "transparent",
+                              color: predictBeds===b ? "var(--purple)" : "var(--dim)",
+                              cursor:"pointer", fontFamily:"'Fira Code',monospace"
+                            }}>{l}</button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="br-field">
                   <div className="br-label">
@@ -519,6 +790,43 @@ export default function BRRRRCalculator() {
               )}
             </div>
           </div>
+
+          {/* Phase 5: Hold + Exit */}
+          <div className="br-card">
+            <div className="br-card-header">
+              <div className="br-card-icon" style={{background:"rgba(52,217,138,0.12)",color:"var(--green)"}}>5️⃣</div>
+              <div><div className="br-card-title">Hold &amp; Exit</div><div className="br-card-sub">Post-refi projection assumptions</div></div>
+            </div>
+            <div className="br-card-body">
+              <div className="br-row2">
+                <div className="br-field">
+                  <div className="br-label">Hold Period (years)</div>
+                  <input className="br-input" type="number" placeholder="5" value={form.holdYears} onChange={e=>setF("holdYears",e.target.value)} />
+                </div>
+                <div className="br-field">
+                  <div className="br-label">Rent Growth %/yr</div>
+                  <input className="br-input" type="number" placeholder="3" value={form.rentGrowth} onChange={e=>setF("rentGrowth",e.target.value)} />
+                </div>
+              </div>
+              <div className="br-row2">
+                <div className="br-field">
+                  <div className="br-label">OpEx Growth %/yr</div>
+                  <input className="br-input" type="number" placeholder="2" value={form.opexGrowth} onChange={e=>setF("opexGrowth",e.target.value)} />
+                </div>
+                <div className="br-field">
+                  <div className="br-label">Appreciation %/yr</div>
+                  <input className="br-input" type="number" placeholder="3" value={form.appreciation} onChange={e=>setF("appreciation",e.target.value)} />
+                </div>
+              </div>
+              <div className="br-field">
+                <div className="br-label">
+                  Selling Costs at Exit %
+                  {calc && calc.exitSellCosts > 0 && <span className="br-hint">→ {fmt(calc.exitSellCosts)}</span>}
+                </div>
+                <input className="br-input" type="number" placeholder="5" value={form.exitSellingPct} onChange={e=>setF("exitSellingPct",e.target.value)} />
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* ── RIGHT: Results ── */}
@@ -539,6 +847,25 @@ export default function BRRRRCalculator() {
                   <div className="br-verdict-title" style={{color:`var(--${verdict.cls})`}}>{verdict.title}</div>
                   <div className="br-verdict-sub" style={{color:"var(--sub)",fontSize:13,marginTop:6,lineHeight:1.55}}>{verdict.sub}</div>
                 </div>
+                {aiThesis?.thesis && (
+                  <div style={{
+                    marginTop:10,padding:"10px 12px",
+                    background:"rgba(52,217,138,0.05)",
+                    borderLeft:"3px solid var(--green)",
+                    borderRadius:"0 var(--r-sm,4px) var(--r-sm,4px) 0",
+                    display:"flex",gap:10,alignItems:"flex-start"
+                  }}>
+                    <span style={{fontSize:14,lineHeight:1.4}}>🤖</span>
+                    <div style={{flex:1}}>
+                      <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:3}}>
+                        AI THESIS{aiThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:6}}>· {aiThesis.source}</span>}
+                      </div>
+                      <div style={{fontSize:12.5,color:"var(--text)",lineHeight:1.55}}>
+                        {aiThesis.thesis}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -654,6 +981,107 @@ export default function BRRRRCalculator() {
                 </div>
               </div>
             </div>
+
+            {/* ── Hold + Exit Returns ─────────────────────────────────────────── */}
+            <div className="br-card" style={{borderRadius:6,borderColor:"rgba(52,217,138,0.18)"}}>
+              <div className="br-card-header" style={{padding:"10px 14px",background:"rgba(52,217,138,0.04)"}}>
+                <div style={{width:30,height:22,border:"1px solid rgba(52,217,138,0.4)",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.5px"}}>RTN</div>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"var(--green)",fontWeight:700,letterSpacing:"0.5px"}}>[ HOLD/RETURNS ]</span>
+                    <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"var(--dim)"}}>· {calc.hold}YR</span>
+                  </div>
+                  <div className="br-card-title" style={{fontSize:12.5,marginTop:1,letterSpacing:"0.2px"}}>IRR / Equity Multiple / Exit Proceeds</div>
+                </div>
+                <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,color:calc.irr===Infinity||calc.irr>=0.15?"var(--green)":calc.irr>=0.10?"var(--amber)":"var(--red)",fontWeight:700}}>
+                  {calc.irr===Infinity?"▲ ∞":calc.irr>=0.15?"▲ STRONG":calc.irr>=0.10?"● HOLD":"▼ REVIEW"}
+                </div>
+              </div>
+              <div className="br-card-body" style={{padding:"12px 14px",gap:8}}>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(3, 1fr)",gap:8}}>
+                  {[
+                    {lbl:"IRR (TRUE)",      val: calc.irr===Infinity?"∞":calc.irr!=null?fmtPct(calc.irr):"—", sub: calc.irr===Infinity?"zero capital left":"NPV across yearly CFs", cls: calc.irr===Infinity?"purple":calc.irr!=null&&calc.irr>=0.15?"green":calc.irr!=null&&calc.irr>=0.10?"amber":"red"},
+                    {lbl:"EQUITY MULT",     val: calc.eqMultiple===Infinity?"∞":fmtX(calc.eqMultiple),       sub: calc.eqMultiple===Infinity?"recouped at refi":`÷ ${fmt(calc.cashLeftInDeal)} in`, cls: calc.eqMultiple===Infinity?"purple":calc.eqMultiple>=2?"green":calc.eqMultiple>=1.5?"amber":"red"},
+                    {lbl:`EXIT YR${calc.hold}`,val: fmt(calc.exitArv),                                       sub: `ARV·(1+${form.appreciation}%)^${calc.hold}`, cls:"green"},
+                    {lbl:"NET PROCEEDS",    val: fmt(calc.exitProceeds),                                     sub: `− ${fmt(calc.refiLoanBal)} loan bal`, cls:"green"},
+                    {lbl:"HOLD CF (Σ)",     val: fmt(calc.totalHoldCF),                                      sub: `${form.rentGrowth}% rent g`, cls:"blue"},
+                    {lbl:"TOTAL RETURN",    val: fmt(calc.totalReturn),                                      sub: "Hold CF + exit", cls:"blue"},
+                  ].map((m,i)=>(
+                    <div key={i} className={`br-metric ${m.cls}`} style={{padding:10,borderRadius:4}}>
+                      <div className="br-metric-label" style={{fontSize:9,fontFamily:"'Fira Code',monospace",marginBottom:4,letterSpacing:"0.8px"}}>{m.lbl}</div>
+                      <div className="br-metric-val" style={{fontSize:17,fontFamily:"'Fira Code',monospace",letterSpacing:"-0.3px"}}>{m.val}</div>
+                      <div className="br-metric-sub" style={{fontSize:9.5,marginTop:3,fontFamily:"'Fira Code',monospace"}}>{m.sub}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* ── Year-by-Year Projection ──────────────────────────────────────── */}
+            <div className="br-card" style={{borderRadius:6,borderColor:"rgba(59,158,255,0.18)"}}>
+              <div className="br-card-header" style={{padding:"10px 14px",background:"rgba(59,158,255,0.04)"}}>
+                <div style={{width:30,height:22,border:"1px solid rgba(59,158,255,0.4)",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--blue)",letterSpacing:"0.5px"}}>P&amp;L</div>
+                <div style={{flex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"var(--blue)",fontWeight:700,letterSpacing:"0.5px"}}>[ PROJECTION ]</span>
+                    <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"var(--dim)"}}>· POST-REFI</span>
+                  </div>
+                  <div className="br-card-title" style={{fontSize:12.5,marginTop:1,letterSpacing:"0.2px"}}>{calc.hold}-Year Cash Flow Schedule</div>
+                </div>
+                <div style={{fontFamily:"'Fira Code',monospace",fontSize:9,color:"var(--dim)"}}>{form.rentGrowth}%·R / {form.opexGrowth}%·OX</div>
+              </div>
+              <div className="br-card-body" style={{padding:"0",gap:0}}>
+                <div style={{overflowX:"auto"}}>
+                  <table style={{width:"100%",borderCollapse:"collapse",fontSize:11.5,minWidth:Math.max(560, 140 + 80*calc.proj.length),fontFamily:"'Fira Code',monospace"}}>
+                    <thead>
+                      <tr style={{color:"var(--dim)",fontSize:9.5,fontWeight:700,letterSpacing:"0.6px",background:"rgba(255,255,255,0.015)"}}>
+                        <th style={{textAlign:"left",padding:"8px 14px",borderBottom:"1px solid var(--borderf)"}}>LINE</th>
+                        {calc.proj.map(p=><th key={p.yr} style={{textAlign:"right",padding:"8px 10px",borderBottom:"1px solid var(--borderf)"}}>Y{p.yr}</th>)}
+                      </tr>
+                    </thead>
+                    <tbody style={{color:"var(--text)"}}>
+                      {[
+                        {lbl:"GROSS RENT",   key:"grossYr"},
+                        {lbl:"EGI",          key:"egiYr"},
+                        {lbl:"OPEX",         key:"opexYr",  neg:true},
+                      ].map(({lbl,key,neg},ri)=>(
+                        <tr key={lbl} style={{background:ri%2===0?"transparent":"rgba(255,255,255,0.012)"}}>
+                          <td style={{padding:"5px 14px",color:"var(--sub)",fontSize:10.5,letterSpacing:"0.4px"}}>{lbl}</td>
+                          {calc.proj.map((p,i)=><td key={i} style={{textAlign:"right",padding:"5px 10px",color:neg?"var(--red)":"var(--text)"}}>{neg?`(${fmt(p[key])})`:fmt(p[key])}</td>)}
+                        </tr>
+                      ))}
+                      <tr style={{borderTop:"1px solid rgba(59,158,255,0.2)",fontWeight:700,background:"rgba(59,158,255,0.04)"}}>
+                        <td style={{padding:"7px 14px",color:"var(--blue)",fontSize:10.5,letterSpacing:"0.4px"}}>NOI</td>
+                        {calc.proj.map((p,i)=><td key={i} style={{textAlign:"right",padding:"7px 10px",color:"var(--blue)"}}>{fmt(p.noiYr)}</td>)}
+                      </tr>
+                      <tr>
+                        <td style={{padding:"5px 14px",color:"var(--sub)",fontSize:10.5,letterSpacing:"0.4px"}}>DEBT SVC</td>
+                        {calc.proj.map((p,i)=><td key={i} style={{textAlign:"right",padding:"5px 10px",color:"var(--red)"}}>({fmt(calc.annualDebtService)})</td>)}
+                      </tr>
+                      <tr style={{borderTop:"1px solid rgba(52,217,138,0.25)",fontWeight:700,background:"rgba(52,217,138,0.05)"}}>
+                        <td style={{padding:"8px 14px",color:"var(--green)",fontSize:10.5,letterSpacing:"0.4px"}}>BTCF ▶</td>
+                        {calc.proj.map((p,i)=><td key={i} style={{textAlign:"right",padding:"8px 10px",color:p.btcfYr>=0?"var(--green)":"var(--red)"}}>{p.btcfYr>=0?fmt(p.btcfYr):`(${fmt(-p.btcfYr)})`}</td>)}
+                      </tr>
+                      <tr style={{borderTop:"1px solid var(--borderf)"}}>
+                        <td style={{padding:"6px 14px",color:"var(--sub)",fontSize:10.5,letterSpacing:"0.4px"}}>DSCR</td>
+                        {calc.proj.map((p,i)=><td key={i} style={{textAlign:"right",padding:"6px 10px",color:p.dscrYr>=1.25?"var(--green)":p.dscrYr>=1?"var(--amber)":"var(--red)"}}>{p.dscrYr>=1.25?"▲ ":p.dscrYr>=1?"● ":"▼ "}{fmtX(p.dscrYr)}</td>)}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Visual Analytics (lazy-loaded — recharts is the heavy dep) ── */}
+            <Suspense fallback={
+              <div className="br-card" style={{borderRadius:6,padding:"40px 14px",textAlign:"center"}}>
+                <div style={{fontFamily:"'Fira Code',monospace",fontSize:11,color:"var(--dim)",letterSpacing:"0.6px"}}>
+                  ▸ LOADING CHARTS…
+                </div>
+              </div>
+            }>
+              <BRRRRCharts calc={calc} />
+            </Suspense>
 
             {/* Export PDF */}
             <div className="br-card" style={{marginTop:4}}>

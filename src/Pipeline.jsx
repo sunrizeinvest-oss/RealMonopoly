@@ -52,7 +52,6 @@ function daysSince(dateStr) {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#07090f;--card:#0d1119;--card2:#0a0e18;--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;--amber:#f0a030;--purple:#a782ff}
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* Nav */
@@ -66,8 +65,8 @@ const CSS = `
   /* Stats bar */
   .pl-stats{display:flex;gap:0;border-bottom:1px solid var(--borderf);background:rgba(13,17,25,0.8);padding:0 20px;overflow-x:auto}
   .pl-stat{padding:12px 20px;border-right:1px solid var(--borderf);flex-shrink:0;text-align:center;min-width:100px}
-  .pl-stat-val{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-0.5px;line-height:1}
-  .pl-stat-lbl{font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
+  .pl-stat-val{font-family:'Fira Code',ui-monospace,monospace;font-size:18px;font-weight:800;color:var(--text);letter-spacing:-0.5px;line-height:1}
+  .pl-stat-lbl{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
 
   /* Board */
   .pl-board-wrap{overflow-x:auto;padding:20px;min-height:calc(100vh - 120px)}
@@ -75,16 +74,16 @@ const CSS = `
 
   /* Column */
   .pl-col{width:240px;flex-shrink:0;display:flex;flex-direction:column;gap:0}
-  .pl-col-head{padding:10px 14px 10px;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:space-between}
+  .pl-col-head{padding:10px 14px 10px;border-radius:6px 12px 0 0;display:flex;align-items:center;justify-content:space-between}
   .pl-col-label{font-size:12px;font-weight:800;letter-spacing:0.2px}
-  .pl-col-count{font-size:10px;font-weight:700;background:rgba(255,255,255,0.1);border-radius:99px;padding:2px 8px;color:rgba(255,255,255,0.7)}
+  .pl-col-count{font-size:10px;font-weight:700;background:rgba(255,255,255,0.1);border-radius:3px;padding:2px 8px;color:rgba(255,255,255,0.7)}
   .pl-col-body{background:rgba(255,255,255,0.02);border:1px solid var(--borderf);border-top:none;border-radius:0 0 12px 12px;padding:8px;min-height:120px;transition:background 0.15s}
   .pl-col-body.drag-over{background:rgba(59,158,255,0.06);border-color:rgba(59,158,255,0.3)}
   .pl-col-add{width:100%;background:transparent;border:1px dashed var(--borderf);border-radius:8px;padding:8px;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:6px;transition:all 0.15s;text-align:center}
   .pl-col-add:hover{border-color:rgba(59,158,255,0.4);color:var(--blue);background:rgba(59,158,255,0.04)}
 
   /* Cards */
-  .pl-card{background:var(--card);border:1px solid var(--borderf);border-radius:10px;padding:12px 13px;margin-bottom:8px;cursor:grab;transition:all 0.15s;position:relative;user-select:none}
+  .pl-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:12px 13px;margin-bottom:8px;cursor:grab;transition:all 0.15s;position:relative;user-select:none}
   .pl-card:hover{border-color:rgba(59,158,255,0.3);box-shadow:0 4px 16px rgba(0,0,0,0.3);transform:translateY(-1px)}
   .pl-card.dragging{opacity:0.4;transform:scale(0.98)}
   .pl-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:8px}
@@ -92,8 +91,8 @@ const CSS = `
   .pl-card-city{font-size:10.5px;color:var(--sub);margin-top:2px}
   .pl-grade{font-size:13px;font-weight:900;flex-shrink:0;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace}
   .pl-card-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
-  .pl-type-pill{font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:0.3px}
-  .pl-source-pill{font-size:9px;font-weight:600;padding:2px 7px;border-radius:99px;background:rgba(255,255,255,0.05);color:var(--dim);border:1px solid var(--borderf)}
+  .pl-type-pill{font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;text-transform:uppercase;letter-spacing:0.3px}
+  .pl-source-pill{font-size:9px;font-weight:600;padding:2px 7px;border-radius:3px;background:rgba(255,255,255,0.05);color:var(--dim);border:1px solid var(--borderf)}
   .pl-card-numbers{display:flex;justify-content:space-between;align-items:center}
   .pl-profit{font-size:14px;font-weight:800;letter-spacing:-0.3px}
   .pl-days{font-size:10px;color:var(--dim);font-weight:600}
@@ -107,7 +106,7 @@ const CSS = `
 
   /* Modal */
   .pl-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(5px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
-  .pl-modal{background:#0d1119;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:28px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto}
+  .pl-modal{background:#0d1119;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:28px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto}
   .pl-modal-title{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:20px}
   .pl-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   @media(max-width:500px){.pl-form-grid{grid-template-columns:1fr}}

@@ -33,7 +33,6 @@ const BLANK_DEAL = {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#07090f;--card:#0d1119;--card2:#0a0e18;--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff;--green:#34d98a;--red:#f25c5c;--amber:#f0a030;--purple:#a782ff}
   html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
 
   /* Nav */
@@ -49,7 +48,7 @@ const CSS = `
 
   /* Hero */
   .pf-hero{margin-bottom:36px;position:relative}
-  .pf-hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.2);border-radius:99px;padding:4px 14px;font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px}
+  .pf-hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.2);border-radius:3px;padding:4px 14px;font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:14px}
   .pf-hero h1{font-size:clamp(26px,4vw,40px);font-weight:800;color:var(--text);letter-spacing:-1.5px;line-height:1.1;margin-bottom:8px}
   .pf-hero h1 span{color:var(--green)}
   .pf-hero p{font-size:14px;color:var(--sub);line-height:1.6;max-width:500px}
@@ -58,11 +57,11 @@ const CSS = `
   .pf-scoreboard{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:32px}
   @media(max-width:800px){.pf-scoreboard{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:480px){.pf-scoreboard{grid-template-columns:repeat(2,1fr)}}
-  .pf-score-card{background:var(--card);border:1px solid var(--borderf);border-radius:14px;padding:18px 16px;text-align:center;transition:border-color 0.15s}
+  .pf-score-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 16px;text-align:center;transition:border-color 0.15s}
   .pf-score-card.highlight{border-color:rgba(52,217,138,0.25);background:linear-gradient(135deg,rgba(52,217,138,0.04),var(--card))}
   .pf-score-icon{font-size:20px;margin-bottom:8px}
-  .pf-score-val{font-size:22px;font-weight:800;letter-spacing:-0.5px;line-height:1;margin-bottom:5px}
-  .pf-score-lbl{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px}
+  .pf-score-val{font-family:'Fira Code',ui-monospace,monospace;font-size:22px;font-weight:800;letter-spacing:-0.5px;line-height:1;margin-bottom:5px}
+  .pf-score-lbl{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px}
 
   /* Section header */
   .pf-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
@@ -71,7 +70,7 @@ const CSS = `
   .pf-add-btn:hover{background:rgba(59,158,255,0.18)}
 
   /* Timeline chart */
-  .pf-chart-wrap{background:var(--card);border:1px solid var(--borderf);border-radius:16px;padding:20px 24px;margin-bottom:28px}
+  .pf-chart-wrap{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:20px 24px;margin-bottom:28px}
   .pf-chart-title{font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:18px}
   .pf-chart{display:flex;align-items:flex-end;gap:6px;height:120px;padding-bottom:24px;position:relative}
   .pf-chart::after{content:'';position:absolute;bottom:24px;left:0;right:0;height:1px;background:var(--borderf)}
@@ -82,15 +81,15 @@ const CSS = `
   .pf-chart-empty{display:flex;align-items:center;justify-content:center;height:120px;color:var(--dim);font-size:13px}
 
   /* Deal table */
-  .pf-table-wrap{border-radius:16px;border:1px solid var(--borderf);overflow:hidden;margin-bottom:32px}
+  .pf-table-wrap{border-radius:6px;border:1px solid var(--borderf);overflow:hidden;margin-bottom:32px}
   .pf-table{width:100%;border-collapse:collapse;background:var(--card);min-width:700px}
   .pf-table th{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;padding:11px 16px;text-align:left;border-bottom:1px solid var(--borderf);background:var(--card2);white-space:nowrap}
   .pf-table td{padding:13px 16px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle}
   .pf-table tr:last-child td{border-bottom:none}
   .pf-table tr:hover td{background:rgba(255,255,255,0.015)}
-  .pf-table-scroll{overflow-x:auto;border-radius:16px;border:1px solid var(--borderf)}
+  .pf-table-scroll{overflow-x:auto;border-radius:6px;border:1px solid var(--borderf)}
 
-  .pf-type-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:0.3px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+  .pf-type-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:3px;text-transform:uppercase;letter-spacing:0.3px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
   .pf-profit-pos{color:var(--green);font-weight:800}
   .pf-profit-neg{color:var(--red);font-weight:800}
   .pf-addr-cell{font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -101,14 +100,14 @@ const CSS = `
 
   /* Type breakdown */
   .pf-breakdown{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:32px}
-  .pf-breakdown-card{background:var(--card);border:1px solid var(--borderf);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px}
+  .pf-breakdown-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:16px 18px;display:flex;align-items:center;gap:14px}
   .pf-bd-icon{font-size:28px;flex-shrink:0}
   .pf-bd-val{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
   .pf-bd-lbl{font-size:11px;color:var(--sub);font-weight:600}
 
   /* Modal overlay */
   .pf-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
-  .pf-modal{background:#0d1119;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
+  .pf-modal{background:#0d1119;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
   .pf-modal-title{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:6px}
   .pf-modal-sub{font-size:13px;color:var(--sub);margin-bottom:24px}
   .pf-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -119,25 +118,25 @@ const CSS = `
   .pf-input{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
   .pf-input:focus{border-color:rgba(59,158,255,0.4)}
   .pf-select{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;cursor:pointer}
-  .pf-modal-calc{background:rgba(52,217,138,0.05);border:1px solid rgba(52,217,138,0.15);border-radius:10px;padding:14px 16px;margin:16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .pf-modal-calc{background:rgba(52,217,138,0.05);border:1px solid rgba(52,217,138,0.15);border-radius:6px;padding:14px 16px;margin:16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .pf-calc-item{text-align:center}
   .pf-calc-val{font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px}
   .pf-calc-lbl{font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase}
   .pf-modal-actions{display:flex;gap:10px;margin-top:24px;justify-content:flex-end}
-  .pf-save-btn{background:var(--blue);color:#fff;border:none;border-radius:10px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+  .pf-save-btn{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
   .pf-save-btn:hover{background:#5aaeff}
-  .pf-cancel-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:10px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .pf-cancel-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:6px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
   .pf-cancel-btn:hover{color:var(--text)}
 
   /* Best deal banner */
-  .pf-best{background:linear-gradient(135deg,rgba(240,160,48,0.06),rgba(52,217,138,0.04));border:1px solid rgba(240,160,48,0.2);border-radius:14px;padding:18px 22px;margin-bottom:28px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .pf-best{background:linear-gradient(135deg,rgba(240,160,48,0.06),rgba(52,217,138,0.04));border:1px solid rgba(240,160,48,0.2);border-radius:6px;padding:18px 22px;margin-bottom:28px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
   .pf-best-icon{font-size:32px;flex-shrink:0}
   .pf-best-label{font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
   .pf-best-val{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
   .pf-best-sub{font-size:12px;color:var(--sub);margin-top:2px}
 
   /* Empty */
-  .pf-empty{background:var(--card);border:2px dashed var(--borderf);border-radius:18px;padding:80px 24px;text-align:center;margin-bottom:32px}
+  .pf-empty{background:var(--card);border:2px dashed var(--borderf);border-radius:6px;padding:80px 24px;text-align:center;margin-bottom:32px}
   .pf-empty-icon{font-size:48px;margin-bottom:16px}
   .pf-empty-title{font-size:20px;font-weight:800;color:var(--sub);margin-bottom:8px}
   .pf-empty-sub{font-size:14px;color:var(--dim);max-width:380px;margin:0 auto 28px;line-height:1.7}

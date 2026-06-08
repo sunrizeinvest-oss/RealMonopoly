@@ -62,9 +62,12 @@ export default function Landing() {
   useEffect(() => { if (user) navigate("/analyze"); }, [user]);
 
   useEffect(() => {
-    // Animate counters
+    // Animate counters in once, then keep cDeals ticking up so the page feels alive.
+    let deals = 4180, profit = 47300, roi = 14.8;
+    let liveTimer = null;
+
     setTimeout(() => {
-      [['cDeals', 4180, 2400, '', '', false], ['cProfit', 47300, 2800, '$', '', false], ['cROI', 14.8, 2200, '', '%', true]].forEach(([id, to, dur, pre, suf, dec]) => {
+      [['cDeals', deals, 2400, '', '', false], ['cProfit', profit, 2800, '$', '', false], ['cROI', roi, 2200, '', '%', true]].forEach(([id, to, dur, pre, suf, dec]) => {
         const el = document.getElementById(id);
         if (!el) return;
         let start = null;
@@ -78,6 +81,29 @@ export default function Landing() {
         }
         requestAnimationFrame(step);
       });
+
+      // Live tick — every 5-12s a new "deal" lands. Brief flash to draw the eye.
+      const dealsEl = document.getElementById('cDeals');
+      const profitEl = document.getElementById('cProfit');
+      function tick() {
+        deals += 1;
+        // Drift profit average within ±$80 each tick — feels organic
+        profit += Math.round((Math.random() - 0.45) * 160);
+        if (dealsEl) {
+          dealsEl.textContent = deals.toLocaleString();
+          dealsEl.style.transition = 'color 0.18s, transform 0.18s';
+          dealsEl.style.color = 'var(--green)';
+          dealsEl.style.transform = 'translateY(-2px)';
+          setTimeout(() => {
+            dealsEl.style.color = '';
+            dealsEl.style.transform = '';
+          }, 700);
+        }
+        if (profitEl) profitEl.textContent = '$' + profit.toLocaleString();
+        const next = 5000 + Math.random() * 7000;
+        liveTimer = setTimeout(tick, next);
+      }
+      liveTimer = setTimeout(tick, 4000);
     }, 500);
 
     // Deal ticker
@@ -86,7 +112,9 @@ export default function Landing() {
       [...DEALS, ...DEALS].forEach(d => {
         const chip = document.createElement('div');
         chip.className = 'deal-chip';
-        chip.innerHTML = `<div class="dc-icon">🏠</div><div><div class="dc-addr">${d.addr}</div><div class="dc-city">${d.city} · CoC ${d.coc.toFixed(1)}%</div></div><div class="dc-profit ${d.profit > 0 ? 'pos' : 'neg'}">${fmt(d.profit)}</div><div class="dc-badge ${d.verdict}">${d.verdict === 'go' ? '✅ GO' : d.verdict === 'no' ? '🚫 NO-GO' : '⚠️ CAUTION'}</div>`;
+        const trendGlyph = d.profit > 0 ? '▲' : '▼';
+        const badge = d.verdict === 'go' ? '[ GO ]' : d.verdict === 'no' ? '[ PASS ]' : '[ HOLD ]';
+        chip.innerHTML = `<div class="dc-icon" style="font-family:'Fira Code',monospace;font-size:10px;color:var(--blue);font-weight:700;letter-spacing:0.5px">${d.addr.split(' ')[0]}</div><div><div class="dc-addr">${d.addr}</div><div class="dc-city">${d.city} · CoC ${d.coc.toFixed(1)}%</div></div><div class="dc-profit ${d.profit > 0 ? 'pos' : 'neg'}">${trendGlyph} ${fmt(d.profit)}</div><div class="dc-badge ${d.verdict}">${badge}</div>`;
         track.appendChild(chip);
       });
     }
@@ -96,7 +124,10 @@ export default function Landing() {
       entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
     }, { threshold: 0.06 });
     document.querySelectorAll('.fade').forEach(el => io.observe(el));
-    return () => io.disconnect();
+    return () => {
+      io.disconnect();
+      if (liveTimer) clearTimeout(liveTimer);
+    };
   }, []);
 
   async function handleSubmit(e) {
@@ -122,7 +153,6 @@ export default function Landing() {
 
   const css = `
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{--bg:#07090f;--card:#0d1119;--card2:#0a0e18;--border:rgba(59,158,255,0.13);--borderf:rgba(255,255,255,0.07);--text:#dde4ef;--sub:#6b7d96;--dim:#3a4a60;--blue:#3b9eff;--green:#2dd47f;--red:#f25c5c;--amber:#f0a030}
     html{scroll-behavior:smooth}
     body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
@@ -142,21 +172,79 @@ export default function Landing() {
     .ld-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(59,158,255,0.09) 0%,transparent 65%);pointer-events:none;animation:breathe 5s ease-in-out infinite}
     @keyframes breathe{0%,100%{opacity:1}50%{opacity:0.55}}
     .ld-hero-inner{max-width:1140px;width:100%;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;position:relative;z-index:1}
-    .ld-eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+    .ld-eyebrow{font-family:'Fira Code',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);margin-bottom:20px;display:flex;align-items:center;gap:8px}
     .ld-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:blink 2s infinite;flex-shrink:0}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
     .ld-h1{font-size:clamp(36px,5vw,60px);font-weight:800;line-height:1.06;letter-spacing:-2.5px;color:var(--text);margin-bottom:20px}
     .ld-h1 span{color:var(--blue)}
     .ld-hero-p{font-size:17px;color:var(--sub);line-height:1.75;margin-bottom:32px;max-width:460px}
     .ld-hero-trust{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:32px}
-    .ld-trust-pill{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);font-weight:500}
+    .ld-trust-pill{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text);font-weight:500;font-family:'Fira Code',ui-monospace,monospace;border:1px solid var(--borderf);border-radius:4px;padding:6px 11px;background:rgba(255,255,255,0.02);letter-spacing:0.1px}
+    .ld-trust-pill:hover{border-color:var(--border);background:rgba(255,255,255,0.04)}
+
+    /* Live activity strip */
+    .ld-activity{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:0;margin-bottom:28px;overflow:hidden}
+    .ld-activity-head{padding:8px 14px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+    .ld-activity-glyph{color:var(--green);animation:blink 2s infinite}
+    .ld-activity-rows{display:flex;flex-direction:column}
+    .ld-activity-row{display:grid;grid-template-columns:50px 1fr 70px 70px;gap:12px;align-items:center;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.03);font-family:'Fira Code',ui-monospace,monospace;font-size:11.5px;transition:background 0.15s}
+    .ld-activity-row:last-child{border-bottom:none}
+    .ld-activity-row:hover{background:rgba(59,158,255,0.03)}
+    .ld-ar-time{color:var(--dim);font-size:10.5px}
+    .ld-ar-addr{color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .ld-ar-tag{font-size:9.5px;font-weight:700;letter-spacing:0.6px;padding:2px 6px;border-radius:3px;border:1px solid currentColor;text-align:center}
+    .ld-ar-tag.go{color:var(--green);background:rgba(52,217,138,0.06)}
+    .ld-ar-tag.no{color:var(--red);background:rgba(242,92,92,0.06)}
+    .ld-ar-roi{text-align:right;font-weight:700;font-size:11.5px}
+    .ld-ar-roi.pos{color:var(--green)}
+    .ld-ar-roi.neg{color:var(--red)}
     .ld-trust-check{color:var(--green);font-size:14px}
     .ld-stats{display:flex;gap:32px;flex-wrap:wrap}
-    .ld-stat-val{font-size:26px;font-weight:800;color:var(--blue);letter-spacing:-0.5px;line-height:1}
-    .ld-stat-lbl{font-size:10px;font-weight:600;color:var(--dim);letter-spacing:0.8px;text-transform:uppercase;margin-top:4px}
+    .ld-stat-val{font-family:'Fira Code',ui-monospace,monospace;font-size:24px;font-weight:700;color:var(--blue);letter-spacing:-0.3px;line-height:1}
+    .ld-stat-lbl{font-family:'Fira Code',ui-monospace,monospace;font-size:9.5px;font-weight:600;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-top:5px;display:flex;align-items:center;gap:5px}
+    .ld-stat-lbl::before{content:"▸";color:var(--blue);font-size:8px}
+
+    /* ── HERO DEMO VIDEO (replaces auth card in hero) ── */
+    .ld-herovid{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(52,217,138,0.06) inset}
+    .ld-herovid-bar{display:flex;align-items:center;gap:10px;padding:9px 16px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub)}
+    .ld-herovid-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite}
+    .ld-herovid-bar-label{color:var(--text);flex:1}
+    .ld-herovid-bar-status{color:var(--green)}
+    .ld-herovid-cta{display:block;text-align:center;padding:11px 14px;background:rgba(52,217,138,0.06);color:var(--green);border-top:1px solid var(--borderf);font-family:'Fira Code',ui-monospace,monospace;font-size:11.5px;font-weight:700;letter-spacing:0.6px;text-decoration:none;transition:background 0.15s}
+    .ld-herovid-cta:hover{background:rgba(52,217,138,0.12)}
+
+    /* ── HERO MINI-CALC (relocated to /#try-it-live section) ── */
+    .ld-hcalc{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(59,158,255,0.04) inset;font-family:'Fira Code',ui-monospace,monospace}
+    .ld-hcalc-bar{display:flex;align-items:center;gap:10px;padding:9px 16px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub)}
+    .ld-hcalc-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite}
+    .ld-hcalc-bar-label{color:var(--text);flex:1}
+    .ld-hcalc-bar-status{color:var(--green)}
+    .ld-hcalc-sub{padding:12px 16px 6px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--sub);line-height:1.5;border-bottom:1px solid var(--borderf)}
+    .ld-hcalc-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px 16px;background:rgba(255,255,255,0.012)}
+    .ld-hcalc-field{display:flex;flex-direction:column;gap:4px}
+    .ld-hcalc-lbl{font-size:9.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.7px}
+    .ld-hcalc-input{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:4px;padding:9px 11px;font-size:14px;color:var(--text);outline:none;font-family:'Fira Code',ui-monospace,monospace;font-weight:600;letter-spacing:-0.2px;transition:border-color 0.15s,background 0.15s}
+    .ld-hcalc-input:focus{border-color:rgba(59,158,255,0.45);background:rgba(59,158,255,0.04)}
+    .ld-hcalc-verdict{display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--borderf);border-bottom:1px solid var(--borderf);border:1px solid var(--borderf);transition:background 0.2s,border-color 0.2s}
+    .ld-hcalc-grade{font-size:32px;font-weight:800;line-height:1;width:44px;height:44px;border:1.5px solid currentColor;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;letter-spacing:-1px;flex-shrink:0}
+    .ld-hcalc-verdict-lbl{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:800;letter-spacing:-0.3px;line-height:1.2}
+    .ld-hcalc-verdict-sub{font-family:'DM Sans',sans-serif;font-size:11.5px;color:var(--sub);margin-top:3px;line-height:1.3}
+    .ld-hcalc-verdict-roi{font-size:14px;font-weight:700;text-align:right;letter-spacing:0.2px;white-space:nowrap}
+    .ld-hcalc-rows{padding:6px 16px 12px;display:flex;flex-direction:column}
+    .ld-hcalc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px dashed rgba(255,255,255,0.04);font-size:12.5px}
+    .ld-hcalc-row:last-child{border-bottom:none}
+    .ld-hcalc-row span:first-child{color:var(--sub);font-family:'DM Sans',sans-serif;font-weight:500;font-size:12px}
+    .ld-hcalc-row span:last-child{color:var(--text);font-weight:700;letter-spacing:-0.2px}
+    .ld-hcalc-row .pos{color:var(--green)}.ld-hcalc-row .neg{color:var(--red)}
+    .ld-hcalc-cta{display:block;text-align:center;margin:10px 14px 6px;padding:13px 14px;background:linear-gradient(135deg,#3b9eff,#2980e8);color:#fff;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:-0.1px;transition:transform 0.15s,box-shadow 0.15s}
+    .ld-hcalc-cta:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(59,158,255,0.35)}
+    .ld-hcalc-foot{text-align:center;padding:6px 14px 14px;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--dim)}
+
+    /* ── AUTH SECTION (relocated below hero) ── */
+    .ld-auth-section{padding:60px 24px;display:flex;justify-content:center;background:linear-gradient(180deg,rgba(59,158,255,0.025),transparent)}
 
     /* ── AUTH CARD ── */
-    .ld-auth-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px 28px;box-shadow:0 24px 80px rgba(0,0,0,0.55)}
+    .ld-auth-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:32px 28px;box-shadow:0 24px 80px rgba(0,0,0,0.55);width:100%;max-width:420px}
     .ld-auth-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px;letter-spacing:-0.3px}
     .ld-auth-sub{font-size:13px;color:var(--sub);margin-bottom:22px}
     .ld-tabs{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:9px;padding:3px;gap:3px;margin-bottom:20px}
@@ -184,23 +272,24 @@ export default function Landing() {
     .deals-outer{overflow:hidden;padding:24px 0;border-top:1px solid var(--borderf);border-bottom:1px solid var(--borderf);background:var(--card2)}
     .deals-track{display:flex;gap:10px;width:max-content;animation:scroll 40s linear infinite}
     .deals-track:hover{animation-play-state:paused}
-    .deal-chip{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--borderf);border-radius:10px;padding:10px 16px;flex-shrink:0;cursor:pointer;transition:border-color 0.15s}
-    .deal-chip:hover{border-color:var(--border)}
-    .dc-icon{font-size:16px}
+    .deal-chip{display:flex;align-items:center;gap:14px;background:var(--card);border:1px solid var(--borderf);border-radius:4px;padding:10px 14px;flex-shrink:0;cursor:pointer;transition:border-color 0.15s}
+    .deal-chip:hover{border-color:var(--blue)}
+    .dc-icon{font-family:'Fira Code',ui-monospace,monospace;font-size:10.5px;color:var(--blue);font-weight:700;letter-spacing:0.6px;padding-right:10px;border-right:1px solid var(--borderf)}
     .dc-addr{font-size:12px;font-weight:600;color:var(--text)}
-    .dc-city{font-size:10.5px;color:var(--dim);margin-top:1px}
-    .dc-profit{font-size:13px;font-weight:700;min-width:72px;text-align:right}
+    .dc-city{font-size:10px;color:var(--dim);margin-top:1px;font-family:'Fira Code',ui-monospace,monospace;letter-spacing:0.3px}
+    .dc-profit{font-family:'Fira Code',ui-monospace,monospace;font-size:12px;font-weight:700;min-width:90px;text-align:right;letter-spacing:0.2px}
     .dc-profit.pos{color:var(--green)}
     .dc-profit.neg{color:var(--red)}
-    .dc-badge{font-size:9.5px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap}
-    .dc-badge.go{background:rgba(45,212,127,0.1);color:var(--green)}
-    .dc-badge.no{background:rgba(242,92,92,0.1);color:var(--red)}
-    .dc-badge.warn{background:rgba(240,160,48,0.1);color:var(--amber)}
+    .dc-badge{font-family:'Fira Code',ui-monospace,monospace;font-size:9.5px;font-weight:700;padding:3px 8px;border-radius:3px;white-space:nowrap;letter-spacing:0.6px;border:1px solid currentColor}
+    .dc-badge.go{background:rgba(45,212,127,0.08);color:var(--green)}
+    .dc-badge.no{background:rgba(242,92,92,0.08);color:var(--red)}
+    .dc-badge.warn{background:rgba(240,160,48,0.08);color:var(--amber)}
     @keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
 
     /* ── SECTIONS ── */
     .ld-section{max-width:1080px;margin:0 auto;padding:80px 24px}
-    .ld-section-tag{font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:12px;text-align:center}
+    .ld-section-tag{font-family:'Fira Code',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--blue);margin-bottom:12px;text-align:center}
+    .ld-section-tag::before{content:"// "}
     .ld-section-title{font-size:clamp(28px,3.5vw,42px);font-weight:800;letter-spacing:-1.2px;color:var(--text);margin-bottom:14px;text-align:center;line-height:1.1}
     .ld-section-title span{color:var(--blue)}
     .ld-section-sub{font-size:16px;color:var(--sub);text-align:center;max-width:520px;margin:0 auto 52px;line-height:1.7}
@@ -364,68 +453,164 @@ export default function Landing() {
           <div>
             <div className="ld-eyebrow">
               <div className="ld-eyebrow-dot" />
-              Free for real estate investors — US &amp; Canada
+              ● LIVE — REAL DEAL TERMINAL · US &amp; CANADA
             </div>
             <h1 className="ld-h1">Know if it's a<br /><span>real deal.</span><br />In minutes.</h1>
-            <p className="ld-hero-p">Stop wasting hours on spreadsheets. Get instant property evaluation — ARV estimate, full cost breakdown, and a plain-English Go/No-Go verdict. Clarity before you commit.</p>
+            <p className="ld-hero-p">Stop wasting hours on spreadsheets. Get instant property evaluation — ARV estimate, full cost breakdown, and a plain-English <strong style={{color:"var(--green)"}}>Go</strong> / <strong style={{color:"var(--red)"}}>No-Go</strong> verdict. Clarity before you commit.</p>
+
+            {/* Live activity strip — fills the space my terse codes left empty */}
+            <div className="ld-activity">
+              <div className="ld-activity-head">
+                <span className="ld-activity-glyph">▸</span>
+                LIVE FEED <span style={{color:"var(--dim)"}}>· Last 24h</span>
+              </div>
+              <div className="ld-activity-rows">
+                <div className="ld-activity-row"><span className="ld-ar-time">14:32</span><span className="ld-ar-addr">2424 Westmount Rd NW · Calgary</span><span className="ld-ar-tag go">[ GO ]</span><span className="ld-ar-roi pos">+18.3%</span></div>
+                <div className="ld-activity-row"><span className="ld-ar-time">14:28</span><span className="ld-ar-addr">903 Elm St · Vancouver</span><span className="ld-ar-tag no">[ PASS ]</span><span className="ld-ar-roi neg">−2.8%</span></div>
+                <div className="ld-activity-row"><span className="ld-ar-time">14:21</span><span className="ld-ar-addr">17 Sunrise Blvd · Toronto</span><span className="ld-ar-tag go">[ GO ]</span><span className="ld-ar-roi pos">+14.2%</span></div>
+              </div>
+            </div>
+
             <div className="ld-hero-trust">
-              {["Free to use — no credit card", "Flip, BRRRR & Multifamily", "US & Canada markets"].map(t => (
-                <div key={t} className="ld-trust-pill">
-                  <span className="ld-trust-check">✓</span> {t}
+              {[
+                {icon:"●", text:"Free · no credit card", clr:"var(--green)"},
+                {icon:"●", text:"Flip · BRRRR · Multifamily", clr:"var(--blue)"},
+                {icon:"●", text:"US &amp; Canada markets", clr:"var(--amber)"},
+              ].map(t => (
+                <div key={t.text} className="ld-trust-pill">
+                  <span style={{color:t.clr,fontSize:8}} dangerouslySetInnerHTML={{__html:t.icon}}/> <span dangerouslySetInnerHTML={{__html:t.text}}/>
                 </div>
               ))}
             </div>
             <div className="ld-stats">
-              <div><div className="ld-stat-val" id="cDeals">0</div><div className="ld-stat-lbl">Deals Analyzed</div></div>
-              <div><div className="ld-stat-val" id="cProfit">$0</div><div className="ld-stat-lbl">Avg Net Profit</div></div>
+              <div><div className="ld-stat-val" id="cDeals">0</div><div className="ld-stat-lbl">Deals analyzed</div></div>
+              <div><div className="ld-stat-val" id="cProfit">$0</div><div className="ld-stat-lbl">Avg net profit</div></div>
               <div><div className="ld-stat-val" id="cROI">0%</div><div className="ld-stat-lbl">Avg ROI</div></div>
             </div>
           </div>
 
-          {/* Auth Card */}
-          <div className="ld-auth-card" id="auth-section">
-            <div className="ld-auth-title">Start analyzing deals free</div>
-            <div className="ld-auth-sub">No credit card. No setup. Instant results.</div>
-            <div className="ld-tabs">
-              <button className={`ld-tab ${mode === "signup" ? "active" : "inactive"}`} onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Sign up free</button>
-              <button className={`ld-tab ${mode === "login" ? "active" : "inactive"}`} onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Log in</button>
+          {/* Hero Demo Video — 12s autoplay loop of the actual app analyzing a Calgary triplex */}
+          <div className="ld-herovid">
+            <div className="ld-herovid-bar">
+              <span className="ld-herovid-dot" />
+              <span className="ld-herovid-bar-label">REAL DEAL TERMINAL · LIVE DEMO</span>
+              <span className="ld-herovid-bar-status">▸ 12s LOOP</span>
             </div>
-            <button className="ld-google" onClick={handleGoogle}>
-              <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-              Continue with Google
-            </button>
-            <div className="ld-divider"><span>or</span></div>
-            {authError && <div className="ld-error">{authError}</div>}
-            {submitted && <div className="ld-success">✅ You're in — taking you to the analyzer...</div>}
-            {!submitted && (
-              <form onSubmit={handleSubmit}>
-                <div className="ld-field">
-                  <div className="ld-label">Email</div>
-                  <input className="ld-input" type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
-                </div>
-                {mode === "signup" && !showPass ? (
-                  <button type="button" className="ld-btn" onClick={() => { if (email) setShowPass(true); }}>Continue →</button>
-                ) : (
-                  <>
-                    <div className="ld-field">
-                      <div className="ld-label">Password</div>
-                      <input className="ld-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
-                    </div>
-                    <button type="submit" className="ld-btn" disabled={authLoading}>
-                      {authLoading ? "Please wait..." : mode === "signup" ? "Create free account →" : "Sign in →"}
-                    </button>
-                  </>
-                )}
-              </form>
-            )}
-            <div className="ld-auth-note">
-              {mode === "signup"
-                ? <>Already have an account? <span onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Sign in</span></>
-                : <>No account? <span onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Sign up free</span></>}
-            </div>
+            <video
+              src="/hero-demo.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              poster=""
+              style={{display:"block",width:"100%",height:"auto",background:"#07090f"}}
+            >
+              Your browser doesn&rsquo;t support inline video. The full product is at <a href="#auth-section">signup</a>.
+            </video>
+            <a href="#try-it-live" className="ld-herovid-cta">▶ Try it yourself — no signup</a>
           </div>
         </div>
       </section>
+
+      {/* ── TRY IT LIVE: the interactive mini-calc (moved out of the hero) ── */}
+      <div id="try-it-live" style={{padding:"56px 24px 8px",maxWidth:1140,margin:"0 auto"}}>
+        <div className="ld-section-tag" style={{textAlign:"left",marginBottom:8}}>Try it live</div>
+        <h2 className="ld-section-title" style={{textAlign:"left",fontSize:"clamp(24px,3vw,34px)"}}>Edit any number. Verdict updates in real time.</h2>
+        <p className="ld-section-sub" style={{textAlign:"left",margin:"0 0 28px"}}>The same engine that powers the video. Drop your own deal in — no signup required.</p>
+        <div className="ld-hcalc" style={{maxWidth:560}}>
+          <div className="ld-hcalc-bar">
+            <span className="ld-hcalc-dot" />
+            <span className="ld-hcalc-bar-label">REAL DEAL TERMINAL · v2.0</span>
+            <span className="ld-hcalc-bar-status">▸ LIVE</span>
+          </div>
+          <div className="ld-hcalc-sub">Try it instantly. Edit any number — verdict updates in real time.</div>
+
+          <div className="ld-hcalc-grid">
+            <label className="ld-hcalc-field">
+              <span className="ld-hcalc-lbl">ARV (after-repair)</span>
+              <input className="ld-hcalc-input" type="number" value={dArv} onChange={e=>setDArv(e.target.value)} />
+            </label>
+            <label className="ld-hcalc-field">
+              <span className="ld-hcalc-lbl">Purchase Price</span>
+              <input className="ld-hcalc-input" type="number" value={dPurchase} onChange={e=>setDPurchase(e.target.value)} />
+            </label>
+            <label className="ld-hcalc-field">
+              <span className="ld-hcalc-lbl">Repairs</span>
+              <input className="ld-hcalc-input" type="number" value={dRepair} onChange={e=>setDRepair(e.target.value)} />
+            </label>
+            <label className="ld-hcalc-field">
+              <span className="ld-hcalc-lbl">Hold (months)</span>
+              <input className="ld-hcalc-input" type="number" value={dHold} onChange={e=>setDHold(e.target.value)} />
+            </label>
+          </div>
+
+          <div className="ld-hcalc-verdict" style={{borderColor:dGrade.c+"40",background:dGrade.c+"0d"}}>
+            <div className="ld-hcalc-grade" style={{color:dGrade.c,borderColor:dGrade.c+"50"}}>{dGrade.g}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div className="ld-hcalc-verdict-lbl" style={{color:dGrade.c}}>{dGrade.label.replace(/[✅⚠️🚫]\s*/,"")}</div>
+              <div className="ld-hcalc-verdict-sub">{demo.margin>0.20?"Margin exceeds 20% institutional threshold":demo.margin>0.12?"Margin acceptable; verify repair scope":demo.margin>0.05?"Thin margin — negotiate price down":"Numbers do not pencil"}</div>
+            </div>
+            <div className="ld-hcalc-verdict-roi" style={{color:demo.profit>=0?"var(--green)":"var(--red)"}}>
+              {demo.profit>=0?"▲ ":"▼ "}{fmtPct(demo.margin*100)}
+            </div>
+          </div>
+
+          <div className="ld-hcalc-rows">
+            <div className="ld-hcalc-row"><span>Net Profit</span><span className={demo.profit>=0?"pos":"neg"}>{fmt(demo.profit)}</span></div>
+            <div className="ld-hcalc-row"><span>All-In Cost</span><span>{fmt(demo.totalCost)}</span></div>
+            <div className="ld-hcalc-row"><span>70% Rule Max</span><span style={{color:"var(--sub)"}}>{fmt(num(dArv)*0.70 - num(dRepair))}</span></div>
+          </div>
+
+          <a href="#auth-section" className="ld-hcalc-cta">→ Save this deal — sign up free</a>
+          <div className="ld-hcalc-foot">No credit card · 4,180+ deals analyzed</div>
+        </div>
+      </div>
+
+      {/* ── AUTH SECTION (moved out of hero so the mini-calc gets primary placement) ── */}
+      <div className="ld-auth-section">
+        <div className="ld-auth-card" id="auth-section">
+          <div className="ld-auth-title">Save your analysis. Compare deals. Track your pipeline.</div>
+          <div className="ld-auth-sub">Free account. No credit card. Instant access to all tools.</div>
+          <div className="ld-tabs">
+            <button className={`ld-tab ${mode === "signup" ? "active" : "inactive"}`} onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Sign up free</button>
+            <button className={`ld-tab ${mode === "login" ? "active" : "inactive"}`} onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Log in</button>
+          </div>
+          <button className="ld-google" onClick={handleGoogle}>
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continue with Google
+          </button>
+          <div className="ld-divider"><span>or</span></div>
+          {authError && <div className="ld-error">{authError}</div>}
+          {submitted && <div className="ld-success">✅ You're in — taking you to the analyzer...</div>}
+          {!submitted && (
+            <form onSubmit={handleSubmit}>
+              <div className="ld-field">
+                <div className="ld-label">Email</div>
+                <input className="ld-input" type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
+              </div>
+              {mode === "signup" && !showPass ? (
+                <button type="button" className="ld-btn" onClick={() => { if (email) setShowPass(true); }}>Continue →</button>
+              ) : (
+                <>
+                  <div className="ld-field">
+                    <div className="ld-label">Password</div>
+                    <input className="ld-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
+                  </div>
+                  <button type="submit" className="ld-btn" disabled={authLoading}>
+                    {authLoading ? "Please wait..." : mode === "signup" ? "Create free account →" : "Sign in →"}
+                  </button>
+                </>
+              )}
+            </form>
+          )}
+          <div className="ld-auth-note">
+            {mode === "signup"
+              ? <>Already have an account? <span onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Sign in</span></>
+              : <>No account? <span onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Sign up free</span></>}
+          </div>
+        </div>
+      </div>
 
       {/* ── DEAL TICKER ── */}
       <div className="deals-outer"><div className="deals-track" id="dealsTrack" /></div>
