@@ -65,7 +65,7 @@ const CSS = `
   .lg-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:10px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s}
   .lg-input:focus{border-color:rgba(59,158,255,0.5);box-shadow:0 0 0 3px rgba(59,158,255,0.1)}
 
-  .lg-btn{width:100%;background:linear-gradient(135deg,#3b9eff,#2980e8);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.18s;margin-top:4px;letter-spacing:-0.2px}
+  .lg-btn{width:100%;background:linear-gradient(135deg,var(--blue),#2980e8);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.18s;margin-top:4px;letter-spacing:-0.2px}
   .lg-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,158,255,0.35)}
   .lg-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
 

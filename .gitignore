@@ -50,6 +50,9 @@ SESSION_RECAP_*
 REALDEALESTATE_*_PLAN.md
 REALDEALESTATE_*_PROGRESS.md
 START_HERE.md
+MONDAY_*
+TOMORROW_*
+render_*.py
 
 # Data-prep scripts that operate on the above private data
 analyze_linkedin_connections.py

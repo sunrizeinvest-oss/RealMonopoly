@@ -181,10 +181,10 @@ function buildSignals(province, address) {
 
 // ─── Status options ───────────────────────────────────────────────────────────
 const STATUS_OPTIONS = [
-  { value: "not_checked", label: "Not Checked", color: "#6b7d96" },
-  { value: "clear",       label: "Clear ✓",     color: "#34d98a" },
-  { value: "flagged",     label: "⚠️ Flagged",   color: "#f25c5c" },
-  { value: "na",          label: "N/A",          color: "#3a4a60" },
+  { value: "not_checked", label: "Not Checked", color: "var(--sub)" },
+  { value: "clear",       label: "Clear ✓",     color: "var(--green)" },
+  { value: "flagged",     label: "⚠️ Flagged",   color: "var(--red)" },
+  { value: "na",          label: "N/A",          color: "var(--dim)" },
 ];
 
 const STORAGE_KEY   = "rde_distress_v1";

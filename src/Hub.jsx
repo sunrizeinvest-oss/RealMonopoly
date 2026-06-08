@@ -87,7 +87,7 @@ export default function Hub() {
         <div style={{background:"rgba(52,217,138,0.08)",borderBottom:"1px solid rgba(52,217,138,0.2)",padding:"14px 24px",display:"flex",alignItems:"center",justifyContent:"center",gap:12}}>
           <span style={{fontSize:20}}>🎉</span>
           <div>
-            <span style={{fontSize:14,fontWeight:700,color:"#34d98a"}}>Welcome to Pro! </span>
+            <span style={{fontSize:14,fontWeight:700,color:"var(--green)"}}>Welcome to Pro! </span>
             <span style={{fontSize:14,color:"var(--sub)"}}>All tools are now unlocked. You're all set.</span>
           </div>
         </div>
@@ -116,7 +116,7 @@ export default function Hub() {
       <div className="hub-cards">
         {/* Flip Card */}
         <div className="hub-card" onClick={() => navigate("/app")}>
-          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#a782ff,#3b9eff)"}}>🤖 AI</div>
+          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,var(--purple),var(--blue))"}}>🤖 AI</div>
           <div className="hub-card-icon">🏚️</div>
           <div className="hub-card-title">Fix &amp; Flip Analyzer</div>
           <div className="hub-card-sub">Full acquisition-to-exit analysis. Get an AI verdict — strengths, risks, price recommendation — in one click after running your numbers.</div>
@@ -131,7 +131,7 @@ export default function Hub() {
 
         {/* Commercial Card */}
         <div className="hub-card featured" onClick={() => navigate("/commercial")}>
-          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#34d98a,#3b9eff)"}}>FREE NOW</div>
+          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,var(--green),var(--blue))"}}>FREE NOW</div>
           <div className="hub-card-icon">🏢</div>
           <div className="hub-card-title">Multifamily Underwriter</div>
           <div className="hub-card-sub">Institutional-grade underwriting template for income properties. NOI, DSCR, cap rate, cash-on-cash, deal verdict and checklist.</div>
@@ -155,7 +155,7 @@ export default function Hub() {
               <span key={p} className="hub-pill">{p}</span>
             ))}
           </div>
-          <div className="hub-card-cta" style={{color:"#a782ff"}}>Model a BRRRR →</div>
+          <div className="hub-card-cta" style={{color:"var(--purple)"}}>Model a BRRRR →</div>
         </div>
 
         {/* Compare Card */}
@@ -169,12 +169,12 @@ export default function Hub() {
               <span key={p} className="hub-pill">{p}</span>
             ))}
           </div>
-          <div className="hub-card-cta" style={{color:"#f0a030"}}>Compare deals →</div>
+          <div className="hub-card-cta" style={{color:"var(--amber)"}}>Compare deals →</div>
         </div>
 
         {/* What's My Property Worth Card — full width */}
         <div className="hub-card worth" style={{gridColumn:"1 / -1"}} onClick={() => navigate("/worth")}>
-          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#ffb43c,#f25c5c)"}}>NEW</div>
+          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#ffb43c,var(--red))"}}>NEW</div>
           <div style={{display:"flex",alignItems:"center",gap:20}}>
             <div className="hub-card-icon" style={{fontSize:48}}>🏠</div>
             <div style={{flex:1}}>
@@ -196,7 +196,7 @@ export default function Hub() {
 
         {/* Quick Deal Screener */}
         <div className="hub-card" style={{borderColor:"rgba(52,217,138,0.2)"}} onClick={() => navigate("/screen")}>
-          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#34d98a,#3b9eff)"}}>FAST</div>
+          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,var(--green),var(--blue))"}}>FAST</div>
           <div className="hub-card-icon">⚡</div>
           <div className="hub-card-title">Quick Deal Screener</div>
           <div className="hub-card-sub">Standing in front of a property? 3 numbers in, instant pass/fail. Asking price, ARV, repairs → your max offer and verdict in 5 seconds. Built for the field.</div>
@@ -225,7 +225,7 @@ export default function Hub() {
 
         {/* Rehab Estimator Card */}
         <div className="hub-card" style={{borderColor:"rgba(240,160,48,0.2)"}} onClick={() => navigate("/rehab")}>
-          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#f0a030,#f25c5c)"}}>NEW</div>
+          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,var(--amber),var(--red))"}}>NEW</div>
           <div className="hub-card-icon">🔨</div>
           <div className="hub-card-title">Rehab Cost Estimator</div>
           <div className="hub-card-sub">Estimate renovation costs by room and category. Kitchen, baths, flooring, roof, HVAC, and more — with condition-based ranges. Push your budget straight into the Flip Analyzer.</div>
@@ -235,12 +235,12 @@ export default function Hub() {
               <span key={p} className="hub-pill">{p}</span>
             ))}
           </div>
-          <div className="hub-card-cta" style={{color:"#f0a030"}}>Estimate rehab →</div>
+          <div className="hub-card-cta" style={{color:"var(--amber)"}}>Estimate rehab →</div>
         </div>
 
         {/* Tax / Depreciation Card */}
         <div className="hub-card" style={{borderColor:"rgba(52,217,138,0.2)"}} onClick={() => navigate("/tax")}>
-          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#34d98a,#3b9eff)"}}>NEW</div>
+          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,var(--green),var(--blue))"}}>NEW</div>
           <div className="hub-card-icon">💸</div>
           <div className="hub-card-title">Depreciation &amp; Tax Calculator</div>
           <div className="hub-card-sub">See the full tax advantage of real estate. Annual depreciation, paper loss deductions, cost segregation year-1 bonus, and 10-year cumulative tax savings — by bracket.</div>
@@ -258,7 +258,7 @@ export default function Hub() {
 
         {/* Net Worth Dashboard — full width */}
         <div className="hub-card" style={{gridColumn:"1 / -1",borderColor:"rgba(52,217,138,0.25)",background:"linear-gradient(135deg,rgba(52,217,138,0.04),var(--card))"}} onClick={() => navigate("/networth")}>
-          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#34d98a,#3b9eff)"}}>NEW</div>
+          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,var(--green),var(--blue))"}}>NEW</div>
           <div style={{display:"flex",alignItems:"center",gap:20}}>
             <div className="hub-card-icon" style={{fontSize:48}}>💎</div>
             <div style={{flex:1}}>
@@ -277,7 +277,7 @@ export default function Hub() {
 
         {/* Pipeline Card */}
         <div className="hub-card" style={{borderColor:"rgba(59,158,255,0.25)",background:"linear-gradient(135deg,rgba(59,158,255,0.04),var(--card))"}} onClick={() => navigate("/pipeline")}>
-          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#3b9eff,#a782ff)"}}>NEW</div>
+          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,var(--blue),var(--purple))"}}>NEW</div>
           <div className="hub-card-icon">🗂️</div>
           <div className="hub-card-title">Deal Pipeline</div>
           <div className="hub-card-sub">Your deal CRM. Track every lead from first look to closed — drag and drop through 7 stages. See total projected profit in your pipeline, days per stage, and one-click analyze any deal.</div>
@@ -308,7 +308,7 @@ export default function Hub() {
 
         {/* Canadian Mortgage Qualifier */}
         <div className="hub-card" style={{borderColor:"rgba(240,160,48,0.2)"}} onClick={() => navigate("/qualify")}>
-          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#f0a030,#34d98a)"}}>🇨🇦 Canada</div>
+          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,var(--amber),var(--green))"}}>🇨🇦 Canada</div>
           <div className="hub-card-icon">🏦</div>
           <div className="hub-card-title">Mortgage Qualifier</div>
           <div className="hub-card-sub">OSFI B-20 stress test calculator. See if you qualify at the qualifying rate, your max purchase price, GDS/TDS ratios, and CMHC insurance costs.</div>
@@ -341,7 +341,7 @@ export default function Hub() {
 
         {/* Distress Checker — full width */}
         <div className="hub-card" style={{gridColumn:"1 / -1",borderColor:"rgba(242,92,92,0.2)",background:"linear-gradient(135deg,rgba(242,92,92,0.03),var(--card))"}} onClick={() => navigate("/distress")}>
-          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#f25c5c,#f0a030)"}}>🇨🇦 Canada</div>
+          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,var(--red),var(--amber))"}}>🇨🇦 Canada</div>
           <div style={{display:"flex",alignItems:"center",gap:20}}>
             <div className="hub-card-icon" style={{fontSize:48}}>🔍</div>
             <div style={{flex:1}}>
@@ -360,7 +360,7 @@ export default function Hub() {
 
         {/* Deal Alerts */}
         <div className="hub-card" style={{borderColor:"rgba(59,158,255,0.2)"}} onClick={() => navigate("/alerts")}>
-          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#3b9eff,#34d98a)"}}>NEW</div>
+          <div className="hub-card-badge" style={{background:"linear-gradient(135deg,var(--blue),var(--green))"}}>NEW</div>
           <div className="hub-card-icon">🔔</div>
           <div className="hub-card-title">Deal Alerts</div>
           <div className="hub-card-sub">Set your criteria — city, max price, min bedrooms, property type. We check Realtor.ca and the MLS daily and email you when matching listings appear.</div>
@@ -387,7 +387,7 @@ export default function Hub() {
               <span key={p} className="hub-pill">{p}</span>
             ))}
           </div>
-          <div className="hub-card-cta" style={{color:"#a782ff"}}>Take the quiz →</div>
+          <div className="hub-card-cta" style={{color:"var(--purple)"}}>Take the quiz →</div>
         </div>
 
         {/* Education Hub Card */}

@@ -27,7 +27,7 @@ function getDealGrade(roi, margin, aboveMAO, annualCoc) {
   if (!aboveMAO) score += 25; else score += 5
   if (annualCoc > 0.20) score += 20; else if (annualCoc > 0.12) score += 14; else if (annualCoc > 0.06) score += 8
   const grade = score >= 85 ? "A" : score >= 68 ? "B" : score >= 50 ? "C" : score >= 30 ? "D" : "F"
-  const color = score >= 85 ? "#34d98a" : score >= 68 ? "#3b9eff" : score >= 50 ? "#f0a030" : score >= 30 ? "#ff8c42" : "#f25c5c"
+  const color = score >= 85 ? "var(--green)" : score >= 68 ? "var(--blue)" : score >= 50 ? "var(--amber)" : score >= 30 ? "#ff8c42" : "var(--red)"
   return { grade, score, color }
 }
 
@@ -510,10 +510,10 @@ const CSS = `
     padding: 20px;
     margin-bottom: 18px;
   }
-  .pi-ca-title { font-size: 13px; font-weight: 700; color: #a782ff; margin-bottom: 14px; }
+  .pi-ca-title { font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 14px; }
   .pi-cmhc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
   .pi-cmhc-item { background: rgba(167,130,255,0.07); border-radius: 9px; padding: 10px 12px; }
-  .pi-cmhc-lbl { font-size: 10px; font-weight: 700; color: #a782ff; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+  .pi-cmhc-lbl { font-size: 10px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
   .pi-cmhc-val { font-size: 15px; font-weight: 800; color: var(--text); }
 
   /* AI Sidebar */
@@ -689,7 +689,7 @@ const CSS = `
     border-radius: 20px;
     background: rgba(167,130,255,0.13);
     border: 1px solid rgba(167,130,255,0.25);
-    color: #a782ff;
+    color: var(--purple);
     font-size: 11px;
     font-weight: 700;
   }
@@ -1378,7 +1378,7 @@ export default function PropertyIntelligence() {
                       {property.propertyType && (
                         <span className="pi-badge pi-badge-blue">{property.propertyType}</span>
                       )}
-                      {ca && <span className="pi-badge" style={{ background: "rgba(167,130,255,0.13)", color: "#a782ff" }}>🍁 Canada</span>}
+                      {ca && <span className="pi-badge" style={{ background: "rgba(167,130,255,0.13)", color: "var(--purple)" }}>🍁 Canada</span>}
                       <span className="pi-badge pi-badge-green">
                         {property.source === "public" ? "📋 Public Records" : property.error ? "⚠️ Not in Records" : "✓ Data Loaded"}
                       </span>
@@ -2065,9 +2065,9 @@ export default function PropertyIntelligence() {
                               {caComps.listings.slice(0, 5).map((l, i) => (
                                 <tr key={i}>
                                   <td>{l.address || "—"}</td>
-                                  <td style={{ fontWeight: 700, color: "#a782ff" }}>{fmtC(l.price)}</td>
+                                  <td style={{ fontWeight: 700, color: "var(--purple)" }}>{fmtC(l.price)}</td>
                                   <td>{l.bedrooms ?? "—"}</td>
-                                  <td><span className="pi-badge" style={{ background: "rgba(167,130,255,0.13)", color: "#a782ff" }}>{l.status || "Active"}</span></td>
+                                  <td><span className="pi-badge" style={{ background: "rgba(167,130,255,0.13)", color: "var(--purple)" }}>{l.status || "Active"}</span></td>
                                 </tr>
                               ))}
                             </tbody>
@@ -2146,7 +2146,7 @@ export default function PropertyIntelligence() {
                   {!ca && <a className="pi-ext-link" href={`https://www.zillow.com/homes/${encodedAddr}_rb/`} target="_blank" rel="noreferrer">🔵 Zillow</a>}
                   {ca && <a className="pi-ext-link" href={`https://www.realtor.ca/map#view=list&lat=0&lng=0&zoom=10&hPropType=1&wd=${encodedAddr}`} target="_blank" rel="noreferrer">🍁 Realtor.ca</a>}
                   {ca && /,\s*BC\b/i.test(query) && (
-                    <a className="pi-ext-link" href={`https://www.bcassessment.ca/`} target="_blank" rel="noreferrer" style={{ color: "#a782ff", borderColor: "rgba(167,130,255,0.2)" }}>
+                    <a className="pi-ext-link" href={`https://www.bcassessment.ca/`} target="_blank" rel="noreferrer" style={{ color: "var(--purple)", borderColor: "rgba(167,130,255,0.2)" }}>
                       🏛️ BC Assessment
                     </a>
                   )}

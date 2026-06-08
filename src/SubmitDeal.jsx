@@ -23,12 +23,12 @@ const CSS = `
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body { background: #07090f; color: #dde4ef; font-family: 'DM Sans', sans-serif; }
+body { background: #07090f; color: var(--text); font-family: 'DM Sans', sans-serif; }
 
 .sd-root {
   min-height: 100vh;
   background: #07090f;
-  color: #dde4ef;
+  color: var(--text);
   font-family: 'DM Sans', sans-serif;
 }
 
@@ -49,13 +49,13 @@ body { background: #07090f; color: #dde4ef; font-family: 'DM Sans', sans-serif; 
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  color: #dde4ef;
+  color: var(--text);
 }
 .sd-nav-dot {
   width: 32px;
   height: 32px;
   border-radius: 8px;
-  background: linear-gradient(135deg, #3b9eff, #a782ff);
+  background: linear-gradient(135deg, var(--blue), var(--purple));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -67,7 +67,7 @@ body { background: #07090f; color: #dde4ef; font-family: 'DM Sans', sans-serif; 
 .sd-nav-brand {
   font-size: 15px;
   font-weight: 700;
-  color: #dde4ef;
+  color: var(--text);
   letter-spacing: -0.3px;
 }
 .sd-nav-divider {
@@ -77,7 +77,7 @@ body { background: #07090f; color: #dde4ef; font-family: 'DM Sans', sans-serif; 
 }
 .sd-nav-tagline {
   font-size: 13px;
-  color: #6b7d96;
+  color: var(--sub);
   font-weight: 400;
 }
 
@@ -97,13 +97,13 @@ body { background: #07090f; color: #dde4ef; font-family: 'DM Sans', sans-serif; 
   font-size: clamp(28px, 6vw, 42px);
   font-weight: 700;
   letter-spacing: -0.8px;
-  color: #dde4ef;
+  color: var(--text);
   margin-bottom: 12px;
   line-height: 1.15;
 }
 .sd-hero-sub {
   font-size: 16px;
-  color: #6b7d96;
+  color: var(--sub);
   line-height: 1.6;
   max-width: 480px;
   margin: 0 auto 24px;
@@ -124,7 +124,7 @@ body { background: #07090f; color: #dde4ef; font-family: 'DM Sans', sans-serif; 
   background: #0d1119;
   font-size: 13px;
   font-weight: 500;
-  color: #dde4ef;
+  color: var(--text);
 }
 
 /* Card */
@@ -141,7 +141,7 @@ body { background: #07090f; color: #dde4ef; font-family: 'DM Sans', sans-serif; 
 .sd-card-title {
   font-size: 13px;
   font-weight: 600;
-  color: #6b7d96;
+  color: var(--sub);
   text-transform: uppercase;
   letter-spacing: 0.8px;
   margin-bottom: 20px;
@@ -166,18 +166,18 @@ body { background: #07090f; color: #dde4ef; font-family: 'DM Sans', sans-serif; 
 .sd-label {
   font-size: 13px;
   font-weight: 500;
-  color: #6b7d96;
+  color: var(--sub);
   display: flex;
   align-items: center;
   gap: 4px;
 }
 .sd-required {
-  color: #f25c5c;
+  color: var(--red);
   font-size: 12px;
 }
 .sd-hint {
   font-size: 11px;
-  color: #3a4a60;
+  color: var(--dim);
   margin-top: -2px;
   line-height: 1.4;
 }
@@ -187,7 +187,7 @@ textarea.sd-input {
   background: #0a0e18;
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 10px;
-  color: #dde4ef;
+  color: var(--text);
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
   padding: 10px 14px;
@@ -198,7 +198,7 @@ textarea.sd-input {
   outline: none;
 }
 input.sd-input::placeholder,
-textarea.sd-input::placeholder { color: #3a4a60; }
+textarea.sd-input::placeholder { color: var(--dim); }
 input.sd-input:focus,
 select.sd-input:focus,
 textarea.sd-input:focus {
@@ -210,7 +210,7 @@ select.sd-input.error,
 textarea.sd-input.error {
   border-color: rgba(242,92,92,0.5);
 }
-select.sd-input option { background: #0d1119; color: #dde4ef; }
+select.sd-input option { background: #0d1119; color: var(--text); }
 textarea.sd-input { resize: vertical; min-height: 88px; }
 
 /* Radio group */
@@ -226,7 +226,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.07);
   background: #0a0e18;
-  color: #6b7d96;
+  color: var(--sub);
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
   font-weight: 500;
@@ -238,7 +238,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
 .sd-radio-btn.active {
   background: rgba(59,158,255,0.12);
   border-color: rgba(59,158,255,0.4);
-  color: #3b9eff;
+  color: var(--blue);
 }
 
 /* Deal Score */
@@ -257,7 +257,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.6px;
-  color: #6b7d96;
+  color: var(--sub);
   margin-bottom: 4px;
 }
 .sd-score-value {font-family:'Fira Code',ui-monospace,monospace;
@@ -281,7 +281,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   padding: 16px 24px;
   border-radius: 14px;
   border: none;
-  background: linear-gradient(135deg, #3b9eff, #a782ff);
+  background: linear-gradient(135deg, var(--blue), var(--purple));
   color: #fff;
   font-family: 'DM Sans', sans-serif;
   font-size: 16px;
@@ -303,7 +303,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   border-radius: 10px;
   padding: 12px 16px;
   font-size: 13px;
-  color: #f25c5c;
+  color: var(--red);
   margin-bottom: 16px;
   line-height: 1.5;
 }
@@ -323,11 +323,11 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   font-weight: 700;
   letter-spacing: -0.4px;
   margin-bottom: 12px;
-  color: #dde4ef;
+  color: var(--text);
 }
 .sd-success-sub {
   font-size: 15px;
-  color: #6b7d96;
+  color: var(--sub);
   max-width: 400px;
   margin: 0 auto 32px;
   line-height: 1.6;
@@ -344,7 +344,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   background: rgba(59,158,255,0.12);
   border: 1px solid rgba(59,158,255,0.3);
   border-radius: 12px;
-  color: #3b9eff;
+  color: var(--blue);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
@@ -354,7 +354,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
 .sd-success-again {
   background: none;
   border: none;
-  color: #6b7d96;
+  color: var(--sub);
   font-family: 'DM Sans', sans-serif;
   font-size: 14px;
   cursor: pointer;
@@ -413,10 +413,10 @@ export default function SubmitDeal() {
     if (!ask || !arv || arv <= 0) return null;
     const spread = arv - ask;
     const margin = spread / arv;
-    let color = "#f25c5c";
+    let color = "var(--red)";
     let emoji = "🔴";
-    if (margin >= 0.2) { color = "#34d98a"; emoji = "🟢"; }
-    else if (margin >= 0.1) { color = "#f0a030"; emoji = "🟡"; }
+    if (margin >= 0.2) { color = "var(--green)"; emoji = "🟢"; }
+    else if (margin >= 0.1) { color = "var(--amber)"; emoji = "🟡"; }
     return { spread, margin, color, emoji };
   }, [form.askingPrice, form.arv]);
 
@@ -737,7 +737,7 @@ export default function SubmitDeal() {
                     ({(score.margin * 100).toFixed(1)}% margin)
                   </span>
                 </div>
-                <div style={{ fontSize: 12, color: "#6b7d96", marginTop: 2 }}>
+                <div style={{ fontSize: 12, color: "var(--sub)", marginTop: 2 }}>
                   Potential spread between asking price and ARV
                 </div>
               </div>
@@ -891,7 +891,7 @@ export default function SubmitDeal() {
             {submitting ? "Submitting…" : "Submit Deal →"}
           </button>
 
-          <p style={{ textAlign: "center", fontSize: 12, color: "#3a4a60", marginTop: 16, lineHeight: 1.5 }}>
+          <p style={{ textAlign: "center", fontSize: 12, color: "var(--dim)", marginTop: 16, lineHeight: 1.5 }}>
             By submitting, you agree that Real Deal Estate may contact you about this property. We respect your privacy and never share your info.
           </p>
         </form>

@@ -41,19 +41,19 @@ export default class ErrorBoundary extends Component {
     if (!this.state.error) return this.props.children;
     return (
       <div style={{
-        minHeight: "100vh", background: "#07090f", color: "#dde4ef",
+        minHeight: "100vh", background: "#07090f", color: "var(--text)",
         fontFamily: "'DM Sans', system-ui, sans-serif",
         display: "flex", alignItems: "center", justifyContent: "center", padding: 24
       }}>
         <div style={{
           maxWidth: 720, width: "100%",
           background: "#0d1119", border: "1px solid rgba(242,92,92,0.4)",
-          borderLeft: "4px solid #f25c5c",
+          borderLeft: "4px solid var(--red)",
           borderRadius: 6, padding: "24px 28px"
         }}>
           <div style={{
             fontFamily: "'Fira Code', ui-monospace, monospace",
-            fontSize: 10.5, fontWeight: 700, color: "#f25c5c",
+            fontSize: 10.5, fontWeight: 700, color: "var(--red)",
             letterSpacing: "0.8px", marginBottom: 8,
           }}>
             ▸ RENDER ERROR · APP CRASHED
@@ -61,7 +61,7 @@ export default class ErrorBoundary extends Component {
           <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 6, letterSpacing: "-0.3px" }}>
             Something broke during render.
           </div>
-          <div style={{ fontSize: 13, color: "#6b7d96", lineHeight: 1.6, marginBottom: 16 }}>
+          <div style={{ fontSize: 13, color: "var(--sub)", lineHeight: 1.6, marginBottom: 16 }}>
             The page failed to render. The error has been logged. Reload to recover — if it persists,
             the message below pinpoints what went wrong.
           </div>
@@ -69,11 +69,11 @@ export default class ErrorBoundary extends Component {
             background: "#07090f", border: "1px solid rgba(255,255,255,0.07)",
             borderRadius: 4, padding: "12px 14px", marginBottom: 14,
             fontFamily: "'Fira Code', ui-monospace, monospace",
-            fontSize: 12, color: "#f25c5c", overflow: "auto", maxHeight: 240
+            fontSize: 12, color: "var(--red)", overflow: "auto", maxHeight: 240
           }}>
             <div style={{ fontWeight: 700, marginBottom: 6 }}>{String(this.state.error?.message || this.state.error)}</div>
             {this.state.error?.stack && (
-              <pre style={{ margin: 0, color: "#6b7d96", fontSize: 11, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
+              <pre style={{ margin: 0, color: "var(--sub)", fontSize: 11, lineHeight: 1.5, whiteSpace: "pre-wrap" }}>
                 {String(this.state.error.stack).split("\n").slice(0, 8).join("\n")}
               </pre>
             )}
@@ -82,7 +82,7 @@ export default class ErrorBoundary extends Component {
             <button
               onClick={() => window.location.reload()}
               style={{
-                background: "#34d98a", color: "#07090f", border: "none",
+                background: "var(--green)", color: "#07090f", border: "none",
                 borderRadius: 4, padding: "10px 16px",
                 fontFamily: "'Fira Code', ui-monospace, monospace", fontSize: 11.5,
                 fontWeight: 700, letterSpacing: "0.6px", cursor: "pointer"
@@ -92,7 +92,7 @@ export default class ErrorBoundary extends Component {
             <a
               href="/"
               style={{
-                background: "transparent", color: "#6b7d96",
+                background: "transparent", color: "var(--sub)",
                 border: "1px solid rgba(255,255,255,0.07)", borderRadius: 4,
                 padding: "10px 16px",
                 fontFamily: "'Fira Code', ui-monospace, monospace", fontSize: 11.5,

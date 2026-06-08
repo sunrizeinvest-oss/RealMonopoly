@@ -211,13 +211,13 @@ function FlipForm({ d, set, side }) {
     <div className={`cmp-card ${side}`}>
       <div className="cmp-card-header">
         <div className="cmp-card-title">
-          <div className="cmp-deal-dot" style={{background: side==="deal-a"?"#3b9eff":"#34d98a"}} />
+          <div className="cmp-deal-dot" style={{background: side==="deal-a"?"var(--blue)":"var(--green)"}} />
           <input
             className="cmp-name-input"
             value={d.name}
             onChange={e => upd("name", e.target.value)}
             placeholder="Deal name…"
-            style={{color: side==="deal-a"?"#3b9eff":"#34d98a"}}
+            style={{color: side==="deal-a"?"var(--blue)":"var(--green)"}}
           />
         </div>
       </div>
@@ -276,13 +276,13 @@ function MFForm({ d, set, side }) {
     <div className={`cmp-card ${side}`}>
       <div className="cmp-card-header">
         <div className="cmp-card-title">
-          <div className="cmp-deal-dot" style={{background: side==="deal-a"?"#3b9eff":"#34d98a"}} />
+          <div className="cmp-deal-dot" style={{background: side==="deal-a"?"var(--blue)":"var(--green)"}} />
           <input
             className="cmp-name-input"
             value={d.name}
             onChange={e => upd("name", e.target.value)}
             placeholder="Deal name…"
-            style={{color: side==="deal-a"?"#3b9eff":"#34d98a"}}
+            style={{color: side==="deal-a"?"var(--blue)":"var(--green)"}}
           />
         </div>
       </div>
@@ -559,11 +559,11 @@ export default function DealComparison() {
             <div className="cmp-results-title">📊 Metric Comparison</div>
             <div style={{display:"flex",gap:20,alignItems:"center"}}>
               <div style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:"rgba(59,158,255,0.8)"}}>
-                <div style={{width:8,height:8,borderRadius:"50%",background:"#3b9eff"}} />
+                <div style={{width:8,height:8,borderRadius:"50%",background:"var(--blue)"}} />
                 {nameA}
               </div>
               <div style={{display:"flex",alignItems:"center",gap:6,fontSize:12,color:"rgba(52,217,138,0.8)"}}>
-                <div style={{width:8,height:8,borderRadius:"50%",background:"#34d98a"}} />
+                <div style={{width:8,height:8,borderRadius:"50%",background:"var(--green)"}} />
                 {nameB}
               </div>
             </div>
@@ -628,7 +628,7 @@ export default function DealComparison() {
               return (
                 <div key={side} className={`cmp-verdict-card ${isWinner?"winner-card":"loser-card"}`}>
                   <div className="cmp-verdict-name">
-                    <div style={{width:10,height:10,borderRadius:"50%",background:side==="A"?"#3b9eff":"#34d98a",flexShrink:0}} />
+                    <div style={{width:10,height:10,borderRadius:"50%",background:side==="A"?"var(--blue)":"var(--green)",flexShrink:0}} />
                     {name}
                     {isWinner && <span className="cmp-verdict-badge win">WINNER</span>}
                     {isTie    && <span className="cmp-verdict-badge tie">TIE</span>}

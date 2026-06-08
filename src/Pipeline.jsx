@@ -13,27 +13,27 @@ const STORAGE_KEY = "rde_pipeline_v1";
 
 // ─── Stages ───────────────────────────────────────────────────────────────────
 const STAGES = [
-  { id:"lead",      label:"🔍 Lead",           color:"#6b7d96", desc:"New potential deal" },
-  { id:"analyzing", label:"📊 Analyzing",      color:"#3b9eff", desc:"Running the numbers" },
-  { id:"offer",     label:"📝 Offer Sent",     color:"#a782ff", desc:"Waiting on response" },
-  { id:"contract",  label:"🤝 Under Contract", color:"#f0a030", desc:"Accepted, in due diligence" },
-  { id:"rehab",     label:"🔨 Active Rehab",   color:"#f25c5c", desc:"Bought it, renovating" },
-  { id:"listed",    label:"🏷️ Listed",         color:"#34d98a", desc:"On market, waiting for buyer" },
-  { id:"closed",    label:"✅ Closed",          color:"#34d98a", desc:"Sold — move to portfolio" },
-  { id:"dead",      label:"❌ Dead",            color:"#3a4a60", desc:"Passed or fell through" },
+  { id:"lead",      label:"🔍 Lead",           color:"var(--sub)", desc:"New potential deal" },
+  { id:"analyzing", label:"📊 Analyzing",      color:"var(--blue)", desc:"Running the numbers" },
+  { id:"offer",     label:"📝 Offer Sent",     color:"var(--purple)", desc:"Waiting on response" },
+  { id:"contract",  label:"🤝 Under Contract", color:"var(--amber)", desc:"Accepted, in due diligence" },
+  { id:"rehab",     label:"🔨 Active Rehab",   color:"var(--red)", desc:"Bought it, renovating" },
+  { id:"listed",    label:"🏷️ Listed",         color:"var(--green)", desc:"On market, waiting for buyer" },
+  { id:"closed",    label:"✅ Closed",          color:"var(--green)", desc:"Sold — move to portfolio" },
+  { id:"dead",      label:"❌ Dead",            color:"var(--dim)", desc:"Passed or fell through" },
 ];
 
 const TYPE_META = {
-  flip:        { emoji:"🏚️", label:"Flip",        color:"#3b9eff" },
-  brrrr:       { emoji:"🔄", label:"BRRRR",        color:"#a782ff" },
-  multifamily: { emoji:"🏢", label:"Multifamily",  color:"#34d98a" },
-  rental:      { emoji:"🏠", label:"Rental",       color:"#f0a030" },
-  wholesale:   { emoji:"📋", label:"Wholesale",    color:"#f25c5c" },
+  flip:        { emoji:"🏚️", label:"Flip",        color:"var(--blue)" },
+  brrrr:       { emoji:"🔄", label:"BRRRR",        color:"var(--purple)" },
+  multifamily: { emoji:"🏢", label:"Multifamily",  color:"var(--green)" },
+  rental:      { emoji:"🏠", label:"Rental",       color:"var(--amber)" },
+  wholesale:   { emoji:"📋", label:"Wholesale",    color:"var(--red)" },
 };
 
 const SOURCE_OPTIONS = ["MLS","Wholesaler","Direct Mail","Cold Call","Driving for Dollars","Referral","Auction","Off-Market","Other"];
 
-const GRADE_COLOR = { A:"#34d98a", B:"#3b9eff", C:"#f0a030", D:"#ea580c", F:"#dc2626" };
+const GRADE_COLOR = { A:"var(--green)", B:"var(--blue)", C:"var(--amber)", D:"var(--amber)", F:"var(--red)" };
 
 const BLANK = {
   id:null, address:"", city:"", type:"flip", stage:"lead", source:"",
@@ -331,7 +331,7 @@ export default function Pipeline() {
                             {deal.city && <div className="pl-card-city">{deal.city}</div>}
                           </div>
                           {deal.grade && (
-                            <div className="pl-grade" style={{ background: (GRADE_COLOR[deal.grade] || "#6b7d96") + "22", color: GRADE_COLOR[deal.grade] || "#6b7d96" }}>
+                            <div className="pl-grade" style={{ background: (GRADE_COLOR[deal.grade] || "var(--sub)") + "22", color: GRADE_COLOR[deal.grade] || "var(--sub)" }}>
                               {deal.grade}
                             </div>
                           )}

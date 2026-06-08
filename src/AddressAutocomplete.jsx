@@ -26,7 +26,7 @@ const SUGGESTION_STYLE = {
   base: {
     padding: "10px 14px",
     fontSize: 13,
-    color: "#dde4ef",
+    color: "var(--text)",
     cursor: "pointer",
     display: "flex",
     alignItems: "flex-start",
@@ -226,7 +226,7 @@ export default function AddressAutocomplete({
         <div style={{
           position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)",
           width: 14, height: 14, border: "2px solid rgba(255,255,255,0.1)",
-          borderTopColor: "#3b9eff", borderRadius: "50%",
+          borderTopColor: "var(--blue)", borderRadius: "50%",
           animation: "ac-spin 0.7s linear infinite", pointerEvents: "none",
         }} />
       )}
@@ -255,15 +255,15 @@ export default function AddressAutocomplete({
             >
               <span style={{ fontSize: 14, flexShrink: 0, marginTop: 1 }}>📍</span>
               <div>
-                <div style={{ color: "#dde4ef", fontWeight: 500 }}>{s.label}</div>
+                <div style={{ color: "var(--text)", fontWeight: 500 }}>{s.label}</div>
                 {s.sublabel && (
-                  <div style={{ fontSize: 11, color: "#3a4a60", marginTop: 1 }}>{s.sublabel}</div>
+                  <div style={{ fontSize: 11, color: "var(--dim)", marginTop: 1 }}>{s.sublabel}</div>
                 )}
               </div>
             </div>
           ))}
           <div style={{ padding: "5px 14px", borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", gap: 4 }}>
-            <span style={{ fontSize: 9, color: "#3a4a60", letterSpacing: 0.3 }}>Powered by OpenStreetMap · Photon</span>
+            <span style={{ fontSize: 9, color: "var(--dim)", letterSpacing: 0.3 }}>Powered by OpenStreetMap · Photon</span>
           </div>
         </div>
       )}

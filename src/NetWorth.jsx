@@ -161,8 +161,8 @@ const CSS = `
 
 // ─── Property type colours ────────────────────────────────────────────────────
 const PROP_COLORS = {
-  rental:"#34d98a", primary:"#3b9eff", flip_hold:"#f25c5c",
-  commercial:"#a782ff", land:"#f0a030", other:"#6b7d96",
+  rental:"var(--green)", primary:"var(--blue)", flip_hold:"var(--red)",
+  commercial:"var(--purple)", land:"var(--amber)", other:"var(--sub)",
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -281,15 +281,15 @@ export default function NetWorth() {
   const chartMax = Math.max(...snapshots.map(s=>s.netWorth), 1);
 
   // ── Net worth colour ─────────────────────────────────────────────────────
-  const nwColor = stats.totalNW >= 0 ? "#34d98a" : "#f25c5c";
+  const nwColor = stats.totalNW >= 0 ? "var(--green)" : "var(--red)";
 
   // ── Alloc segments ────────────────────────────────────────────────────────
   const totalForAlloc = stats.totalEquity + stats.totalCash + portfolioProfit + pipelineProjected || 1;
   const allocSegs = [
-    { label:"Real Estate Equity", val:stats.totalEquity,      color:"#34d98a" },
-    { label:"Cash & Liquid",      val:stats.totalCash,        color:"#3b9eff" },
-    { label:"Closed Profits",     val:portfolioProfit,        color:"#a782ff" },
-    { label:"Pipeline (Proj.)",   val:pipelineProjected,      color:"#f0a030" },
+    { label:"Real Estate Equity", val:stats.totalEquity,      color:"var(--green)" },
+    { label:"Cash & Liquid",      val:stats.totalCash,        color:"var(--blue)" },
+    { label:"Closed Profits",     val:portfolioProfit,        color:"var(--purple)" },
+    { label:"Pipeline (Proj.)",   val:pipelineProjected,      color:"var(--amber)" },
   ].filter(s=>s.val>0);
 
   return (
@@ -462,7 +462,7 @@ export default function NetWorth() {
                 </thead>
                 <tbody>
                   {propsWithCalc.map(p => {
-                    const tc = PROP_COLORS[p.type]||"#6b7d96";
+                    const tc = PROP_COLORS[p.type]||"var(--sub)";
                     return (
                       <tr key={p.id}>
                         <td>

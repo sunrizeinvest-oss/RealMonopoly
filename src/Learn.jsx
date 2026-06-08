@@ -6,12 +6,12 @@ const CSS = `
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body { background: #07090f; color: #dde4ef; font-family: 'DM Sans', sans-serif; }
+  body { background: #07090f; color: var(--text); font-family: 'DM Sans', sans-serif; }
 
   .learn-page {
     min-height: 100vh;
     background: #07090f;
-    color: #dde4ef;
+    color: var(--text);
     font-family: 'DM Sans', sans-serif;
   }
 
@@ -36,7 +36,7 @@ const CSS = `
     text-decoration: none;
     letter-spacing: -0.5px;
   }
-  .learn-nav-logo span { color: #3b9eff; }
+  .learn-nav-logo span { color: var(--blue); }
   .learn-nav-links {
     display: flex;
     align-items: center;
@@ -45,7 +45,7 @@ const CSS = `
   .learn-nav-link {
     font-size: 13px;
     font-weight: 500;
-    color: #6b7d96;
+    color: var(--sub);
     text-decoration: none;
     padding: 5px 11px;
     border-radius: 7px;
@@ -55,9 +55,9 @@ const CSS = `
     background: transparent;
     font-family: 'DM Sans', sans-serif;
   }
-  .learn-nav-link:hover { color: #dde4ef; background: rgba(255,255,255,0.05); }
+  .learn-nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
   .learn-nav-link.active {
-    color: #3b9eff;
+    color: var(--blue);
     background: rgba(59,158,255,0.1);
     border-color: rgba(59,158,255,0.2);
     font-weight: 700;
@@ -85,7 +85,7 @@ const CSS = `
   .anchor-pill {
     font-size: 11px;
     font-weight: 600;
-    color: #6b7d96;
+    color: var(--sub);
     text-decoration: none;
     padding: 4px 12px;
     border-radius: 20px;
@@ -96,7 +96,7 @@ const CSS = `
     letter-spacing: 0.2px;
   }
   .anchor-pill:hover {
-    color: #3b9eff;
+    color: var(--blue);
     border-color: rgba(59,158,255,0.3);
     background: rgba(59,158,255,0.06);
   }
@@ -117,20 +117,20 @@ const CSS = `
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    color: #3b9eff;
+    color: var(--blue);
     margin-bottom: 12px;
   }
   .page-header h1 {
     font-size: 36px;
     font-weight: 800;
-    color: #dde4ef;
+    color: var(--text);
     letter-spacing: -1px;
     line-height: 1.15;
     margin-bottom: 14px;
   }
   .page-header p {
     font-size: 16px;
-    color: #6b7d96;
+    color: var(--sub);
     max-width: 600px;
     margin: 0 auto;
     line-height: 1.65;
@@ -152,7 +152,7 @@ const CSS = `
   .section-number {
     font-size: 11px;
     font-weight: 800;
-    color: #3b9eff;
+    color: var(--blue);
     letter-spacing: 1px;
     text-transform: uppercase;
     background: rgba(59,158,255,0.1);
@@ -164,12 +164,12 @@ const CSS = `
   .section-title {
     font-size: 22px;
     font-weight: 800;
-    color: #dde4ef;
+    color: var(--text);
     letter-spacing: -0.5px;
   }
   .section-sub {
     font-size: 14px;
-    color: #6b7d96;
+    color: var(--sub);
     margin-top: 4px;
   }
 
@@ -207,13 +207,13 @@ const CSS = `
   .strategy-card h3 {
     font-size: 17px;
     font-weight: 800;
-    color: #dde4ef;
+    color: var(--text);
     margin-bottom: 8px;
     letter-spacing: -0.3px;
   }
   .strategy-desc {
     font-size: 13.5px;
-    color: #6b7d96;
+    color: var(--sub);
     line-height: 1.65;
     margin-bottom: 18px;
   }
@@ -229,21 +229,21 @@ const CSS = `
     font-size: 12px;
   }
   .strategy-meta-label {
-    color: #3a4a60;
+    color: var(--dim);
     font-weight: 600;
     letter-spacing: 0.3px;
     white-space: nowrap;
     min-width: 72px;
   }
   .strategy-meta-val {
-    color: #8899b0;
+    color: var(--sub);
     line-height: 1.5;
   }
-  .strategy-meta-val.green { color: #34d98a; }
-  .strategy-meta-val.amber { color: #f0a030; }
-  .strategy-meta-val.red { color: #f25c5c; }
-  .strategy-meta-val.blue { color: #3b9eff; }
-  .strategy-meta-val.purple { color: #a782ff; }
+  .strategy-meta-val.green { color: var(--green); }
+  .strategy-meta-val.amber { color: var(--amber); }
+  .strategy-meta-val.red { color: var(--red); }
+  .strategy-meta-val.blue { color: var(--blue); }
+  .strategy-meta-val.purple { color: var(--purple); }
 
   /* ── Glossary ── */
   .search-bar-wrap {
@@ -255,7 +255,7 @@ const CSS = `
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: #3a4a60;
+    color: var(--dim);
     font-size: 15px;
     pointer-events: none;
   }
@@ -266,19 +266,19 @@ const CSS = `
     border-radius: 10px;
     padding: 12px 16px 12px 42px;
     font-size: 14px;
-    color: #dde4ef;
+    color: var(--text);
     font-family: 'DM Sans', sans-serif;
     outline: none;
     transition: border-color 0.15s, box-shadow 0.15s;
   }
-  .search-bar::placeholder { color: #3a4a60; }
+  .search-bar::placeholder { color: var(--dim); }
   .search-bar:focus {
     border-color: rgba(59,158,255,0.4);
     box-shadow: 0 0 0 3px rgba(59,158,255,0.08);
   }
   .search-count {
     font-size: 12px;
-    color: #3a4a60;
+    color: var(--dim);
     margin-bottom: 20px;
     padding: 0 2px;
   }
@@ -299,23 +299,23 @@ const CSS = `
   .glossary-term {
     font-size: 17px;
     font-weight: 800;
-    color: #dde4ef;
+    color: var(--text);
     letter-spacing: -0.3px;
     margin-bottom: 6px;
   }
   .glossary-def {
     font-size: 13px;
-    color: #6b7d96;
+    color: var(--sub);
     line-height: 1.65;
     margin-bottom: 12px;
   }
   .glossary-formula {
     font-family: 'Fira Code', monospace;
     font-size: 12px;
-    color: #34d98a;
+    color: var(--green);
     background: rgba(52,217,138,0.06);
     border: 1px solid rgba(52,217,138,0.15);
-    border-left: 3px solid #34d98a;
+    border-left: 3px solid var(--green);
     border-radius: 0 6px 6px 0;
     padding: 8px 12px;
     line-height: 1.6;
@@ -327,7 +327,7 @@ const CSS = `
   }
   .no-results {
     text-align: center;
-    color: #3a4a60;
+    color: var(--dim);
     font-size: 14px;
     padding: 40px 0;
     grid-column: 1 / -1;
@@ -357,7 +357,7 @@ const CSS = `
   .rule-name {
     font-size: 15px;
     font-weight: 800;
-    color: #dde4ef;
+    color: var(--text);
     letter-spacing: -0.2px;
   }
   .rule-badge {
@@ -374,7 +374,7 @@ const CSS = `
   .rule-formula {
     font-family: 'Fira Code', monospace;
     font-size: 13px;
-    color: #3b9eff;
+    color: var(--blue);
     background: rgba(59,158,255,0.07);
     border: 1px solid rgba(59,158,255,0.15);
     border-radius: 6px;
@@ -383,7 +383,7 @@ const CSS = `
   }
   .rule-desc {
     font-size: 12.5px;
-    color: #6b7d96;
+    color: var(--sub);
     line-height: 1.6;
   }
 
@@ -400,7 +400,7 @@ const CSS = `
     gap: 14px;
     background: #0d1119;
     border: 1px solid rgba(242,92,92,0.12);
-    border-left: 3px solid #f25c5c;
+    border-left: 3px solid var(--red);
     border-radius: 0 10px 10px 0;
     padding: 14px 16px;
     transition: border-color 0.15s, background 0.15s;
@@ -408,7 +408,7 @@ const CSS = `
   .redflag-item:hover {
     background: rgba(242,92,92,0.04);
     border-color: rgba(242,92,92,0.25);
-    border-left-color: #f25c5c;
+    border-left-color: var(--red);
   }
   .redflag-icon {
     font-size: 16px;
@@ -417,13 +417,13 @@ const CSS = `
   }
   .redflag-text {
     font-size: 14px;
-    color: #dde4ef;
+    color: var(--text);
     font-weight: 500;
     line-height: 1.5;
   }
   .redflag-sub {
     font-size: 12px;
-    color: #6b7d96;
+    color: var(--sub);
     margin-top: 3px;
     line-height: 1.5;
   }
@@ -459,18 +459,18 @@ const CSS = `
   .timing-content h4 {
     font-size: 14px;
     font-weight: 700;
-    color: #dde4ef;
+    color: var(--text);
     margin-bottom: 5px;
     letter-spacing: -0.2px;
   }
   .timing-content p {
     font-size: 13px;
-    color: #6b7d96;
+    color: var(--sub);
     line-height: 1.65;
   }
   .timing-content .timing-warn {
     font-size: 12px;
-    color: #f0a030;
+    color: var(--amber);
     font-weight: 600;
     margin-top: 5px;
   }
@@ -480,7 +480,7 @@ const CSS = `
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: #3b9eff;
+    background: var(--blue);
     color: #fff;
     font-size: 14px;
     font-weight: 700;
@@ -494,11 +494,11 @@ const CSS = `
     margin-top: 8px;
   }
   .section-cta:hover { background: #5aaeff; transform: translateY(-1px); }
-  .section-cta.green { background: #34d98a; color: #03291a; }
+  .section-cta.green { background: var(--green); color: #03291a; }
   .section-cta.green:hover { background: #4de9a0; }
-  .section-cta.purple { background: #a782ff; color: #1a0d40; }
+  .section-cta.purple { background: var(--purple); color: #1a0d40; }
   .section-cta.purple:hover { background: #b89bff; }
-  .section-cta.amber { background: #f0a030; color: #2a1800; }
+  .section-cta.amber { background: var(--amber); color: #2a1800; }
   .section-cta.amber:hover { background: #f5b050; }
 
   /* ── Back to top ── */
@@ -509,7 +509,7 @@ const CSS = `
     z-index: 300;
     background: #0d1119;
     border: 1px solid rgba(59,158,255,0.25);
-    color: #3b9eff;
+    color: var(--blue);
     font-size: 12px;
     font-weight: 700;
     font-family: 'DM Sans', sans-serif;
@@ -696,7 +696,7 @@ const RULES = [
   {
     name: "70% Rule",
     badge: "Flip Screening",
-    badgeColor: "#3b9eff",
+    badgeColor: "var(--blue)",
     badgeBg: "rgba(59,158,255,0.1)",
     formula: "Offer ≤ (ARV × 0.70) − Repairs",
     desc: "Classic investor shortcut to quickly screen flip deals. If the math doesn't work at 70%, it rarely pencils out once you add all your real costs.",
@@ -704,7 +704,7 @@ const RULES = [
   {
     name: "1% Rule",
     badge: "Rental Screening",
-    badgeColor: "#34d98a",
+    badgeColor: "var(--green)",
     badgeBg: "rgba(52,217,138,0.1)",
     formula: "(Rent ÷ Price) × 100 ≥ 1%",
     desc: "Monthly rent should be at least 1% of purchase price. Harder to hit in expensive markets, but a fast way to filter rental opportunities.",
@@ -712,7 +712,7 @@ const RULES = [
   {
     name: "50% Rule",
     badge: "Expense Estimation",
-    badgeColor: "#a782ff",
+    badgeColor: "var(--purple)",
     badgeBg: "rgba(167,130,255,0.1)",
     formula: "Op. Expenses ≈ Gross Rent × 0.50",
     desc: "Estimate operating expenses as 50% of gross rent to get a fast NOI approximation. Does not include mortgage payments.",
@@ -720,7 +720,7 @@ const RULES = [
   {
     name: "DSCR > 1.25",
     badge: "Lender Minimum",
-    badgeColor: "#f0a030",
+    badgeColor: "var(--amber)",
     badgeBg: "rgba(240,160,48,0.1)",
     formula: "NOI ÷ Debt Service > 1.25",
     desc: "Most lenders require rent to cover at least 125% of the mortgage payment. Below 1.0 means the property can't service its own debt.",
@@ -728,7 +728,7 @@ const RULES = [
   {
     name: "Cap Rate 6–10%",
     badge: "Healthy Range",
-    badgeColor: "#34d98a",
+    badgeColor: "var(--green)",
     badgeBg: "rgba(52,217,138,0.1)",
     formula: "Cap Rate = NOI ÷ Price × 100",
     desc: "A healthy cap rate depends on market class. A-class urban = 4–6%. B-class suburban = 6–8%. C-class = 8–12%. Below 5% in a B/C market is a warning sign.",
@@ -736,7 +736,7 @@ const RULES = [
   {
     name: "6-Month Reserve",
     badge: "Before Deal #1",
-    badgeColor: "#f25c5c",
+    badgeColor: "var(--red)",
     badgeBg: "rgba(242,92,92,0.1)",
     formula: "6 × Monthly Expenses = Safety Net",
     desc: "Before closing your first deal, have 6 months of property expenses in liquid reserves. Surprises happen — furnaces die, tenants skip, markets slow.",
@@ -925,7 +925,7 @@ export default function Learn() {
 
             {/* Fix & Flip */}
             <div className="strategy-card">
-              <div className="strategy-card-accent" style={{ background: "#3b9eff" }} />
+              <div className="strategy-card-accent" style={{ background: "var(--blue)" }} />
               <span className="strategy-icon">🏚️</span>
               <h3>Fix &amp; Flip</h3>
               <p className="strategy-desc">
@@ -955,7 +955,7 @@ export default function Learn() {
 
             {/* BRRRR */}
             <div className="strategy-card">
-              <div className="strategy-card-accent" style={{ background: "#34d98a" }} />
+              <div className="strategy-card-accent" style={{ background: "var(--green)" }} />
               <span className="strategy-icon">🔄</span>
               <h3>BRRRR</h3>
               <p className="strategy-desc">
@@ -985,7 +985,7 @@ export default function Learn() {
 
             {/* Multifamily / Rental */}
             <div className="strategy-card">
-              <div className="strategy-card-accent" style={{ background: "#a782ff" }} />
+              <div className="strategy-card-accent" style={{ background: "var(--purple)" }} />
               <span className="strategy-icon">🏢</span>
               <h3>Multifamily / Rental</h3>
               <p className="strategy-desc">
@@ -1071,7 +1071,7 @@ export default function Learn() {
                   <div className="glossary-term">
                     {item.term}
                     {item.fullName && item.fullName !== item.term && (
-                      <span style={{ fontSize: 13, fontWeight: 500, color: "#3a4a60", marginLeft: 8 }}>
+                      <span style={{ fontSize: 13, fontWeight: 500, color: "var(--dim)", marginLeft: 8 }}>
                         — {item.fullName}
                       </span>
                     )}

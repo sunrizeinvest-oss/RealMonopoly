@@ -10,7 +10,7 @@ const CSS = `
     min-height: 100vh;
     background: #07090f;
     font-family: 'DM Sans', sans-serif;
-    color: #dde4ef;
+    color: var(--text);
     display: flex;
     flex-direction: column;
   }
@@ -38,12 +38,12 @@ const CSS = `
     letter-spacing: -0.5px;
   }
 
-  .quiz-nav-logo span { color: #3b9eff; }
+  .quiz-nav-logo span { color: var(--blue); }
 
   .quiz-nav-back {
     font-size: 13px;
     font-weight: 600;
-    color: #6b7d96;
+    color: var(--sub);
     text-decoration: none;
     padding: 5px 14px;
     border: 1px solid rgba(255,255,255,0.1);
@@ -52,7 +52,7 @@ const CSS = `
   }
 
   .quiz-nav-back:hover {
-    color: #dde4ef;
+    color: var(--text);
     border-color: rgba(255,255,255,0.2);
   }
 
@@ -84,7 +84,7 @@ const CSS = `
   .quiz-progress-label {
     font-size: 12px;
     font-weight: 600;
-    color: #6b7d96;
+    color: var(--sub);
     letter-spacing: 0.5px;
     text-transform: uppercase;
   }
@@ -92,7 +92,7 @@ const CSS = `
   .quiz-progress-step {
     font-size: 12px;
     font-weight: 700;
-    color: #3b9eff;
+    color: var(--blue);
   }
 
   .quiz-progress-track {
@@ -105,7 +105,7 @@ const CSS = `
   .quiz-progress-fill {
     height: 100%;
     border-radius: 9999px;
-    background: linear-gradient(90deg, #3b9eff, #a782ff);
+    background: linear-gradient(90deg, var(--blue), var(--purple));
     transition: width 0.35s ease;
   }
 
@@ -123,14 +123,14 @@ const CSS = `
     font-weight: 700;
     letter-spacing: 1px;
     text-transform: uppercase;
-    color: #3b9eff;
+    color: var(--blue);
     margin-bottom: 12px;
   }
 
   .quiz-question-text {
     font-size: 22px;
     font-weight: 800;
-    color: #dde4ef;
+    color: var(--text);
     letter-spacing: -0.4px;
     line-height: 1.3;
     margin-bottom: 28px;
@@ -167,7 +167,7 @@ const CSS = `
   }
 
   .quiz-option.selected {
-    border-color: #3b9eff;
+    border-color: var(--blue);
     background: rgba(59,158,255,0.1);
     box-shadow: 0 0 0 3px rgba(59,158,255,0.12);
   }
@@ -175,7 +175,7 @@ const CSS = `
   .quiz-option-label {
     font-size: 14px;
     font-weight: 600;
-    color: #dde4ef;
+    color: var(--text);
     line-height: 1.4;
     display: flex;
     align-items: center;
@@ -199,8 +199,8 @@ const CSS = `
   }
 
   .quiz-option.selected .quiz-option-dot {
-    border-color: #3b9eff;
-    background: #3b9eff;
+    border-color: var(--blue);
+    background: var(--blue);
   }
 
   .quiz-option-dot-inner {
@@ -230,7 +230,7 @@ const CSS = `
     padding: 13px 22px;
     font-size: 14px;
     font-weight: 600;
-    color: #6b7d96;
+    color: var(--sub);
     cursor: pointer;
     font-family: inherit;
     transition: color 0.15s, border-color 0.15s;
@@ -238,13 +238,13 @@ const CSS = `
   }
 
   .quiz-btn-back:hover {
-    color: #dde4ef;
+    color: var(--text);
     border-color: rgba(255,255,255,0.2);
   }
 
   .quiz-btn-next {
     flex: 1;
-    background: #3b9eff;
+    background: var(--blue);
     border: none;
     border-radius: 10px;
     padding: 13px 22px;
@@ -262,7 +262,7 @@ const CSS = `
   }
 
   .quiz-btn-next:not(:disabled):hover {
-    background: #5aadff;
+    background: #5aaeff;
   }
 
   /* ─── Result Page ─── */
@@ -308,7 +308,7 @@ const CSS = `
 
   .quiz-result-subtitle {
     font-size: 15px;
-    color: #6b7d96;
+    color: var(--sub);
     line-height: 1.6;
   }
 
@@ -339,7 +339,7 @@ const CSS = `
   .quiz-tie-name {
     font-size: 15px;
     font-weight: 800;
-    color: #dde4ef;
+    color: var(--text);
     margin-bottom: 4px;
   }
 
@@ -354,7 +354,7 @@ const CSS = `
     font-weight: 700;
     letter-spacing: 0.8px;
     text-transform: uppercase;
-    color: #6b7d96;
+    color: var(--sub);
     margin-bottom: 16px;
   }
 
@@ -368,7 +368,7 @@ const CSS = `
   .quiz-score-label {font-family:'Fira Code',ui-monospace,monospace;
     font-size: 13px;
     font-weight: 600;
-    color: #dde4ef;
+    color: var(--text);
     width: 120px;
     flex-shrink: 0;
   }
@@ -406,7 +406,7 @@ const CSS = `
     font-weight: 700;
     letter-spacing: 0.8px;
     text-transform: uppercase;
-    color: #6b7d96;
+    color: var(--sub);
     margin-bottom: 16px;
   }
 
@@ -431,7 +431,7 @@ const CSS = `
     line-height: 1.6;
   }
 
-  .quiz-reason-text strong { color: #dde4ef; }
+  .quiz-reason-text strong { color: var(--text); }
 
   /* CTA */
   .quiz-cta {
@@ -451,7 +451,7 @@ const CSS = `
   .quiz-btn-primary {
     flex: 1;
     min-width: 160px;
-    background: #3b9eff;
+    background: var(--blue);
     border: none;
     border-radius: 10px;
     padding: 14px 22px;
@@ -468,7 +468,7 @@ const CSS = `
     transition: background 0.15s;
   }
 
-  .quiz-btn-primary:hover { background: #5aadff; }
+  .quiz-btn-primary:hover { background: #5aaeff; }
 
   .quiz-btn-secondary {
     background: transparent;
@@ -477,14 +477,14 @@ const CSS = `
     padding: 14px 22px;
     font-size: 14px;
     font-weight: 600;
-    color: #6b7d96;
+    color: var(--sub);
     cursor: pointer;
     font-family: inherit;
     transition: color 0.15s, border-color 0.15s;
   }
 
   .quiz-btn-secondary:hover {
-    color: #dde4ef;
+    color: var(--text);
     border-color: rgba(255,255,255,0.2);
   }
 
@@ -504,7 +504,7 @@ const CSS = `
     padding: 5px 14px;
     font-size: 12px;
     font-weight: 600;
-    color: #3b9eff;
+    color: var(--blue);
     letter-spacing: 0.3px;
     margin-bottom: 20px;
   }
@@ -513,7 +513,7 @@ const CSS = `
     font-size: 32px;
     font-weight: 800;
     letter-spacing: -0.8px;
-    color: #dde4ef;
+    color: var(--text);
     line-height: 1.2;
     margin-bottom: 14px;
   }
@@ -524,7 +524,7 @@ const CSS = `
 
   .quiz-intro-desc {
     font-size: 16px;
-    color: #6b7d96;
+    color: var(--sub);
     line-height: 1.7;
     margin-bottom: 32px;
     max-width: 480px;
@@ -557,7 +557,7 @@ const CSS = `
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background: #3b9eff;
+    background: var(--blue);
     border: none;
     border-radius: 12px;
     padding: 16px 36px;
@@ -570,11 +570,11 @@ const CSS = `
     margin-bottom: 12px;
   }
 
-  .quiz-intro-btn:hover { background: #5aadff; }
+  .quiz-intro-btn:hover { background: #5aaeff; }
 
   .quiz-intro-note {
     font-size: 12px;
-    color: #3a4a60;
+    color: var(--dim);
     margin-top: 12px;
   }
 `;
@@ -665,7 +665,7 @@ const STRATEGIES = {
   flip: {
     icon: "🏚️",
     name: "Fix & Flip",
-    color: "#f0a030",
+    color: "var(--amber)",
     colorDim: "rgba(240,160,48,0.15)",
     colorBorder: "rgba(240,160,48,0.3)",
     link: "/app",
@@ -674,7 +674,7 @@ const STRATEGIES = {
   brrrr: {
     icon: "🔄",
     name: "BRRRR Strategy",
-    color: "#a782ff",
+    color: "var(--purple)",
     colorDim: "rgba(167,130,255,0.15)",
     colorBorder: "rgba(167,130,255,0.3)",
     link: "/brrrr",
@@ -683,7 +683,7 @@ const STRATEGIES = {
   mf: {
     icon: "🏢",
     name: "Multifamily / Rental",
-    color: "#34d98a",
+    color: "var(--green)",
     colorDim: "rgba(52,217,138,0.15)",
     colorBorder: "rgba(52,217,138,0.3)",
     link: "/commercial",
@@ -957,10 +957,10 @@ export default function Quiz() {
               <div className="quiz-progress-wrap">
                 <div className="quiz-progress-meta">
                   <span className="quiz-progress-label">Quiz Complete</span>
-                  <span className="quiz-progress-step" style={{ color: "#34d98a" }}>100%</span>
+                  <span className="quiz-progress-step" style={{ color: "var(--green)" }}>100%</span>
                 </div>
                 <div className="quiz-progress-track">
-                  <div className="quiz-progress-fill" style={{ width: "100%", background: "linear-gradient(90deg, #34d98a, #3b9eff)" }} />
+                  <div className="quiz-progress-fill" style={{ width: "100%", background: "linear-gradient(90deg, var(--green), var(--blue))" }} />
                 </div>
               </div>
 
@@ -1001,14 +1001,14 @@ export default function Quiz() {
                         style={{
                           background: "rgba(59,158,255,0.1)",
                           border: "1px solid rgba(59,158,255,0.3)",
-                          color: "#3b9eff",
+                          color: "var(--blue)",
                         }}
                       >
                         <span>Strong Match</span>
                       </div>
                       <div
                         className="quiz-result-title"
-                        style={{ color: "#dde4ef", fontSize: 20 }}
+                        style={{ color: "var(--text)", fontSize: 20 }}
                       >
                         These two strategies both fit you well
                       </div>
@@ -1051,7 +1051,7 @@ export default function Quiz() {
                       </div>
                       <span
                         className="quiz-score-val"
-                        style={{ color: winners.includes(key) ? color : "#6b7d96" }}
+                        style={{ color: winners.includes(key) ? color : "var(--sub)" }}
                       >
                         {totalScore[key]}
                       </span>

@@ -7,17 +7,17 @@ const fmtPct = n => isNaN(n) || !isFinite(n) ? "—" : `${(n * 100).toFixed(1)}%
 const fmtX = n => isNaN(n) || !isFinite(n) || Math.abs(n) > 999 ? "—" : `${n.toFixed(2)}x`;
 
 function typeLabel(type) {
-  if (type === "flip") return { emoji: "🏚️", label: "Fix & Flip", color: "#3b9eff", bg: "rgba(59,158,255,0.1)" };
-  if (type === "brrrr") return { emoji: "🔄", label: "BRRRR", color: "#a782ff", bg: "rgba(167,130,255,0.1)" };
-  if (type === "multifamily") return { emoji: "🏢", label: "Multifamily", color: "#34d98a", bg: "rgba(52,217,138,0.1)" };
-  return { emoji: "🏠", label: "Deal", color: "#6b7d96", bg: "rgba(107,125,150,0.1)" };
+  if (type === "flip") return { emoji: "🏚️", label: "Fix & Flip", color: "var(--blue)", bg: "rgba(59,158,255,0.1)" };
+  if (type === "brrrr") return { emoji: "🔄", label: "BRRRR", color: "var(--purple)", bg: "rgba(167,130,255,0.1)" };
+  if (type === "multifamily") return { emoji: "🏢", label: "Multifamily", color: "var(--green)", bg: "rgba(52,217,138,0.1)" };
+  return { emoji: "🏠", label: "Deal", color: "var(--sub)", bg: "rgba(107,125,150,0.1)" };
 }
 
 function verdictColor(verdict) {
-  if (!verdict) return "#6b7d96";
-  if (verdict.includes("GO") && !verdict.includes("NO") && !verdict.includes("No")) return "#34d98a";
-  if (verdict.includes("NO") || verdict.includes("No-Go") || verdict.includes("Unprofitable")) return "#f25c5c";
-  return "#f0a030";
+  if (!verdict) return "var(--sub)";
+  if (verdict.includes("GO") && !verdict.includes("NO") && !verdict.includes("No")) return "var(--green)";
+  if (verdict.includes("NO") || verdict.includes("No-Go") || verdict.includes("Unprofitable")) return "var(--red)";
+  return "var(--amber)";
 }
 
 const CSS = `
@@ -215,7 +215,7 @@ export default function Dashboard() {
 
   if (loading) return (
     <div style={{ minHeight: "100vh", background: "#07090f", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ color: "#3b9eff", fontSize: 14 }}>Loading...</div>
+      <div style={{ color: "var(--blue)", fontSize: 14 }}>Loading...</div>
     </div>
   );
 

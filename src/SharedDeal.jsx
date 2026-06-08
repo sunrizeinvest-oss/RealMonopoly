@@ -4,7 +4,7 @@ import { useAuth } from "./AuthContext";
 
 const fmt = n => new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(n || 0);
 const fmtPct = n => isNaN(n) || !isFinite(n) ? "—" : `${(n * 100).toFixed(1)}%`;
-function scoreColor(s) { return s >= 80 ? "#34d98a" : s >= 65 ? "#3b9eff" : s >= 48 ? "#f0a030" : "#f25c5c"; }
+function scoreColor(s) { return s >= 80 ? "var(--green)" : s >= 65 ? "var(--blue)" : s >= 48 ? "var(--amber)" : "var(--red)"; }
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
@@ -52,16 +52,16 @@ export default function SharedDeal() {
 
   if (loading) return (
     <div style={{minHeight:"100vh",background:"#07090f",display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <div style={{color:"#3b9eff",fontSize:14}}>Loading deal...</div>
+      <div style={{color:"var(--blue)",fontSize:14}}>Loading deal...</div>
     </div>
   );
 
   if (notFound) return (
     <div style={{minHeight:"100vh",background:"#07090f",display:"flex",alignItems:"center",justifyContent:"center",flexDirection:"column",gap:12}}>
       <div style={{fontSize:32}}>🏠</div>
-      <div style={{fontSize:18,fontWeight:700,color:"#dde4ef"}}>Deal not found</div>
-      <div style={{fontSize:14,color:"#6b7d96"}}>This link may have expired or been removed.</div>
-      <a href="/analyze" style={{marginTop:8,background:"#3b9eff",color:"#fff",borderRadius:8,padding:"10px 20px",fontSize:13,fontWeight:700,textDecoration:"none"}}>Analyze your own deal →</a>
+      <div style={{fontSize:18,fontWeight:700,color:"var(--text)"}}>Deal not found</div>
+      <div style={{fontSize:14,color:"var(--sub)"}}>This link may have expired or been removed.</div>
+      <a href="/analyze" style={{marginTop:8,background:"var(--blue)",color:"#fff",borderRadius:8,padding:"10px 20px",fontSize:13,fontWeight:700,textDecoration:"none"}}>Analyze your own deal →</a>
     </div>
   );
 

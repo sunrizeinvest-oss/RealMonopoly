@@ -15,11 +15,11 @@ const num    = v => parseFloat(v) || 0;
 const STORAGE_KEY = "rde_portfolio_v1";
 
 const TYPE_META = {
-  flip:         { emoji: "🏚️", label: "Fix & Flip",   color: "#3b9eff", bg: "rgba(59,158,255,0.1)" },
-  brrrr:        { emoji: "🔄", label: "BRRRR",         color: "#a782ff", bg: "rgba(167,130,255,0.1)" },
-  multifamily:  { emoji: "🏢", label: "Multifamily",   color: "#34d98a", bg: "rgba(52,217,138,0.1)" },
-  rental:       { emoji: "🏠", label: "Rental",        color: "#f0a030", bg: "rgba(240,160,48,0.1)" },
-  wholesale:    { emoji: "📋", label: "Wholesale",     color: "#f25c5c", bg: "rgba(242,92,92,0.1)" },
+  flip:         { emoji: "🏚️", label: "Fix & Flip",   color: "var(--blue)", bg: "rgba(59,158,255,0.1)" },
+  brrrr:        { emoji: "🔄", label: "BRRRR",         color: "var(--purple)", bg: "rgba(167,130,255,0.1)" },
+  multifamily:  { emoji: "🏢", label: "Multifamily",   color: "var(--green)", bg: "rgba(52,217,138,0.1)" },
+  rental:       { emoji: "🏠", label: "Rental",        color: "var(--amber)", bg: "rgba(240,160,48,0.1)" },
+  wholesale:    { emoji: "📋", label: "Wholesale",     color: "var(--red)", bg: "rgba(242,92,92,0.1)" },
 };
 
 const BLANK_DEAL = {
@@ -293,28 +293,28 @@ export default function Portfolio() {
         <div className="pf-scoreboard">
           <div className="pf-score-card highlight">
             <div className="pf-score-icon">💰</div>
-            <div className="pf-score-val" style={{ color: "#34d98a" }}>
+            <div className="pf-score-val" style={{ color: "var(--green)" }}>
               {stats ? fmtK(stats.totalProfit) : "$0"}
             </div>
             <div className="pf-score-lbl">Total Profit</div>
           </div>
           <div className="pf-score-card">
             <div className="pf-score-icon">🏠</div>
-            <div className="pf-score-val" style={{ color: "#3b9eff" }}>
+            <div className="pf-score-val" style={{ color: "var(--blue)" }}>
               {stats ? stats.total : 0}
             </div>
             <div className="pf-score-lbl">Deals Closed</div>
           </div>
           <div className="pf-score-card">
             <div className="pf-score-icon">✅</div>
-            <div className="pf-score-val" style={{ color: stats && stats.winRate >= 0.7 ? "#34d98a" : "#f0a030" }}>
+            <div className="pf-score-val" style={{ color: stats && stats.winRate >= 0.7 ? "var(--green)" : "var(--amber)" }}>
               {stats ? fmtPct(stats.winRate) : "—"}
             </div>
             <div className="pf-score-lbl">Win Rate</div>
           </div>
           <div className="pf-score-card">
             <div className="pf-score-icon">📈</div>
-            <div className="pf-score-val" style={{ color: "#3b9eff" }}>
+            <div className="pf-score-val" style={{ color: "var(--blue)" }}>
               {stats ? fmtPct(stats.avgROI) : "—"}
             </div>
             <div className="pf-score-lbl">Avg ROI</div>
@@ -328,7 +328,7 @@ export default function Portfolio() {
           </div>
           <div className="pf-score-card">
             <div className="pf-score-icon">📦</div>
-            <div className="pf-score-val" style={{ color: "#f0a030" }}>
+            <div className="pf-score-val" style={{ color: "var(--amber)" }}>
               {stats ? fmtK(stats.totalVolume) : "$0"}
             </div>
             <div className="pf-score-lbl">Total Volume</div>
@@ -348,7 +348,7 @@ export default function Portfolio() {
               </div>
             </div>
             <div style={{ textAlign: "right", flexShrink: 0 }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: "#34d98a", letterSpacing: "-1px" }}>
+              <div style={{ fontSize: 28, fontWeight: 800, color: "var(--green)", letterSpacing: "-1px" }}>
                 {fmt(stats.bestDeal.netProfit)}
               </div>
               <div style={{ fontSize: 11, color: "var(--sub)" }}>net profit</div>
@@ -373,8 +373,8 @@ export default function Portfolio() {
                       style={{
                         height: `${Math.max(heightPct, 3)}%`,
                         background: isPos
-                          ? "linear-gradient(180deg,#34d98a,rgba(52,217,138,0.5))"
-                          : "linear-gradient(180deg,#f25c5c,rgba(242,92,92,0.5))",
+                          ? "linear-gradient(180deg,var(--green),rgba(52,217,138,0.5))"
+                          : "linear-gradient(180deg,var(--red),rgba(242,92,92,0.5))",
                       }}
                     />
                     <div className="pf-bar-lbl">{label}</div>
@@ -402,7 +402,7 @@ export default function Portfolio() {
                     <div>
                       <div className="pf-bd-val">{count} deal{count > 1 ? "s" : ""}</div>
                       <div className="pf-bd-lbl">{m.label}</div>
-                      <div style={{ fontSize: 12, color: "#34d98a", fontWeight: 700, marginTop: 2 }}>
+                      <div style={{ fontSize: 12, color: "var(--green)", fontWeight: 700, marginTop: 2 }}>
                         {fmt(typeProfit)} profit
                       </div>
                     </div>
@@ -593,17 +593,17 @@ export default function Portfolio() {
             {(num(form.purchasePrice) > 0 || num(form.salePrice) > 0) && (
               <div className="pf-modal-calc">
                 <div className="pf-calc-item">
-                  <div className="pf-calc-val" style={{ color: liveCalc.netProfit >= 0 ? "#34d98a" : "#f25c5c" }}>
+                  <div className="pf-calc-val" style={{ color: liveCalc.netProfit >= 0 ? "var(--green)" : "var(--red)" }}>
                     {fmt(liveCalc.netProfit)}
                   </div>
                   <div className="pf-calc-lbl">Net Profit</div>
                 </div>
                 <div className="pf-calc-item">
-                  <div className="pf-calc-val" style={{ color: "#3b9eff" }}>{fmtPct(liveCalc.roi)}</div>
+                  <div className="pf-calc-val" style={{ color: "var(--blue)" }}>{fmtPct(liveCalc.roi)}</div>
                   <div className="pf-calc-lbl">ROI</div>
                 </div>
                 <div className="pf-calc-item">
-                  <div className="pf-calc-val" style={{ color: "#f0a030" }}>
+                  <div className="pf-calc-val" style={{ color: "var(--amber)" }}>
                     {liveCalc.coc !== null ? fmtPct(liveCalc.coc) : "—"}
                   </div>
                   <div className="pf-calc-lbl">Ann. CoC</div>

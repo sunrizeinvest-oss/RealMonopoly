@@ -62,7 +62,7 @@ function scoreDeal(purchasePrice, repairCost, arvMid, rentMid) {
   const allReasons = [...reasons, ...flags];
   const grade = score >= 80 ? "A" : score >= 65 ? "B" : score >= 48 ? "C" : score >= 30 ? "D" : "F";
   const verdict = score >= 80 ? "Strong GO" : score >= 65 ? "GO — Proceed" : score >= 48 ? "Caution" : score >= 30 ? "Weak Deal" : "NO-GO";
-  const color = score >= 80 ? "#34d98a" : score >= 65 ? "#3b9eff" : score >= 48 ? "#f0a030" : score >= 30 ? "#f87060" : "#f25c5c";
+  const color = score >= 80 ? "var(--green)" : score >= 65 ? "var(--blue)" : score >= 48 ? "var(--amber)" : score >= 30 ? "#f87060" : "var(--red)";
   const bg = score >= 80 ? "rgba(52,217,138,0.07)" : score >= 65 ? "rgba(59,158,255,0.07)" : score >= 48 ? "rgba(240,160,48,0.07)" : "rgba(242,92,92,0.07)";
   const border = score >= 80 ? "rgba(52,217,138,0.2)" : score >= 65 ? "rgba(59,158,255,0.2)" : score >= 48 ? "rgba(240,160,48,0.2)" : "rgba(242,92,92,0.2)";
   return { score, grade, verdict, color, bg, border, profit, margin, allIn, reasons: allReasons };
@@ -499,14 +499,14 @@ export default function DealAnalyzer() {
                 const holdingCosts = pp * 0.0012 * 4;   // ~0.12%/mo × 4mo typical flip
                 const realProfit = arv.mid - pp - rc - sellingCosts - acquisitionCosts - holdingCosts;
                 const segments = [
-                  {lbl:"PURCHASE",   val: pp,                color:"#3b9eff", pct: arv.mid ? pp/arv.mid : 0},
-                  {lbl:"REPAIRS",    val: rc,                color:"#f0a030", pct: arv.mid ? rc/arv.mid : 0},
-                  {lbl:"SELL COSTS", val: sellingCosts,      color:"#a782ff", pct: 0.085},
-                  {lbl:"ACQUIS.",    val: acquisitionCosts,  color:"#a782ff", pct: arv.mid ? acquisitionCosts/arv.mid : 0},
+                  {lbl:"PURCHASE",   val: pp,                color:"var(--blue)", pct: arv.mid ? pp/arv.mid : 0},
+                  {lbl:"REPAIRS",    val: rc,                color:"var(--amber)", pct: arv.mid ? rc/arv.mid : 0},
+                  {lbl:"SELL COSTS", val: sellingCosts,      color:"var(--purple)", pct: 0.085},
+                  {lbl:"ACQUIS.",    val: acquisitionCosts,  color:"var(--purple)", pct: arv.mid ? acquisitionCosts/arv.mid : 0},
                   {lbl:"HOLDING",    val: holdingCosts,      color:"#7888a0", pct: arv.mid ? holdingCosts/arv.mid : 0},
                   {lbl: realProfit >= 0 ? "PROFIT" : "LOSS",
                                      val: Math.abs(realProfit),
-                                     color: realProfit >= 0 ? "#34d98a" : "#f25c5c",
+                                     color: realProfit >= 0 ? "var(--green)" : "var(--red)",
                                      pct: arv.mid ? Math.abs(realProfit)/arv.mid : 0},
                 ];
                 return (
@@ -614,7 +614,7 @@ export default function DealAnalyzer() {
               <div className="da-modal-label">Password</div>
               <input className="da-modal-input" type="password" placeholder="••••••••" value={authForm.password} onChange={e => setAuthForm(p=>({...p,password:e.target.value}))} />
             </div>
-            {authError && <div style={{background:"rgba(242,92,92,0.08)",border:"1px solid rgba(242,92,92,0.2)",borderRadius:8,padding:"10px 14px",fontSize:12,color:"#f25c5c",marginBottom:8}}>{authError}</div>}
+            {authError && <div style={{background:"rgba(242,92,92,0.08)",border:"1px solid rgba(242,92,92,0.2)",borderRadius:8,padding:"10px 14px",fontSize:12,color:"var(--red)",marginBottom:8}}>{authError}</div>}
             <button className="da-modal-btn" onClick={handleAuth} disabled={authLoading}>
               {authLoading ? "Please wait..." : modalMode==="signup" ? "Create account & save deal" : "Sign in & save deal"}
             </button>

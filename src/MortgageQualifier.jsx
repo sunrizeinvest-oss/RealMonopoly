@@ -50,7 +50,7 @@ const CSS = `
   .mq-field input{flex:1;background:transparent;border:none;outline:none;color:var(--text);padding:0 12px;height:38px;font-size:14px}
   .mq-field input::placeholder{color:var(--dim)}
   .mq-field select{flex:1;background:transparent;border:none;outline:none;color:var(--text);padding:0 12px;height:38px;font-size:14px;cursor:pointer;-webkit-appearance:none;appearance:none}
-  .mq-field select option{background:#1a2030;color:var(--text)}
+  .mq-field select option{background:var(--card2);color:var(--text)}
   .mq-calc-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(59,158,255,0.05);border:1px solid rgba(59,158,255,0.12);border-radius:8px}
   .mq-calc-row span{font-size:12px;color:var(--sub)}
   .mq-calc-row strong{font-size:14px;font-weight:700;color:var(--blue)}

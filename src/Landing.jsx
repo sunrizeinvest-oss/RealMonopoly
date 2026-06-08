@@ -16,10 +16,10 @@ const DEALS = [
 ];
 
 const TESTIMONIALS = [
-  { name: "Marcus T.", role: "Fix & Flip Investor", location: "Calgary, AB", deals: 14, quote: "I used to spend 2 hours in Excel for every deal. Now I know in 5 minutes. Passed on 3 duds and locked in 2 great flips this quarter alone.", avatar: "M", color: "#3b9eff" },
-  { name: "Priya S.", role: "BRRRR Investor", location: "Toronto, ON", deals: 7, quote: "The BRRRR calculator showed me I wasn't actually recycling my cash — I was leaving $40k locked in the deal. That one insight changed my whole strategy.", avatar: "P", color: "#34d98a" },
-  { name: "Derek L.", role: "Multifamily Investor", location: "Phoenix, AZ", deals: 3, quote: "The multifamily underwriter is institutional-grade. Cap rate, DSCR, 5-year projections — everything I need to present to lenders. And it's free right now.", avatar: "D", color: "#a782ff" },
-  { name: "Jen K.", role: "Real Estate Agent", location: "Denver, CO", deals: 22, quote: "I use the Deal Comparison tool to show clients exactly why one property beats another on every metric. Closed 4 investment deals last month with it.", avatar: "J", color: "#f0a030" },
+  { name: "Marcus T.", role: "Fix & Flip Investor", location: "Calgary, AB", deals: 14, quote: "I used to spend 2 hours in Excel for every deal. Now I know in 5 minutes. Passed on 3 duds and locked in 2 great flips this quarter alone.", avatar: "M", color: "var(--blue)" },
+  { name: "Priya S.", role: "BRRRR Investor", location: "Toronto, ON", deals: 7, quote: "The BRRRR calculator showed me I wasn't actually recycling my cash — I was leaving $40k locked in the deal. That one insight changed my whole strategy.", avatar: "P", color: "var(--green)" },
+  { name: "Derek L.", role: "Multifamily Investor", location: "Phoenix, AZ", deals: 3, quote: "The multifamily underwriter is institutional-grade. Cap rate, DSCR, 5-year projections — everything I need to present to lenders. And it's free right now.", avatar: "D", color: "var(--purple)" },
+  { name: "Jen K.", role: "Real Estate Agent", location: "Denver, CO", deals: 22, quote: "I use the Deal Comparison tool to show clients exactly why one property beats another on every metric. Closed 4 investment deals last month with it.", avatar: "J", color: "var(--amber)" },
 ];
 
 const fmt = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0);
@@ -55,10 +55,10 @@ export default function Landing() {
     return calcFlip(num(dArv), num(dPurchase), num(dRepair), num(dHold));
   }, [dArv, dPurchase, dRepair, dHold]);
 
-  const dGrade = demo.margin > 0.20 ? { g: "A", c: "#34d98a", label: "✅ Strong GO" }
-    : demo.margin > 0.12 ? { g: "B", c: "#3b9eff", label: "✅ GO" }
-    : demo.margin > 0.05 ? { g: "C", c: "#f0a030", label: "⚠️ Caution" }
-    : { g: "F", c: "#f25c5c", label: "🚫 No-Go" };
+  const dGrade = demo.margin > 0.20 ? { g: "A", c: "var(--green)", label: "✅ Strong GO" }
+    : demo.margin > 0.12 ? { g: "B", c: "var(--blue)", label: "✅ GO" }
+    : demo.margin > 0.05 ? { g: "C", c: "var(--amber)", label: "⚠️ Caution" }
+    : { g: "F", c: "var(--red)", label: "🚫 No-Go" };
 
   useEffect(() => { if (user) navigate("/analyze"); }, [user]);
 
@@ -246,7 +246,7 @@ export default function Landing() {
     .ld-hcalc-row span:first-child{color:var(--sub);font-family:'DM Sans',sans-serif;font-weight:500;font-size:12px}
     .ld-hcalc-row span:last-child{color:var(--text);font-weight:700;letter-spacing:-0.2px}
     .ld-hcalc-row .pos{color:var(--green)}.ld-hcalc-row .neg{color:var(--red)}
-    .ld-hcalc-cta{display:block;text-align:center;margin:10px 14px 6px;padding:13px 14px;background:linear-gradient(135deg,#3b9eff,#2980e8);color:#fff;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:-0.1px;transition:transform 0.15s,box-shadow 0.15s}
+    .ld-hcalc-cta{display:block;text-align:center;margin:10px 14px 6px;padding:13px 14px;background:linear-gradient(135deg,var(--blue),#2980e8);color:#fff;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:-0.1px;transition:transform 0.15s,box-shadow 0.15s}
     .ld-hcalc-cta:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(59,158,255,0.35)}
     .ld-hcalc-foot{text-align:center;padding:6px 14px 14px;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--dim)}
 
@@ -440,7 +440,7 @@ export default function Landing() {
     .ld-pro-card{background:var(--card);border:1px solid var(--borderf);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s, border-color 0.2s, box-shadow 0.2s;cursor:pointer}
     .ld-pro-card:hover{transform:translateY(-4px);border-color:rgba(59,158,255,0.3);box-shadow:0 24px 56px rgba(0,0,0,0.5)}
     .ld-pro-doc{aspect-ratio:8.5/11;background:#f6f5f0;color:#1a1a1a;font-family:'Georgia',serif;position:relative;overflow:hidden;border-bottom:1px solid var(--borderf)}
-    .ld-pro-doc-header{background:#07090f;color:#dde4ef;padding:11px 18px;display:flex;align-items:center;justify-content:space-between;font-family:'DM Sans',sans-serif}
+    .ld-pro-doc-header{background:#07090f;color:var(--text);padding:11px 18px;display:flex;align-items:center;justify-content:space-between;font-family:'DM Sans',sans-serif}
     .ld-pro-doc-logo{font-size:11px;font-weight:800;letter-spacing:0.3px}.ld-pro-doc-logo span{color:var(--blue)}
     .ld-pro-doc-type{font-family:'Fira Code',monospace;font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1.2px;text-transform:uppercase}
     .ld-pro-doc-body{padding:18px 22px;font-size:9.5px;line-height:1.5;color:#1a1a1a}
@@ -452,7 +452,7 @@ export default function Landing() {
     .ld-pro-doc-para{font-size:8px;color:#333;line-height:1.6;margin-top:4px;font-family:'Georgia',serif}
     .ld-pro-doc-footer{position:absolute;bottom:0;left:0;right:0;padding:7px 22px;background:#eeebe0;font-size:7px;color:#888;display:flex;justify-content:space-between;font-family:'DM Sans',sans-serif;letter-spacing:0.3px}
     .ld-pro-doc-watermark{position:absolute;right:14px;top:54px;font-size:7.5px;font-weight:700;color:rgba(59,158,255,0.55);font-family:'Fira Code',monospace;letter-spacing:1px;transform:rotate(-7deg);border:1px solid rgba(59,158,255,0.45);padding:3px 7px;border-radius:2px;background:rgba(255,255,255,0.5)}
-    .ld-pro-doc-bar{height:6px;background:#3b9eff;margin:6px 0 8px;border-radius:2px;width:60%}
+    .ld-pro-doc-bar{height:6px;background:var(--blue);margin:6px 0 8px;border-radius:2px;width:60%}
     .ld-pro-meta{padding:18px}
     .ld-pro-meta-tag{font-family:'Fira Code',monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
     .ld-pro-meta-title{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:800;color:var(--text);letter-spacing:-0.3px;margin-bottom:6px}
@@ -1213,7 +1213,7 @@ export default function Landing() {
                 <div className="ld-pro-doc-body">
                   <div className="ld-pro-doc-title">Loan Request Package</div>
                   <div className="ld-pro-doc-sub">Submitted to: CHMIC · Calgary, AB</div>
-                  <div className="ld-pro-doc-bar" style={{background:"#34d98a"}}/>
+                  <div className="ld-pro-doc-bar" style={{background:"var(--green)"}}/>
                   <div className="ld-pro-doc-watermark" style={{color:"rgba(52,217,138,0.65)",borderColor:"rgba(52,217,138,0.5)"}}>▸ DSCR 1.42x</div>
 
                   <div className="ld-pro-doc-section">Loan Terms</div>
@@ -1253,7 +1253,7 @@ export default function Landing() {
                 <div className="ld-pro-doc-body">
                   <div className="ld-pro-doc-title">Underwriting Report</div>
                   <div className="ld-pro-doc-sub">BRRRR · 2424 Westmount Rd NW</div>
-                  <div className="ld-pro-doc-bar" style={{background:"#a782ff"}}/>
+                  <div className="ld-pro-doc-bar" style={{background:"var(--purple)"}}/>
                   <div className="ld-pro-doc-watermark" style={{color:"rgba(167,130,255,0.65)",borderColor:"rgba(167,130,255,0.5)"}}>▸ CASH RECYCLE 92%</div>
 
                   <div className="ld-pro-doc-section">BRRRR Cycle</div>
@@ -1464,7 +1464,7 @@ export default function Landing() {
         <div className="ld-testi-grid">
           {TESTIMONIALS.map(t => (
             <div key={t.name} className="ld-testi-card">
-              <div className="ld-testi-stars">{"★★★★★".split("").map((s, i) => <span key={i} style={{ color: "#f0a030" }}>{s}</span>)}</div>
+              <div className="ld-testi-stars">{"★★★★★".split("").map((s, i) => <span key={i} style={{ color: "var(--amber)" }}>{s}</span>)}</div>
               <div className="ld-testi-quote">{t.quote}</div>
               <div className="ld-testi-footer">
                 <div className="ld-testi-avatar" style={{ background: t.color }}>{t.avatar}</div>
@@ -1517,7 +1517,7 @@ export default function Landing() {
           </div>
           {/* Pro Plan */}
           <div style={{background:"linear-gradient(135deg,rgba(59,158,255,0.07),var(--card))",border:"1px solid rgba(59,158,255,0.3)",borderRadius:20,padding:"32px 28px",position:"relative"}}>
-            <div style={{position:"absolute",top:-12,right:20,background:"linear-gradient(135deg,#3b9eff,#a782ff)",color:"#fff",fontSize:11,fontWeight:800,padding:"4px 14px",borderRadius:99,letterSpacing:"0.5px"}}>MOST POPULAR</div>
+            <div style={{position:"absolute",top:-12,right:20,background:"linear-gradient(135deg,var(--blue),var(--purple))",color:"#fff",fontSize:11,fontWeight:800,padding:"4px 14px",borderRadius:99,letterSpacing:"0.5px"}}>MOST POPULAR</div>
             <div style={{fontSize:13,fontWeight:700,color:"var(--blue)",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:8}}>Pro</div>
             <div style={{fontSize:42,fontWeight:800,color:"var(--text)",letterSpacing:"-2px",marginBottom:4}}>$29<span style={{fontSize:16,fontWeight:500,color:"var(--sub)"}}>/mo</span></div>
             <div style={{fontSize:13,color:"var(--dim)",marginBottom:24}}>Cancel anytime</div>

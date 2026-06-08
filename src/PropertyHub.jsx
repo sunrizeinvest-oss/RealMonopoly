@@ -58,7 +58,7 @@ function ListingSiteLinks({ address }) {
         Redfin
       </a>
       <a href={`https://www.google.com/maps/search/${enc}`} target="_blank" rel="noopener noreferrer"
-        style={{ display:"inline-flex",alignItems:"center",gap:3,padding:"2px 7px",borderRadius:6,fontSize:10,fontWeight:700,textDecoration:"none",background:"rgba(52,217,138,0.1)",color:"#34d98a",whiteSpace:"nowrap" }}>
+        style={{ display:"inline-flex",alignItems:"center",gap:3,padding:"2px 7px",borderRadius:6,fontSize:10,fontWeight:700,textDecoration:"none",background:"rgba(52,217,138,0.1)",color:"var(--green)",whiteSpace:"nowrap" }}>
         Maps
       </a>
     </div>
@@ -459,7 +459,7 @@ export default function PropertyHub() {
                   <div style={{fontSize:13,fontWeight:700,color:"#ffb43c",marginBottom:3}}>Don't have the property value?</div>
                   <div style={{fontSize:12,color:"var(--sub)"}}>Use our free estimator — get value range, rent estimate & cash flow instantly.</div>
                 </div>
-                <button onClick={() => navigate("/worth")} style={{background:"linear-gradient(135deg,#ffb43c,#f0a030)",color:"#07090f",border:"none",borderRadius:9,padding:"9px 18px",fontSize:13,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit"}}>
+                <button onClick={() => navigate("/worth")} style={{background:"linear-gradient(135deg,#ffb43c,var(--amber))",color:"#07090f",border:"none",borderRadius:9,padding:"9px 18px",fontSize:13,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit"}}>
                   Estimate Value →
                 </button>
               </div>

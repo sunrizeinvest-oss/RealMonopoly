@@ -913,12 +913,12 @@ export default function BRRRRCalculator() {
                 <div style={{marginBottom:16,borderRadius:14,overflow:"hidden",border:"1px solid rgba(242,92,92,0.2)",background:"rgba(242,92,92,0.03)"}}>
                   <div style={{padding:"11px 18px",borderBottom:"1px solid rgba(242,92,92,0.12)",display:"flex",alignItems:"center",gap:8}}>
                     <span style={{fontSize:15}}>⚠️</span>
-                    <span style={{fontSize:13,fontWeight:800,color:"#f25c5c"}}>Deal Red Flags — {flags.length} issue{flags.length>1?"s":""} detected</span>
+                    <span style={{fontSize:13,fontWeight:800,color:"var(--red)"}}>Deal Red Flags — {flags.length} issue{flags.length>1?"s":""} detected</span>
                   </div>
                   {flags.map((f,i) => (
                     <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"9px 18px",borderBottom:i<flags.length-1?"1px solid rgba(255,255,255,0.04)":"none"}}>
                       <span style={{fontSize:14,flexShrink:0,marginTop:1}}>{f.sev==="critical"?"🚨":"⚠️"}</span>
-                      <span style={{fontSize:13,color:f.sev==="critical"?"#f25c5c":"#f0a030",lineHeight:1.5}}>{f.msg}</span>
+                      <span style={{fontSize:13,color:f.sev==="critical"?"var(--red)":"var(--amber)",lineHeight:1.5}}>{f.msg}</span>
                     </div>
                   ))}
                 </div>
@@ -1115,7 +1115,7 @@ export default function BRRRRCalculator() {
                 <button
                   onClick={() => exportBRRRRPDF(form, calc)}
                   disabled={!calc}
-                  style={{width:"100%",background:"rgba(242,92,92,0.1)",border:"1px solid rgba(242,92,92,0.25)",borderRadius:11,padding:"12px 18px",color:"#f25c5c",fontSize:13,fontWeight:700,cursor:calc?"pointer":"not-allowed",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s",opacity:calc?1:0.5}}
+                  style={{width:"100%",background:"rgba(242,92,92,0.1)",border:"1px solid rgba(242,92,92,0.25)",borderRadius:11,padding:"12px 18px",color:"var(--red)",fontSize:13,fontWeight:700,cursor:calc?"pointer":"not-allowed",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s",opacity:calc?1:0.5}}
                   onMouseOver={e=>{if(calc)e.currentTarget.style.background="rgba(242,92,92,0.18)"}}
                   onMouseOut={e=>{e.currentTarget.style.background="rgba(242,92,92,0.1)"}}
                 >
