@@ -8,6 +8,7 @@ import DealCoach from "./components/DealCoach";
 import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
 import TopNav from "./components/TopNav";
+import AddressAutocomplete from "./AddressAutocomplete";
 
 // Lazy-load the charts card so recharts (~200KB gzipped) doesn't ship in the
 // main bundle. Users only download it when they actually have a deal to view.
@@ -556,7 +557,13 @@ export default function BRRRRCalculator() {
               </div>
               <div className="br-field">
                 <div className="br-label">Property Address</div>
-                <input className="br-input" type="text" placeholder="142 Birchwood Dr, Calgary AB" value={form.address} onChange={e=>setF("address",e.target.value)} />
+                <AddressAutocomplete
+                  className="br-input"
+                  placeholder="Start typing — Calgary, Edmonton, Toronto..."
+                  value={form.address}
+                  onChange={v => setF("address", v)}
+                  onSelect={v => setF("address", v)}
+                />
               </div>
             </div>
           </div>

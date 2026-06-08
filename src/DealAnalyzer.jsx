@@ -5,6 +5,7 @@ import DealCoach from "./components/DealCoach";
 import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
 import TopNav from "./components/TopNav";
+import AddressAutocomplete from "./AddressAutocomplete";
 
 const num = v => parseFloat(v) || 0;
 const fmt = n => new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(n || 0);
@@ -370,7 +371,13 @@ export default function DealAnalyzer() {
             <div className="da-field">
               <div className="da-label">Property Address</div>
               <div className="da-input-wrap">
-                <input className="da-input" type="text" placeholder="123 Main St, Calgary, AB" value={form.address} onChange={set("address")} />
+                <AddressAutocomplete
+                  className="da-input"
+                  placeholder="Start typing — Calgary, Toronto, Phoenix, anywhere..."
+                  value={form.address}
+                  onChange={v => setForm(p => ({ ...p, address: v }))}
+                  onSelect={v => setForm(p => ({ ...p, address: v }))}
+                />
               </div>
             </div>
 

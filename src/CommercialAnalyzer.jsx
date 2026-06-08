@@ -8,6 +8,7 @@ import DealCoach from "./components/DealCoach";
 import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
 import TopNav from "./components/TopNav";
+import AddressAutocomplete from "./AddressAutocomplete";
 
 // Lazy-load charts (recharts is the heavy dep)
 const CommercialCharts = lazy(() => import("./components/CommercialCharts"));
@@ -693,12 +694,12 @@ export default function CommercialAnalyzer() {
           <SectionHead title="Property"/>
           <div style={{padding:"14px 20px"}}>
             <div style={{fontSize:11,fontWeight:700,color:"var(--dim)",letterSpacing:"0.5px",textTransform:"uppercase",marginBottom:6}}>Address</div>
-            <input
+            <AddressAutocomplete
               className="mf-input"
-              type="text"
-              placeholder="8814 99 St NW, Edmonton, AB"
+              placeholder="Start typing — Edmonton, Calgary, Toronto..."
               value={propertyAddress}
-              onChange={e => setPropertyAddress(e.target.value)}
+              onChange={setPropertyAddress}
+              onSelect={setPropertyAddress}
               style={{width:"100%"}}
             />
           </div>
