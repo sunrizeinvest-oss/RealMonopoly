@@ -4,6 +4,7 @@ import { useAuth } from "./AuthContext";
 import { irr as solveIRR, withCumulative } from "./lib/finance";
 import { useDocMeta } from "./lib/seo";
 import { celebrateFirstSave } from "./lib/celebrate";
+import DealCoach from "./components/DealCoach";
 
 // Lazy-load charts (recharts is the heavy dep)
 const CommercialCharts = lazy(() => import("./components/CommercialCharts"));
@@ -1078,6 +1079,21 @@ export default function CommercialAnalyzer() {
       </div>
 
       </div>
+
+      <DealCoach
+        property={{ address: propertyAddress, propertyType: "Multifamily / commercial" }}
+        calcs={{
+          strategy: "Multifamily",
+          purchasePrice: purchasePrice,
+          capRate: c?.capRate,
+          dscr: c?.DSCR,
+          coc: c?.CoC,
+          monthlyCF: c?.monthlyCF,
+          irr: c?.irr,
+          eqMultiple: c?.eqMultiple,
+          netProfit: c?.netProceeds,
+        }}
+      />
     </div>
   );
 }

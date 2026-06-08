@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { generateFlipPDF } from "./generatePDF";
+import DealCoach from "./components/DealCoach";
 
 const num = v => parseFloat(v) || 0;
 const fmt = n => new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(n || 0);
@@ -639,6 +640,21 @@ export default function DealAnalyzer() {
           </div>
         </div>
       )}
+
+      <DealCoach
+        property={{ address: form.address, propertyType: "Fix & Flip" }}
+        calcs={{
+          strategy: "Flip",
+          purchasePrice: parseFloat(form.purchasePrice) || null,
+          repairCosts: parseFloat(form.repairCost) || null,
+          arv: arv.mid,
+          rentEstimate: rent.mid,
+          netProfit: deal.profit,
+          margin: deal.margin,
+          grade: deal.grade,
+          verdict: deal.verdict,
+        }}
+      />
     </div>
   );
 }

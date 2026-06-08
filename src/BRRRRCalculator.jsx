@@ -4,6 +4,7 @@ import { exportBRRRRPDF } from "./pdfExport";
 import { irr as solveIRR, withCumulative } from "./lib/finance";
 import { useDocMeta } from "./lib/seo";
 import { celebrateFirstSave } from "./lib/celebrate";
+import DealCoach from "./components/DealCoach";
 
 // Lazy-load the charts card so recharts (~200KB gzipped) doesn't ship in the
 // main bundle. Users only download it when they actually have a deal to view.
@@ -1130,6 +1131,24 @@ export default function BRRRRCalculator() {
           </>)}
         </div>
       </div>
+
+      <DealCoach
+        property={{ address: form.address, propertyType: "BRRRR rental" }}
+        calcs={{
+          strategy: "BRRRR",
+          purchasePrice: parseFloat(form.purchasePrice) || null,
+          arv: parseFloat(form.arv) || null,
+          repairCosts: parseFloat(form.rehab) || null,
+          monthlyCF: calc?.monthlyCF,
+          dscr: calc?.dscr,
+          coc: calc?.coc === Infinity ? null : calc?.coc,
+          irr: calc?.irr,
+          netProfit: calc?.equityCreated,
+          cashLeftInDeal: calc?.cashLeftInDeal,
+          isTrueBRRRR: calc?.isTrueBRRRR,
+          grade: verdict?.title,
+        }}
+      />
     </div>
   );
 }

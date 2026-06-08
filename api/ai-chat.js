@@ -28,11 +28,11 @@ export default async function handler(req, res) {
     return handleDealThesis(req, res);
   }
 
-  const { messages = [], property = {}, calcs = {} } = req.body || {};
+  const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
-  // ── Build system prompt with full property context ──────────────────────
-  const systemPrompt = buildSystemPrompt(property, calcs);
+  // ── Build system prompt with full property context + persona ─────────────
+  const systemPrompt = buildSystemPrompt(property, calcs, persona);
 
   if (apiKey && apiKey !== "YOUR_ANTHROPIC_API_KEY") {
     try {
@@ -76,12 +76,44 @@ export default async function handler(req, res) {
   });
 }
 
+// ── Persona presets ───────────────────────────────────────────────────────────
+const PERSONAS = {
+  banker: {
+    role: "a conservative commercial real estate lender reviewing this deal for loan approval",
+    focus: "Focus on DSCR (lenders want ≥1.25x), loan-to-value, cash-flow stability under stress, borrower experience, and any red flag that could kill the loan. Talk like an underwriter, not a salesperson.",
+    voice: "Direct, slightly skeptical, references specific lender standards (DSCR, LTV, debt yield).",
+  },
+  skeptic: {
+    role: "a sharp, contrarian investment committee member trying to poke holes in this deal",
+    focus: "Surface the 2-3 biggest risks and what assumptions could be wrong. Challenge the rent comps, the rehab budget, the exit cap. Stress-test the downside. Your job is to find what could break this — not to be agreeable.",
+    voice: "Confident, probing, occasionally blunt. Names specific risks with specific numbers.",
+  },
+  mentor: {
+    role: "an experienced real estate mentor walking the investor through this deal supportively",
+    focus: "Explain *why* the numbers say what they say. Teach the framework, not just the answer. Connect this deal to principles the investor can reuse on every future deal. Encourage but don't sugarcoat.",
+    voice: "Warm, educational, patient. Uses analogies. Treats the investor as a learner who's capable.",
+  },
+};
+
+function buildPersonaIntro(persona) {
+  const p = PERSONAS[persona];
+  if (!p) return null;
+  return `You are ${p.role}, integrated into the Real Deal platform.
+
+${p.focus}
+
+Voice: ${p.voice}`;
+}
+
 // ── System prompt builder ─────────────────────────────────────────────────────
-function buildSystemPrompt(p, c) {
+function buildSystemPrompt(p, c, persona = null) {
   const fmt = n => n != null ? `$${Math.round(n).toLocaleString()}` : "not available";
   const pct = n => n != null ? `${(n * 100).toFixed(1)}%` : "not available";
 
-  return `You are an expert real estate investment advisor integrated into the Real Deal platform. You have deep knowledge of Canadian and US real estate markets, investment strategies (fix & flip, BRRRR, multifamily, commercial), financing, and market analysis.
+  const intro = buildPersonaIntro(persona) ||
+    `You are an expert real estate investment advisor integrated into the Real Deal platform. You have deep knowledge of Canadian and US real estate markets, investment strategies (fix & flip, BRRRR, multifamily, commercial), financing, and market analysis.`;
+
+  return `${intro}
 
 You have access to the following LIVE property data for the current property being analyzed:
 
