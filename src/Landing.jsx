@@ -459,6 +459,25 @@ export default function Landing() {
     .ld-pro-meta-desc{font-size:12.5px;color:var(--sub);line-height:1.6}
     .ld-pro-meta-cta{font-family:'Fira Code',monospace;font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.8px;text-transform:uppercase;margin-top:12px;display:flex;align-items:center;gap:6px}
 
+    /* ── FULL TOOLKIT GRID ── */
+    .ld-toolkit{padding:80px 24px 60px;border-top:1px solid var(--borderf)}
+    .ld-toolkit-inner{max-width:1140px;margin:0 auto}
+    .ld-toolkit-head{text-align:center;margin-bottom:40px}
+    .ld-toolkit-cat{margin-bottom:28px}
+    .ld-toolkit-cat-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--borderf);flex-wrap:wrap}
+    .ld-toolkit-cat-tag{font-family:'Fira Code',ui-monospace,monospace;font-size:11.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+    .ld-toolkit-cat-count{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:500;color:var(--dim);letter-spacing:0.8px}
+    .ld-toolkit-cat-sub{flex:1;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--sub);font-weight:500;text-align:right}
+    .ld-toolkit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:10px}
+    .ld-toolkit-card{background:var(--card);border:1px solid var(--borderf);border-radius:7px;padding:14px 16px;cursor:pointer;transition:transform 0.18s,border-color 0.18s,box-shadow 0.18s;display:flex;flex-direction:column;gap:6px;text-decoration:none}
+    .ld-toolkit-card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,0.45)}
+    .ld-toolkit-card-row{display:flex;align-items:center;gap:10px}
+    .ld-toolkit-card-icon{font-size:20px;line-height:1}
+    .ld-toolkit-card-name{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:800;color:var(--text);letter-spacing:-0.2px;flex:1}
+    .ld-toolkit-card-arrow{font-family:'Fira Code',ui-monospace,monospace;font-size:13px;font-weight:700;color:var(--dim);transition:transform 0.18s}
+    .ld-toolkit-card:hover .ld-toolkit-card-arrow{transform:translateX(3px)}
+    .ld-toolkit-card-desc{font-size:12px;color:var(--sub);line-height:1.5}
+
     /* ── CHROME EXTENSION SHOWCASE ── */
     .ld-chrome{padding:60px 24px 80px;border-top:1px solid var(--borderf);background:linear-gradient(180deg,transparent,rgba(167,130,255,0.02),transparent);position:relative;overflow:hidden}
     .ld-chrome-inner{max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
@@ -559,6 +578,8 @@ export default function Landing() {
       .ld-an-metric-grid{grid-template-columns:repeat(2,1fr)}
       .ld-chrome-inner{grid-template-columns:1fr;gap:32px}
       .ld-rd-popup{width:200px;top:42px;right:8px}
+      .ld-toolkit-cat-sub{display:none}
+      .ld-toolkit-grid{grid-template-columns:1fr}
     }
     @media(max-width:600px){
       .ld-h1{letter-spacing:-1.5px}
@@ -854,26 +875,95 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* ── TOOLS ── */}
-      <div className="ld-section fade" style={{ paddingTop: 0 }}>
-        <div className="ld-section-tag">Your full toolkit</div>
-        <h2 className="ld-section-title">Four tools.<br /><span>Every deal type covered.</span></h2>
-        <p className="ld-section-sub">All free right now. Sign up and get instant access to every tool.</p>
-        <div className="ld-tools-grid">
+      {/* ── FULL TOOLKIT — 20 tools across 5 categories ── */}
+      <div className="ld-toolkit fade">
+        <div className="ld-toolkit-inner">
+          <div className="ld-toolkit-head">
+            <div className="ld-section-tag">Your full toolkit</div>
+            <h2 className="ld-section-title">20 tools.<br /><span>One platform.</span></h2>
+            <p className="ld-section-sub">Every tool you need — from sourcing through closing through portfolio tracking. All free right now.</p>
+          </div>
+
           {[
-            { icon: "🏚️", name: "Fix & Flip Analyzer", desc: "Full acquisition-to-exit analysis. ARV, rehab, financing, holding, selling costs, deal score, MAO, and Go/No-Go verdict.", pills: ["ARV", "Repair Costs", "Deal Score", "MAO", "PDF Export"], cta: "Analyze a flip →", route: "/app" },
-            { icon: "🔄", name: "BRRRR Calculator", desc: "Model your Buy, Rehab, Rent, Refinance, Repeat cycle. See exactly how much cash you pull out and what the property cash flows after.", pills: ["Cash Recycled", "DSCR", "Post-Refi CF", "Equity Created"], cta: "Model a BRRRR →", route: "/brrrr" },
-            { icon: "🏢", name: "Multifamily Underwriter", desc: "Institutional-grade underwriting for income properties. NOI, cap rate, DSCR, cash-on-cash, GRM, 5-year projections, deal checklist.", pills: ["Cap Rate", "DSCR", "NOI", "GRM", "5-Yr Projections"], cta: "Underwrite a deal →", route: "/commercial" },
-            { icon: "⚡", name: "Deal Comparison", desc: "Put two deals head-to-head. Every metric scored live — green wins, you decide. Works for flips and multifamily deals.", pills: ["Side-by-Side", "Live Scoring", "Winner Flags", "Flip & MF"], cta: "Compare deals →", route: "/compare" },
-          ].map(t => (
-            <div key={t.name} className="ld-tool-card" onClick={scrollToAuth}>
-              <div className="ld-tool-icon">{t.icon}</div>
-              <div className="ld-tool-name">{t.name}</div>
-              <div className="ld-tool-desc">{t.desc}</div>
-              <div className="ld-tool-pills">
-                {t.pills.map(p => <span key={p} className="ld-tool-pill">{p}</span>)}
+            {
+              cat: "ANALYZE",
+              color: "var(--green)",
+              sub: "Run the math on a specific deal",
+              tools: [
+                { icon: "🏚️", name: "Fix & Flip Analyzer",    desc: "ARV, rehab, MAO, deal score, PDF + offer letter.",            route: "/app" },
+                { icon: "🔄", name: "BRRRR Calculator",       desc: "Cash recycled, DSCR, refi modeling, 5-year cash flow.",       route: "/brrrr" },
+                { icon: "🏢", name: "Multifamily Underwriter", desc: "Cap rate, NOI, IRR, equity multiple, sensitivity grids.",    route: "/commercial" },
+                { icon: "⚡", name: "Deal Comparison",        desc: "Two deals head-to-head. Live winner scoring on every metric.", route: "/compare" },
+                { icon: "💰", name: "Loan Compare",           desc: "Three mortgages side-by-side. Best CF, lowest total cost.",   route: "/loans" },
+                { icon: "📊", name: "Mortgage Qualifier",     desc: "OSFI B-20 stress test. Will the bank actually approve you?",  route: "/qualify" },
+              ],
+            },
+            {
+              cat: "SOURCE",
+              color: "var(--blue)",
+              sub: "Find and screen deals before you commit",
+              tools: [
+                { icon: "🛰️", name: "Property Intelligence", desc: "Live zoning, permits, AI thesis. Any US or Canadian address.", route: "/property" },
+                { icon: "💎", name: "Property Worth",        desc: "AVM valuation with low / mid / high range.",                  route: "/worth" },
+                { icon: "🔎", name: "Deal Screener",         desc: "Bulk evaluate dozens of properties. Filter by margin / MAO.",  route: "/screen" },
+                { icon: "🚨", name: "Distress Checker",      desc: "Detect distressed-property signals (price drops, DOM, tax).",  route: "/distress" },
+              ],
+            },
+            {
+              cat: "TRACK",
+              color: "var(--purple)",
+              sub: "Manage your deals and your net worth",
+              tools: [
+                { icon: "📋", name: "Dashboard",       desc: "Every analyzed deal. Filter, search, CSV export.",            route: "/dashboard" },
+                { icon: "📈", name: "Pipeline",        desc: "Deal flow from sourcing → offer → closing.",                  route: "/pipeline" },
+                { icon: "🏘️", name: "Portfolio",       desc: "Closed deals + profit charts + holdings over time.",          route: "/portfolio" },
+                { icon: "💼", name: "Net Worth",       desc: "Project your 5-year net worth across the portfolio.",        route: "/networth" },
+                { icon: "📐", name: "Budget Tracker",  desc: "Track active rehab budgets — actual vs. planned.",            route: "/budget" },
+                { icon: "🔔", name: "Deal Alerts",     desc: "Get notified when matching properties hit the market.",       route: "/alerts" },
+              ],
+            },
+            {
+              cat: "SPECIALIST",
+              color: "var(--amber)",
+              sub: "Deeper calcs for specific questions",
+              tools: [
+                { icon: "🛠️", name: "Rehab Calculator", desc: "Per-room cost breakdown with regional unit prices.",         route: "/rehab" },
+                { icon: "📑", name: "Tax Strategy",     desc: "Depreciation, CCA, capital gains, 1031 / s.85 angles.",      route: "/tax" },
+              ],
+            },
+            {
+              cat: "LEARN",
+              color: "var(--red)",
+              sub: "Sharpen your underwriting reflexes",
+              tools: [
+                { icon: "📚", name: "Education Hub",   desc: "Plain-English guides on flip, BRRRR, multifamily.",           route: "/learn" },
+                { icon: "🎯", name: "Quiz",            desc: "Test your deal-eval reflexes. Snap verdicts on real deals.",  route: "/quiz" },
+              ],
+            },
+          ].map(category => (
+            <div key={category.cat} className="ld-toolkit-cat">
+              <div className="ld-toolkit-cat-head">
+                <span className="ld-toolkit-cat-tag" style={{ color: category.color }}>▸ {category.cat}</span>
+                <span className="ld-toolkit-cat-count">· {category.tools.length} tools</span>
+                <span className="ld-toolkit-cat-sub">{category.sub}</span>
               </div>
-              <div className="ld-tool-cta">{t.cta}</div>
+              <div className="ld-toolkit-grid">
+                {category.tools.map(t => (
+                  <div
+                    key={t.name}
+                    className="ld-toolkit-card"
+                    style={{ borderLeft: `3px solid ${category.color}` }}
+                    onClick={() => navigate(t.route)}
+                  >
+                    <div className="ld-toolkit-card-row">
+                      <span className="ld-toolkit-card-icon">{t.icon}</span>
+                      <span className="ld-toolkit-card-name">{t.name}</span>
+                      <span className="ld-toolkit-card-arrow" style={{ color: category.color }}>→</span>
+                    </div>
+                    <div className="ld-toolkit-card-desc">{t.desc}</div>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
