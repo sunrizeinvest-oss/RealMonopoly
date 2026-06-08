@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import TopNav from "./components/TopNav";
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
@@ -63,24 +64,7 @@ export default function Hub() {
     <div className="hub-wrap">
       <style>{CSS}</style>
 
-      <nav className="hub-nav">
-        <a href="/" className="hub-logo"><span>Real</span> Deal</a>
-        <div className="hub-nav-right">
-          <a href="/analyze" className="hub-nav-link active">Tools</a>
-          <a href="/app" className="hub-nav-link">Flip</a>
-          <a href="/commercial" className="hub-nav-link">Multifamily</a>
-          <a href="/brrrr" className="hub-nav-link">BRRRR</a>
-          <a href="/compare" className="hub-nav-link">Compare</a>
-          {user && <a href="/dashboard" className="hub-nav-link">My Deals</a>}
-          {user && <a href="/networth"  className="hub-nav-link" style={{color:"var(--green)"}}>Net Worth</a>}
-          {user && <a href="/pipeline"  className="hub-nav-link" style={{color:"var(--blue)"}}>Pipeline</a>}
-          {user && <a href="/portfolio" className="hub-nav-link">Portfolio</a>}
-          <a href="/pricing" className="hub-nav-link" style={{color:"var(--amber)"}}>Pricing</a>
-          {user
-            ? <button className="hub-nav-ghost" onClick={signOut}>Sign out</button>
-            : <a href="/login" className="hub-nav-btn">Sign in</a>}
-        </div>
-      </nav>
+      <TopNav />
 
       {/* Upgrade success banner */}
       {upgraded && (

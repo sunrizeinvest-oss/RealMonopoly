@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
+import TopNav from "./components/TopNav";
 
 const fmt = n => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n || 0);
 const fmtPct = n => isNaN(n) || !isFinite(n) ? "—" : `${(n * 100).toFixed(1)}%`;
@@ -222,18 +223,7 @@ export default function Dashboard() {
   return (
     <div className="db-wrap">
       <style>{CSS}</style>
-      <nav className="db-nav">
-        <a href="/" className="db-logo"><span>Real</span> Deal</a>
-        <div className="db-nav-right">
-          <a href="/analyze" className="db-nav-link">🏠 Analyze</a>
-          <a href="/app" className="db-nav-link">Flip</a>
-          <a href="/commercial" className="db-nav-link">Multifamily</a>
-          <a href="/brrrr" className="db-nav-link">BRRRR</a>
-          <a href="/compare" className="db-nav-link">Compare</a>
-          <a href="/analyze" className="db-nav-primary">+ New Analysis</a>
-          {user && <button className="db-nav-btn" onClick={signOut}>Sign out</button>}
-        </div>
-      </nav>
+      <TopNav />
 
       <div className="db-body">
         <div className="db-hero">

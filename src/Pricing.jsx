@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
+import TopNav from "./components/TopNav";
 
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -94,12 +95,7 @@ export default function Pricing() {
       <style>{CSS}</style>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet" />
 
-      <nav className="pr-nav">
-        <div className="pr-logo" onClick={() => navigate("/")}><span>Real</span> Deal</div>
-        <button className="pr-nav-btn" onClick={() => navigate(user ? "/analyze" : "/login")}>
-          {user ? "Go to app →" : "Sign up free →"}
-        </button>
-      </nav>
+      <TopNav />
 
       <div className="pr-body">
         <div className="pr-hero">

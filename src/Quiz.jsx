@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import TopNav from "./components/TopNav";
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
@@ -856,14 +857,7 @@ export default function Quiz() {
       <style>{CSS}</style>
 
       {/* Nav */}
-      <nav className="quiz-nav">
-        <a href="/" className="quiz-nav-logo">
-          <span>Real</span> Deal
-        </a>
-        <a href="/analyze" className="quiz-nav-back">
-          ← Back to Tools
-        </a>
-      </nav>
+      <TopNav />
 
       <div className="quiz-body">
         <div className="quiz-container">

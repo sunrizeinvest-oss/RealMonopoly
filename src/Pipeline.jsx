@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import AddressAutocomplete from "./AddressAutocomplete";
+import TopNav from "./components/TopNav";
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
 const fmt    = n => new Intl.NumberFormat("en-US", { style:"currency", currency:"USD", maximumFractionDigits:0 }).format(n||0);
@@ -247,19 +248,7 @@ export default function Pipeline() {
       <style>{CSS}</style>
 
       {/* Nav */}
-      <nav className="pl-nav">
-        <a href="/" className="pl-logo"><span>Real</span> Deal</a>
-        <div className="pl-nav-right">
-          <a href="/analyze"   className="pl-nav-link">Search</a>
-          <a href="/app"       className="pl-nav-link">Flip</a>
-          <a href="/portfolio" className="pl-nav-link">Portfolio</a>
-          <a href="/dashboard" className="pl-nav-link">Saved</a>
-          {user
-            ? <button className="pl-nav-ghost" onClick={signOut}>Sign out</button>
-            : <a href="/login" style={{background:"var(--blue)",color:"#fff",borderRadius:7,padding:"7px 12px",fontSize:13,fontWeight:600,textDecoration:"none"}}>Sign in</a>}
-          <button className="pl-nav-btn" onClick={() => openAdd()}>+ Add Deal</button>
-        </div>
-      </nav>
+      <TopNav />
 
       {/* Stats bar */}
       <div className="pl-stats">

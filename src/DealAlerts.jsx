@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import TopNav from "./components/TopNav";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const fmtCAD = (n) =>
@@ -318,23 +319,7 @@ export default function DealAlerts() {
       <style>{CSS}</style>
 
       {/* ── Nav ── */}
-      <nav className="da-nav">
-        <Link to="/analyze" className="da-logo">
-          Real <span>Deal</span>
-        </Link>
-        <div className="da-nav-links">
-          <Link to="/analyze" className="da-nav-link">Analyze</Link>
-          <Link to="/pipeline" className="da-nav-link">Pipeline</Link>
-          <Link to="/alerts" className="da-nav-link active">Alerts</Link>
-        </div>
-        <div className="da-nav-right">
-          {user && (
-            <button className="da-signout" onClick={handleSignOut}>
-              Sign out
-            </button>
-          )}
-        </div>
-      </nav>
+      <TopNav />
 
       <div className="da-wrap">
         {/* ── Hero ── */}

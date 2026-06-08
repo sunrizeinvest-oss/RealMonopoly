@@ -7,6 +7,7 @@ import { celebrateFirstSave } from "./lib/celebrate";
 import DealCoach from "./components/DealCoach";
 import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
+import TopNav from "./components/TopNav";
 
 // Lazy-load the charts card so recharts (~200KB gzipped) doesn't ship in the
 // main bundle. Users only download it when they actually have a deal to view.
@@ -476,22 +477,7 @@ export default function BRRRRCalculator() {
     <div className="br-wrap">
       <style>{CSS}</style>
 
-      {/* Nav */}
-      <nav className="br-nav">
-        <a href="/" className="br-logo"><span>Real</span> Deal</a>
-        <div className="br-nav-right">
-          <a href="/analyze" className="br-nav-link">Tools</a>
-          <a href="/app" className="br-nav-link">Flip</a>
-          <a href="/commercial" className="br-nav-link">Multifamily</a>
-          <a href="/brrrr" className="br-nav-link active">BRRRR</a>
-          <a href="/compare" className="br-nav-link">Compare</a>
-          {user && <a href="/dashboard" className="br-nav-link">My Deals</a>}
-          <a href="/pricing" className="br-nav-link" style={{color:"var(--amber)"}}>Pricing</a>
-          {user
-            ? <button className="br-nav-ghost" onClick={signOut}>Sign out</button>
-            : <a href="/login" className="br-nav-btn">Sign in</a>}
-        </div>
-      </nav>
+      <TopNav />
 
       {/* Hero */}
       <div className="br-hero">

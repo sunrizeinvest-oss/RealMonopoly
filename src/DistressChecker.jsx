@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import TopNav from "./components/TopNav";
 
 // ─── Province Detection ───────────────────────────────────────────────────────
 function detectProvince(addr) {
@@ -455,24 +456,7 @@ export default function DistressChecker() {
       <style>{CSS}</style>
 
       {/* ── Nav ── */}
-      <nav className="dc-nav">
-        <a href="/" className="dc-logo"><span>Real</span> Deal</a>
-        <div className="dc-nav-links">
-          {[
-            { href: "/analyze",  label: "Tools",    active: false },
-            { href: "/pipeline", label: "Pipeline", active: false },
-            { href: "/distress", label: "Distress", active: true  },
-          ].map(item => (
-            <a
-              key={item.href}
-              href={item.href}
-              className={`dc-nav-link${item.active ? " active" : ""}`}
-            >
-              {item.label}
-            </a>
-          ))}
-        </div>
-      </nav>
+      <TopNav />
 
       <div className="dc-page">
 

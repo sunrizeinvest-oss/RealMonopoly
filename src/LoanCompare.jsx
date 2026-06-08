@@ -11,6 +11,7 @@
 import { useMemo, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useDocMeta } from "./lib/seo";
+import TopNav from "./components/TopNav";
 
 const num = v => parseFloat(String(v).replace(/,/g, "")) || 0;
 const fmt = n => new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(n || 0);
@@ -183,21 +184,7 @@ export default function LoanCompare() {
     <div className="lc-wrap">
       <style>{CSS}</style>
 
-      <nav className="lc-nav">
-        <a href="/" className="lc-logo"><span>Real</span> Deal</a>
-        <div className="lc-nav-right">
-          <a href="/analyze" className="lc-nav-link">Tools</a>
-          <a href="/app" className="lc-nav-link">Flip</a>
-          <a href="/commercial" className="lc-nav-link">Multifamily</a>
-          <a href="/brrrr" className="lc-nav-link">BRRRR</a>
-          <a href="/loans" className="lc-nav-link active">Loans</a>
-          <a href="/compare" className="lc-nav-link">Compare</a>
-          {user && <a href="/dashboard" className="lc-nav-link">My Deals</a>}
-          {user
-            ? <button className="lc-nav-ghost" onClick={signOut}>Sign out</button>
-            : <a href="/login" className="lc-nav-ghost">Sign in</a>}
-        </div>
-      </nav>
+      <TopNav />
 
       <div className="lc-body">
         {/* Hero */}

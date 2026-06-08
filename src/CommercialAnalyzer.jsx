@@ -7,6 +7,7 @@ import { celebrateFirstSave } from "./lib/celebrate";
 import DealCoach from "./components/DealCoach";
 import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
+import TopNav from "./components/TopNav";
 
 // Lazy-load charts (recharts is the heavy dep)
 const CommercialCharts = lazy(() => import("./components/CommercialCharts"));
@@ -508,21 +509,7 @@ export default function CommercialAnalyzer() {
     <div className="mf-wrap">
       <style>{CSS}</style>
 
-      {/* Nav */}
-      <nav className="mf-nav">
-        <a href="/" className="mf-logo"><span>Real</span> Deal</a>
-        <div className="mf-nav-right">
-          <a href="/analyze" className="mf-nav-link">Tools</a>
-          <a href="/app"     className="mf-nav-link">Flip</a>
-          <a href="/commercial" className="mf-nav-link" style={{color:"var(--blue)"}}>Multifamily</a>
-          <a href="/brrrr"   className="mf-nav-link">BRRRR</a>
-          <a href="/compare" className="mf-nav-link">Compare</a>
-          {user && <a href="/dashboard" className="mf-nav-link">My Deals</a>}
-          <a href="/pricing" className="mf-nav-link" style={{color:"var(--amber)"}}>Pricing</a>
-          {user ? <button className="mf-nav-ghost" onClick={signOut}>Sign out</button>
-                : <a href="/login" className="mf-nav-primary">Sign in</a>}
-        </div>
-      </nav>
+      <TopNav />
 
       {/* Launch Banner — free access */}
       {!user && (

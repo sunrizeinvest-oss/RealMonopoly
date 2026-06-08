@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import TopNav from "./components/TopNav";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 const num = (v) => parseFloat((v || "").toString().replace(/[^0-9.]/g, "")) || 0;
@@ -903,13 +904,6 @@ export default function SubmitDeal() {
 // ─── Nav ──────────────────────────────────────────────────────────────────────
 function Nav() {
   return (
-    <nav className="sd-nav">
-      <a href="/" className="sd-nav-logo">
-        <div className="sd-nav-dot">R</div>
-        <span className="sd-nav-brand">Real Deal</span>
-      </a>
-      <div className="sd-nav-divider" />
-      <span className="sd-nav-tagline">Deal Submission Portal</span>
-    </nav>
+    <TopNav />
   );
 }

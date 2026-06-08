@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import AddressAutocomplete from "./AddressAutocomplete";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import TopNav from "./components/TopNav";
 
 // ─── Market benchmarks by location type ──────────────────────────────────────
 // Price per sqft ranges and rent per bed by market tier
@@ -304,18 +305,7 @@ export default function PropertyWorth() {
       <style>{CSS}</style>
 
       {/* Nav */}
-      <nav className="pw-nav">
-        <a href="/" className="pw-logo"><span>Real</span> Deal</a>
-        <div className="pw-nav-right">
-          <a href="/analyze" className="pw-nav-link">Tools</a>
-          <a href="/app"     className="pw-nav-link">Flip</a>
-          <a href="/brrrr"   className="pw-nav-link">BRRRR</a>
-          <a href="/commercial" className="pw-nav-link">Multifamily</a>
-          {user
-            ? <button className="pw-nav-btn" style={{background:"transparent",border:"1px solid var(--borderf)",color:"var(--sub)"}} onClick={signOut}>Sign out</button>
-            : <a href="/login" className="pw-nav-btn">Sign in free</a>}
-        </div>
-      </nav>
+      <TopNav />
 
       {/* Hero */}
       <div className="pw-hero">

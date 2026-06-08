@@ -4,6 +4,7 @@ import { generateFlipPDF } from "./generatePDF";
 import DealCoach from "./components/DealCoach";
 import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
+import TopNav from "./components/TopNav";
 
 const num = v => parseFloat(v) || 0;
 const fmt = n => new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(n || 0);
@@ -294,26 +295,7 @@ export default function DealAnalyzer() {
   return (
     <div className="da-wrap">
       <style>{CSS}</style>
-      <nav className="da-nav">
-        <a href="/" className="da-logo"><span>Real</span> Deal</a>
-        <div className="da-nav-right">
-          <a href="/app" className="da-nav-link" style={{color:"var(--blue)"}}>Flip</a>
-          <a href="/commercial" className="da-nav-link">Multifamily</a>
-          <a href="/brrrr" className="da-nav-link">BRRRR</a>
-          <a href="/compare" className="da-nav-link">Compare</a>
-          {user ? (
-            <>
-              <a href="/dashboard" className="da-nav-btn" style={{textDecoration:"none",display:"inline-flex"}}>My Deals</a>
-              <button className="da-nav-ghost" onClick={signOut}>Sign out</button>
-            </>
-          ) : (
-            <>
-              <button className="da-nav-ghost" onClick={() => { setModalMode("login"); setShowModal(true); }}>Log in</button>
-              <button className="da-nav-btn" onClick={() => { setModalMode("signup"); setShowModal(true); }}>Sign up free</button>
-            </>
-          )}
-        </div>
-      </nav>
+      <TopNav />
 
       {justUpgraded && (
         <div style={{padding:"16px 20px 0"}}>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import TopNav from "./components/TopNav";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const fmt = (n) =>
@@ -379,16 +380,7 @@ export default function BudgetTracker() {
       <style>{CSS}</style>
 
       {/* ── Nav ── */}
-      <nav className="bt-nav">
-        <a href="/app" className="bt-logo">
-          Real <span>Deal</span>
-        </a>
-        <div className="bt-nav-links">
-          <a href="/app" className="bt-nav-link">Analyzer</a>
-          <a href="/pipeline" className="bt-nav-link">Pipeline</a>
-          <a href="/budget" className="bt-nav-link active">Budget</a>
-        </div>
-      </nav>
+      <TopNav />
 
       <div className="bt-wrap">
         <div className="bt-page-title">Rehab Budget Tracker</div>

@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import TopNav from "./components/TopNav";
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
 const fmt  = n => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n || 0);
@@ -267,18 +268,7 @@ export default function Portfolio() {
       <style>{CSS}</style>
 
       {/* Nav */}
-      <nav className="pf-nav">
-        <a href="/" className="pf-logo"><span>Real</span> Deal</a>
-        <div className="pf-nav-right">
-          <a href="/analyze"   className="pf-nav-link">Search</a>
-          <a href="/app"       className="pf-nav-link">Flip</a>
-          <a href="/dashboard" className="pf-nav-link">Saved Deals</a>
-          {user
-            ? <button className="pf-nav-ghost" onClick={signOut}>Sign out</button>
-            : <a href="/login" style={{ background: "var(--blue)", color: "#fff", borderRadius: 7, padding: "7px 14px", fontSize: 13, fontWeight: 600, textDecoration: "none" }}>Sign in</a>}
-          <button className="pf-nav-btn" onClick={openAdd}>+ Add Closed Deal</button>
-        </div>
-      </nav>
+      <TopNav />
 
       <div className="pf-body">
 

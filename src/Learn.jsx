@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import TopNav from "./components/TopNav";
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap');
@@ -867,25 +868,7 @@ export default function Learn() {
       <style>{CSS}</style>
 
       {/* ── Nav ── */}
-      <nav className="learn-nav">
-        <a href="/" className="learn-nav-logo">
-          <span>Real</span> Deal
-        </a>
-        <div className="learn-nav-links">
-          {navLinks.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="learn-nav-link"
-            >
-              {l.label}
-            </a>
-          ))}
-          <a href="/learn" className="learn-nav-link active">
-            Learn
-          </a>
-        </div>
-      </nav>
+      <TopNav />
 
       {/* ── Anchor bar ── */}
       <div className="learn-anchor-bar">

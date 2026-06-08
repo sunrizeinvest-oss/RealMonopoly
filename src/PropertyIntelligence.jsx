@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { useAuth } from "./AuthContext"
 import { useDocMeta } from "./lib/seo"
 import { celebrateFirstSave } from "./lib/celebrate"
+import TopNav from "./components/TopNav"
 
 // ─── Formatters ──────────────────────────────────────────────────────────────
 const fmt = (n) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n || 0)
@@ -1202,21 +1203,7 @@ export default function PropertyIntelligence() {
     <>
       <style>{CSS}</style>
       <div className="pi-root">
-        {/* Nav */}
-        <nav className="pi-nav">
-          <a href="/" className="pi-logo">Real Deal</a>
-          <div className="pi-nav-links">
-            <a href="/property" className="pi-nav-link active">Search</a>
-            <a href="/pipeline" className="pi-nav-link">Pipeline</a>
-            <a href="/portfolio" className="pi-nav-link">Portfolio</a>
-          </div>
-          <div className="pi-nav-right">
-            {user && <span className="pi-nav-user">{user.email}</span>}
-            {user && (
-              <button className="pi-signout" onClick={() => signOut()}>Sign out</button>
-            )}
-          </div>
-        </nav>
+        <TopNav />
 
         <div className="pi-body">
           {/* ── LEFT: Main Content ── */}

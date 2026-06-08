@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import TopNav from "./components/TopNav";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const fmt = (n) =>
@@ -486,16 +487,7 @@ export default function DealScreener() {
     <>
       <style>{CSS}</style>
 
-      {/* ── Nav ── */}
-      <nav className="ds-nav">
-        <a href="/" className="ds-logo">
-          Real <span>Deal</span>
-        </a>
-        <div className="ds-nav-links">
-          <a href="/analyze" className="ds-nav-link">Analyze</a>
-          <a href="/screen" className="ds-nav-link active">Screener</a>
-        </div>
-      </nav>
+      <TopNav />
 
       <div className="ds-wrap" style={mode === "bulk" ? { maxWidth: 1140 } : undefined}>
         <div className="ds-title">Deal Screener</div>

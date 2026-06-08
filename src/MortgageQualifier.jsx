@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import TopNav from "./components/TopNav";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const num = v => parseFloat(v) || 0;
@@ -342,14 +343,7 @@ export default function MortgageQualifier() {
       <style>{CSS}</style>
 
       {/* Nav */}
-      <nav className="mq-nav">
-        <a className="mq-logo" href="/">Real <span>Deal</span></a>
-        <div className="mq-nav-links">
-          <a href="/analyze">Analyze</a>
-          <a href="/app">Dashboard</a>
-          <a href="/qualify" className="active">Qualify</a>
-        </div>
-      </nav>
+      <TopNav />
 
       {/* Hero */}
       <div className="mq-hero">

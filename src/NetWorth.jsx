@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import TopNav from "./components/TopNav";
 
 // ─── Formatters ───────────────────────────────────────────────────────────────
 const fmt    = n => new Intl.NumberFormat("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0}).format(n||0);
@@ -297,17 +298,7 @@ export default function NetWorth() {
       <style>{CSS}</style>
 
       {/* Nav */}
-      <nav className="nw-nav">
-        <a href="/" className="nw-logo"><span>Real</span> Deal</a>
-        <div className="nw-nav-right">
-          <a href="/pipeline"  className="nw-nav-link">Pipeline</a>
-          <a href="/portfolio" className="nw-nav-link">Portfolio</a>
-          <a href="/dashboard" className="nw-nav-link">Saved Deals</a>
-          {user
-            ? <button className="nw-nav-ghost" onClick={signOut}>Sign out</button>
-            : <a href="/login" style={{background:"var(--blue)",color:"#fff",borderRadius:7,padding:"7px 12px",fontSize:13,fontWeight:600,textDecoration:"none"}}>Sign in</a>}
-        </div>
-      </nav>
+      <TopNav />
 
       {/* Hero — big number */}
       <div className="nw-hero">

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import AddressAutocomplete from "./AddressAutocomplete";
+import TopNav from "./components/TopNav";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const fmt = (n) =>
@@ -946,29 +947,7 @@ export default function RehabCalculator() {
 
       <div className="rc-wrap">
         {/* ── Nav ── */}
-        <nav className="rc-nav">
-          <a href="/" className="rc-logo">
-            <span>Real</span> Deal
-          </a>
-          <div className="rc-nav-links">
-            {[
-              { href: "/analyze", label: "Tools" },
-              { href: "/app", label: "🏚️ Flip" },
-              { href: "/commercial", label: "🏢 Multifamily" },
-              { href: "/brrrr", label: "🔄 BRRRR" },
-              { href: "/compare", label: "⚡ Compare" },
-              { href: "/rehab", label: "🔨 Rehab Estimator", active: true },
-            ].map((item) => (
-              <a
-                key={item.href}
-                href={item.href}
-                className={`rc-nav-link${item.active ? " active" : ""}`}
-              >
-                {item.label}
-              </a>
-            ))}
-          </div>
-        </nav>
+        <TopNav />
 
         {/* ── Page Header ── */}
         <div className="rc-header">

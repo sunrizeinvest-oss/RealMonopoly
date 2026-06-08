@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "./AuthContext";
+import TopNav from "./components/TopNav";
 
 // ─── Utilities ───────────────────────────────────────────────────────────────
 const num = v => parseFloat(v) || 0;
@@ -441,21 +442,7 @@ export default function DealComparison() {
       <style>{CSS}</style>
 
       {/* Nav */}
-      <nav className="cmp-nav">
-        <a href="/" className="cmp-logo"><span>Real</span> Deal</a>
-        <div className="cmp-nav-right">
-          <a href="/analyze" className="cmp-nav-link">Tools</a>
-          <a href="/app" className="cmp-nav-link">Flip</a>
-          <a href="/commercial" className="cmp-nav-link">Multifamily</a>
-          <a href="/brrrr" className="cmp-nav-link">BRRRR</a>
-          <a href="/compare" className="cmp-nav-link active">Compare</a>
-          {user && <a href="/dashboard" className="cmp-nav-link">My Deals</a>}
-          <a href="/pricing" className="cmp-nav-link" style={{color:"var(--amber)"}}>Pricing</a>
-          {user
-            ? <button className="cmp-nav-ghost" onClick={signOut}>Sign out</button>
-            : <a href="/login" className="cmp-nav-btn">Sign in</a>}
-        </div>
-      </nav>
+      <TopNav />
 
       {/* Hero */}
       <div className="cmp-hero">

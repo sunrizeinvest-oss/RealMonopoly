@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import TopNav from "./components/TopNav";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const num = (v) => parseFloat(v) || 0;
@@ -388,15 +389,7 @@ export default function TaxCalculator() {
       <style>{CSS}</style>
 
       {/* Nav */}
-      <nav className="tc-nav">
-        <a href="/" className="tc-logo"><span>Real</span> Deal</a>
-        <div className="tc-nav-links">
-          <a href="/analyze" className="tc-nav-link">Tools</a>
-          <a href="/app" className="tc-nav-link">Flip</a>
-          <a href="/commercial" className="tc-nav-link">Commercial</a>
-          <a href="/tax" className="tc-nav-link active">Tax &amp; Depreciation</a>
-        </div>
-      </nav>
+      <TopNav />
 
       {/* Hero */}
       <div className="tc-hero">

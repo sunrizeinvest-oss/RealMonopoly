@@ -4,6 +4,7 @@ import { jsPDF } from "jspdf";
 import { useAuth } from "./AuthContext";
 import { exportFlipPDF } from "./pdfExport";
 import { useIntercom } from "./IntercomProvider";
+import TopNav from "./components/TopNav";
 
 // ─── Utilities ──────────────────────────────────────────────────────────────
 const fmt = (n) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n || 0);
@@ -1574,32 +1575,7 @@ export default function FlipCalc() {
         input, select { font-size: 16px !important; }
       `}</style>
 
-      {/* ── Top Nav Bar ── */}
-      <nav style={{ position: "sticky", top: 0, zIndex: 200, background: "rgba(7,9,15,0.97)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(255,255,255,0.07)", padding: "0 20px", height: 50, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
-        <a href="/" style={{ fontSize: 15, fontWeight: 800, color: "#fff", textDecoration: "none", letterSpacing: -0.5 }}>
-          <span style={{ color: "var(--blue)" }}>Real</span> Deal
-        </a>
-        <div className="flip-nav-links" style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {[
-            { href: "/analyze",    label: "Tools",         active: false },
-            { href: "/app",        label: "🏚️ Flip",        active: true  },
-            { href: "/commercial", label: "🏢 Multifamily", active: false },
-            { href: "/brrrr",      label: "🔄 BRRRR",      active: false },
-            { href: "/compare",    label: "⚡ Compare",    active: false },
-            ...(user ? [{ href: "/dashboard", label: "My Deals", active: false }] : []),
-            { href: "/pricing",    label: "Pricing",       active: false, amber: true },
-          ].map(item => (
-            <a key={item.href} href={item.href} style={{ fontSize: 13, fontWeight: item.active ? 700 : 500, color: item.active ? "var(--blue)" : item.amber ? "var(--amber)" : "var(--sub)", textDecoration: "none", padding: "5px 11px", borderRadius: 7, background: item.active ? "rgba(59,158,255,0.1)" : "transparent", border: item.active ? "1px solid rgba(59,158,255,0.2)" : "1px solid transparent", transition: "all 0.15s" }}
-              onMouseEnter={e => { if (!item.active) { e.currentTarget.style.color = "var(--text)"; e.currentTarget.style.background = "rgba(255,255,255,0.05)"; }}}
-              onMouseLeave={e => { if (!item.active) { e.currentTarget.style.color = item.amber ? "var(--amber)" : "var(--sub)"; e.currentTarget.style.background = "transparent"; }}}
-            >{item.label}</a>
-          ))}
-          {user
-            ? <button onClick={signOut} style={{ marginLeft: 6, background: "transparent", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 7, padding: "5px 14px", fontSize: 13, fontWeight: 600, color: "var(--sub)", cursor: "pointer", fontFamily: "inherit" }}>Sign out</button>
-            : <a href="/login" style={{ marginLeft: 6, background: "var(--blue)", borderRadius: 7, padding: "6px 16px", fontSize: 13, fontWeight: 700, color: "#fff", textDecoration: "none" }}>Sign in</a>
-          }
-        </div>
-      </nav>
+      <TopNav />
 
       {/* ── Body row (sidebar + content) ── */}
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
