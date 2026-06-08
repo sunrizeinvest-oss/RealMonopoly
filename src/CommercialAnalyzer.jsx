@@ -9,6 +9,7 @@ import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
 import TopNav from "./components/TopNav";
 import AddressAutocomplete from "./AddressAutocomplete";
+import ShareDealButton from "./components/ShareDealButton";
 
 // Lazy-load charts (recharts is the heavy dep)
 const CommercialCharts = lazy(() => import("./components/CommercialCharts"));
@@ -1060,7 +1061,23 @@ export default function CommercialAnalyzer() {
                 <div style={{fontSize:11.5,color:"var(--sub)",marginTop:1}}>Multifamily deal saved to your comparison board</div>
               </div>
             </div>
-            <a href="/compare" style={{background:"var(--green)",color:"#07090f",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none",flexShrink:0}}>View Saved Deals →</a>
+            <div style={{display:"flex",gap:6,flexShrink:0}}>
+              <ShareDealButton
+                strategy="multifamily"
+                compact
+                deal={{
+                  id: Date.now(),
+                  type: "multifamily",
+                  name: propertyAddress || "Multifamily deal",
+                  address: propertyAddress,
+                  savedAt: new Date().toISOString(),
+                  inputs: { purchasePrice, downPct, interestRate, entryCap, exitCap },
+                  results: { noi: c?.NOI, monthlyCF: c?.BTCF ? c.BTCF/12 : null, dscr: c?.DSCR, coc: c?.CoC, capRate: c?.capRate, irr: c?.irr, eqMultiple: c?.eqMultiple, totalCashIn: c?.totalCashIn },
+                  verdict: `Cap ${c?.capRate ? (c.capRate*100).toFixed(2) : "—"}% · DSCR ${c?.DSCR ? c.DSCR.toFixed(2) : "—"}x`,
+                }}
+              />
+              <a href="/compare" style={{background:"var(--green)",color:"#07090f",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none"}}>View Saved →</a>
+            </div>
           </div>
         ) : (
           <button

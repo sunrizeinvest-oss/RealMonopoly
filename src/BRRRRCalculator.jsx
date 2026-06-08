@@ -9,6 +9,7 @@ import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
 import TopNav from "./components/TopNav";
 import AddressAutocomplete from "./AddressAutocomplete";
+import ShareDealButton from "./components/ShareDealButton";
 
 // Lazy-load the charts card so recharts (~200KB gzipped) doesn't ship in the
 // main bundle. Users only download it when they actually have a deal to view.
@@ -1130,7 +1131,23 @@ export default function BRRRRCalculator() {
                         <div style={{fontSize:11.5,color:"var(--sub)",marginTop:1}}>{form.dealName || form.address || "BRRRR Deal"}</div>
                       </div>
                     </div>
-                    <a href="/compare" style={{background:"var(--green)",color:"#07090f",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none",flexShrink:0}}>View Saved Deals →</a>
+                    <div style={{display:"flex",gap:6,flexShrink:0}}>
+                      <ShareDealButton
+                        strategy="brrrr"
+                        compact
+                        deal={{
+                          id: Date.now(),
+                          type: "brrrr",
+                          name: form.dealName || form.address,
+                          address: form.address,
+                          savedAt: new Date().toISOString(),
+                          inputs: form,
+                          results: calc,
+                          verdict: verdict?.title,
+                        }}
+                      />
+                      <a href="/compare" style={{background:"var(--green)",color:"#07090f",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none"}}>View Saved →</a>
+                    </div>
                   </div>
                 ) : (
                   <button
