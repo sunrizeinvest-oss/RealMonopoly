@@ -160,7 +160,28 @@ export default function BRRRRCalculator() {
   const [prefillApplied, setPrefillApplied] = useState(false);
 
   const [form, setForm] = useState(() => {
-    // Check for prefill data on initial render
+    // Priority 1: URL params (Chrome extension, shareable links)
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      if (sp.get("purchase")) {
+        return {
+          dealName: "",
+          address:        sp.get("addr")     || "",
+          purchasePrice:  sp.get("purchase") || "",
+          closingCostsPct: "2",
+          rehabBudget:    sp.get("repair")   || "",
+          holdingMonths:  "3",
+          monthlyHoldingCost: "",
+          monthlyRent: "",
+          vacancyPct: "5", otherIncome: "0", propTax: "", insurance: "",
+          managementPct: "8", maintenancePct: "5", utilities: "0",
+          arv: sp.get("purchase") ? String(Math.round(parseFloat(sp.get("purchase")) * 1.35)) : "",
+          refinanceLTV: "80", refiRate: "5.75", refiAmort: "25", refiClosingCostsPct: "1.5",
+          holdYears: "5", rentGrowth: "3", opexGrowth: "2", appreciation: "3", exitSellingPct: "5",
+        };
+      }
+    } catch {}
+    // Priority 2: localStorage handoff from Property Intelligence
     try {
       const raw = localStorage.getItem("rde_prefill");
       if (raw) {

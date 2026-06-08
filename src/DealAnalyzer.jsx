@@ -217,8 +217,23 @@ export default function DealAnalyzer() {
     }
   }, []);
   const [dealType, setDealType] = useState("flip");
-  const [form, setForm] = useState({ address:"", purchasePrice:"", repairCost:"", sqft:"", beds:"", baths:"" });
-  const [analyzed, setAnalyzed] = useState(false);
+  const [form, setForm] = useState(() => {
+    // Prefill from URL params — used by the Chrome extension + shareable deal links
+    const sp = new URLSearchParams(window.location.search);
+    return {
+      address:       sp.get("addr")     || "",
+      purchasePrice: sp.get("purchase") || "",
+      repairCost:    sp.get("repair")   || "",
+      sqft:          sp.get("sqft")     || "",
+      beds:          sp.get("beds")     || "",
+      baths:         sp.get("baths")    || "",
+    };
+  });
+  const [analyzed, setAnalyzed] = useState(() => {
+    // If we got prefill data, jump straight to the results view
+    const sp = new URLSearchParams(window.location.search);
+    return !!(sp.get("purchase") && sp.get("sqft"));
+  });
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("signup");
   const [justSaved, setJustSaved] = useState(false);
