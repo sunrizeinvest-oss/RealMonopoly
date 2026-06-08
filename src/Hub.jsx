@@ -1,6 +1,7 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import TopNav from "./components/TopNav";
+import RecentDeals from "./components/RecentDeals";
 
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
@@ -96,6 +97,9 @@ export default function Hub() {
         </div>
         <div style={{fontSize:12,color:"var(--dim)",marginTop:10}}>Or choose a specific tool below</div>
       </div>
+
+      {/* Resume the user's recent saved deals — silent empty state when none */}
+      <RecentDeals limit={6} />
 
       <div className="hub-cards">
         {/* Flip Card */}
