@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import TopNav from "./components/TopNav";
 
 const DEALS = [
   {addr:"142 Birchwood Dr",city:"Calgary, AB",profit:38400,roi:12.8,coc:22.4,arv:310000,verdict:"go"},
@@ -618,14 +619,7 @@ export default function Landing() {
       <style>{css}</style>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet" />
 
-      {/* ── NAV ── */}
-      <nav className="ld-nav">
-        <div className="ld-logo"><span>Real</span> Deal</div>
-        <div className="ld-nav-right">
-          <button className="ld-nav-link" onClick={scrollToAuth}>Log in</button>
-          <button className="ld-nav-btn" onClick={scrollToAuth}>Get started free →</button>
-        </div>
-      </nav>
+      <TopNav />
 
       {/* ── HERO ── */}
       <section className="ld-hero">
