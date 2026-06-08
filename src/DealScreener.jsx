@@ -115,7 +115,148 @@ const CSS = `
 
   /* ── Divider ── */
   .ds-divider{height:1px;background:var(--borderf);margin:14px 0}
+
+  /* ── Tabs (single vs bulk) ── */
+  .ds-tabs{display:flex;background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:3px;gap:3px;margin-bottom:18px}
+  .ds-tab{flex:1;padding:9px 12px;border:none;background:transparent;color:var(--sub);font-family:'Fira Code',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.2px;cursor:pointer;border-radius:4px;transition:background 0.15s,color 0.15s;display:flex;align-items:center;justify-content:center;gap:6px}
+  .ds-tab:hover{color:var(--text)}
+  .ds-tab.active{background:rgba(59,158,255,0.12);color:var(--blue)}
+  .ds-tab-count{font-size:9px;color:var(--dim);background:rgba(255,255,255,0.04);border-radius:3px;padding:1px 5px;letter-spacing:0.4px;font-weight:600}
+  .ds-tab.active .ds-tab-count{color:var(--blue);background:rgba(59,158,255,0.08)}
+
+  /* ── Bulk panel ── */
+  .ds-bulk-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px;margin-bottom:14px}
+  .ds-bulk-h{font-family:'Fira Code',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--blue);margin-bottom:6px}
+  .ds-bulk-sub{font-size:12.5px;color:var(--sub);line-height:1.5;margin-bottom:12px}
+  .ds-csv{width:100%;min-height:160px;background:var(--card2);border:1px solid var(--borderf);border-radius:5px;padding:12px 14px;font-family:'Fira Code',ui-monospace,monospace;font-size:11.5px;color:var(--text);outline:none;resize:vertical;line-height:1.6;letter-spacing:0.2px}
+  .ds-csv:focus{border-color:var(--blue)}
+  .ds-csv::placeholder{color:var(--dim)}
+  .ds-csv-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+  .ds-csv-action{background:transparent;border:1px solid var(--borderf);border-radius:4px;padding:7px 12px;font-family:'Fira Code',ui-monospace,monospace;font-size:10.5px;font-weight:700;color:var(--sub);letterspacing:0.8px;cursor:pointer;transition:border-color 0.15s,color 0.15s}
+  .ds-csv-action:hover{color:var(--text);border-color:var(--border)}
+  .ds-csv-eval{margin-left:auto;background:var(--blue);color:#fff;border:none;border-radius:4px;padding:9px 18px;font-family:'Fira Code',ui-monospace,monospace;font-size:11.5px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s}
+  .ds-csv-eval:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(59,158,255,0.35)}
+  .ds-csv-eval:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
+  .ds-csv-error{margin-top:10px;padding:10px 12px;background:rgba(242,92,92,0.08);border:1px solid rgba(242,92,92,0.25);border-left:3px solid var(--red);border-radius:4px;font-size:12px;color:var(--red);line-height:1.5}
+
+  /* ── Bulk results table ── */
+  .ds-bulk-results{background:var(--card);border:1px solid var(--borderf);border-radius:6px;overflow:hidden;margin-bottom:14px}
+  .ds-bulk-results-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);flex-wrap:wrap}
+  .ds-bulk-results-tag{font-family:'Fira Code',ui-monospace,monospace;font-size:11px;font-weight:700;color:var(--green);letter-spacing:1.2px}
+  .ds-bulk-results-count{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;color:var(--dim);letter-spacing:0.5px}
+  .ds-bulk-filters{margin-left:auto;display:flex;gap:5px;flex-wrap:wrap}
+  .ds-bulk-filter{background:transparent;border:1px solid var(--borderf);border-radius:3px;padding:3px 8px;font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--sub);letter-spacing:0.6px;cursor:pointer;transition:all 0.15s}
+  .ds-bulk-filter:hover{color:var(--text);border-color:var(--border)}
+  .ds-bulk-filter.active{background:rgba(59,158,255,0.1);border-color:var(--blue);color:var(--blue)}
+  .ds-bulk-table-scroll{overflow-x:auto}
+  .ds-bulk-table{width:100%;border-collapse:collapse;min-width:760px;font-family:'Fira Code',ui-monospace,monospace;font-size:11.5px}
+  .ds-bulk-table thead th{padding:10px 12px;text-align:left;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--borderf);background:rgba(255,255,255,0.012);user-select:none}
+  .ds-bulk-table thead th.num{text-align:right}
+  .ds-bulk-table thead th.sortable{cursor:pointer;transition:color 0.15s}
+  .ds-bulk-table thead th.sortable:hover{color:var(--text)}
+  .ds-bulk-table thead th.sortable.active{color:var(--blue)}
+  .ds-bulk-table tbody td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text);vertical-align:baseline}
+  .ds-bulk-table tbody td.num{text-align:right}
+  .ds-bulk-table tbody tr:hover{background:rgba(255,255,255,0.025)}
+  .ds-bulk-table tbody tr:last-child td{border-bottom:none}
+  .ds-bulk-table .addr{color:var(--text);font-weight:600;font-family:'DM Sans',sans-serif;font-size:12.5px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ds-bulk-table .ver{font-family:'Fira Code',ui-monospace,monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:3px;border:1px solid currentColor;letter-spacing:0.6px;white-space:nowrap}
+  .ds-bulk-table .ver.strong{color:var(--green);background:rgba(52,217,138,0.08)}
+  .ds-bulk-table .ver.thin{color:var(--amber);background:rgba(240,160,48,0.08)}
+  .ds-bulk-table .ver.pass{color:var(--red);background:rgba(242,92,92,0.08)}
+  .ds-bulk-table .green{color:var(--green);font-weight:700}
+  .ds-bulk-table .red{color:var(--red);font-weight:700}
+  .ds-bulk-table .row-num{color:var(--dim);font-size:10px}
+  .ds-bulk-export{padding:10px 16px;background:rgba(255,255,255,0.012);border-top:1px solid var(--borderf);display:flex;justify-content:flex-end}
+  .ds-bulk-export-btn{background:transparent;border:1px solid var(--borderf);border-radius:4px;padding:6px 12px;font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--green);letter-spacing:0.8px;cursor:pointer;transition:all 0.15s}
+  .ds-bulk-export-btn:hover{background:rgba(52,217,138,0.06);border-color:var(--green)}
 `;
+
+// ─── CSV parsing ──────────────────────────────────────────────────────────────
+// Handles both comma- and tab-separated. Recognises common header aliases
+// (address, asking_price, list_price, arv, after_repair_value, repair, rehab).
+// Falls back to positional if headers aren't matched: addr, asking, arv, repair.
+function parseCSV(raw) {
+  const text = (raw || "").trim();
+  if (!text) return { rows: [], error: null };
+
+  // Detect delimiter — count tabs vs commas in the first line
+  const firstLine = text.split(/\r?\n/)[0];
+  const delim = firstLine.split("\t").length > firstLine.split(",").length ? "\t" : ",";
+
+  // Parse with naive quoted-field support
+  const splitLine = (line) => {
+    const out = [];
+    let cur = "", inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQ = !inQ; continue; }
+      if (!inQ && ch === delim) { out.push(cur.trim()); cur = ""; continue; }
+      cur += ch;
+    }
+    out.push(cur.trim());
+    return out;
+  };
+
+  const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+  if (!lines.length) return { rows: [], error: "No rows found." };
+
+  const headerCells = splitLine(lines[0]).map(h => h.toLowerCase().replace(/[^a-z0-9]/g, ""));
+  const ALIAS = {
+    address: ["address", "addr", "property", "location"],
+    asking:  ["askingprice", "asking", "listprice", "price", "askprice"],
+    arv:     ["arv", "afterrepairvalue", "afterrepair", "estimatedvalue", "value"],
+    repair:  ["repair", "repairs", "rehab", "repaircost", "rehabbudget", "repaircosts"],
+  };
+  const colOf = (key) => {
+    for (const a of ALIAS[key]) {
+      const idx = headerCells.indexOf(a);
+      if (idx >= 0) return idx;
+    }
+    return -1;
+  };
+
+  let cols = { address: colOf("address"), asking: colOf("asking"), arv: colOf("arv"), repair: colOf("repair") };
+  const hasHeader = cols.asking >= 0 || cols.arv >= 0;
+  const dataStart = hasHeader ? 1 : 0;
+  if (!hasHeader) cols = { address: 0, asking: 1, arv: 2, repair: 3 };
+
+  const num = (s) => {
+    if (s == null) return null;
+    const m = String(s).replace(/[$,\s]/g, "").match(/-?\d+\.?\d*/);
+    return m ? parseFloat(m[0]) : null;
+  };
+
+  const rows = [];
+  for (let i = dataStart; i < lines.length; i++) {
+    const cells = splitLine(lines[i]);
+    const addr   = cols.address >= 0 ? (cells[cols.address] || "").trim() : "";
+    const asking = num(cols.asking >= 0 ? cells[cols.asking] : null);
+    const arv    = num(cols.arv    >= 0 ? cells[cols.arv]    : null);
+    const repair = num(cols.repair >= 0 ? cells[cols.repair] : null) ?? 0;
+    if (!asking && !arv) continue; // skip junk row
+    rows.push({ address: addr || `Row ${i}`, asking: asking ?? 0, arv: arv ?? 0, repair });
+  }
+
+  if (!rows.length) return { rows: [], error: "Couldn't parse any deals. Expected columns: address, asking, arv, repair." };
+  return { rows, error: null };
+}
+
+// Score a row using the same MAO/spread/verdict logic as single-deal mode
+function scoreRow({ address, asking, arv, repair }, realtorPct = 0.05, closingPct = 0.03) {
+  const mao = arv * 0.7 - repair;
+  const spread = mao - asking;
+  const sellingCosts = arv * (realtorPct + closingPct);
+  const profit = arv - asking - repair - sellingCosts;
+  const invested = asking + repair;
+  const roi = invested > 0 ? profit / invested : 0;
+  const spreadPct = mao > 0 ? spread / mao : 0;
+  let verdict, verdictClass;
+  if (spread > 0 && spreadPct > 0.05) { verdict = "STRONG"; verdictClass = "strong"; }
+  else if (spread >= 0)               { verdict = "THIN";   verdictClass = "thin"; }
+  else                                { verdict = "PASS";   verdictClass = "pass"; }
+  return { address, asking, arv, repair, mao, spread, profit, roi, verdict, verdictClass };
+}
 
 // ─── Component ───────────────────────────────────────────────────────────────
 export default function DealScreener() {
@@ -133,6 +274,73 @@ export default function DealScreener() {
   const [closingPct, setClosingPct] = useState("3");
 
   const [toast, setToast] = useState("");
+
+  // ── Bulk mode state ───────────────────────────────────────────────────────
+  const [mode, setMode] = useState("single");      // "single" | "bulk"
+  const [csvText, setCsvText] = useState("");
+  const [bulkResults, setBulkResults] = useState(null);  // null | { rows: [...] }
+  const [bulkError, setBulkError] = useState(null);
+  const [bulkSort, setBulkSort] = useState({ key: "profit", dir: -1 });
+  const [bulkFilter, setBulkFilter] = useState("all");   // "all" | "strong" | "thin" | "pass"
+
+  const sortedFilteredBulk = useMemo(() => {
+    if (!bulkResults?.rows?.length) return [];
+    const filtered = bulkFilter === "all"
+      ? bulkResults.rows
+      : bulkResults.rows.filter(r => r.verdictClass === bulkFilter);
+    const { key, dir } = bulkSort;
+    return [...filtered].sort((a, b) => {
+      const av = a[key], bv = b[key];
+      if (typeof av === "string") return av.localeCompare(bv) * dir;
+      return ((av ?? 0) - (bv ?? 0)) * dir;
+    });
+  }, [bulkResults, bulkSort, bulkFilter]);
+
+  function runBulk() {
+    const { rows, error } = parseCSV(csvText);
+    if (error) { setBulkError(error); setBulkResults(null); return; }
+    setBulkError(null);
+    setBulkResults({ rows: rows.map(r => scoreRow(r)) });
+  }
+
+  function loadBulkSample() {
+    setCsvText([
+      "address,asking,arv,repair",
+      "142 Birchwood Dr, Calgary, AB,250000,385000,40000",
+      "58 Maple Ct, Edmonton, AB,180000,295000,55000",
+      "903 Elm St, Vancouver, BC,720000,820000,30000",
+      "17 Sunrise Blvd, Toronto, ON,520000,720000,80000",
+      "334 Oak Ave, Ottawa, ON,310000,420000,45000",
+      "2201 Palm Ln, Halifax, NS,420000,640000,70000",
+      "76 Cedar Ridge, Winnipeg, MB,195000,310000,35000",
+      "441 River Rd, Phoenix, AZ,265000,395000,42000",
+      "1804 Lakeview Dr, Austin, TX,295000,395000,55000",
+      "992 Westgate, Denver, CO,360000,540000,55000",
+    ].join("\n"));
+    setBulkError(null);
+  }
+
+  function exportBulkCSV() {
+    if (!sortedFilteredBulk.length) return;
+    const lines = [
+      "address,asking,arv,repair,mao,profit,roi,verdict",
+      ...sortedFilteredBulk.map(r =>
+        `"${r.address}",${r.asking},${r.arv},${r.repair},${Math.round(r.mao)},${Math.round(r.profit)},${(r.roi * 100).toFixed(1)}%,${r.verdict}`
+      ),
+    ];
+    const blob = new Blob([lines.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `screened-deals-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("Exported CSV");
+  }
+
+  function toggleSort(key) {
+    setBulkSort(s => s.key === key ? { key, dir: -s.dir } : { key, dir: -1 });
+  }
 
   // ── Computed results ──────────────────────────────────────────────────────
   const results = useMemo(() => {
@@ -289,9 +497,136 @@ export default function DealScreener() {
         </div>
       </nav>
 
-      <div className="ds-wrap">
+      <div className="ds-wrap" style={mode === "bulk" ? { maxWidth: 1140 } : undefined}>
         <div className="ds-title">Deal Screener</div>
-        <div className="ds-sub">3 numbers → instant pass/fail in 5 seconds</div>
+        <div className="ds-sub">{mode === "single" ? "3 numbers → instant pass/fail in 5 seconds" : "Paste a CSV of deals → instant pass/fail across the whole list"}</div>
+
+        {/* ── Mode tabs ── */}
+        <div className="ds-tabs">
+          <button className={`ds-tab ${mode === "single" ? "active" : ""}`} onClick={() => setMode("single")}>
+            ▸ SINGLE DEAL
+          </button>
+          <button className={`ds-tab ${mode === "bulk" ? "active" : ""}`} onClick={() => setMode("bulk")}>
+            ▸ BULK IMPORT {bulkResults?.rows?.length ? <span className="ds-tab-count">{bulkResults.rows.length}</span> : null}
+          </button>
+        </div>
+
+        {mode === "bulk" ? (
+          <>
+            {/* ── Bulk CSV input ── */}
+            <div className="ds-bulk-card">
+              <div className="ds-bulk-h">▸ PASTE CSV OR TYPE</div>
+              <div className="ds-bulk-sub">
+                Columns: <code style={{color:"var(--blue)"}}>address, asking, arv, repair</code>. Comma or tab separated. Headers optional — first row can be data if you skip them.
+              </div>
+              <textarea
+                className="ds-csv"
+                value={csvText}
+                onChange={(e) => setCsvText(e.target.value)}
+                placeholder={`address,asking,arv,repair\n142 Birchwood Dr,250000,385000,40000\n58 Maple Ct,180000,295000,55000\n...`}
+                spellCheck={false}
+              />
+              <div className="ds-csv-actions">
+                <button className="ds-csv-action" onClick={loadBulkSample}>▸ LOAD SAMPLE</button>
+                <label className="ds-csv-action" style={{cursor:"pointer"}}>
+                  ▸ UPLOAD .CSV
+                  <input
+                    type="file"
+                    accept=".csv,text/csv,.tsv,text/tab-separated-values"
+                    style={{display:"none"}}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = () => setCsvText(String(reader.result || ""));
+                      reader.readAsText(file);
+                    }}
+                  />
+                </label>
+                <button className="ds-csv-action" onClick={() => { setCsvText(""); setBulkResults(null); setBulkError(null); }}>▸ CLEAR</button>
+                <button className="ds-csv-eval" onClick={runBulk} disabled={!csvText.trim()}>
+                  ▶ EVALUATE
+                </button>
+              </div>
+              {bulkError && <div className="ds-csv-error">{bulkError}</div>}
+            </div>
+
+            {/* ── Bulk results table ── */}
+            {bulkResults?.rows?.length > 0 && (
+              <div className="ds-bulk-results">
+                <div className="ds-bulk-results-head">
+                  <span className="ds-bulk-results-tag">▸ EVALUATED · {bulkResults.rows.length} DEALS</span>
+                  <span className="ds-bulk-results-count">
+                    {bulkResults.rows.filter(r => r.verdictClass === "strong").length} STRONG ·{" "}
+                    {bulkResults.rows.filter(r => r.verdictClass === "thin").length} THIN ·{" "}
+                    {bulkResults.rows.filter(r => r.verdictClass === "pass").length} PASS
+                  </span>
+                  <div className="ds-bulk-filters">
+                    {[
+                      { id: "all",    label: "ALL" },
+                      { id: "strong", label: "🟢 STRONG" },
+                      { id: "thin",   label: "🟡 THIN" },
+                      { id: "pass",   label: "🔴 PASS" },
+                    ].map(f => (
+                      <button
+                        key={f.id}
+                        className={`ds-bulk-filter ${bulkFilter === f.id ? "active" : ""}`}
+                        onClick={() => setBulkFilter(f.id)}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="ds-bulk-table-scroll">
+                  <table className="ds-bulk-table">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th className="sortable" onClick={() => toggleSort("address")}>Address</th>
+                        <th className="num sortable" onClick={() => toggleSort("asking")}>Asking</th>
+                        <th className="num sortable" onClick={() => toggleSort("arv")}>ARV</th>
+                        <th className="num sortable" onClick={() => toggleSort("repair")}>Repair</th>
+                        <th className="num sortable" onClick={() => toggleSort("mao")}>MAO (70%)</th>
+                        <th className={`num sortable ${bulkSort.key === "profit" ? "active" : ""}`} onClick={() => toggleSort("profit")}>
+                          Profit {bulkSort.key === "profit" ? (bulkSort.dir === -1 ? "▼" : "▲") : ""}
+                        </th>
+                        <th className="num sortable" onClick={() => toggleSort("roi")}>ROI</th>
+                        <th>Verdict</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedFilteredBulk.map((r, i) => (
+                        <tr key={`${r.address}-${i}`}>
+                          <td className="row-num">{i + 1}</td>
+                          <td className="addr" title={r.address}>{r.address}</td>
+                          <td className="num">${r.asking.toLocaleString()}</td>
+                          <td className="num">${r.arv.toLocaleString()}</td>
+                          <td className="num">${r.repair.toLocaleString()}</td>
+                          <td className="num">${Math.round(r.mao).toLocaleString()}</td>
+                          <td className={`num ${r.profit >= 0 ? "green" : "red"}`}>
+                            {r.profit >= 0 ? "+" : ""}${Math.round(r.profit).toLocaleString()}
+                          </td>
+                          <td className={`num ${r.roi >= 0 ? "green" : "red"}`}>
+                            {(r.roi * 100).toFixed(1)}%
+                          </td>
+                          <td><span className={`ver ${r.verdictClass}`}>{r.verdict}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="ds-bulk-export">
+                  <button className="ds-bulk-export-btn" onClick={exportBulkCSV}>▶ EXPORT RESULTS CSV</button>
+                </div>
+              </div>
+            )}
+
+            {toast && <div className="ds-toast">{toast}</div>}
+          </>
+        ) : (<>
 
         {/* ── Address ── */}
         <div className="ds-addr-wrap">
@@ -525,6 +860,8 @@ export default function DealScreener() {
             to get an instant deal verdict.
           </div>
         )}
+
+        </>)}
       </div>
 
       {/* ── Toast ── */}
