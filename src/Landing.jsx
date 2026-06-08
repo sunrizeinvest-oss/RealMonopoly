@@ -399,6 +399,65 @@ export default function Landing() {
     .ld-mock-tool-row:hover{background:rgba(255,255,255,0.04)}
     .ld-mock-tool-icon{font-size:15px}.ld-mock-tool-name{font-size:12px;font-weight:600;color:var(--sub)}
 
+    /* ── ANATOMY OF A DEAL ── */
+    .ld-anatomy{padding:80px 24px;border-top:1px solid var(--borderf);background:linear-gradient(180deg,transparent,rgba(59,158,255,0.012),transparent);position:relative}
+    .ld-anatomy-inner{max-width:1140px;margin:0 auto}
+    .ld-anatomy-head{text-align:center;margin-bottom:48px}
+    .ld-anatomy-deal-bar{display:inline-flex;align-items:center;gap:10px;padding:9px 18px;background:var(--card);border:1px solid var(--borderf);border-left:3px solid var(--blue);border-radius:4px;margin-top:18px;font-family:'Fira Code',ui-monospace,monospace;font-size:12px;color:var(--text);letter-spacing:0.5px;font-weight:600}
+    .ld-anatomy-steps{display:flex;flex-direction:column;gap:32px}
+    .ld-anatomy-step{display:grid;grid-template-columns:300px 1fr;gap:36px;align-items:start}
+    .ld-anatomy-left{padding-top:8px}
+    .ld-anatomy-num{font-family:'Fira Code',ui-monospace,monospace;font-size:13px;font-weight:700;color:var(--blue);letter-spacing:2px;margin-bottom:10px}
+    .ld-anatomy-title{font-family:'DM Sans',sans-serif;font-size:24px;font-weight:800;color:var(--text);letter-spacing:-0.8px;line-height:1.2;margin-bottom:10px}
+    .ld-anatomy-desc{font-size:13.5px;color:var(--sub);line-height:1.7}
+    .ld-anatomy-right{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 18px 56px rgba(0,0,0,0.45)}
+    .ld-an-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.2px;text-transform:uppercase}
+    .ld-an-bar-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite;flex-shrink:0}
+    .ld-an-bar-tag{margin-left:auto;color:var(--green)}
+    .ld-an-body{padding:20px}
+    .ld-an-metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+    .ld-an-metric{background:rgba(255,255,255,0.025);border:1px solid var(--borderf);border-radius:4px;padding:12px}
+    .ld-an-metric-lbl{font-family:'Fira Code',monospace;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:1px;text-transform:uppercase}
+    .ld-an-metric-val{font-family:'Fira Code',monospace;font-size:22px;font-weight:700;letter-spacing:-0.5px;margin-top:4px}
+    .ld-an-table{margin-top:10px;background:rgba(255,255,255,0.02);border:1px solid var(--borderf);border-radius:4px;overflow:hidden;font-family:'Fira Code',monospace;font-size:12px}
+    .ld-an-table-head{display:grid;grid-template-columns:1.6fr repeat(5,1fr);padding:8px 14px;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--borderf)}
+    .ld-an-table-row{display:grid;grid-template-columns:1.6fr repeat(5,1fr);padding:7px 14px}
+    .ld-an-table-row.bold{background:rgba(52,217,138,0.05);font-weight:700;color:var(--green)}
+    .ld-an-table-row:not(:last-child){border-bottom:1px solid rgba(255,255,255,0.04)}
+    .ld-an-thesis{padding:18px;background:linear-gradient(135deg,rgba(52,217,138,0.08),rgba(59,158,255,0.03));border-radius:6px;border:1px solid rgba(52,217,138,0.2)}
+    .ld-an-thesis-bar{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+    .ld-an-thesis-text{font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);line-height:1.65;letter-spacing:-0.1px}
+    .ld-an-output-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+    .ld-an-output-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:6px;padding:10px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text);flex:1;min-width:160px}
+    .ld-an-output-icon{font-size:16px}
+
+    /* ── PRO OUTPUTS SHOWCASE ── */
+    .ld-pro{padding:60px 24px 80px}
+    .ld-pro-inner{max-width:1140px;margin:0 auto}
+    .ld-pro-head{text-align:center;margin-bottom:44px}
+    .ld-pro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .ld-pro-card{background:var(--card);border:1px solid var(--borderf);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s, border-color 0.2s, box-shadow 0.2s;cursor:pointer}
+    .ld-pro-card:hover{transform:translateY(-4px);border-color:rgba(59,158,255,0.3);box-shadow:0 24px 56px rgba(0,0,0,0.5)}
+    .ld-pro-doc{aspect-ratio:8.5/11;background:#f6f5f0;color:#1a1a1a;font-family:'Georgia',serif;position:relative;overflow:hidden;border-bottom:1px solid var(--borderf)}
+    .ld-pro-doc-header{background:#07090f;color:#dde4ef;padding:11px 18px;display:flex;align-items:center;justify-content:space-between;font-family:'DM Sans',sans-serif}
+    .ld-pro-doc-logo{font-size:11px;font-weight:800;letter-spacing:0.3px}.ld-pro-doc-logo span{color:var(--blue)}
+    .ld-pro-doc-type{font-family:'Fira Code',monospace;font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1.2px;text-transform:uppercase}
+    .ld-pro-doc-body{padding:18px 22px;font-size:9.5px;line-height:1.5;color:#1a1a1a}
+    .ld-pro-doc-title{font-size:14px;font-weight:700;color:#0a0a0a;margin-bottom:4px;font-family:'DM Sans',sans-serif;letter-spacing:-0.3px}
+    .ld-pro-doc-sub{font-size:8.5px;color:#666;margin-bottom:12px;font-family:'DM Sans',sans-serif;letter-spacing:0.3px}
+    .ld-pro-doc-section{font-size:8px;font-weight:700;color:#0a0a0a;text-transform:uppercase;letter-spacing:1.2px;margin:14px 0 6px;font-family:'DM Sans',sans-serif;border-bottom:1px solid #c8c6bc;padding-bottom:3px}
+    .ld-pro-doc-row{display:flex;justify-content:space-between;padding:3px 0;font-family:'Fira Code',monospace;font-size:8.5px;color:#1a1a1a}
+    .ld-pro-doc-row span:last-child{font-weight:700}
+    .ld-pro-doc-para{font-size:8px;color:#333;line-height:1.6;margin-top:4px;font-family:'Georgia',serif}
+    .ld-pro-doc-footer{position:absolute;bottom:0;left:0;right:0;padding:7px 22px;background:#eeebe0;font-size:7px;color:#888;display:flex;justify-content:space-between;font-family:'DM Sans',sans-serif;letter-spacing:0.3px}
+    .ld-pro-doc-watermark{position:absolute;right:14px;top:54px;font-size:7.5px;font-weight:700;color:rgba(59,158,255,0.55);font-family:'Fira Code',monospace;letter-spacing:1px;transform:rotate(-7deg);border:1px solid rgba(59,158,255,0.45);padding:3px 7px;border-radius:2px;background:rgba(255,255,255,0.5)}
+    .ld-pro-doc-bar{height:6px;background:#3b9eff;margin:6px 0 8px;border-radius:2px;width:60%}
+    .ld-pro-meta{padding:18px}
+    .ld-pro-meta-tag{font-family:'Fira Code',monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:6px}
+    .ld-pro-meta-title{font-family:'DM Sans',sans-serif;font-size:16px;font-weight:800;color:var(--text);letter-spacing:-0.3px;margin-bottom:6px}
+    .ld-pro-meta-desc{font-size:12.5px;color:var(--sub);line-height:1.6}
+    .ld-pro-meta-cta{font-family:'Fira Code',monospace;font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.8px;text-transform:uppercase;margin-top:12px;display:flex;align-items:center;gap:6px}
+
     /* ── CTA SECTION ── */
     .ld-cta{text-align:center;padding:90px 24px;border-top:1px solid var(--borderf);position:relative;overflow:hidden}
     .ld-cta::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(59,158,255,0.07) 0%,transparent 60%);pointer-events:none}
@@ -432,6 +491,9 @@ export default function Landing() {
       .ld-feat-grid{grid-template-columns:1fr}
       .ld-nav{padding:0 16px}
       footer{padding:20px 16px}
+      .ld-anatomy-step{grid-template-columns:1fr;gap:14px}
+      .ld-pro-grid{grid-template-columns:1fr;gap:16px}
+      .ld-an-metric-grid{grid-template-columns:repeat(2,1fr)}
     }
     @media(max-width:600px){
       .ld-h1{letter-spacing:-1.5px}
@@ -751,6 +813,324 @@ export default function Landing() {
           ))}
         </div>
       </div>
+
+      {/* ── ANATOMY OF A DEAL — one real address, end-to-end ── */}
+      <section className="ld-anatomy fade">
+        <div className="ld-anatomy-inner">
+          <div className="ld-anatomy-head">
+            <div className="ld-section-tag">Anatomy of a deal</div>
+            <h2 className="ld-section-title">See exactly what comes out.<br /><span>One real deal. End to end.</span></h2>
+            <p className="ld-section-sub">A live Calgary triplex opportunity, run through the platform. Same flow on any of your deals.</p>
+            <div className="ld-anatomy-deal-bar">
+              <span style={{color:"var(--green)"}}>●</span>
+              <span>2424 WESTMOUNT RD NW · CALGARY, AB · R-CG · $720K LIST</span>
+            </div>
+          </div>
+
+          <div className="ld-anatomy-steps">
+
+            {/* STEP 1 — Search */}
+            <div className="ld-anatomy-step">
+              <div className="ld-anatomy-left">
+                <div className="ld-anatomy-num">▸ STEP 01</div>
+                <div className="ld-anatomy-title">Drop the address in.</div>
+                <div className="ld-anatomy-desc">Type any US or Canadian address. We geocode it, hit live city open-data APIs, pull CMHC rental survey + active permits — automatically.</div>
+              </div>
+              <div className="ld-anatomy-right">
+                <div className="ld-an-bar">
+                  <span className="ld-an-bar-dot"/>
+                  <span>SEARCH · LIVE FETCH</span>
+                  <span className="ld-an-bar-tag">▸ 6S</span>
+                </div>
+                <div className="ld-an-body">
+                  <div style={{fontFamily:"'Fira Code',monospace",fontSize:14,color:"var(--text)"}}>
+                    <span style={{color:"var(--green)",marginRight:8}}>▸</span>
+                    analyze <span style={{color:"var(--amber)"}}>"2424 Westmount Rd NW, Calgary, AB"</span>
+                  </div>
+                  <div style={{marginTop:14,display:"flex",flexDirection:"column",gap:7,fontFamily:"'Fira Code',monospace",fontSize:12.5}}>
+                    <div style={{color:"var(--sub)"}}><span style={{color:"var(--green)",marginRight:8}}>✓</span><span style={{color:"var(--text)"}}>geocoded</span> <span style={{color:"var(--dim)"}}>· 51.0594°N 114.1014°W</span></div>
+                    <div style={{color:"var(--sub)"}}><span style={{color:"var(--green)",marginRight:8}}>✓</span><span style={{color:"var(--text)"}}>City of Calgary Open Data</span> <span style={{color:"var(--dim)"}}>· zoning, assessment, permits</span></div>
+                    <div style={{color:"var(--sub)"}}><span style={{color:"var(--green)",marginRight:8}}>✓</span><span style={{color:"var(--text)"}}>CMHC rental survey</span> <span style={{color:"var(--dim)"}}>· West Hillhurst CMA</span></div>
+                    <div style={{color:"var(--sub)"}}><span style={{color:"var(--green)",marginRight:8}}>✓</span><span style={{color:"var(--text)"}}>active dev permits</span> <span style={{color:"var(--dim)"}}>· 20 in 1km / 24mo</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* STEP 2 — Zoning + city data */}
+            <div className="ld-anatomy-step">
+              <div className="ld-anatomy-left">
+                <div className="ld-anatomy-num">▸ STEP 02</div>
+                <div className="ld-anatomy-title">Live zoning + permits.</div>
+                <div className="ld-anatomy-desc">R-CG = Residential Contextual Grade. The platform pulls the exact bylaw, what's allowed by-right, the assessed value, and every nearby permit pulled in the last two years.</div>
+              </div>
+              <div className="ld-anatomy-right">
+                <div className="ld-an-bar">
+                  <span className="ld-an-bar-dot"/>
+                  <span>ZONING · CALGARY OPEN DATA</span>
+                  <span className="ld-an-bar-tag">▸ R-CG</span>
+                </div>
+                <div className="ld-an-body">
+                  <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:18,fontWeight:700,color:"var(--text)",letterSpacing:"-0.3px"}}>
+                    R-CG <span style={{fontWeight:500,color:"var(--sub)",fontSize:14}}>— Residential Contextual Grade</span>
+                  </div>
+                  <div style={{fontFamily:"'Fira Code',monospace",fontSize:11,color:"var(--dim)",letterSpacing:"0.6px",marginTop:2,textTransform:"uppercase"}}>▸ BYLAW 1P2007 · WEST HILLHURST</div>
+                  <div className="ld-an-metric-grid">
+                    {[
+                      {lbl:"MAX UNITS", val:"4", c:"var(--text)"},
+                      {lbl:"MAX STOREYS", val:"3", c:"var(--text)"},
+                      {lbl:"MAX FAR", val:"1.0", c:"var(--text)"},
+                      {lbl:"ASSESSED", val:"$607K", c:"var(--text)"},
+                    ].map(m => (
+                      <div key={m.lbl} className="ld-an-metric">
+                        <div className="ld-an-metric-lbl">{m.lbl}</div>
+                        <div className="ld-an-metric-val" style={{color:m.c}}>{m.val}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{marginTop:14,padding:"10px 14px",background:"rgba(52,217,138,0.05)",borderLeft:"3px solid var(--green)",borderRadius:4,fontFamily:"'Fira Code',monospace",fontSize:11.5,color:"var(--text)"}}>
+                    <span style={{color:"var(--green)",fontWeight:700,letterSpacing:1,marginRight:8}}>▸ HOT POCKET</span>
+                    20 dev permits within 1km in last 24mo · 11 new builds, 9 reno
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* STEP 3 — Underwriting */}
+            <div className="ld-anatomy-step">
+              <div className="ld-anatomy-left">
+                <div className="ld-anatomy-num">▸ STEP 03</div>
+                <div className="ld-anatomy-title">Real IRR. Real DSCR.</div>
+                <div className="ld-anatomy-desc">Not CoC or cap-and-pray. Newton-Raphson IRR on year-by-year cash flows, DSCR after debt service, equity multiple at exit. The same math your lender will check.</div>
+              </div>
+              <div className="ld-anatomy-right">
+                <div className="ld-an-bar">
+                  <span className="ld-an-bar-dot"/>
+                  <span>UNDERWRITING · 5YR HOLD</span>
+                  <span className="ld-an-bar-tag">▸ ALL GREEN</span>
+                </div>
+                <div className="ld-an-body">
+                  <div className="ld-an-metric-grid">
+                    {[
+                      {lbl:"IRR (TRUE)", val:"22.4%", c:"var(--green)"},
+                      {lbl:"DSCR", val:"1.42x", c:"var(--green)"},
+                      {lbl:"EQUITY MULT", val:"2.1x", c:"var(--green)"},
+                      {lbl:"NET PROCEEDS", val:"$245K", c:"var(--green)"},
+                    ].map(m => (
+                      <div key={m.lbl} className="ld-an-metric" style={{background:"rgba(52,217,138,0.06)",borderColor:"rgba(52,217,138,0.25)"}}>
+                        <div className="ld-an-metric-lbl">{m.lbl}</div>
+                        <div className="ld-an-metric-val" style={{color:m.c}}>{m.val}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="ld-an-table">
+                    <div className="ld-an-table-head">
+                      <div>LINE</div><div style={{textAlign:"right"}}>Y1</div><div style={{textAlign:"right"}}>Y2</div><div style={{textAlign:"right"}}>Y3</div><div style={{textAlign:"right"}}>Y4</div><div style={{textAlign:"right"}}>Y5</div>
+                    </div>
+                    {[
+                      {lbl:"NOI", row:["$28.5K","$29.4K","$30.3K","$31.2K","$32.1K"]},
+                      {lbl:"Debt service", row:["($20.1K)","($20.1K)","($20.1K)","($20.1K)","($20.1K)"]},
+                      {lbl:"BTCF ▶", row:["$8.4K","$9.3K","$10.2K","$11.1K","$12.0K"], bold:true},
+                    ].map(r => (
+                      <div key={r.lbl} className={`ld-an-table-row ${r.bold?"bold":""}`}>
+                        <div style={{color:r.bold?"var(--green)":"var(--sub)",fontWeight:r.bold?700:500}}>{r.lbl}</div>
+                        {r.row.map((v,i) => <div key={i} style={{textAlign:"right",color:r.bold?"var(--green)":"var(--text)"}}>{v}</div>)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* STEP 4 — AI Thesis */}
+            <div className="ld-anatomy-step">
+              <div className="ld-anatomy-left">
+                <div className="ld-anatomy-num">▸ STEP 04</div>
+                <div className="ld-anatomy-title">AI thesis. 900-word memo.</div>
+                <div className="ld-anatomy-desc">Sonnet 4.6 writes the deal up like an associate would for IC. Risks, opportunities, and the case for why this deal pencils. Not just a number — a narrative.</div>
+              </div>
+              <div className="ld-anatomy-right">
+                <div className="ld-an-bar">
+                  <span className="ld-an-bar-dot"/>
+                  <span>AI THESIS · CLAUDE SONNET 4.6</span>
+                  <span className="ld-an-bar-tag">▸ 12S</span>
+                </div>
+                <div className="ld-an-body">
+                  <div className="ld-an-thesis">
+                    <div className="ld-an-thesis-bar">
+                      <div style={{fontSize:22}}>🤖</div>
+                      <div style={{fontFamily:"'Fira Code',monospace",fontSize:10.5,fontWeight:700,color:"var(--green)",letterSpacing:1.2}}>INSTITUTIONAL MEMO · EXCERPT</div>
+                    </div>
+                    <div className="ld-an-thesis-text">
+                      "R-CG zoning permits up to 4 units on a $607K assessed parcel, putting the by-right unit count materially above current use. West Hillhurst pulled 20 development permits in the last 24 months — 11 new builds, 9 renovations — signaling an active redevelopment pocket with comp velocity. At 22.4% IRR and 1.42x DSCR on 5-year stabilized rents derived from CMHC West Hillhurst median ($1,890/2BR), this pencils as a multifamily infill play. <strong style={{color:"var(--green)"}}>Recommendation: pursue with a 6-week diligence window</strong>; primary risks are construction cost overruns and rent absorption above $2,100..."
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* STEP 5 — Output */}
+            <div className="ld-anatomy-step">
+              <div className="ld-anatomy-left">
+                <div className="ld-anatomy-num">▸ STEP 05</div>
+                <div className="ld-anatomy-title">Save it. Export it. Send it.</div>
+                <div className="ld-anatomy-desc">One click for the investor PDF. One click for the lender package. One click to save it to your pipeline. Built for showing partners, lenders, and ICs — not just yourself.</div>
+              </div>
+              <div className="ld-anatomy-right">
+                <div className="ld-an-bar">
+                  <span className="ld-an-bar-dot"/>
+                  <span>OUTPUT · INVESTOR-READY</span>
+                  <span className="ld-an-bar-tag">▸ 1 CLICK</span>
+                </div>
+                <div className="ld-an-body">
+                  <div className="ld-an-output-row">
+                    <div className="ld-an-output-chip"><span className="ld-an-output-icon">📄</span><span>Deal PDF · branded</span></div>
+                    <div className="ld-an-output-chip"><span className="ld-an-output-icon">🏦</span><span>Lender Package</span></div>
+                    <div className="ld-an-output-chip"><span className="ld-an-output-icon">💾</span><span>Save to pipeline</span></div>
+                  </div>
+                  <div style={{marginTop:14,padding:"12px 14px",background:"rgba(59,158,255,0.05)",border:"1px solid rgba(59,158,255,0.2)",borderRadius:4,fontFamily:"'DM Sans',sans-serif",fontSize:12.5,color:"var(--sub)",lineHeight:1.6}}>
+                    Total time, address → polished PDF: <strong style={{color:"var(--blue)"}}>under 60 seconds</strong>. Same workflow you'd run in 4 hours of Excel.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRO OUTPUTS SHOWCASE — what your investors / lenders / IC see ── */}
+      <section className="ld-pro fade">
+        <div className="ld-pro-inner">
+          <div className="ld-pro-head">
+            <div className="ld-section-tag">Pro outputs</div>
+            <h2 className="ld-section-title">What you hand to your lender.<br /><span>Not what BiggerPockets gives you.</span></h2>
+            <p className="ld-section-sub">Three institutional documents, generated from every deal. Branded with your name. Ready for IC.</p>
+          </div>
+
+          <div className="ld-pro-grid">
+
+            {/* IC Memo */}
+            <div className="ld-pro-card" onClick={scrollToAuth}>
+              <div className="ld-pro-doc">
+                <div className="ld-pro-doc-header">
+                  <div className="ld-pro-doc-logo"><span>Real</span> Deal</div>
+                  <div className="ld-pro-doc-type">IC MEMO</div>
+                </div>
+                <div className="ld-pro-doc-body">
+                  <div className="ld-pro-doc-title">Investment Committee Memorandum</div>
+                  <div className="ld-pro-doc-sub">2424 Westmount Rd NW · Calgary, AB · R-CG</div>
+                  <div className="ld-pro-doc-bar" />
+                  <div className="ld-pro-doc-watermark">▸ GO · IRR 22.4%</div>
+
+                  <div className="ld-pro-doc-section">Executive Summary</div>
+                  <div className="ld-pro-doc-para">Acquisition of a 4-unit by-right infill site in an active West Hillhurst redevelopment pocket. Stabilized IRR of 22.4%, DSCR 1.42x, equity multiple 2.1x over 5-year hold...</div>
+
+                  <div className="ld-pro-doc-section">Return Metrics</div>
+                  <div className="ld-pro-doc-row"><span>Levered IRR</span><span>22.4%</span></div>
+                  <div className="ld-pro-doc-row"><span>Year-1 DSCR</span><span>1.42x</span></div>
+                  <div className="ld-pro-doc-row"><span>Equity Multiple</span><span>2.1x</span></div>
+                  <div className="ld-pro-doc-row"><span>Net Proceeds (Yr5)</span><span>$245K</span></div>
+
+                  <div className="ld-pro-doc-section">Recommendation</div>
+                  <div className="ld-pro-doc-para"><em>Pursue with 6-week diligence window. Primary risks: construction cost overruns, rent absorption &gt; $2,100/2BR...</em></div>
+                </div>
+                <div className="ld-pro-doc-footer">
+                  <span>REAL DEAL · GENERATED 2026-06-07</span>
+                  <span>p. 1 / 9</span>
+                </div>
+              </div>
+              <div className="ld-pro-meta">
+                <div className="ld-pro-meta-tag">▸ INSTITUTIONAL</div>
+                <div className="ld-pro-meta-title">IC Memo · 9 pages</div>
+                <div className="ld-pro-meta-desc">Executive summary, return waterfall, risk matrix, comp set, exit scenarios. Ready to walk into an investment committee.</div>
+                <div className="ld-pro-meta-cta">▶ INCLUDED IN PRO</div>
+              </div>
+            </div>
+
+            {/* Lender Package */}
+            <div className="ld-pro-card" onClick={scrollToAuth}>
+              <div className="ld-pro-doc">
+                <div className="ld-pro-doc-header">
+                  <div className="ld-pro-doc-logo"><span>Real</span> Deal</div>
+                  <div className="ld-pro-doc-type">LENDER PKG</div>
+                </div>
+                <div className="ld-pro-doc-body">
+                  <div className="ld-pro-doc-title">Loan Request Package</div>
+                  <div className="ld-pro-doc-sub">Submitted to: CHMIC · Calgary, AB</div>
+                  <div className="ld-pro-doc-bar" style={{background:"#34d98a"}}/>
+                  <div className="ld-pro-doc-watermark" style={{color:"rgba(52,217,138,0.65)",borderColor:"rgba(52,217,138,0.5)"}}>▸ DSCR 1.42x</div>
+
+                  <div className="ld-pro-doc-section">Loan Terms</div>
+                  <div className="ld-pro-doc-row"><span>Loan Amount</span><span>$540,000</span></div>
+                  <div className="ld-pro-doc-row"><span>LTV</span><span>75%</span></div>
+                  <div className="ld-pro-doc-row"><span>Rate / Amort</span><span>6.49% / 30Y</span></div>
+                  <div className="ld-pro-doc-row"><span>Monthly P&amp;I</span><span>$3,408</span></div>
+
+                  <div className="ld-pro-doc-section">DSCR Stress</div>
+                  <div className="ld-pro-doc-row"><span>Base case</span><span>1.42x</span></div>
+                  <div className="ld-pro-doc-row"><span>−5% rent</span><span>1.31x</span></div>
+                  <div className="ld-pro-doc-row"><span>−10% rent</span><span>1.20x</span></div>
+
+                  <div className="ld-pro-doc-section">Borrower</div>
+                  <div className="ld-pro-doc-para"><em>5 deals closed · personal NW &amp; pipeline attached as Appendix A / B...</em></div>
+                </div>
+                <div className="ld-pro-doc-footer">
+                  <span>REAL DEAL · GENERATED 2026-06-07</span>
+                  <span>p. 1 / 6</span>
+                </div>
+              </div>
+              <div className="ld-pro-meta">
+                <div className="ld-pro-meta-tag">▸ FUND-READY</div>
+                <div className="ld-pro-meta-title">Lender Package · 6 pages</div>
+                <div className="ld-pro-meta-desc">Loan request, DSCR stress test, borrower profile, NOI projections, exit. The doc your lender actually wants.</div>
+                <div className="ld-pro-meta-cta">▶ INCLUDED IN PRO</div>
+              </div>
+            </div>
+
+            {/* Deal Report */}
+            <div className="ld-pro-card" onClick={scrollToAuth}>
+              <div className="ld-pro-doc">
+                <div className="ld-pro-doc-header">
+                  <div className="ld-pro-doc-logo"><span>Real</span> Deal</div>
+                  <div className="ld-pro-doc-type">DEAL REPORT</div>
+                </div>
+                <div className="ld-pro-doc-body">
+                  <div className="ld-pro-doc-title">Underwriting Report</div>
+                  <div className="ld-pro-doc-sub">BRRRR · 2424 Westmount Rd NW</div>
+                  <div className="ld-pro-doc-bar" style={{background:"#a782ff"}}/>
+                  <div className="ld-pro-doc-watermark" style={{color:"rgba(167,130,255,0.65)",borderColor:"rgba(167,130,255,0.5)"}}>▸ CASH RECYCLE 92%</div>
+
+                  <div className="ld-pro-doc-section">BRRRR Cycle</div>
+                  <div className="ld-pro-doc-row"><span>All-in basis</span><span>$782K</span></div>
+                  <div className="ld-pro-doc-row"><span>ARV (stabilized)</span><span>$1.04M</span></div>
+                  <div className="ld-pro-doc-row"><span>Cash recycled</span><span>$185K</span></div>
+                  <div className="ld-pro-doc-row"><span>Cash left in</span><span>$15K</span></div>
+
+                  <div className="ld-pro-doc-section">5-Yr CoC</div>
+                  <div className="ld-pro-doc-row"><span>Yr 1</span><span>+18.3%</span></div>
+                  <div className="ld-pro-doc-row"><span>Yr 3</span><span>+24.1%</span></div>
+                  <div className="ld-pro-doc-row"><span>Yr 5</span><span>+31.6%</span></div>
+
+                  <div className="ld-pro-doc-section">Sensitivity</div>
+                  <div className="ld-pro-doc-para"><em>6×6 grid of IRR across rent growth × exit cap. Base case bordered in green...</em></div>
+                </div>
+                <div className="ld-pro-doc-footer">
+                  <span>REAL DEAL · GENERATED 2026-06-07</span>
+                  <span>p. 1 / 4</span>
+                </div>
+              </div>
+              <div className="ld-pro-meta">
+                <div className="ld-pro-meta-tag">▸ FOR YOU + PARTNERS</div>
+                <div className="ld-pro-meta-title">Deal Report · 4 pages</div>
+                <div className="ld-pro-meta-desc">Full BRRRR / multifamily underwriting with sensitivity grid. The reference doc for every deal you analyze.</div>
+                <div className="ld-pro-meta-cta">▶ FREE FOR EVERY DEAL</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
 
       {/* ── APP PREVIEW ── */}
       <div className="ld-section fade" style={{ paddingTop: 0 }}>
