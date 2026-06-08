@@ -3,6 +3,7 @@ import { useAuth } from "./AuthContext";
 import { generateFlipPDF } from "./generatePDF";
 import DealCoach from "./components/DealCoach";
 import PropertyIntelCard from "./components/PropertyIntelCard";
+import CrossLinkCTA from "./components/CrossLinkCTA";
 
 const num = v => parseFloat(v) || 0;
 const fmt = n => new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(n || 0);
@@ -590,6 +591,18 @@ export default function DealAnalyzer() {
                 <div style={{fontSize:12,color:"var(--sub)",marginBottom:12}}>Get exact loan costs, holding costs, realtor fees, MAO, and tiered commission.</div>
                 <a href="/app" style={{display:"inline-block",background:"rgba(59,158,255,0.1)",border:"1px solid rgba(59,158,255,0.2)",borderRadius:8,padding:"9px 20px",color:"var(--blue)",fontSize:13,fontWeight:700,textDecoration:"none"}}>Open Full Analyzer →</a>
               </div>
+
+              <CrossLinkCTA
+                strategy="flip"
+                deal={{
+                  addr:     form.address,
+                  purchase: parseFloat(form.purchasePrice) || null,
+                  repair:   parseFloat(form.repairCost)    || null,
+                  sqft:     parseFloat(form.sqft)          || null,
+                  beds:     parseFloat(form.beds)          || null,
+                  baths:    parseFloat(form.baths)         || null,
+                }}
+              />
             </>
           )}
         </div>

@@ -6,6 +6,7 @@ import { useDocMeta } from "./lib/seo";
 import { celebrateFirstSave } from "./lib/celebrate";
 import DealCoach from "./components/DealCoach";
 import PropertyIntelCard from "./components/PropertyIntelCard";
+import CrossLinkCTA from "./components/CrossLinkCTA";
 
 // Lazy-load the charts card so recharts (~200KB gzipped) doesn't ship in the
 // main bundle. Users only download it when they actually have a deal to view.
@@ -1152,6 +1153,15 @@ export default function BRRRRCalculator() {
                 )}
               </div>
             </div>
+
+            <CrossLinkCTA
+              strategy="brrrr"
+              deal={{
+                addr:     form.address,
+                purchase: parseFloat(form.purchasePrice) || null,
+                repair:   parseFloat(form.rehab) || null,
+              }}
+            />
 
           </>)}
         </div>

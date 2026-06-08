@@ -6,6 +6,7 @@ import { useDocMeta } from "./lib/seo";
 import { celebrateFirstSave } from "./lib/celebrate";
 import DealCoach from "./components/DealCoach";
 import PropertyIntelCard from "./components/PropertyIntelCard";
+import CrossLinkCTA from "./components/CrossLinkCTA";
 
 // Lazy-load charts (recharts is the heavy dep)
 const CommercialCharts = lazy(() => import("./components/CommercialCharts"));
@@ -225,10 +226,22 @@ export default function CommercialAnalyzer() {
     check();
   }, [user]);
 
-  // ── Pre-fill from PropertyHub ─────────────────────────────────────────────
-  const [propertyAddress, setPropertyAddress] = useState("");
+  // ── Pre-fill from URL params (cross-link from other analyzers) or PropertyHub ──
+  const [propertyAddress, setPropertyAddress] = useState(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      return sp.get("addr") || "";
+    } catch { return ""; }
+  });
 
   useEffect(() => {
+    // 1. URL params first (cross-link from Flip / BRRRR / Chrome extension)
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      const p = parseFloat(sp.get("purchase"));
+      if (!isNaN(p) && p > 0) setPurchasePrice(Math.round(p));
+    } catch {}
+    // 2. localStorage handoff from PropertyHub
     try {
       const raw = localStorage.getItem("rde_prefill");
       if (!raw) return;
@@ -1096,6 +1109,16 @@ export default function CommercialAnalyzer() {
             <span style={{fontSize:18}}>💾</span> Save This Deal · Compare with others →
           </button>
         )}
+      </div>
+
+      <div style={{padding:"0 20px 28px"}}>
+        <CrossLinkCTA
+          strategy="commercial"
+          deal={{
+            addr:     propertyAddress,
+            purchase: purchasePrice,
+          }}
+        />
       </div>
 
       </div>
