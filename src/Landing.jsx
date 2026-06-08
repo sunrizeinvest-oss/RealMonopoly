@@ -43,6 +43,7 @@ export default function Landing() {
   const [authLoading, setAuthLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [mode, setMode] = useState("signup");
+  const [installOpen, setInstallOpen] = useState(false);
 
   // Live demo state
   const [dArv, setDArv] = useState("385000");
@@ -458,6 +459,68 @@ export default function Landing() {
     .ld-pro-meta-desc{font-size:12.5px;color:var(--sub);line-height:1.6}
     .ld-pro-meta-cta{font-family:'Fira Code',monospace;font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.8px;text-transform:uppercase;margin-top:12px;display:flex;align-items:center;gap:6px}
 
+    /* ── CHROME EXTENSION SHOWCASE ── */
+    .ld-chrome{padding:60px 24px 80px;border-top:1px solid var(--borderf);background:linear-gradient(180deg,transparent,rgba(167,130,255,0.02),transparent);position:relative;overflow:hidden}
+    .ld-chrome-inner{max-width:1140px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+    .ld-chrome-head .ld-section-tag{text-align:left;margin-bottom:10px}
+    .ld-chrome-head h2{font-size:clamp(28px,3.5vw,40px);font-weight:800;color:var(--text);letter-spacing:-1.4px;line-height:1.1;margin-bottom:14px}
+    .ld-chrome-head h2 span{color:var(--purple)}
+    .ld-chrome-head p{font-size:15px;color:var(--sub);line-height:1.7;margin-bottom:22px;max-width:480px}
+    .ld-chrome-chips{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+    .ld-chrome-chip{display:flex;align-items:center;gap:10px;font-family:'Fira Code',ui-monospace,monospace;font-size:12px;color:var(--text);letter-spacing:0.3px}
+    .ld-chrome-chip .glyph{color:var(--green);width:16px;display:inline-block;text-align:center}
+    .ld-chrome-cta{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;background:var(--purple);color:#07090f;border:none;border-radius:6px;font-family:'Fira Code',ui-monospace,monospace;font-size:12.5px;font-weight:700;letter-spacing:1.2px;cursor:pointer;text-decoration:none;transition:transform 0.18s,box-shadow 0.18s}
+    .ld-chrome-cta:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(167,130,255,0.45)}
+    .ld-chrome-secondary{display:inline-flex;align-items:center;gap:8px;margin-left:10px;padding:13px 18px;background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:6px;font-family:'Fira Code',ui-monospace,monospace;font-size:12.5px;font-weight:700;letter-spacing:1.2px;cursor:pointer;text-decoration:none;transition:border-color 0.15s,color 0.15s}
+    .ld-chrome-secondary:hover{border-color:var(--purple);color:var(--text)}
+
+    /* Browser frame mock with popup overlay */
+    .ld-chrome-stage{position:relative}
+    .ld-browser{background:#1e1f23;border-radius:10px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.55);border:1px solid rgba(255,255,255,0.05)}
+    .ld-browser-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:#2a2b30;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .ld-browser-dots{display:flex;gap:6px}
+    .ld-browser-dots span{width:11px;height:11px;border-radius:50%}
+    .ld-browser-url{flex:1;background:#1a1b1f;border-radius:5px;padding:6px 12px;font-family:'Fira Code',ui-monospace,monospace;font-size:11px;color:#a0a8b8;display:flex;align-items:center;gap:8px;letter-spacing:0.2px}
+    .ld-browser-url .lock{color:#5db075}
+    .ld-browser-tools{display:flex;gap:6px}
+    .ld-browser-tools .tool{width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:4px;background:#1a1b1f;color:#7a8294;font-size:11px;cursor:default}
+    .ld-browser-tools .tool.active{background:rgba(167,130,255,0.18);color:var(--purple);box-shadow:0 0 0 1px rgba(167,130,255,0.3)}
+    .ld-browser-body{aspect-ratio:16/11;background:linear-gradient(135deg,#eaeaea,#cfd3da);position:relative;overflow:hidden}
+    .ld-browser-listing{position:absolute;inset:0;display:flex;flex-direction:column}
+    .ld-browser-listing-hero{flex:1.6;background:linear-gradient(135deg,#8395a8 0%,#5d6e82 50%,#3d4a5e 100%);display:flex;align-items:flex-end;padding:14px 16px;color:#fff;font-family:'Georgia',serif;font-style:italic;font-size:13px;letter-spacing:0.3px;opacity:0.85;position:relative}
+    .ld-browser-listing-hero::after{content:"📷";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:42px;opacity:0.5}
+    .ld-browser-listing-meta{flex:1;background:#f6f7f9;padding:14px 18px;color:#1a1a1a;display:flex;flex-direction:column;gap:6px}
+    .ld-browser-listing-price{font-family:'DM Sans',sans-serif;font-size:22px;font-weight:800;color:#0a0a0a;letter-spacing:-0.6px}
+    .ld-browser-listing-addr{font-family:'DM Sans',sans-serif;font-size:13px;color:#4a4a4a;font-weight:500}
+    .ld-browser-listing-stats{display:flex;gap:14px;margin-top:4px;font-family:'DM Sans',sans-serif;font-size:12px;color:#666;font-weight:600}
+    .ld-browser-listing-stats span strong{color:#1a1a1a}
+
+    /* The Real Deal popup, floating top-right inside the browser frame */
+    .ld-rd-popup{position:absolute;top:50px;right:14px;width:228px;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 24px 56px rgba(0,0,0,0.55),0 0 0 1px rgba(167,130,255,0.12) inset;font-family:'DM Sans',sans-serif;color:var(--text);animation:popup-bob 4s ease-in-out infinite}
+    @keyframes popup-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+    .ld-rd-popup-bar{display:flex;align-items:center;gap:6px;padding:8px 11px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf)}
+    .ld-rd-popup-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2s infinite}
+    .ld-rd-popup-title{font-family:'Fira Code',ui-monospace,monospace;font-size:9px;font-weight:700;color:var(--blue);letter-spacing:1px}
+    .ld-rd-popup-tag{margin-left:auto;font-family:'Fira Code',ui-monospace,monospace;font-size:8px;font-weight:700;color:var(--green);letter-spacing:0.8px}
+    .ld-rd-popup-body{padding:11px}
+    .ld-rd-popup-eyebrow{font-family:'Fira Code',ui-monospace,monospace;font-size:8px;font-weight:700;color:var(--dim);letter-spacing:1.1px;margin-bottom:4px}
+    .ld-rd-popup-addr{font-size:11.5px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:9px}
+    .ld-rd-popup-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:9px}
+    .ld-rd-popup-cell{background:rgba(255,255,255,0.025);border:1px solid var(--borderf);border-radius:3px;padding:6px 8px}
+    .ld-rd-popup-cell.full{grid-column:1/-1}
+    .ld-rd-popup-cell .lbl{font-family:'Fira Code',ui-monospace,monospace;font-size:7px;font-weight:700;color:var(--dim);letter-spacing:0.8px;text-transform:uppercase}
+    .ld-rd-popup-cell .val{font-family:'Fira Code',ui-monospace,monospace;font-size:13px;font-weight:700;color:var(--text);margin-top:2px;letter-spacing:-0.3px}
+    .ld-rd-popup-cell .val.green{color:var(--green)}
+    .ld-rd-popup-cta{display:block;width:100%;text-align:center;padding:8px;background:var(--green);color:#07090f;border:none;border-radius:4px;font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;letter-spacing:1px}
+
+    /* Install instructions panel (toggles on CTA click) */
+    .ld-chrome-install{margin-top:18px;background:var(--card);border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:6px;padding:18px 20px;display:none}
+    .ld-chrome-install.open{display:block}
+    .ld-chrome-install-h{font-family:'Fira Code',ui-monospace,monospace;font-size:11px;font-weight:700;color:var(--purple);letter-spacing:1.4px;margin-bottom:12px}
+    .ld-chrome-install-step{display:flex;gap:12px;margin-bottom:10px;font-size:13px;color:var(--text);line-height:1.55}
+    .ld-chrome-install-step .n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:rgba(167,130,255,0.15);border:1px solid rgba(167,130,255,0.4);color:var(--purple);font-family:'Fira Code',ui-monospace,monospace;font-size:11px;font-weight:700;flex-shrink:0}
+    .ld-chrome-install-code{display:inline-block;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:3px;padding:2px 8px;font-family:'Fira Code',ui-monospace,monospace;font-size:12px;color:var(--blue)}
+
     /* ── CTA SECTION ── */
     .ld-cta{text-align:center;padding:90px 24px;border-top:1px solid var(--borderf);position:relative;overflow:hidden}
     .ld-cta::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(59,158,255,0.07) 0%,transparent 60%);pointer-events:none}
@@ -494,6 +557,8 @@ export default function Landing() {
       .ld-anatomy-step{grid-template-columns:1fr;gap:14px}
       .ld-pro-grid{grid-template-columns:1fr;gap:16px}
       .ld-an-metric-grid{grid-template-columns:repeat(2,1fr)}
+      .ld-chrome-inner{grid-template-columns:1fr;gap:32px}
+      .ld-rd-popup{width:200px;top:42px;right:8px}
     }
     @media(max-width:600px){
       .ld-h1{letter-spacing:-1.5px}
@@ -1128,6 +1193,104 @@ export default function Landing() {
               </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* ── CHROME EXTENSION SHOWCASE ── */}
+      <section className="ld-chrome fade">
+        <div className="ld-chrome-inner">
+          <div className="ld-chrome-head">
+            <div className="ld-section-tag">Browser extension</div>
+            <h2>Underwrite without<br /><span>leaving the listing.</span></h2>
+            <p>One click on any Realtor.ca, Zillow, or Redfin listing — Real Deal scrapes the price, beds, baths, sqft straight off the page and opens the full analyzer pre-populated. No retyping.</p>
+
+            <div className="ld-chrome-chips">
+              <div className="ld-chrome-chip"><span className="glyph">●</span><span><strong style={{color:"var(--text)"}}>Realtor.ca · Zillow · Redfin</strong> <span style={{color:"var(--dim)"}}>— covered out of the box</span></span></div>
+              <div className="ld-chrome-chip"><span className="glyph">●</span><span><strong style={{color:"var(--text)"}}>JSON-LD + DOM fallback scraping</strong> <span style={{color:"var(--dim)"}}>— survives site redesigns</span></span></div>
+              <div className="ld-chrome-chip"><span className="glyph">●</span><span><strong style={{color:"var(--text)"}}>Zero data collection</strong> <span style={{color:"var(--dim)"}}>— reads the page you're on, that's it</span></span></div>
+            </div>
+
+            <button className="ld-chrome-cta" onClick={() => setInstallOpen(v => !v)}>
+              ▶ {installOpen ? "HIDE INSTRUCTIONS" : "GET THE EXTENSION"}
+            </button>
+            <a className="ld-chrome-secondary" href="https://github.com/sunrizeinvest-oss/RealMonopoly/tree/master/chrome-extension" target="_blank" rel="noopener">▸ VIEW SOURCE</a>
+
+            <div className={`ld-chrome-install ${installOpen ? "open" : ""}`}>
+              <div className="ld-chrome-install-h">▸ INSTALL · 30 SECONDS</div>
+              <div className="ld-chrome-install-step">
+                <span className="n">1</span>
+                <span>Download the extension folder from <a href="https://github.com/sunrizeinvest-oss/RealMonopoly/tree/master/chrome-extension" target="_blank" rel="noopener" style={{color:"var(--blue)"}}>GitHub</a> (or clone the repo).</span>
+              </div>
+              <div className="ld-chrome-install-step">
+                <span className="n">2</span>
+                <span>Open <span className="ld-chrome-install-code">chrome://extensions/</span> and toggle <strong>Developer mode</strong> on (top-right).</span>
+              </div>
+              <div className="ld-chrome-install-step">
+                <span className="n">3</span>
+                <span>Click <strong>Load unpacked</strong> → select the <span className="ld-chrome-install-code">chrome-extension/</span> folder.</span>
+              </div>
+              <div className="ld-chrome-install-step">
+                <span className="n">4</span>
+                <span>Pin the green-dot icon. Visit a listing on Realtor.ca / Zillow / Redfin and click it.</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Browser frame mock with extension popup overlay */}
+          <div className="ld-chrome-stage">
+            <div className="ld-browser">
+              <div className="ld-browser-bar">
+                <div className="ld-browser-dots">
+                  <span style={{background:"#ff5f57"}} />
+                  <span style={{background:"#febc2e"}} />
+                  <span style={{background:"#28c840"}} />
+                </div>
+                <div className="ld-browser-url">
+                  <span className="lock">🔒</span>
+                  realtor.ca/real-estate/2424-westmount-rd-nw-calgary
+                </div>
+                <div className="ld-browser-tools">
+                  <span className="tool">⊞</span>
+                  <span className="tool active" title="Real Deal extension">●</span>
+                </div>
+              </div>
+              <div className="ld-browser-body">
+                <div className="ld-browser-listing">
+                  <div className="ld-browser-listing-hero">Listing photo · 2424 Westmount Rd NW</div>
+                  <div className="ld-browser-listing-meta">
+                    <div className="ld-browser-listing-price">$720,000</div>
+                    <div className="ld-browser-listing-addr">2424 Westmount Rd NW, Calgary, AB</div>
+                    <div className="ld-browser-listing-stats">
+                      <span><strong>4</strong> beds</span>
+                      <span><strong>2.5</strong> baths</span>
+                      <span><strong>1,850</strong> sqft</span>
+                      <span><strong>R-CG</strong></span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Real Deal extension popup overlay */}
+                <div className="ld-rd-popup">
+                  <div className="ld-rd-popup-bar">
+                    <span className="ld-rd-popup-dot" />
+                    <span className="ld-rd-popup-title">REAL DEAL</span>
+                    <span className="ld-rd-popup-tag">▸ REALTOR.CA</span>
+                  </div>
+                  <div className="ld-rd-popup-body">
+                    <div className="ld-rd-popup-eyebrow">▸ DETECTED LISTING</div>
+                    <div className="ld-rd-popup-addr">2424 Westmount Rd NW, Calgary, AB</div>
+                    <div className="ld-rd-popup-grid">
+                      <div className="ld-rd-popup-cell full"><div className="lbl">List price</div><div className="val green">$720,000</div></div>
+                      <div className="ld-rd-popup-cell"><div className="lbl">Beds</div><div className="val">4</div></div>
+                      <div className="ld-rd-popup-cell"><div className="lbl">Baths</div><div className="val">2.5</div></div>
+                      <div className="ld-rd-popup-cell full"><div className="lbl">Sq Ft</div><div className="val">1,850</div></div>
+                    </div>
+                    <div className="ld-rd-popup-cta">▶ UNDERWRITE AS FLIP</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
