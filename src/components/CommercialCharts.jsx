@@ -37,7 +37,7 @@ export default function CommercialCharts({ c, holdYears }) {
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)"/>
             <XAxis dataKey="yr" stroke="#6b7d96" tickFormatter={(v)=>`Y${v}`}/>
             <YAxis stroke="#6b7d96" tickFormatter={(v)=>v>=1000?`$${Math.round(v/1000)}k`:`$${v}`}/>
-            <Tooltip contentStyle={{background:"#0d1119",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8}}
+            <Tooltip contentStyle={{background:"#0d1119",border:"1px solid rgba(255,255,255,0.07)",borderRadius: 6}}
               labelFormatter={(v)=>`Year ${v}`} formatter={(v)=>fmt(v)}/>
             <Legend wrapperStyle={{fontSize:11,color:"#6b7d96"}}/>
             <Bar dataKey="noiYr"  name="NOI"  fill="#3b9eff" radius={[4,4,0,0]}/>
@@ -56,7 +56,7 @@ export default function CommercialCharts({ c, holdYears }) {
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)"/>
             <XAxis dataKey="yr" stroke="#6b7d96" tickFormatter={(v)=>`Y${v}`}/>
             <YAxis stroke="#6b7d96" tickFormatter={(v)=>v.toFixed(2)+"x"} domain={[0.8, "auto"]}/>
-            <Tooltip contentStyle={{background:"#0d1119",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8}}
+            <Tooltip contentStyle={{background:"#0d1119",border:"1px solid rgba(255,255,255,0.07)",borderRadius: 6}}
               labelFormatter={(v)=>`Year ${v}`} formatter={(v)=>fmtX(v)}/>
             <ReferenceLine y={1.25} stroke="#f0a030" strokeDasharray="4 4" label={{value:"Lender min 1.25x", fill:"#f0a030", fontSize:10, position:"insideTopLeft"}}/>
             <ReferenceLine y={1.0}  stroke="#f25c5c" strokeDasharray="4 4" label={{value:"Breakeven 1.0x",   fill:"#f25c5c", fontSize:10, position:"insideTopLeft"}}/>
@@ -81,7 +81,7 @@ export default function CommercialCharts({ c, holdYears }) {
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)"/>
             <XAxis dataKey="yr" stroke="#6b7d96" tickFormatter={(v)=>`Y${v}`}/>
             <YAxis stroke="#6b7d96" tickFormatter={(v)=>v>=1000||v<=-1000?`$${Math.round(v/1000)}k`:`$${v}`}/>
-            <Tooltip contentStyle={{background:"#0d1119",border:"1px solid rgba(255,255,255,0.07)",borderRadius:8}}
+            <Tooltip contentStyle={{background:"#0d1119",border:"1px solid rgba(255,255,255,0.07)",borderRadius: 6}}
               labelFormatter={(v)=>`Year ${v}`} formatter={(v)=>fmt(v)}/>
             <ReferenceLine y={0} stroke="#6b7d96" strokeDasharray="2 2"/>
             <Area type="monotone" dataKey="cum" name="Cumulative position" stroke="#34d98a" strokeWidth={2} fill="url(#eqGrad)"/>

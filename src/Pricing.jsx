@@ -26,7 +26,7 @@ const CSS = `
   .pr-price{font-size:48px;font-weight:800;color:var(--text);letter-spacing:-2px;line-height:1;margin-bottom:4px}
   .pr-price span{font-size:16px;font-weight:500;color:var(--sub);letter-spacing:0}
   .pr-price-note{font-size:12px;color:var(--dim);margin-bottom:24px}
-  .pr-btn{width:100%;border:none;border-radius:6px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.18s;margin-bottom:28px}
+  .pr-btn{width:100%;border:none;border-radius:6px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-bottom:28px}
   .pr-btn.free{background:rgba(255,255,255,0.06);color:var(--text);border:1px solid var(--borderf)}
   .pr-btn.free:hover{background:rgba(255,255,255,0.1)}
   .pr-btn.pro{background:var(--blue);color:#fff;box-shadow:0 4px 16px rgba(59,158,255,0.3)}
@@ -105,7 +105,7 @@ export default function Pricing() {
         </div>
 
         {/* Launch Offer Banner */}
-        <div style={{maxWidth:680,margin:"0 auto 32px",background:"linear-gradient(135deg,rgba(52,217,138,0.1),rgba(59,158,255,0.08))",border:"1px solid rgba(52,217,138,0.3)",borderRadius:20,padding:"32px 36px",textAlign:"center"}}>
+        <div style={{maxWidth:680,margin:"0 auto 32px",background:"linear-gradient(135deg,rgba(52,217,138,0.1),rgba(59,158,255,0.08))",border:"1px solid rgba(52,217,138,0.3)",borderRadius: 16,padding:"32px 36px",textAlign:"center"}}>
           <div style={{fontSize:48,marginBottom:12}}>🎉</div>
           <div style={{fontSize:24,fontWeight:800,color:"var(--text)",letterSpacing:"-0.5px",marginBottom:8}}>Free Access — Limited Time</div>
           <div style={{fontSize:15,color:"var(--sub)",lineHeight:1.65,marginBottom:24,maxWidth:460,margin:"0 auto 24px"}}>

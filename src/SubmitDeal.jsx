@@ -55,7 +55,7 @@ body { background: #07090f; color: var(--text); font-family: 'DM Sans', sans-ser
 .sd-nav-dot {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
+  border-radius: 6px;
   background: linear-gradient(135deg, var(--blue), var(--purple));
   display: flex;
   align-items: center;
@@ -246,7 +246,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
 .sd-score {
   background: #0a0e18;
   border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 16px 20px;
   margin-bottom: 16px;
   display: flex;
@@ -280,7 +280,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
 .sd-submit-btn {
   width: 100%;
   padding: 16px 24px;
-  border-radius: 14px;
+  border-radius: 16px;
   border: none;
   background: linear-gradient(135deg, var(--blue), var(--purple));
   color: #fff;
@@ -344,7 +344,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   padding: 13px 28px;
   background: rgba(59,158,255,0.12);
   border: 1px solid rgba(59,158,255,0.3);
-  border-radius: 12px;
+  border-radius: 10px;
   color: var(--blue);
   font-size: 14px;
   font-weight: 600;

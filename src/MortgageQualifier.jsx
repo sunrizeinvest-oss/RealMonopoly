@@ -18,7 +18,7 @@ const CSS = `
   .mq-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .mq-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.mq-logo span{color:var(--blue)}
   .mq-nav-links{display:flex;align-items:center;gap:4px}
-  .mq-nav-links a{color:var(--sub);text-decoration:none;font-size:13px;font-weight:500;padding:6px 12px;border-radius:8px;transition:all .15s}
+  .mq-nav-links a{color:var(--sub);text-decoration:none;font-size:13px;font-weight:500;padding:6px 12px;border-radius: 6px;transition:all .15s}
   .mq-nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.06)}
   .mq-nav-links a.active{color:var(--blue);background:rgba(59,158,255,0.1)}
 
@@ -44,7 +44,7 @@ const CSS = `
   .mq-label{font-size:12px;font-weight:600;color:var(--sub);display:flex;align-items:center;gap:6px}
   .mq-label .badge{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:700}
   .mq-label .opt{color:var(--dim);font-weight:400}
-  .mq-field{display:flex;align-items:center;background:var(--card2);border:1px solid var(--borderf);border-radius:9px;overflow:hidden;transition:border-color .15s}
+  .mq-field{display:flex;align-items:center;background:var(--card2);border:1px solid var(--borderf);border-radius: 10px;overflow:hidden;transition:border-color .15s}
   .mq-field:focus-within{border-color:rgba(59,158,255,0.4)}
   .mq-field .prefix{padding:0 10px;color:var(--sub);font-size:13px;font-weight:600;background:rgba(255,255,255,0.03);border-right:1px solid var(--borderf);height:38px;display:flex;align-items:center;white-space:nowrap}
   .mq-field .suffix{padding:0 10px;color:var(--sub);font-size:12px;font-weight:600;background:rgba(255,255,255,0.03);border-left:1px solid var(--borderf);height:38px;display:flex;align-items:center;white-space:nowrap;min-width:52px;justify-content:center}
@@ -52,12 +52,12 @@ const CSS = `
   .mq-field input::placeholder{color:var(--dim)}
   .mq-field select{flex:1;background:transparent;border:none;outline:none;color:var(--text);padding:0 12px;height:38px;font-size:14px;cursor:pointer;-webkit-appearance:none;appearance:none}
   .mq-field select option{background:var(--card2);color:var(--text)}
-  .mq-calc-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(59,158,255,0.05);border:1px solid rgba(59,158,255,0.12);border-radius:8px}
+  .mq-calc-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:rgba(59,158,255,0.05);border:1px solid rgba(59,158,255,0.12);border-radius: 6px}
   .mq-calc-row span{font-size:12px;color:var(--sub)}
   .mq-calc-row strong{font-size:14px;font-weight:700;color:var(--blue)}
   .mq-note{font-size:11px;color:var(--amber);background:rgba(240,160,48,0.08);border:1px solid rgba(240,160,48,0.18);border-radius:7px;padding:8px 10px;line-height:1.5}
   .mq-seg{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-  .mq-seg-btn{padding:8px;border-radius:8px;border:1px solid var(--borderf);background:transparent;color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center}
+  .mq-seg-btn{padding:8px;border-radius: 6px;border:1px solid var(--borderf);background:transparent;color:var(--sub);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center}
   .mq-seg-btn.active{background:rgba(59,158,255,0.15);border-color:rgba(59,158,255,0.4);color:var(--blue)}
   .mq-seg-3{grid-template-columns:1fr 1fr 1fr}
 
@@ -75,7 +75,7 @@ const CSS = `
   .mq-verdict.fail .mq-verdict-label{font-family:'Fira Code',ui-monospace,monospace;color:var(--red)}
   .mq-verdict.neutral .mq-verdict-label{font-family:'Fira Code',ui-monospace,monospace;color:var(--sub)}
   .mq-verdict-rates{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
-  .mq-rate-pill{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600}
+  .mq-rate-pill{padding:6px 14px;border-radius: 6px;font-size:12px;font-weight:600}
   .mq-rate-pill.contract{background:rgba(167,130,255,0.12);color:var(--purple);border:1px solid rgba(167,130,255,0.2)}
   .mq-rate-pill.qualify{background:rgba(240,160,48,0.12);color:var(--amber);border:1px solid rgba(240,160,48,0.2)}
 

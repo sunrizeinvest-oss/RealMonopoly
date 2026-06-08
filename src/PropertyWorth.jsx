@@ -68,7 +68,7 @@ const CSS = `
   /* Card */
   .pw-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px}
   .pw-card-header{padding:14px 20px;border-bottom:1px solid var(--borderf);background:var(--card2);display:flex;align-items:center;gap:10px}
-  .pw-card-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+  .pw-card-icon{width:30px;height:30px;border-radius: 6px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
   .pw-card-title{font-size:13.5px;font-weight:700;color:var(--text)}
   .pw-card-body{padding:18px 20px;display:flex;flex-direction:column;gap:14px}
 
@@ -76,9 +76,9 @@ const CSS = `
   .pw-field{display:flex;flex-direction:column;gap:5px}
   .pw-label{font-size:11.5px;font-weight:700;color:var(--sub)}
   .pw-label-hint{font-size:10.5px;color:var(--dim);margin-top:1px}
-  .pw-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:9px;padding:10px 13px;color:var(--text);outline:none;transition:border-color 0.15s}
+  .pw-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;color:var(--text);outline:none;transition:border-color 0.15s}
   .pw-input:focus{border-color:rgba(59,158,255,0.4);box-shadow:0 0 0 3px rgba(59,158,255,0.07)}
-  .pw-select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:9px;padding:10px 13px;color:var(--text);outline:none;appearance:none;cursor:pointer;transition:border-color 0.15s}
+  .pw-select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;color:var(--text);outline:none;appearance:none;cursor:pointer;transition:border-color 0.15s}
   .pw-select:focus{border-color:rgba(59,158,255,0.4)}
   .pw-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .pw-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
@@ -346,7 +346,7 @@ export default function PropertyWorth() {
                   <button
                     onClick={lookupAddress}
                     disabled={lookupLoading || !address.trim()}
-                    style={{background:"var(--blue)",color:"#fff",border:"none",borderRadius:9,padding:"0 16px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",opacity:lookupLoading||!address.trim()?0.6:1,transition:"opacity 0.15s",flexShrink:0}}
+                    style={{background:"var(--blue)",color:"#fff",border:"none",borderRadius: 10,padding:"0 16px",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"inherit",whiteSpace:"nowrap",opacity:lookupLoading||!address.trim()?0.6:1,transition:"opacity 0.15s",flexShrink:0}}
                   >
                     {lookupLoading ? "…" : "🔍 Auto-fill"}
                   </button>

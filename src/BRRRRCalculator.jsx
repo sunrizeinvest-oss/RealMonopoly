@@ -76,7 +76,7 @@ const CSS = `
   /* Cards */
   .br-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px}
   .br-card-header{padding:14px 18px;border-bottom:1px solid var(--borderf);background:var(--card2);display:flex;align-items:center;gap:10px}
-  .br-card-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .br-card-icon{width:28px;height:28px;border-radius: 6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
   .br-card-title{font-size:13.5px;font-weight:700;color:var(--text)}
   .br-card-sub{font-size:11px;color:var(--sub);margin-top:1px}
   .br-card-body{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
@@ -86,7 +86,7 @@ const CSS = `
   .br-label{font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:0.4px;display:flex;justify-content:space-between;align-items:center}
   .br-hint{font-size:10.5px;color:var(--green);font-weight:600}
   .br-hint.amber{color:var(--amber)}
-  .br-input{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:9px;padding:10px 13px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
+  .br-input{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
   .br-input:focus{border-color:rgba(167,130,255,0.4);background:rgba(167,130,255,0.03)}
   .br-input::placeholder{color:var(--dim)}
   .br-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -95,7 +95,7 @@ const CSS = `
 
   /* Results */
   .br-result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .br-metric{background:var(--card2);border-radius:11px;padding:14px;border:1px solid var(--borderf)}
+  .br-metric{background:var(--card2);border-radius: 10px;padding:14px;border:1px solid var(--borderf)}
   .br-metric-label{font-size:10px;font-weight:600;color:var(--sub);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
   .br-metric-val{font-size:21px;font-weight:800;color:var(--text);letter-spacing:-0.5px;line-height:1}
   .br-metric-sub{font-size:10px;color:var(--dim);margin-top:4px}
@@ -107,13 +107,13 @@ const CSS = `
   .br-metric.full{grid-column:1/-1}
 
   /* BRRRR verdict */
-  .br-verdict{border-radius:14px;padding:20px;text-align:center;margin-bottom:4px}
+  .br-verdict{border-radius: 16px;padding:20px;text-align:center;margin-bottom:4px}
   .br-verdict-icon{font-size:36px;margin-bottom:8px}
   .br-verdict-title{font-size:18px;font-weight:800;letter-spacing:-0.3px;margin-bottom:6px}
   .br-verdict-sub{font-size:13px;line-height:1.55;max-width:320px;margin:0 auto}
 
   /* Waterfall */
-  .br-waterfall{background:var(--card2);border-radius:11px;padding:14px}
+  .br-waterfall{background:var(--card2);border-radius: 10px;padding:14px}
   .br-waterfall-title{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
   .br-wf-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12.5px}
   .br-wf-row:last-child{border-bottom:none;font-weight:700;font-size:13px;padding-top:9px;margin-top:2px}
@@ -610,7 +610,7 @@ export default function BRRRRCalculator() {
                 </div>
               </div>
               {calc && calc.totalCashIn > 0 && (
-                <div style={{background:"rgba(240,160,48,0.06)",border:"1px solid rgba(240,160,48,0.18)",borderRadius:9,padding:"9px 13px",fontSize:12,display:"flex",justifyContent:"space-between",color:"var(--amber)",fontWeight:600}}>
+                <div style={{background:"rgba(240,160,48,0.06)",border:"1px solid rgba(240,160,48,0.18)",borderRadius: 10,padding:"9px 13px",fontSize:12,display:"flex",justifyContent:"space-between",color:"var(--amber)",fontWeight:600}}>
                   <span>Total cash into deal</span>
                   <span style={{fontFamily:"'Fira Code',monospace"}}>{fmt(calc.totalCashIn)}</span>
                 </div>
@@ -743,7 +743,7 @@ export default function BRRRRCalculator() {
                 </div>
               </div>
               {calc && calc.noi !== 0 && (
-                <div style={{background:"rgba(52,217,138,0.06)",border:"1px solid rgba(52,217,138,0.18)",borderRadius:9,padding:"9px 13px",fontSize:12,display:"flex",justifyContent:"space-between",color:"var(--green)",fontWeight:600}}>
+                <div style={{background:"rgba(52,217,138,0.06)",border:"1px solid rgba(52,217,138,0.18)",borderRadius: 10,padding:"9px 13px",fontSize:12,display:"flex",justifyContent:"space-between",color:"var(--green)",fontWeight:600}}>
                   <span>Stabilized NOI</span>
                   <span style={{fontFamily:"'Fira Code',monospace"}}>{fmt(calc.noi)}/yr · Cap {fmtPct(calc.entryCap)}</span>
                 </div>
@@ -760,7 +760,7 @@ export default function BRRRRCalculator() {
             <div className="br-card-body">
               {/* Bank Rate Banner */}
               <a href="https://www.bankofcanada.ca/rates/interest-rates/canadian-interest-rates/" target="_blank" rel="noopener noreferrer"
-                style={{display:"flex",alignItems:"center",gap:10,background:"rgba(167,130,255,0.06)",border:"1px solid rgba(167,130,255,0.2)",borderRadius:9,padding:"9px 12px",textDecoration:"none",marginBottom:2}}>
+                style={{display:"flex",alignItems:"center",gap:10,background:"rgba(167,130,255,0.06)",border:"1px solid rgba(167,130,255,0.2)",borderRadius: 10,padding:"9px 12px",textDecoration:"none",marginBottom:2}}>
                 <span style={{fontSize:18}}>🏦</span>
                 <div style={{flex:1}}>
                   <div style={{fontSize:11.5,fontWeight:700,color:"var(--purple)"}}>Check current bank rates</div>
@@ -796,7 +796,7 @@ export default function BRRRRCalculator() {
                 <input className="br-input" type="number" placeholder="1.5" value={form.refiClosingCostsPct} onChange={e=>setF("refiClosingCostsPct",e.target.value)} />
               </div>
               {calc && calc.refiNetProceeds > 0 && (
-                <div style={{background:"rgba(167,130,255,0.06)",border:"1px solid rgba(167,130,255,0.2)",borderRadius:9,padding:"9px 13px",fontSize:12,display:"flex",justifyContent:"space-between",color:"var(--purple)",fontWeight:600}}>
+                <div style={{background:"rgba(167,130,255,0.06)",border:"1px solid rgba(167,130,255,0.2)",borderRadius: 10,padding:"9px 13px",fontSize:12,display:"flex",justifyContent:"space-between",color:"var(--purple)",fontWeight:600}}>
                   <span>Net refi proceeds</span>
                   <span style={{fontFamily:"'Fira Code',monospace"}}>{fmt(calc.refiNetProceeds)}</span>
                 </div>
@@ -855,7 +855,7 @@ export default function BRRRRCalculator() {
             {/* Verdict */}
             <div className="br-card">
               <div className="br-card-body">
-                <div className="br-verdict" style={{background:verdict.bg,border:`1px solid ${verdict.border}`,borderRadius:14,padding:20,textAlign:"center"}}>
+                <div className="br-verdict" style={{background:verdict.bg,border:`1px solid ${verdict.border}`,borderRadius: 16,padding:20,textAlign:"center"}}>
                   <div className="br-verdict-icon">{verdict.icon}</div>
                   <div className="br-verdict-title" style={{color:`var(--${verdict.cls})`}}>{verdict.title}</div>
                   <div className="br-verdict-sub" style={{color:"var(--sub)",fontSize:13,marginTop:6,lineHeight:1.55}}>{verdict.sub}</div>
@@ -897,7 +897,7 @@ export default function BRRRRCalculator() {
                 flags.push({ sev:"warning", msg:`Cap rate on ARV is only ${fmtPct(calc.refiCap)} — below 5%. Thin margin against rising vacancies or expenses.` });
               if (!flags.length) return null;
               return (
-                <div style={{marginBottom:16,borderRadius:14,overflow:"hidden",border:"1px solid rgba(242,92,92,0.2)",background:"rgba(242,92,92,0.03)"}}>
+                <div style={{marginBottom:16,borderRadius: 16,overflow:"hidden",border:"1px solid rgba(242,92,92,0.2)",background:"rgba(242,92,92,0.03)"}}>
                   <div style={{padding:"11px 18px",borderBottom:"1px solid rgba(242,92,92,0.12)",display:"flex",alignItems:"center",gap:8}}>
                     <span style={{fontSize:15}}>⚠️</span>
                     <span style={{fontSize:13,fontWeight:800,color:"var(--red)"}}>Deal Red Flags — {flags.length} issue{flags.length>1?"s":""} detected</span>
@@ -1102,7 +1102,7 @@ export default function BRRRRCalculator() {
                 <button
                   onClick={() => exportBRRRRPDF(form, calc)}
                   disabled={!calc}
-                  style={{width:"100%",background:"rgba(242,92,92,0.1)",border:"1px solid rgba(242,92,92,0.25)",borderRadius:11,padding:"12px 18px",color:"var(--red)",fontSize:13,fontWeight:700,cursor:calc?"pointer":"not-allowed",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s",opacity:calc?1:0.5}}
+                  style={{width:"100%",background:"rgba(242,92,92,0.1)",border:"1px solid rgba(242,92,92,0.25)",borderRadius: 10,padding:"12px 18px",color:"var(--red)",fontSize:13,fontWeight:700,cursor:calc?"pointer":"not-allowed",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s",opacity:calc?1:0.5}}
                   onMouseOver={e=>{if(calc)e.currentTarget.style.background="rgba(242,92,92,0.18)"}}
                   onMouseOut={e=>{e.currentTarget.style.background="rgba(242,92,92,0.1)"}}
                 >
@@ -1115,7 +1115,7 @@ export default function BRRRRCalculator() {
             <div className="br-card" style={{marginTop:4}}>
               <div className="br-card-body">
                 {saved ? (
-                  <div style={{background:"rgba(52,217,138,0.08)",border:"1px solid rgba(52,217,138,0.25)",borderRadius:11,padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+                  <div style={{background:"rgba(52,217,138,0.08)",border:"1px solid rgba(52,217,138,0.25)",borderRadius: 10,padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
                     <div style={{display:"flex",alignItems:"center",gap:10}}>
                       <span style={{fontSize:20}}>✅</span>
                       <div>
@@ -1123,12 +1123,12 @@ export default function BRRRRCalculator() {
                         <div style={{fontSize:11.5,color:"var(--sub)",marginTop:1}}>{form.dealName || form.address || "BRRRR Deal"}</div>
                       </div>
                     </div>
-                    <a href="/compare" style={{background:"var(--green)",color:"#07090f",borderRadius:8,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none",flexShrink:0}}>View Saved Deals →</a>
+                    <a href="/compare" style={{background:"var(--green)",color:"#07090f",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none",flexShrink:0}}>View Saved Deals →</a>
                   </div>
                 ) : (
                   <button
                     onClick={saveDeal}
-                    style={{width:"100%",background:"linear-gradient(135deg,rgba(167,130,255,0.15),rgba(59,158,255,0.12))",border:"1px solid rgba(167,130,255,0.3)",borderRadius:11,padding:"14px 18px",color:"var(--text)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s"}}
+                    style={{width:"100%",background:"linear-gradient(135deg,rgba(167,130,255,0.15),rgba(59,158,255,0.12))",border:"1px solid rgba(167,130,255,0.3)",borderRadius: 10,padding:"14px 18px",color:"var(--text)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s"}}
                     onMouseOver={e=>{e.currentTarget.style.borderColor="rgba(167,130,255,0.6)";e.currentTarget.style.background="linear-gradient(135deg,rgba(167,130,255,0.22),rgba(59,158,255,0.18))"}}
                     onMouseOut={e=>{e.currentTarget.style.borderColor="rgba(167,130,255,0.3)";e.currentTarget.style.background="linear-gradient(135deg,rgba(167,130,255,0.15),rgba(59,158,255,0.12))"}}
                   >

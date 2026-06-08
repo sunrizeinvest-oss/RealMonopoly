@@ -72,7 +72,7 @@ const CSS = `
   }
   .pi-nav-link {
     padding: 5px 12px;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 13px;
     font-weight: 500;
     color: var(--sub);
@@ -85,7 +85,7 @@ const CSS = `
   .pi-nav-user { font-size: 12px; color: var(--sub); }
   .pi-signout {
     padding: 5px 12px;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
     background: rgba(255,255,255,0.05);
@@ -127,10 +127,10 @@ const CSS = `
     align-items: center;
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 6px 8px 6px 16px;
     margin-bottom: 28px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.15s;
   }
   .pi-search-wrap:focus-within {
     border-color: var(--blue);
@@ -180,7 +180,7 @@ const CSS = `
   .pi-prop-header {
     background: var(--card);
     border: 1px solid var(--borderf);
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 20px 24px;
     margin-bottom: 20px;
     display: flex;
@@ -190,7 +190,7 @@ const CSS = `
   .pi-prop-icon {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
+    border-radius: 10px;
     background: rgba(59,158,255,0.12);
     display: flex;
     align-items: center;
@@ -205,7 +205,7 @@ const CSS = `
     align-items: center;
     gap: 4px;
     padding: 3px 10px;
-    border-radius: 20px;
+    border-radius: 16px;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.3px;
@@ -224,7 +224,7 @@ const CSS = `
   .pi-fact-card {
     background: var(--card);
     border: 1px solid var(--borderf);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 14px 16px;
   }
   .pi-fact-label { font-size: 10.5px; color: var(--sub); font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; margin-bottom: 6px; }
@@ -255,7 +255,7 @@ const CSS = `
   .pi-card {
     background: var(--card);
     border: 1px solid var(--borderf);
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 20px;
     margin-bottom: 18px;
   }
@@ -294,7 +294,7 @@ const CSS = `
   .pi-market-stat {
     background: var(--card);
     border: 1px solid var(--borderf);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 14px 16px;
     text-align: center;
   }
@@ -307,14 +307,14 @@ const CSS = `
     gap: 4px;
     background: var(--card2);
     border: 1px solid var(--borderf);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 4px;
     margin-bottom: 18px;
   }
   .pi-tab {
     flex: 1;
     padding: 8px 10px;
-    border-radius: 9px;
+    border-radius: 10px;
     font-size: 12px;
     font-weight: 600;
     color: var(--sub);
@@ -367,7 +367,7 @@ const CSS = `
     box-sizing: border-box;
     background: var(--card2);
     border: 1px solid var(--borderf);
-    border-radius: 9px;
+    border-radius: 10px;
     padding: 9px 12px;
     font-family: 'DM Sans', sans-serif;
     font-size: 13px;
@@ -384,7 +384,7 @@ const CSS = `
   .pi-results {
     background: rgba(13,17,25,0.8);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 18px;
     margin-bottom: 14px;
   }
@@ -401,7 +401,7 @@ const CSS = `
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
-  .pi-result-item { padding: 10px 12px; background: rgba(255,255,255,0.03); border-radius: 8px; }
+  .pi-result-item { padding: 10px 12px; background: rgba(255,255,255,0.03); border-radius: 6px; }
   .pi-result-item-label { font-size: 10px; font-weight: 600; color: var(--sub); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
   .pi-result-item-val { font-size: 14px; font-weight: 700; color: var(--text); }
 
@@ -473,7 +473,7 @@ const CSS = `
 
   /* Map */
   .pi-map-wrap {
-    border-radius: 14px;
+    border-radius: 16px;
     overflow: hidden;
     margin-bottom: 18px;
     border: 1px solid var(--borderf);
@@ -492,7 +492,7 @@ const CSS = `
     align-items: center;
     gap: 6px;
     padding: 7px 14px;
-    border-radius: 9px;
+    border-radius: 10px;
     background: var(--card);
     border: 1px solid var(--borderf);
     color: var(--text);
@@ -507,13 +507,13 @@ const CSS = `
   .pi-ca-section {
     background: rgba(167,130,255,0.05);
     border: 1px solid rgba(167,130,255,0.15);
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 20px;
     margin-bottom: 18px;
   }
   .pi-ca-title { font-size: 13px; font-weight: 700; color: var(--purple); margin-bottom: 14px; }
   .pi-cmhc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
-  .pi-cmhc-item { background: rgba(167,130,255,0.07); border-radius: 9px; padding: 10px 12px; }
+  .pi-cmhc-item { background: rgba(167,130,255,0.07); border-radius: 10px; padding: 10px 12px; }
   .pi-cmhc-lbl { font-size: 10px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
   .pi-cmhc-val { font-size: 15px; font-weight: 800; color: var(--text); }
 
@@ -552,7 +552,7 @@ const CSS = `
     align-self: flex-end;
     background: var(--blue);
     color: #fff;
-    border-radius: 12px 12px 3px 12px;
+    border-radius: 10px 12px 3px 12px;
     padding: 9px 13px;
     font-size: 13px;
     max-width: 88%;
@@ -562,7 +562,7 @@ const CSS = `
     align-self: flex-start;
     background: var(--card);
     border: 1px solid var(--borderf);
-    border-radius: 12px 12px 12px 3px;
+    border-radius: 10px 12px 12px 3px;
     padding: 10px 13px;
     font-size: 13px;
     max-width: 92%;
@@ -613,7 +613,7 @@ const CSS = `
     padding: 8px 12px;
     background: rgba(59,158,255,0.06);
     border: 1px solid rgba(59,158,255,0.15);
-    border-radius: 9px;
+    border-radius: 10px;
     color: var(--text);
     font-family: 'DM Sans', sans-serif;
     font-size: 12.5px;
@@ -652,7 +652,7 @@ const CSS = `
   .pi-chat-send {
     width: 36px;
     height: 36px;
-    border-radius: 9px;
+    border-radius: 10px;
     background: var(--blue);
     border: none;
     cursor: pointer;
@@ -687,7 +687,7 @@ const CSS = `
     align-items: center;
     gap: 5px;
     padding: 4px 10px;
-    border-radius: 20px;
+    border-radius: 16px;
     background: rgba(167,130,255,0.13);
     border: 1px solid rgba(167,130,255,0.25);
     color: var(--purple);
@@ -1971,7 +1971,7 @@ export default function PropertyIntelligence() {
                 {saleComps?.sold?.length > 0 && (
                   <>
                     <div className="pi-section-title">Sold Comps</div>
-                    <div className="pi-table-wrap" style={{ background: "var(--card)", border: "1px solid var(--borderf)", borderRadius: 12, marginBottom: 18 }}>
+                    <div className="pi-table-wrap" style={{ background: "var(--card)", border: "1px solid var(--borderf)", borderRadius: 10, marginBottom: 18 }}>
                       <table className="pi-table">
                         <thead>
                           <tr>
@@ -2002,7 +2002,7 @@ export default function PropertyIntelligence() {
                 {saleComps?.active?.length > 0 && (
                   <>
                     <div className="pi-section-title">Active Listings</div>
-                    <div className="pi-table-wrap" style={{ background: "var(--card)", border: "1px solid var(--borderf)", borderRadius: 12, marginBottom: 18 }}>
+                    <div className="pi-table-wrap" style={{ background: "var(--card)", border: "1px solid var(--borderf)", borderRadius: 10, marginBottom: 18 }}>
                       <table className="pi-table">
                         <thead>
                           <tr>

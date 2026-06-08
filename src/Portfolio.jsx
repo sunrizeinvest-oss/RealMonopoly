@@ -67,7 +67,7 @@ const CSS = `
   /* Section header */
   .pf-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
   .pf-section-title{font-size:15px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px}
-  .pf-add-btn{background:rgba(59,158,255,0.1);border:1px solid rgba(59,158,255,0.25);border-radius:9px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--blue);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;display:flex;align-items:center;gap:6px}
+  .pf-add-btn{background:rgba(59,158,255,0.1);border:1px solid rgba(59,158,255,0.25);border-radius: 10px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--blue);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;display:flex;align-items:center;gap:6px}
   .pf-add-btn:hover{background:rgba(59,158,255,0.18)}
 
   /* Timeline chart */
@@ -116,9 +116,9 @@ const CSS = `
   .pf-field{display:flex;flex-direction:column;gap:6px}
   .pf-field.full{grid-column:1/-1}
   .pf-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
-  .pf-input{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
+  .pf-input{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 10px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
   .pf-input:focus{border-color:rgba(59,158,255,0.4)}
-  .pf-select{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius:9px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;cursor:pointer}
+  .pf-select{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 10px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;cursor:pointer}
   .pf-modal-calc{background:rgba(52,217,138,0.05);border:1px solid rgba(52,217,138,0.15);border-radius:6px;padding:14px 16px;margin:16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .pf-calc-item{text-align:center}
   .pf-calc-val{font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px}
@@ -505,7 +505,7 @@ export default function Portfolio() {
         )}
 
         {/* Notes footer */}
-        <div style={{ marginTop: 24, padding: "14px 18px", background: "rgba(59,158,255,0.04)", border: "1px solid rgba(59,158,255,0.1)", borderRadius: 12 }}>
+        <div style={{ marginTop: 24, padding: "14px 18px", background: "rgba(59,158,255,0.04)", border: "1px solid rgba(59,158,255,0.1)", borderRadius: 10 }}>
           <div style={{ fontSize: 12, color: "var(--sub)", lineHeight: 1.6 }}>
             💡 <strong style={{ color: "var(--text)" }}>Your portfolio is stored locally</strong> — deals are saved in your browser.
             To back them up, export via your browser or upgrade to Pro for cloud sync across devices.

@@ -89,7 +89,7 @@ const CSS = `
     color: var(--sub);
     text-decoration: none;
     padding: 4px 12px;
-    border-radius: 20px;
+    border-radius: 16px;
     border: 1px solid rgba(255,255,255,0.08);
     background: transparent;
     transition: all 0.15s;
@@ -184,11 +184,11 @@ const CSS = `
   .strategy-card {
     background: #0d1119;
     border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 24px;
     position: relative;
     overflow: hidden;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.15s;
   }
   .strategy-card:hover {
     border-color: rgba(59,158,255,0.25);
@@ -198,7 +198,7 @@ const CSS = `
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
-    border-radius: 14px 14px 0 0;
+    border-radius: 16px 14px 0 0;
   }
   .strategy-icon {
     font-size: 28px;
@@ -292,7 +292,7 @@ const CSS = `
   .glossary-card {
     background: #0d1119;
     border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 20px 20px 18px;
     transition: border-color 0.15s;
   }
@@ -344,7 +344,7 @@ const CSS = `
   .rule-card {
     background: #0a0e18;
     border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -486,7 +486,7 @@ const CSS = `
     font-size: 14px;
     font-weight: 700;
     padding: 11px 22px;
-    border-radius: 9px;
+    border-radius: 10px;
     border: none;
     cursor: pointer;
     font-family: 'DM Sans', sans-serif;
@@ -515,7 +515,7 @@ const CSS = `
     font-weight: 700;
     font-family: 'DM Sans', sans-serif;
     padding: 8px 14px;
-    border-radius: 20px;
+    border-radius: 16px;
     cursor: pointer;
     box-shadow: 0 4px 16px rgba(0,0,0,0.3);
     transition: all 0.15s;

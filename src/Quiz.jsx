@@ -114,7 +114,7 @@ const CSS = `
   .quiz-question-card {
     background: #0d1119;
     border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 18px;
+    border-radius: 16px;
     padding: 36px 32px;
     margin-bottom: 24px;
   }
@@ -153,7 +153,7 @@ const CSS = `
   .quiz-option {
     background: #0a0e18;
     border: 1.5px solid rgba(255,255,255,0.07);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 16px 18px;
     cursor: pointer;
     transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
@@ -270,7 +270,7 @@ const CSS = `
   .quiz-result-card {
     background: #0d1119;
     border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 18px;
+    border-radius: 16px;
     overflow: hidden;
     margin-bottom: 20px;
   }
@@ -329,7 +329,7 @@ const CSS = `
 
   .quiz-tie-card {
     background: #0a0e18;
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 20px;
     border: 1px solid rgba(255,255,255,0.07);
     text-align: center;
@@ -560,7 +560,7 @@ const CSS = `
     gap: 10px;
     background: var(--blue);
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 16px 36px;
     font-size: 16px;
     font-weight: 700;

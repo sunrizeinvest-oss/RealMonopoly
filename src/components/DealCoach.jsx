@@ -211,7 +211,7 @@ const css = `
   font-family:'Fira Code',ui-monospace,monospace; font-size:12px; font-weight:700;
   letter-spacing:1.4px;
   box-shadow:0 14px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(59,158,255,0.08) inset;
-  cursor:pointer; transition:transform 0.18s, border-color 0.18s, box-shadow 0.18s;
+  cursor:pointer; transition:transform 0.18s, border-color 0.18s, box-shadow 0.15s;
 }
 .dc-fab:hover{ transform:translateY(-2px); border-color:var(--blue); box-shadow:0 18px 48px rgba(59,158,255,0.35); }
 .dc-fab-dot{ width:9px; height:9px; border-radius:50%; background:var(--green); box-shadow:0 0 10px var(--green); animation:dc-blink 2s infinite; }
@@ -224,7 +224,7 @@ const css = `
   width:420px; max-width:calc(100vw - 32px);
   height:640px; max-height:calc(100vh - 64px);
   background:var(--card); color:var(--text);
-  border:1px solid var(--border); border-radius:8px;
+  border:1px solid var(--border); border-radius: 6px;
   display:flex; flex-direction:column;
   box-shadow:0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(59,158,255,0.06) inset;
   overflow:hidden;

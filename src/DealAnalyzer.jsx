@@ -108,7 +108,7 @@ const CSS = `
   }
   .da-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
   .da-card-header{padding:18px 22px;border-bottom:1px solid var(--borderf);background:var(--card2);display:flex;align-items:center;gap:10px}
-  .da-card-header-icon{width:28px;height:28px;border-radius:8px;background:rgba(59,158,255,0.1);border:1px solid rgba(59,158,255,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .da-card-header-icon{width:28px;height:28px;border-radius: 6px;background:rgba(59,158,255,0.1);border:1px solid rgba(59,158,255,0.2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
   .da-card-header-title{font-size:14px;font-weight:700;color:var(--text)}
   .da-card-header-sub{font-size:11px;color:var(--sub);margin-top:1px}
   .da-card-body{padding:22px;display:flex;flex-direction:column;gap:16px}
@@ -124,10 +124,10 @@ const CSS = `
   .da-input-hint{font-size:11px;color:rgba(59,158,255,0.7);font-weight:500}
   .da-field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .da-type-toggle{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:10px;padding:3px;gap:3px}
-  .da-type-btn{flex:1;padding:9px 0;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+  .da-type-btn{flex:1;padding:9px 0;border:none;border-radius: 6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
   .da-type-btn.active{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(59,158,255,0.3)}
   .da-type-btn.inactive{background:transparent;color:var(--sub)}
-  .da-analyze-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.18s;margin-top:4px}
+  .da-analyze-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:4px}
   .da-analyze-btn:hover{background:#5aaeff;transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,158,255,0.35)}
   .da-analyze-btn:disabled{background:var(--dim);cursor:not-allowed;transform:none;box-shadow:none}
   .da-results{display:flex;flex-direction:column;gap:16px}
@@ -137,41 +137,41 @@ const CSS = `
   .da-score-of{font-size:11px;color:var(--sub);margin-top:1px}
   .da-verdict{font-size:20px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px}
   .da-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .da-metric{background:var(--card2);border:1px solid var(--borderf);border-radius:12px;padding:14px 16px}
+  .da-metric{background:var(--card2);border:1px solid var(--borderf);border-radius: 10px;padding:14px 16px}
   .da-metric-label{font-size:10px;font-weight:700;color:var(--dim);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:5px}
   .da-metric-val{font-size:18px;font-weight:800;font-family:'Fira Code',monospace;letter-spacing:-0.5px;line-height:1}
   .da-metric-sub{font-size:10.5px;color:var(--sub);margin-top:4px}
-  .da-reasons{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+  .da-reasons{background:var(--card);border:1px solid var(--border);border-radius: 16px;overflow:hidden}
   .da-reasons-header{padding:13px 18px;border-bottom:1px solid var(--borderf);background:var(--card2);font-size:12px;font-weight:700;color:var(--sub);letter-spacing:0.5px;text-transform:uppercase}
   .da-reason{display:flex;gap:10px;align-items:flex-start;padding:11px 18px;border-bottom:1px solid var(--borderf);font-size:13px;line-height:1.55}
   .da-reason:last-child{border-bottom:none}
   .da-reason.pass{color:#7adfaa}
   .da-reason.warn{color:#f0c070}
   .da-reason.fail{color:#f08080}
-  .da-save-prompt{background:var(--card);border:1px solid var(--borderf);border-radius:14px;padding:20px;text-align:center}
+  .da-save-prompt{background:var(--card);border:1px solid var(--borderf);border-radius: 16px;padding:20px;text-align:center}
   .da-save-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
   .da-save-sub{font-size:13px;color:var(--sub);margin-bottom:16px;line-height:1.55}
   .da-save-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-  .da-save-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+  .da-save-btn{background:var(--blue);color:#fff;border:none;border-radius: 6px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
   .da-save-btn:hover{background:#5aaeff}
-  .da-save-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:8px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
-  .da-pdf-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:8px;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .da-save-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 6px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+  .da-pdf-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 6px;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
   .da-pdf-btn:hover{border-color:var(--border);color:var(--text)}
   .da-placeholder{background:var(--card);border:1px dashed var(--borderf);border-radius:16px;padding:48px 24px;text-align:center}
   .da-placeholder-icon{font-size:36px;margin-bottom:14px}
   .da-placeholder-title{font-size:15px;font-weight:600;color:var(--sub);margin-bottom:6px}
   .da-placeholder-sub{font-size:13px;color:var(--dim);line-height:1.6}
   .da-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px}
-  .da-modal{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:32px 28px;width:100%;max-width:380px;position:relative}
+  .da-modal{background:var(--card);border:1px solid var(--border);border-radius: 16px;padding:32px 28px;width:100%;max-width:380px;position:relative}
   .da-modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;line-height:1;padding:4px}
   .da-modal-close:hover{color:var(--text)}
   .da-modal-title{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:6px}
   .da-modal-sub{font-size:13px;color:var(--sub);margin-bottom:24px;line-height:1.55}
   .da-modal-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
   .da-modal-label{font-size:11.5px;font-weight:600;color:var(--sub)}
-  .da-modal-input{background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius:9px;padding:12px 14px;font-size:14px;color:var(--text);outline:none;width:100%;font-family:'DM Sans',sans-serif}
+  .da-modal-input{background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius: 10px;padding:12px 14px;font-size:14px;color:var(--text);outline:none;width:100%;font-family:'DM Sans',sans-serif}
   .da-modal-input:focus{border-color:rgba(59,158,255,0.4)}
-  .da-modal-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:9px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px}
+  .da-modal-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius: 10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px}
   .da-modal-btn:hover{background:#5aaeff}
   .da-modal-btn:disabled{background:var(--dim);cursor:not-allowed}
   .da-modal-toggle{text-align:center;margin-top:16px;font-size:13px;color:var(--sub)}
@@ -179,27 +179,27 @@ const CSS = `
   .da-modal-divider{display:flex;align-items:center;gap:12px;margin:18px 0}
   .da-modal-divider::before,.da-modal-divider::after{content:'';flex:1;height:1px;background:var(--borderf)}
   .da-modal-divider span{font-size:11px;color:var(--dim)}
-  .da-modal-google{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius:9px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .da-modal-google{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius: 10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
   .da-modal-google:hover{background:rgba(255,255,255,0.08)}
   .da-saved-banner{background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--green);font-weight:500}
-  .da-upgrade-success{background:linear-gradient(135deg,rgba(52,217,138,0.1),rgba(59,158,255,0.1));border:1px solid rgba(52,217,138,0.3);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin:0 auto 0;max-width:1000px;width:calc(100% - 40px)}
+  .da-upgrade-success{background:linear-gradient(135deg,rgba(52,217,138,0.1),rgba(59,158,255,0.1));border:1px solid rgba(52,217,138,0.3);border-radius: 10px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin:0 auto 0;max-width:1000px;width:calc(100% - 40px)}
   .da-upgrade-success-icon{font-size:24px;flex-shrink:0}
   .da-upgrade-success-text{flex:1}
   .da-upgrade-success-title{font-size:14px;font-weight:700;color:var(--green);margin-bottom:2px}
   .da-upgrade-success-sub{font-size:12px;color:var(--sub)}
   .da-upgrade-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
-  .da-upgrade-modal{background:var(--card);border:1px solid rgba(59,158,255,0.25);border-radius:20px;padding:36px 28px;width:100%;max-width:400px;position:relative;text-align:center;box-shadow:0 32px 100px rgba(0,0,0,0.6)}
+  .da-upgrade-modal{background:var(--card);border:1px solid rgba(59,158,255,0.25);border-radius: 16px;padding:36px 28px;width:100%;max-width:400px;position:relative;text-align:center;box-shadow:0 32px 100px rgba(0,0,0,0.6)}
   .da-upgrade-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--dim);font-size:20px;cursor:pointer;padding:4px;line-height:1}
   .da-upgrade-close:hover{color:var(--text)}
   .da-upgrade-icon{font-size:42px;margin-bottom:14px}
   .da-upgrade-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:8px}
   .da-upgrade-sub{font-size:14px;color:var(--sub);margin-bottom:24px;line-height:1.6}
-  .da-upgrade-perks{background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.12);border-radius:12px;padding:16px;margin-bottom:24px;text-align:left;display:flex;flex-direction:column;gap:8px}
+  .da-upgrade-perks{background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.12);border-radius: 10px;padding:16px;margin-bottom:24px;text-align:left;display:flex;flex-direction:column;gap:8px}
   .da-upgrade-perk{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text)}
   .da-upgrade-perk-dot{width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0}
   .da-upgrade-price{font-size:13px;color:var(--sub);margin-bottom:16px}
   .da-upgrade-price strong{color:var(--text);font-size:18px}
-  .da-upgrade-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.18s}
+  .da-upgrade-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s}
   .da-upgrade-btn:hover{background:#5aaeff;transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,158,255,0.35)}
   .da-upgrade-cancel{margin-top:12px;font-size:13px;color:var(--dim);cursor:pointer}
   .da-upgrade-cancel:hover{color:var(--sub)}
@@ -568,10 +568,10 @@ export default function DealAnalyzer() {
                 </div>
               )}
 
-              <div style={{background:"var(--card)",border:"1px solid var(--borderf)",borderRadius:12,padding:"16px 18px",textAlign:"center"}}>
+              <div style={{background:"var(--card)",border:"1px solid var(--borderf)",borderRadius: 10,padding:"16px 18px",textAlign:"center"}}>
                 <div style={{fontSize:13,fontWeight:600,color:"var(--text)",marginBottom:5}}>Need a full breakdown?</div>
                 <div style={{fontSize:12,color:"var(--sub)",marginBottom:12}}>Get exact loan costs, holding costs, realtor fees, MAO, and tiered commission.</div>
-                <a href="/app" style={{display:"inline-block",background:"rgba(59,158,255,0.1)",border:"1px solid rgba(59,158,255,0.2)",borderRadius:8,padding:"9px 20px",color:"var(--blue)",fontSize:13,fontWeight:700,textDecoration:"none"}}>Open Full Analyzer →</a>
+                <a href="/app" style={{display:"inline-block",background:"rgba(59,158,255,0.1)",border:"1px solid rgba(59,158,255,0.2)",borderRadius: 6,padding:"9px 20px",color:"var(--blue)",fontSize:13,fontWeight:700,textDecoration:"none"}}>Open Full Analyzer →</a>
               </div>
 
               <CrossLinkCTA
@@ -609,7 +609,7 @@ export default function DealAnalyzer() {
               <div className="da-modal-label">Password</div>
               <input className="da-modal-input" type="password" placeholder="••••••••" value={authForm.password} onChange={e => setAuthForm(p=>({...p,password:e.target.value}))} />
             </div>
-            {authError && <div style={{background:"rgba(242,92,92,0.08)",border:"1px solid rgba(242,92,92,0.2)",borderRadius:8,padding:"10px 14px",fontSize:12,color:"var(--red)",marginBottom:8}}>{authError}</div>}
+            {authError && <div style={{background:"rgba(242,92,92,0.08)",border:"1px solid rgba(242,92,92,0.2)",borderRadius: 6,padding:"10px 14px",fontSize:12,color:"var(--red)",marginBottom:8}}>{authError}</div>}
             <button className="da-modal-btn" onClick={handleAuth} disabled={authLoading}>
               {authLoading ? "Please wait..." : modalMode==="signup" ? "Create account & save deal" : "Sign in & save deal"}
             </button>

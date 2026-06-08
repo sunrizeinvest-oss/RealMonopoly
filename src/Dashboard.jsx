@@ -57,7 +57,7 @@ const CSS = `
 
   /* Deal cards */
   .db-deal-grid{display:flex;flex-direction:column;gap:10px}
-  .db-deal{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 20px;transition:all 0.18s;cursor:default}
+  .db-deal{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 20px;transition:all 0.15s;cursor:default}
   .db-deal:hover{border-color:rgba(59,158,255,0.35);box-shadow:0 6px 24px rgba(0,0,0,0.3)}
   .db-deal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;flex-wrap:wrap}
   .db-deal-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
@@ -84,7 +84,7 @@ const CSS = `
   .db-empty-sub{font-size:14px;color:var(--dim);margin-bottom:28px;line-height:1.7;max-width:400px;margin-left:auto;margin-right:auto}
 
   /* Sync banner */
-  .db-sync-banner{background:linear-gradient(135deg,rgba(52,217,138,0.08),rgba(59,158,255,0.05));border:1px solid rgba(52,217,138,0.2);border-radius:12px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+  .db-sync-banner{background:linear-gradient(135deg,rgba(52,217,138,0.08),rgba(59,158,255,0.05));border:1px solid rgba(52,217,138,0.2);border-radius: 10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
   .db-sync-text{font-size:13px;color:var(--sub)}
   .db-sync-text strong{color:var(--green)}
   .db-sync-btn{background:rgba(52,217,138,0.12);border:1px solid rgba(52,217,138,0.3);color:var(--green);border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}

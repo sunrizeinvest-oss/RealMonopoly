@@ -30,7 +30,7 @@ const CSS = `
   .hub-section-label::before{content:"// "}
   .hub-card.worth{border-color:rgba(255,180,60,0.25);background:linear-gradient(135deg,rgba(255,180,60,0.04) 0%,var(--card) 60%)}
   .hub-card.worth:hover{border-color:rgba(255,180,60,0.5);box-shadow:0 16px 48px rgba(255,180,60,0.08)}
-  .hub-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:28px 26px;cursor:pointer;transition:all 0.18s;position:relative;display:flex;flex-direction:column;gap:12px}
+  .hub-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:28px 26px;cursor:pointer;transition:all 0.15s;position:relative;display:flex;flex-direction:column;gap:12px}
   .hub-card:hover{border-color:rgba(59,158,255,0.45);transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,0.45)}
   .hub-card::before{content:"";position:absolute;top:14px;left:18px;font-family:'Fira Code',monospace;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:0.7px}
   .hub-card.featured{border-color:rgba(52,217,138,0.3);background:linear-gradient(135deg,rgba(52,217,138,0.04) 0%,var(--card) 60%)}

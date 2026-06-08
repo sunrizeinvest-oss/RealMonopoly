@@ -62,7 +62,7 @@ const CSS = `
   .mf-hero p{font-size:14px;color:var(--sub);max-width:500px;margin:0 auto;line-height:1.6;position:relative;z-index:1}
 
   /* Cards */
-  .mf-card{background:var(--card);border:1px solid var(--borderf);border-radius:14px;margin-bottom:16px;overflow:hidden}
+  .mf-card{background:var(--card);border:1px solid var(--borderf);border-radius: 16px;margin-bottom:16px;overflow:hidden}
   .mf-card-head{padding:14px 20px;border-bottom:1px solid var(--borderf);display:flex;align-items:center;gap:10px}
   .mf-card-title{font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--sub)}
   .mf-card-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:99px;background:rgba(59,158,255,0.1);color:var(--blue)}
@@ -71,9 +71,9 @@ const CSS = `
   .mf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;padding:16px 20px}
   .mf-field{display:flex;flex-direction:column;gap:4px}
   .mf-label{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.4px}
-  .mf-input{background:rgba(59,158,255,0.05);border:1px solid rgba(59,158,255,0.15);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:'Fira Code',monospace}
+  .mf-input{background:rgba(59,158,255,0.05);border:1px solid rgba(59,158,255,0.15);border-radius: 6px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:'Fira Code',monospace}
   .mf-input:focus{border-color:rgba(59,158,255,0.4)}
-  .mf-input-text{background:rgba(255,255,255,0.03);border:1px solid var(--borderf);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:'DM Sans',sans-serif}
+  .mf-input-text{background:rgba(255,255,255,0.03);border:1px solid var(--borderf);border-radius: 6px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:'DM Sans',sans-serif}
   .mf-input-text:focus{border-color:rgba(59,158,255,0.3)}
 
   /* Unit mix table */
@@ -86,7 +86,7 @@ const CSS = `
   .mf-unit-table .unit-input:focus{border-color:rgba(59,158,255,0.4)}
   .mf-unit-val{font-family:'Fira Code',monospace;font-size:13px;text-align:right;display:block}
   .mf-unit-total{background:rgba(255,255,255,0.03);font-weight:700}
-  .mf-add-row{background:transparent;border:1px dashed var(--borderf);color:var(--dim);border-radius:8px;padding:8px;font-size:12px;cursor:pointer;width:100%;margin:8px 0;font-family:'DM Sans',sans-serif}
+  .mf-add-row{background:transparent;border:1px dashed var(--borderf);color:var(--dim);border-radius: 6px;padding:8px;font-size:12px;cursor:pointer;width:100%;margin:8px 0;font-family:'DM Sans',sans-serif}
   .mf-add-row:hover{border-color:var(--blue);color:var(--blue)}
   .mf-del-btn{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:14px;padding:2px 6px}.mf-del-btn:hover{color:var(--red)}
 
@@ -141,7 +141,7 @@ const CSS = `
   .mf-score-bench{font-size:10px;color:var(--dim);font-style:italic}
 
   /* Pro gate */
-  .mf-gate{max-width:480px;margin:60px auto;background:var(--card);border:1px solid var(--borderf);border-radius:20px;padding:40px 36px;text-align:center}
+  .mf-gate{max-width:480px;margin:60px auto;background:var(--card);border:1px solid var(--borderf);border-radius: 16px;padding:40px 36px;text-align:center}
 
   @media(max-width:700px){
     .mf-nav{padding:0 14px}
@@ -516,7 +516,7 @@ export default function CommercialAnalyzer() {
         <div style={{background:"rgba(52,217,138,0.08)",borderBottom:"1px solid rgba(52,217,138,0.2)",padding:"12px 24px",display:"flex",alignItems:"center",justifyContent:"center",gap:12,flexWrap:"wrap"}}>
           <span style={{fontSize:18}}>🎉</span>
           <span style={{fontSize:13,fontWeight:600,color:"var(--text)"}}>Free during launch — <span style={{color:"var(--green)"}}>sign in to access all tools at no cost.</span></span>
-          <a href="/login" style={{background:"var(--green)",color:"#07090f",borderRadius:8,padding:"6px 16px",fontSize:13,fontWeight:800,textDecoration:"none"}}>Sign in free →</a>
+          <a href="/login" style={{background:"var(--green)",color:"#07090f",borderRadius: 6,padding:"6px 16px",fontSize:13,fontWeight:800,textDecoration:"none"}}>Sign in free →</a>
         </div>
       )}
 
@@ -581,7 +581,7 @@ export default function CommercialAnalyzer() {
             flags.push({ sev:"warning", msg: `Operating Expense Ratio is ${fmtPct(c.OER)} — above 60% signals high expense load or undermarket rents.` });
           if (!flags.length) return null;
           return (
-            <div style={{marginBottom:20,borderRadius:14,overflow:"hidden",border:"1px solid rgba(242,92,92,0.2)",background:"rgba(242,92,92,0.03)"}}>
+            <div style={{marginBottom:20,borderRadius: 16,overflow:"hidden",border:"1px solid rgba(242,92,92,0.2)",background:"rgba(242,92,92,0.03)"}}>
               <div style={{padding:"12px 18px",borderBottom:"1px solid rgba(242,92,92,0.12)",display:"flex",alignItems:"center",gap:8}}>
                 <span style={{fontSize:16}}>⚠️</span>
                 <span style={{fontSize:13,fontWeight:800,color:"var(--red)"}}>Deal Red Flags — {flags.length} issue{flags.length>1?"s":""} detected</span>
@@ -1040,7 +1040,7 @@ export default function CommercialAnalyzer() {
             };
             exportMFPDF(inputs, calcData);
           }}
-          style={{width:"100%",background:"rgba(242,92,92,0.1)",border:"1px solid rgba(242,92,92,0.25)",borderRadius:12,padding:"12px 18px",color:"var(--red)",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s"}}
+          style={{width:"100%",background:"rgba(242,92,92,0.1)",border:"1px solid rgba(242,92,92,0.25)",borderRadius: 10,padding:"12px 18px",color:"var(--red)",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s"}}
           onMouseOver={e=>e.currentTarget.style.background="rgba(242,92,92,0.18)"}
           onMouseOut={e=>e.currentTarget.style.background="rgba(242,92,92,0.1)"}
         >
@@ -1051,7 +1051,7 @@ export default function CommercialAnalyzer() {
       {/* Save Deal */}
       <div style={{padding:"0 20px 28px"}}>
         {mfSaved ? (
-          <div style={{background:"rgba(52,217,138,0.08)",border:"1px solid rgba(52,217,138,0.25)",borderRadius:12,padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
+          <div style={{background:"rgba(52,217,138,0.08)",border:"1px solid rgba(52,217,138,0.25)",borderRadius: 10,padding:"14px 18px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:12}}>
             <div style={{display:"flex",alignItems:"center",gap:10}}>
               <span style={{fontSize:20}}>✅</span>
               <div>
@@ -1059,7 +1059,7 @@ export default function CommercialAnalyzer() {
                 <div style={{fontSize:11.5,color:"var(--sub)",marginTop:1}}>Multifamily deal saved to your comparison board</div>
               </div>
             </div>
-            <a href="/compare" style={{background:"var(--green)",color:"#07090f",borderRadius:8,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none",flexShrink:0}}>View Saved Deals →</a>
+            <a href="/compare" style={{background:"var(--green)",color:"#07090f",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none",flexShrink:0}}>View Saved Deals →</a>
           </div>
         ) : (
           <button
@@ -1091,7 +1091,7 @@ export default function CommercialAnalyzer() {
               setTimeout(() => setMfSaved(false), 5000);
               celebrateFirstSave({ kind: "multifamily" });
             }}
-            style={{width:"100%",background:"linear-gradient(135deg,rgba(52,217,138,0.12),rgba(59,158,255,0.08))",border:"1px solid rgba(52,217,138,0.25)",borderRadius:12,padding:"14px 18px",color:"var(--text)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}
+            style={{width:"100%",background:"linear-gradient(135deg,rgba(52,217,138,0.12),rgba(59,158,255,0.08))",border:"1px solid rgba(52,217,138,0.25)",borderRadius: 10,padding:"14px 18px",color:"var(--text)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}
           >
             <span style={{fontSize:18}}>💾</span> Save This Deal · Compare with others →
           </button>

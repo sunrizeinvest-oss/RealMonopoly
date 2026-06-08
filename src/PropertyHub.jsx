@@ -89,7 +89,7 @@ const CSS = `
 
   /* Search bar */
   .ph-search-wrap{max-width:680px;margin:0 auto;position:relative;z-index:2}
-  .ph-search-box{display:flex;align-items:center;background:var(--card);border:1.5px solid rgba(59,158,255,0.3);border-radius:6px;padding:6px 6px 6px 20px;gap:10px;box-shadow:0 0 40px rgba(59,158,255,0.08);transition:border-color 0.2s,box-shadow 0.2s}
+  .ph-search-box{display:flex;align-items:center;background:var(--card);border:1.5px solid rgba(59,158,255,0.3);border-radius:6px;padding:6px 6px 6px 20px;gap:10px;box-shadow:0 0 40px rgba(59,158,255,0.08);transition:border-color 0.2s,box-shadow 0.15s}
   .ph-search-box:focus-within{border-color:rgba(59,158,255,0.6);box-shadow:0 0 60px rgba(59,158,255,0.15)}
   .ph-search-icon{font-size:20px;flex-shrink:0}
   .ph-search-input{flex:1;background:transparent;border:none;outline:none;font-size:16px;color:var(--text);font-family:'DM Sans',sans-serif;padding:10px 0}
@@ -112,7 +112,7 @@ const CSS = `
   .ph-map{border-radius:6px;overflow:hidden;border:1px solid var(--borderf);margin-bottom:20px;position:relative}
   .ph-map iframe{display:block;width:100%;height:300px;border:none}
   .ph-map-btns{display:flex;gap:8px;padding:12px 14px;background:var(--card2);border-top:1px solid var(--borderf);flex-wrap:wrap}
-  .ph-map-btn{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:opacity 0.15s}
+  .ph-map-btn{display:inline-flex;align-items:center;gap:6px;border-radius: 6px;padding:7px 14px;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:opacity 0.15s}
   .ph-map-btn:hover{opacity:0.85}
 
   /* Property data grid */
@@ -164,7 +164,7 @@ const CSS = `
   .ph-suggest-val{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
   .ph-suggest-range{font-size:12px;color:var(--sub);margin-top:2px}
   .ph-suggest-btns{display:flex;gap:8px;flex-wrap:wrap}
-  .ph-suggest-btn{border:none;border-radius:9px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+  .ph-suggest-btn{border:none;border-radius: 10px;padding:8px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
   .ph-suggest-btn:hover{transform:translateY(-1px)}
   .ph-suggest-btn.flip{background:rgba(59,158,255,0.15);color:var(--blue)}
   .ph-suggest-btn.brrrr{background:rgba(167,130,255,0.15);color:var(--purple)}
@@ -179,7 +179,7 @@ const CSS = `
   .ph-strategy-title{font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;margin-top:8px}
   .ph-strategies{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:32px}
   @media(max-width:680px){.ph-strategies{grid-template-columns:1fr}}
-  .ph-strat{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:22px 20px;cursor:pointer;transition:all 0.2s;text-align:left;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;gap:8px}
+  .ph-strat{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:22px 20px;cursor:pointer;transition:all 0.15s;text-align:left;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;gap:8px}
   .ph-strat:hover{transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,0.4)}
   .ph-strat.flip{border-color:rgba(59,158,255,0.25)}.ph-strat.flip:hover{border-color:rgba(59,158,255,0.5);background:rgba(59,158,255,0.04)}
   .ph-strat.brrrr{border-color:rgba(167,130,255,0.25)}.ph-strat.brrrr:hover{border-color:rgba(167,130,255,0.5);background:rgba(167,130,255,0.04)}
@@ -454,12 +454,12 @@ export default function PropertyHub() {
           {error && (
             <div>
               <div className="ph-error">⚠️ {error}</div>
-              <div style={{marginTop:12,marginBottom:20,padding:"14px 18px",background:"rgba(255,180,60,0.06)",border:"1px solid rgba(255,180,60,0.2)",borderRadius:12,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
+              <div style={{marginTop:12,marginBottom:20,padding:"14px 18px",background:"rgba(255,180,60,0.06)",border:"1px solid rgba(255,180,60,0.2)",borderRadius: 10,display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap"}}>
                 <div>
                   <div style={{fontSize:13,fontWeight:700,color:"#ffb43c",marginBottom:3}}>Don't have the property value?</div>
                   <div style={{fontSize:12,color:"var(--sub)"}}>Use our free estimator — get value range, rent estimate & cash flow instantly.</div>
                 </div>
-                <button onClick={() => navigate("/worth")} style={{background:"linear-gradient(135deg,#ffb43c,var(--amber))",color:"#07090f",border:"none",borderRadius:9,padding:"9px 18px",fontSize:13,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit"}}>
+                <button onClick={() => navigate("/worth")} style={{background:"linear-gradient(135deg,#ffb43c,var(--amber))",color:"#07090f",border:"none",borderRadius: 10,padding:"9px 18px",fontSize:13,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit"}}>
                   Estimate Value →
                 </button>
               </div>
@@ -806,7 +806,7 @@ export default function PropertyHub() {
 
               {/* CMHC Rental Market Data */}
               {caComps.cmhcData && (
-                <div style={{background:"rgba(52,217,138,0.04)",border:"1px solid rgba(52,217,138,0.15)",borderRadius:14,padding:"16px 20px",marginBottom:16}}>
+                <div style={{background:"rgba(52,217,138,0.04)",border:"1px solid rgba(52,217,138,0.15)",borderRadius: 16,padding:"16px 20px",marginBottom:16}}>
                   <div style={{fontSize:11,fontWeight:700,color:"var(--green)",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:10}}>
                     🏠 CMHC Rental Market — {caComps.cmhcData.city}, {caComps.cmhcData.province} ({caComps.cmhcData.dataYear})
                   </div>
@@ -817,13 +817,13 @@ export default function PropertyHub() {
                       { label:"2 Bedroom", val:caComps.cmhcData.avgRents?.twoBed },
                       { label:"3+ Bedroom",val:caComps.cmhcData.avgRents?.threePlusBed },
                     ].filter(r=>r.val).map(r=>(
-                      <div key={r.label} style={{background:"var(--card2)",borderRadius:9,padding:"10px 12px",border:"1px solid var(--borderf)"}}>
+                      <div key={r.label} style={{background:"var(--card2)",borderRadius: 10,padding:"10px 12px",border:"1px solid var(--borderf)"}}>
                         <div style={{fontSize:16,fontWeight:800,color:"var(--green)"}}>{fmtCad(r.val)}<span style={{fontSize:11,color:"var(--sub)",fontWeight:500}}>/mo</span></div>
                         <div style={{fontSize:10,color:"var(--dim)",fontWeight:700,textTransform:"uppercase",letterSpacing:"0.4px",marginTop:2}}>{r.label}</div>
                       </div>
                     ))}
                     {caComps.cmhcData.vacancyRate != null && (
-                      <div style={{background:"var(--card2)",borderRadius:9,padding:"10px 12px",border:"1px solid var(--borderf)"}}>
+                      <div style={{background:"var(--card2)",borderRadius: 10,padding:"10px 12px",border:"1px solid var(--borderf)"}}>
                         <div style={{fontSize:16,fontWeight:800,color:caComps.cmhcData.vacancyRate<2?"var(--red)":caComps.cmhcData.vacancyRate<4?"var(--amber)":"var(--green)"}}>
                           {caComps.cmhcData.vacancyRate}%
                         </div>

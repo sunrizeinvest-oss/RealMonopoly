@@ -21,10 +21,10 @@ const CSS = `
   .rp-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:6px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s}
   .rp-input:focus{border-color:rgba(59,158,255,0.5);box-shadow:0 0 0 3px rgba(59,158,255,0.1)}
   .rp-hint{font-size:11px;color:var(--dim);margin-top:4px}
-  .rp-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:6px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.18s;margin-top:8px}
+  .rp-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:6px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:8px}
   .rp-btn:hover{background:#5aaeff;transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,158,255,0.35)}
   .rp-btn:disabled{background:var(--dim);cursor:not-allowed;transform:none;box-shadow:none}
-  .rp-error{background:rgba(242,92,92,0.08);border:1px solid rgba(242,92,92,0.2);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:12px}
+  .rp-error{background:rgba(242,92,92,0.08);border:1px solid rgba(242,92,92,0.2);border-radius: 6px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:12px}
   .rp-success{background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.2);border-radius:6px;padding:18px;font-size:13px;color:var(--green);text-align:center;line-height:1.6}
   .rp-success-icon{font-size:32px;margin-bottom:10px}
   .rp-invalid{text-align:center;padding:24px 0}

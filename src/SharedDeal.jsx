@@ -61,7 +61,7 @@ export default function SharedDeal() {
       <div style={{fontSize:32}}>🏠</div>
       <div style={{fontSize:18,fontWeight:700,color:"var(--text)"}}>Deal not found</div>
       <div style={{fontSize:14,color:"var(--sub)"}}>This link may have expired or been removed.</div>
-      <a href="/analyze" style={{marginTop:8,background:"var(--blue)",color:"#fff",borderRadius:8,padding:"10px 20px",fontSize:13,fontWeight:700,textDecoration:"none"}}>Analyze your own deal →</a>
+      <a href="/analyze" style={{marginTop:8,background:"var(--blue)",color:"#fff",borderRadius: 6,padding:"10px 20px",fontSize:13,fontWeight:700,textDecoration:"none"}}>Analyze your own deal →</a>
     </div>
   );
 

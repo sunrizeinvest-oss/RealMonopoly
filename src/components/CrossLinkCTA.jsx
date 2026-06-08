@@ -46,7 +46,7 @@ export default function CrossLinkCTA({ strategy, deal = {} }) {
     <div style={{
       background: "var(--card)",
       border: "1px solid var(--borderf)",
-      borderRadius: 8,
+      borderRadius: 6,
       padding: "18px 20px",
       marginTop: 18,
     }}>

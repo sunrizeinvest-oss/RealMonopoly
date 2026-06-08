@@ -58,7 +58,7 @@ const CSS = `
   .nw-total-label{font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;position:relative;z-index:1}
   .nw-total{font-size:clamp(48px,8vw,80px);font-weight:800;letter-spacing:-3px;line-height:1;margin-bottom:6px;position:relative;z-index:1}
   .nw-total-sub{font-size:14px;color:var(--sub);position:relative;z-index:1}
-  .nw-snap-btn{margin-top:16px;background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.2);border-radius:9px;padding:8px 18px;font-size:13px;font-weight:700;color:var(--green);cursor:pointer;font-family:'DM Sans',sans-serif;position:relative;z-index:1;transition:all 0.15s}
+  .nw-snap-btn{margin-top:16px;background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.2);border-radius: 10px;padding:8px 18px;font-size:13px;font-weight:700;color:var(--green);cursor:pointer;font-family:'DM Sans',sans-serif;position:relative;z-index:1;transition:all 0.15s}
   .nw-snap-btn:hover{background:rgba(52,217,138,0.15)}
 
   /* Breakdown row */
@@ -94,7 +94,7 @@ const CSS = `
   .nw-section{margin-bottom:32px}
   .nw-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px}
   .nw-section-title{font-size:15px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px}
-  .nw-add-btn{background:rgba(59,158,255,0.08);border:1px solid rgba(59,158,255,0.2);border-radius:9px;padding:7px 16px;font-size:12px;font-weight:700;color:var(--blue);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all 0.15s}
+  .nw-add-btn{background:rgba(59,158,255,0.08);border:1px solid rgba(59,158,255,0.2);border-radius: 10px;padding:7px 16px;font-size:12px;font-weight:700;color:var(--blue);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:5px;transition:all 0.15s}
   .nw-add-btn:hover{background:rgba(59,158,255,0.15)}
 
   /* Properties table */
@@ -140,16 +140,16 @@ const CSS = `
   .nw-field{display:flex;flex-direction:column;gap:5px}
   .nw-field.full{grid-column:1/-1}
   .nw-lbl{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
-  .nw-inp{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
+  .nw-inp{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
   .nw-inp:focus{border-color:rgba(59,158,255,0.4)}
-  .nw-sel{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;cursor:pointer}
+  .nw-sel{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;cursor:pointer}
   .nw-live-preview{background:rgba(52,217,138,0.05);border:1px solid rgba(52,217,138,0.15);border-radius:6px;padding:12px 16px;margin:12px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .nw-prev-val{font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px}
   .nw-prev-lbl{font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase}
   .nw-modal-acts{display:flex;gap:8px;margin-top:20px;justify-content:flex-end}
-  .nw-save-btn{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .nw-save-btn{background:var(--blue);color:#fff;border:none;border-radius: 10px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
   .nw-save-btn:hover{background:#5aaeff}
-  .nw-cancel-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:9px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .nw-cancel-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 10px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
 
   /* Empty */
   .nw-empty{background:rgba(255,255,255,0.02);border:1px dashed var(--borderf);border-radius:6px;padding:32px;text-align:center;color:var(--dim);font-size:13px}
@@ -536,7 +536,7 @@ export default function NetWorth() {
           )}
         </div>
 
-        <div style={{marginTop:24,padding:"14px 18px",background:"rgba(59,158,255,0.04)",border:"1px solid rgba(59,158,255,0.1)",borderRadius:12}}>
+        <div style={{marginTop:24,padding:"14px 18px",background:"rgba(59,158,255,0.04)",border:"1px solid rgba(59,158,255,0.1)",borderRadius: 10}}>
           <div style={{fontSize:12,color:"var(--sub)",lineHeight:1.6}}>
             💡 <strong style={{color:"var(--text)"}}>Data stored locally in your browser.</strong> Click "Save Today's Snapshot" each month to build your net worth timeline. Upgrade to Pro for cloud sync across devices.
           </div>

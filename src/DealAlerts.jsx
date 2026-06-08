@@ -108,13 +108,13 @@ const CSS = `
 
   /* Bed buttons */
   .da-bed-row{display:flex;gap:6px;flex-wrap:wrap}
-  .da-bed-btn{padding:8px 14px;border:1px solid var(--borderf);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;background:transparent;color:var(--sub)}
+  .da-bed-btn{padding:8px 14px;border:1px solid var(--borderf);border-radius: 6px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;background:transparent;color:var(--sub)}
   .da-bed-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.2)}
   .da-bed-btn.on{background:rgba(59,158,255,0.15);border-color:rgba(59,158,255,0.4);color:var(--blue)}
 
   /* Property type pills */
   .da-type-row{display:flex;gap:6px;flex-wrap:wrap}
-  .da-type-btn{padding:7px 13px;border:1px solid var(--borderf);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;background:transparent;color:var(--sub)}
+  .da-type-btn{padding:7px 13px;border:1px solid var(--borderf);border-radius: 6px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;background:transparent;color:var(--sub)}
   .da-type-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.2)}
   .da-type-btn.on{background:rgba(167,130,255,0.12);border-color:rgba(167,130,255,0.4);color:var(--purple)}
 
@@ -130,7 +130,7 @@ const CSS = `
   /* ── Alert cards ── */
   .da-empty{text-align:center;padding:48px 20px;color:var(--sub);font-size:14px}
   .da-empty-icon{font-size:36px;margin-bottom:12px}
-  .da-alert-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;margin-bottom:16px;overflow:hidden;transition:border-color 0.2s}
+  .da-alert-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;margin-bottom:16px;overflow:hidden;transition:border-color 0.15s}
   .da-alert-card:hover{border-color:rgba(255,255,255,0.12)}
   .da-alert-head{padding:20px 22px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
   .da-alert-left{flex:1;min-width:0}
@@ -145,7 +145,7 @@ const CSS = `
   .da-badge-purple{background:rgba(167,130,255,0.1);color:var(--purple);border:1px solid rgba(167,130,255,0.2)}
   .da-alert-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
   .da-alert-btns{display:flex;gap:6px}
-  .da-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;border:none}
+  .da-btn{padding:7px 14px;border-radius: 6px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;border:none}
   .da-btn-blue{background:var(--blue);color:#fff}
   .da-btn-blue:hover{opacity:0.85}
   .da-btn-blue:disabled{opacity:0.5;cursor:not-allowed}

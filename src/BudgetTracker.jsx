@@ -61,21 +61,21 @@ const CSS = `
   .bt-deal-bar-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
   .bt-field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
   .bt-field label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
-  .bt-input{background:var(--card2);border:1px solid var(--borderf);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;transition:border-color 0.15s;outline:none}
+  .bt-input{background:var(--card2);border:1px solid var(--borderf);border-radius: 10px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;transition:border-color 0.15s;outline:none}
   .bt-input:focus{border-color:var(--blue)}
   .bt-input::placeholder{color:var(--dim)}
   select.bt-input{cursor:pointer}
   .bt-hint{font-size:11px;color:var(--dim);margin-top:2px}
-  .bt-btn{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:opacity 0.15s;flex-shrink:0}
+  .bt-btn{background:var(--blue);color:#fff;border:none;border-radius: 10px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:opacity 0.15s;flex-shrink:0}
   .bt-btn:hover{opacity:0.85}
-  .bt-btn-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:9px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s}
+  .bt-btn-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 10px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s}
   .bt-btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.18)}
   .bt-btn-green{background:var(--green);color:#07090f}
   .bt-btn-green:hover{opacity:0.85}
   .bt-btn-red{background:var(--red);color:#fff}
   .bt-btn-sm{padding:6px 12px;font-size:12px;border-radius:7px}
   .bt-deal-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-  .bt-deal-tab{background:var(--card2);border:1px solid var(--borderf);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;transition:all 0.15s}
+  .bt-deal-tab{background:var(--card2);border:1px solid var(--borderf);border-radius: 6px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;transition:all 0.15s}
   .bt-deal-tab.active{background:rgba(59,158,255,0.12);border-color:rgba(59,158,255,0.35);color:var(--blue)}
 
   /* ── Dashboard cards ── */

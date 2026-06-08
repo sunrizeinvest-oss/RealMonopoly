@@ -60,7 +60,7 @@ const CSS = `
   .pl-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none;flex-shrink:0}.pl-logo span{color:var(--blue)}
   .pl-nav-right{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
   .pl-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 10px;border-radius:7px;white-space:nowrap}.pl-nav-link:hover{color:var(--text)}
-  .pl-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0}
+  .pl-nav-btn{background:var(--blue);color:#fff;border:none;border-radius: 6px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;flex-shrink:0}
   .pl-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
 
   /* Stats bar */
@@ -80,7 +80,7 @@ const CSS = `
   .pl-col-count{font-size:10px;font-weight:700;background:rgba(255,255,255,0.1);border-radius:3px;padding:2px 8px;color:rgba(255,255,255,0.7)}
   .pl-col-body{background:rgba(255,255,255,0.02);border:1px solid var(--borderf);border-top:none;border-radius:0 0 12px 12px;padding:8px;min-height:120px;transition:background 0.15s}
   .pl-col-body.drag-over{background:rgba(59,158,255,0.06);border-color:rgba(59,158,255,0.3)}
-  .pl-col-add{width:100%;background:transparent;border:1px dashed var(--borderf);border-radius:8px;padding:8px;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:6px;transition:all 0.15s;text-align:center}
+  .pl-col-add{width:100%;background:transparent;border:1px dashed var(--borderf);border-radius: 6px;padding:8px;font-size:12px;font-weight:600;color:var(--dim);cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:6px;transition:all 0.15s;text-align:center}
   .pl-col-add:hover{border-color:rgba(59,158,255,0.4);color:var(--blue);background:rgba(59,158,255,0.04)}
 
   /* Cards */
@@ -114,14 +114,14 @@ const CSS = `
   .pl-field{display:flex;flex-direction:column;gap:5px}
   .pl-field.full{grid-column:1/-1}
   .pl-lbl{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
-  .pl-inp{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
+  .pl-inp{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
   .pl-inp:focus{border-color:rgba(59,158,255,0.4)}
-  .pl-sel{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;cursor:pointer}
+  .pl-sel{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;cursor:pointer}
   .pl-modal-acts{display:flex;gap:8px;margin-top:20px;justify-content:flex-end;flex-wrap:wrap}
-  .pl-save-btn{background:var(--blue);color:#fff;border:none;border-radius:9px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .pl-save-btn{background:var(--blue);color:#fff;border:none;border-radius: 10px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
   .pl-save-btn:hover{background:#5aaeff}
-  .pl-cancel-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:9px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
-  .pl-analyze-btn{background:rgba(52,217,138,0.1);color:var(--green);border:1px solid rgba(52,217,138,0.25);border-radius:9px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:auto}
+  .pl-cancel-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 10px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .pl-analyze-btn{background:rgba(52,217,138,0.1);color:var(--green);border:1px solid rgba(52,217,138,0.25);border-radius: 10px;padding:10px 18px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:auto}
   .pl-analyze-btn:hover{background:rgba(52,217,138,0.18)}
 
   /* Empty col */

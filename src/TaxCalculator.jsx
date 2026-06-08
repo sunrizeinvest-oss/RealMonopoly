@@ -51,7 +51,7 @@ const CSS = `
   /* Cards */
   .tc-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:16px}
   .tc-card-head{padding:14px 18px;border-bottom:1px solid var(--borderf);background:var(--card2);display:flex;align-items:center;gap:10px}
-  .tc-card-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .tc-card-icon{width:28px;height:28px;border-radius: 6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
   .tc-card-title{font-size:13.5px;font-weight:700;color:var(--text)}
   .tc-card-sub{font-size:11px;color:var(--sub);margin-top:1px}
   .tc-card-body{padding:16px 18px;display:flex;flex-direction:column;gap:12px}
@@ -59,7 +59,7 @@ const CSS = `
   /* Fields */
   .tc-field{display:flex;flex-direction:column;gap:4px}
   .tc-label{font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:0.4px}
-  .tc-input{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:9px;padding:10px 13px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
+  .tc-input{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
   .tc-input:focus{border-color:rgba(52,217,138,0.4);background:rgba(52,217,138,0.03)}
   .tc-input::placeholder{color:var(--dim)}
   .tc-input-prefix{position:relative}
@@ -73,7 +73,7 @@ const CSS = `
   .tc-divider{height:1px;background:var(--borderf);margin:4px 0}
 
   /* Toggle */
-  .tc-toggle-wrap{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:9px;overflow:hidden}
+  .tc-toggle-wrap{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;overflow:hidden}
   .tc-toggle-btn{flex:1;padding:9px 10px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all 0.15s;background:transparent;color:var(--sub)}
   .tc-toggle-btn.active{background:var(--green);color:#07090f}
   .tc-toggle-btn.active-passive{background:var(--amber)}
@@ -519,7 +519,7 @@ export default function TaxCalculator() {
                 />
               </Field>
 
-              <div style={{ fontSize: 11.5, color: "var(--sub)", lineHeight: 1.6, padding: "10px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 8, border: "1px solid var(--borderf)" }}>
+              <div style={{ fontSize: 11.5, color: "var(--sub)", lineHeight: 1.6, padding: "10px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 6, border: "1px solid var(--borderf)" }}>
                 {v.investorType === "active"
                   ? "Active: You actively manage the property. Can deduct up to $25,000/yr in paper losses if your income is below $100K. Phases out $100K–$150K."
                   : "Passive: You do not materially participate. Paper losses can only offset other passive income — they cannot reduce W-2 or active business income."}
@@ -604,7 +604,7 @@ export default function TaxCalculator() {
                 />
               </Field>
               {v.costSegEnabled && (
-                <div style={{ fontSize: 11.5, color: "var(--sub)", lineHeight: 1.6, padding: "10px 12px", background: "rgba(167,130,255,0.04)", borderRadius: 8, border: "1px solid rgba(167,130,255,0.15)" }}>
+                <div style={{ fontSize: 11.5, color: "var(--sub)", lineHeight: 1.6, padding: "10px 12px", background: "rgba(167,130,255,0.04)", borderRadius: 6, border: "1px solid rgba(167,130,255,0.15)" }}>
                   Cost segregation reclassifies 5-year (personal property) and 15-year (land improvements) components. With 60% bonus depreciation (2024+), these are mostly deducted in Year 1, dramatically front-loading your tax benefit.
                 </div>
               )}
@@ -738,7 +738,7 @@ export default function TaxCalculator() {
                           { label: "15-year land improvements (12%)", val: c.costseg15yr, sub: `60% bonus → ${fmt(c.costseg15yr * 0.6)} deducted Year 1` },
                           { label: `Remainder on ${c.schedule}-year schedule`, val: c.costsegStd, sub: `${fmt(c.costsegStd / c.schedule)}/yr standard` },
                         ].map((row) => (
-                          <div key={row.label} style={{ padding: "8px 10px", background: "rgba(255,255,255,0.03)", borderRadius: 8 }}>
+                          <div key={row.label} style={{ padding: "8px 10px", background: "rgba(255,255,255,0.03)", borderRadius: 6 }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                               <span style={{ color: "var(--sub)" }}>{row.label}</span>
                               <span style={{ color: "var(--text)", fontWeight: 600 }}>{fmt(row.val)}</span>

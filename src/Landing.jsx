@@ -188,7 +188,7 @@ export default function Landing() {
     .ld-nav-right{display:flex;align-items:center;gap:10px}
     .ld-nav-link{font-size:13px;color:var(--sub);cursor:pointer;font-weight:500;padding:6px 12px;border-radius:7px;background:none;border:none;font-family:'DM Sans',sans-serif;transition:color 0.15s}
     .ld-nav-link:hover{color:var(--text)}
-    .ld-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.18s}
+    .ld-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:8px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
     .ld-nav-btn:hover{background:#5aabff;transform:translateY(-1px)}
 
     /* ── HERO ── */
@@ -236,10 +236,10 @@ export default function Landing() {
     .ld-why{padding:80px 24px 40px;position:relative;background:linear-gradient(180deg,transparent,rgba(52,217,138,0.025),transparent)}
     .ld-why-inner{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
     .ld-why-head{text-align:center;max-width:760px;margin:0 auto}
-    .ld-whyvid{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--green);border-radius:8px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(52,217,138,0.06) inset}
+    .ld-whyvid{background:var(--card);border:1px solid var(--border);border-left:4px solid var(--green);border-radius: 6px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(52,217,138,0.06) inset}
 
     /* ── HERO DEMO VIDEO (replaces auth card in hero) ── */
-    .ld-herovid{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(52,217,138,0.06) inset}
+    .ld-herovid{background:var(--card);border:1px solid var(--border);border-radius: 6px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(52,217,138,0.06) inset}
     .ld-herovid-bar{display:flex;align-items:center;gap:10px;padding:9px 16px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub)}
     .ld-herovid-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite}
     .ld-herovid-bar-label{color:var(--text);flex:1}
@@ -248,7 +248,7 @@ export default function Landing() {
     .ld-herovid-cta:hover{background:rgba(52,217,138,0.12)}
 
     /* ── HERO MINI-CALC (relocated to /#try-it-live section) ── */
-    .ld-hcalc{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(59,158,255,0.04) inset;font-family:'Fira Code',ui-monospace,monospace}
+    .ld-hcalc{background:var(--card);border:1px solid var(--border);border-radius: 6px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(59,158,255,0.04) inset;font-family:'Fira Code',ui-monospace,monospace}
     .ld-hcalc-bar{display:flex;align-items:center;gap:10px;padding:9px 16px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub)}
     .ld-hcalc-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite}
     .ld-hcalc-bar-label{color:var(--text);flex:1}
@@ -259,7 +259,7 @@ export default function Landing() {
     .ld-hcalc-lbl{font-size:9.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.7px}
     .ld-hcalc-input{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:4px;padding:9px 11px;font-size:14px;color:var(--text);outline:none;font-family:'Fira Code',ui-monospace,monospace;font-weight:600;letter-spacing:-0.2px;transition:border-color 0.15s,background 0.15s}
     .ld-hcalc-input:focus{border-color:rgba(59,158,255,0.45);background:rgba(59,158,255,0.04)}
-    .ld-hcalc-verdict{display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--borderf);border-bottom:1px solid var(--borderf);border:1px solid var(--borderf);transition:background 0.2s,border-color 0.2s}
+    .ld-hcalc-verdict{display:flex;align-items:center;gap:12px;padding:14px 16px;border-top:1px solid var(--borderf);border-bottom:1px solid var(--borderf);border:1px solid var(--borderf);transition:background 0.2s,border-color 0.15s}
     .ld-hcalc-grade{font-size:32px;font-weight:800;line-height:1;width:44px;height:44px;border:1.5px solid currentColor;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif;letter-spacing:-1px;flex-shrink:0}
     .ld-hcalc-verdict-lbl{font-family:'DM Sans',sans-serif;font-size:15px;font-weight:800;letter-spacing:-0.3px;line-height:1.2}
     .ld-hcalc-verdict-sub{font-family:'DM Sans',sans-serif;font-size:11.5px;color:var(--sub);margin-top:3px;line-height:1.3}
@@ -278,10 +278,10 @@ export default function Landing() {
     .ld-auth-section{padding:60px 24px;display:flex;justify-content:center;background:linear-gradient(180deg,rgba(59,158,255,0.025),transparent)}
 
     /* ── AUTH CARD ── */
-    .ld-auth-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:32px 28px;box-shadow:0 24px 80px rgba(0,0,0,0.55);width:100%;max-width:420px}
+    .ld-auth-card{background:var(--card);border:1px solid var(--border);border-radius: 16px;padding:32px 28px;box-shadow:0 24px 80px rgba(0,0,0,0.55);width:100%;max-width:420px}
     .ld-auth-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px;letter-spacing:-0.3px}
     .ld-auth-sub{font-size:13px;color:var(--sub);margin-bottom:22px}
-    .ld-tabs{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:9px;padding:3px;gap:3px;margin-bottom:20px}
+    .ld-tabs{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:3px;gap:3px;margin-bottom:20px}
     .ld-tab{flex:1;padding:8px 0;border:none;border-radius:7px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
     .ld-tab.active{background:var(--blue);color:#fff}
     .ld-tab.inactive{background:transparent;color:var(--sub)}
@@ -292,13 +292,13 @@ export default function Landing() {
     .ld-divider span{font-size:11px;color:var(--dim)}
     .ld-field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
     .ld-label{font-size:11.5px;font-weight:600;color:var(--sub)}
-    .ld-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:9px;padding:11px 13px;font-size:14px;color:var(--text);outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.15s}
+    .ld-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:11px 13px;font-size:14px;color:var(--text);outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.15s}
     .ld-input:focus{border-color:rgba(59,158,255,0.4);box-shadow:0 0 0 3px rgba(59,158,255,0.08)}
-    .ld-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:9px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.18s;margin-top:2px}
+    .ld-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius: 10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:2px}
     .ld-btn:hover{background:#5aaeff;transform:translateY(-1px)}
     .ld-btn:disabled{background:var(--dim);cursor:not-allowed;transform:none}
-    .ld-error{background:rgba(242,92,92,0.08);border:1px solid rgba(242,92,92,0.2);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--red);margin-bottom:10px}
-    .ld-success{background:rgba(45,212,127,0.07);border:1px solid rgba(45,212,127,0.2);border-radius:8px;padding:9px 13px;font-size:12px;color:var(--green);margin-bottom:10px}
+    .ld-error{background:rgba(242,92,92,0.08);border:1px solid rgba(242,92,92,0.2);border-radius: 6px;padding:9px 13px;font-size:12px;color:var(--red);margin-bottom:10px}
+    .ld-success{background:rgba(45,212,127,0.07);border:1px solid rgba(45,212,127,0.2);border-radius: 6px;padding:9px 13px;font-size:12px;color:var(--green);margin-bottom:10px}
     .ld-auth-note{font-size:11.5px;color:var(--dim);text-align:center;margin-top:14px}
     .ld-auth-note span{color:var(--blue);cursor:pointer;font-weight:600}
 
@@ -329,8 +329,8 @@ export default function Landing() {
     .ld-section-sub{font-size:16px;color:var(--sub);text-align:center;max-width:520px;margin:0 auto 52px;line-height:1.7}
 
     /* ── FEATURES GRID ── */
-    .ld-feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--borderf);border-radius:18px;overflow:hidden}
-    .ld-feat-cell{background:var(--card);padding:32px 28px;transition:background 0.2s}
+    .ld-feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--borderf);border-radius: 16px;overflow:hidden}
+    .ld-feat-cell{background:var(--card);padding:32px 28px;transition:background 0.15s}
     .ld-feat-cell:hover{background:rgba(13,17,25,0.85)}
     .ld-feat-icon{font-size:30px;margin-bottom:14px}
     .ld-feat-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px}
@@ -338,7 +338,7 @@ export default function Landing() {
 
     /* ── TOOLS GRID ── */
     .ld-tools-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-    .ld-tool-card{background:var(--card);border:1px solid var(--borderf);border-radius:16px;padding:28px 24px;cursor:pointer;transition:all 0.2s;display:flex;flex-direction:column;gap:10px}
+    .ld-tool-card{background:var(--card);border:1px solid var(--borderf);border-radius:16px;padding:28px 24px;cursor:pointer;transition:all 0.15s;display:flex;flex-direction:column;gap:10px}
     .ld-tool-card:hover{border-color:rgba(59,158,255,0.3);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4)}
     .ld-tool-icon{font-size:32px}
     .ld-tool-name{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-0.3px}
@@ -348,7 +348,7 @@ export default function Landing() {
     .ld-tool-cta{font-size:13px;font-weight:700;color:var(--blue);margin-top:auto}
 
     /* ── LIVE DEMO ── */
-    .ld-demo-wrap{background:var(--card);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.5)}
+    .ld-demo-wrap{background:var(--card);border:1px solid var(--border);border-radius: 16px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,0.5)}
     .ld-demo-header{background:var(--card2);border-bottom:1px solid var(--borderf);padding:16px 24px;display:flex;align-items:center;gap:10px}
     .ld-demo-dot{width:10px;height:10px;border-radius:50%}
     .ld-demo-title{font-size:13px;font-weight:700;color:var(--sub);margin-left:8px}
@@ -356,9 +356,9 @@ export default function Landing() {
     .ld-demo-inputs{padding:28px;border-right:1px solid var(--borderf)}
     .ld-demo-results{padding:28px}
     .ld-demo-label{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:6px}
-    .ld-demo-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:9px;padding:10px 13px;font-size:15px;font-weight:600;color:var(--text);outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.15s;margin-bottom:16px}
+    .ld-demo-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;font-size:15px;font-weight:600;color:var(--text);outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.15s;margin-bottom:16px}
     .ld-demo-input:focus{border-color:rgba(59,158,255,0.5);box-shadow:0 0 0 3px rgba(59,158,255,0.1)}
-    .ld-demo-verdict{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:14px 16px;border-radius:12px}
+    .ld-demo-verdict{display:flex;align-items:center;gap:12px;margin-bottom:20px;padding:14px 16px;border-radius: 10px}
     .ld-demo-grade{font-size:36px;font-weight:800;line-height:1;width:48px;text-align:center}
     .ld-demo-verdict-label{font-size:18px;font-weight:800;line-height:1.2}
     .ld-demo-verdict-sub{font-size:12px;color:var(--sub);margin-top:3px}
@@ -370,7 +370,7 @@ export default function Landing() {
 
     /* ── TESTIMONIALS ── */
     .ld-testi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-    .ld-testi-card{background:var(--card);border:1px solid var(--borderf);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;gap:16px;transition:border-color 0.2s}
+    .ld-testi-card{background:var(--card);border:1px solid var(--borderf);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column;gap:16px;transition:border-color 0.15s}
     .ld-testi-card:hover{border-color:rgba(59,158,255,0.2)}
     .ld-testi-stars{display:flex;gap:3px;font-size:14px}
     .ld-testi-quote{font-size:14px;color:var(--text);line-height:1.7;font-style:italic}
@@ -396,7 +396,7 @@ export default function Landing() {
     .ld-preview-tool-tag{margin-left:auto;background:rgba(52,217,138,0.1);border:1px solid rgba(52,217,138,0.2);color:var(--green);font-size:10px;font-weight:700;border-radius:99px;padding:2px 9px}
 
     /* ── MOCK PANEL ── */
-    .ld-mock-panel{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.6)}
+    .ld-mock-panel{background:var(--card);border:1px solid var(--border);border-radius: 16px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.6)}
     .ld-mock-header{background:var(--card2);border-bottom:1px solid var(--borderf);padding:12px 16px;display:flex;align-items:center;justify-content:space-between}
     .ld-mock-logo{font-size:14px;font-weight:800;color:var(--text)}.ld-mock-logo span{color:var(--blue)}
     .ld-mock-dots{display:flex;gap:5px}
@@ -410,17 +410,17 @@ export default function Landing() {
     .ld-mock-deal{background:rgba(59,158,255,0.05);border:1px solid rgba(59,158,255,0.15);border-radius:10px;margin:12px 16px;padding:10px 12px}
     .ld-mock-deal-label{font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
     .ld-mock-deal-addr{font-size:13px;font-weight:700;color:var(--text)}.ld-mock-deal-city{font-size:11px;color:var(--sub);margin-top:1px}
-    .ld-mock-tabs{display:flex;gap:0;margin:0 16px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:9px;padding:3px}
+    .ld-mock-tabs{display:flex;gap:0;margin:0 16px 10px;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:3px}
     .ld-mock-tab{flex:1;padding:7px 6px;border-radius:6px;font-size:10px;font-weight:600;text-align:center;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
     .ld-mock-tab.active{background:var(--blue);color:#fff}.ld-mock-tab.inactive{color:var(--sub);background:transparent}
     .ld-mock-btns{display:flex;flex-direction:column;gap:6px;margin:0 16px 12px}
-    .ld-mock-btn{border-radius:9px;padding:10px 14px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;border:none;font-family:'DM Sans',sans-serif;cursor:pointer}
+    .ld-mock-btn{border-radius: 10px;padding:10px 14px;font-size:12px;font-weight:700;display:flex;align-items:center;gap:8px;border:none;font-family:'DM Sans',sans-serif;cursor:pointer}
     .ld-mock-btn.blue{background:rgba(59,158,255,0.1);border:1px solid rgba(59,158,255,0.2);color:var(--blue)}
     .ld-mock-btn.ghost{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);color:var(--sub)}
     .ld-mock-btn.highlight{background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.2);color:var(--green)}
     .ld-mock-other{padding:0 16px 16px}
     .ld-mock-other-label{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
-    .ld-mock-tool-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:4px;cursor:pointer;transition:background 0.15s;border:none;background:transparent;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+    .ld-mock-tool-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius: 6px;margin-bottom:4px;cursor:pointer;transition:background 0.15s;border:none;background:transparent;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
     .ld-mock-tool-row:hover{background:rgba(255,255,255,0.04)}
     .ld-mock-tool-icon{font-size:15px}.ld-mock-tool-name{font-size:12px;font-weight:600;color:var(--sub)}
 
@@ -435,7 +435,7 @@ export default function Landing() {
     .ld-anatomy-num{font-family:'Fira Code',ui-monospace,monospace;font-size:13px;font-weight:700;color:var(--blue);letter-spacing:2px;margin-bottom:10px}
     .ld-anatomy-title{font-family:'DM Sans',sans-serif;font-size:24px;font-weight:800;color:var(--text);letter-spacing:-0.8px;line-height:1.2;margin-bottom:10px}
     .ld-anatomy-desc{font-size:13.5px;color:var(--sub);line-height:1.7}
-    .ld-anatomy-right{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 18px 56px rgba(0,0,0,0.45)}
+    .ld-anatomy-right{background:var(--card);border:1px solid var(--border);border-radius: 6px;overflow:hidden;box-shadow:0 18px 56px rgba(0,0,0,0.45)}
     .ld-an-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.2px;text-transform:uppercase}
     .ld-an-bar-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite;flex-shrink:0}
     .ld-an-bar-tag{margin-left:auto;color:var(--green)}
@@ -461,7 +461,7 @@ export default function Landing() {
     .ld-pro-inner{max-width:1140px;margin:0 auto}
     .ld-pro-head{text-align:center;margin-bottom:44px}
     .ld-pro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .ld-pro-card{background:var(--card);border:1px solid var(--borderf);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s, border-color 0.2s, box-shadow 0.2s;cursor:pointer}
+    .ld-pro-card{background:var(--card);border:1px solid var(--borderf);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s, border-color 0.2s, box-shadow 0.15s;cursor:pointer}
     .ld-pro-card:hover{transform:translateY(-4px);border-color:rgba(59,158,255,0.3);box-shadow:0 24px 56px rgba(0,0,0,0.5)}
     .ld-pro-doc{aspect-ratio:8.5/11;background:#f6f5f0;color:#1a1a1a;font-family:'Georgia',serif;position:relative;overflow:hidden;border-bottom:1px solid var(--borderf)}
     .ld-pro-doc-header{background:#07090f;color:var(--text);padding:11px 18px;display:flex;align-items:center;justify-content:space-between;font-family:'DM Sans',sans-serif}
@@ -493,12 +493,12 @@ export default function Landing() {
     .ld-toolkit-cat-count{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:500;color:var(--dim);letter-spacing:0.8px}
     .ld-toolkit-cat-sub{flex:1;font-family:'DM Sans',sans-serif;font-size:12.5px;color:var(--sub);font-weight:500;text-align:right}
     .ld-toolkit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:10px}
-    .ld-toolkit-card{background:var(--card);border:1px solid var(--borderf);border-radius:7px;padding:14px 16px;cursor:pointer;transition:transform 0.18s,border-color 0.18s,box-shadow 0.18s;display:flex;flex-direction:column;gap:6px;text-decoration:none}
+    .ld-toolkit-card{background:var(--card);border:1px solid var(--borderf);border-radius:7px;padding:14px 16px;cursor:pointer;transition:transform 0.18s,border-color 0.18s,box-shadow 0.15s;display:flex;flex-direction:column;gap:6px;text-decoration:none}
     .ld-toolkit-card:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,0.45)}
     .ld-toolkit-card-row{display:flex;align-items:center;gap:10px}
     .ld-toolkit-card-icon{font-size:20px;line-height:1}
     .ld-toolkit-card-name{font-family:'DM Sans',sans-serif;font-size:14px;font-weight:800;color:var(--text);letter-spacing:-0.2px;flex:1}
-    .ld-toolkit-card-arrow{font-family:'Fira Code',ui-monospace,monospace;font-size:13px;font-weight:700;color:var(--dim);transition:transform 0.18s}
+    .ld-toolkit-card-arrow{font-family:'Fira Code',ui-monospace,monospace;font-size:13px;font-weight:700;color:var(--dim);transition:transform 0.15s}
     .ld-toolkit-card:hover .ld-toolkit-card-arrow{transform:translateX(3px)}
     .ld-toolkit-card-desc{font-size:12px;color:var(--sub);line-height:1.5}
 
@@ -512,7 +512,7 @@ export default function Landing() {
     .ld-chrome-chips{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
     .ld-chrome-chip{display:flex;align-items:center;gap:10px;font-family:'Fira Code',ui-monospace,monospace;font-size:12px;color:var(--text);letter-spacing:0.3px}
     .ld-chrome-chip .glyph{color:var(--green);width:16px;display:inline-block;text-align:center}
-    .ld-chrome-cta{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;background:var(--purple);color:#07090f;border:none;border-radius:6px;font-family:'Fira Code',ui-monospace,monospace;font-size:12.5px;font-weight:700;letter-spacing:1.2px;cursor:pointer;text-decoration:none;transition:transform 0.18s,box-shadow 0.18s}
+    .ld-chrome-cta{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;background:var(--purple);color:#07090f;border:none;border-radius:6px;font-family:'Fira Code',ui-monospace,monospace;font-size:12.5px;font-weight:700;letter-spacing:1.2px;cursor:pointer;text-decoration:none;transition:transform 0.18s,box-shadow 0.15s}
     .ld-chrome-cta:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(167,130,255,0.45)}
     .ld-chrome-secondary{display:inline-flex;align-items:center;gap:8px;margin-left:10px;padding:13px 18px;background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:6px;font-family:'Fira Code',ui-monospace,monospace;font-size:12.5px;font-weight:700;letter-spacing:1.2px;cursor:pointer;text-decoration:none;transition:border-color 0.15s,color 0.15s}
     .ld-chrome-secondary:hover{border-color:var(--purple);color:var(--text)}
@@ -539,7 +539,7 @@ export default function Landing() {
     .ld-browser-listing-stats span strong{color:#1a1a1a}
 
     /* The Real Deal popup, floating top-right inside the browser frame */
-    .ld-rd-popup{position:absolute;top:50px;right:14px;width:228px;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 24px 56px rgba(0,0,0,0.55),0 0 0 1px rgba(167,130,255,0.12) inset;font-family:'DM Sans',sans-serif;color:var(--text);animation:popup-bob 4s ease-in-out infinite}
+    .ld-rd-popup{position:absolute;top:50px;right:14px;width:228px;background:var(--card);border:1px solid var(--border);border-radius: 6px;overflow:hidden;box-shadow:0 24px 56px rgba(0,0,0,0.55),0 0 0 1px rgba(167,130,255,0.12) inset;font-family:'DM Sans',sans-serif;color:var(--text);animation:popup-bob 4s ease-in-out infinite}
     @keyframes popup-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
     .ld-rd-popup-bar{display:flex;align-items:center;gap:6px;padding:8px 11px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf)}
     .ld-rd-popup-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2s infinite}
@@ -570,7 +570,7 @@ export default function Landing() {
     .ld-cta h2{font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:-1.5px;color:var(--text);margin-bottom:14px;position:relative;z-index:1;line-height:1.1}
     .ld-cta h2 span{color:var(--blue)}
     .ld-cta p{font-size:16px;color:var(--sub);margin-bottom:32px;position:relative;z-index:1}
-    .ld-cta-btn{background:var(--blue);color:#fff;border:none;border-radius:10px;padding:16px 40px;font-family:'DM Sans',sans-serif;font-size:17px;font-weight:700;cursor:pointer;transition:all 0.18s;position:relative;z-index:1}
+    .ld-cta-btn{background:var(--blue);color:#fff;border:none;border-radius:10px;padding:16px 40px;font-family:'DM Sans',sans-serif;font-size:17px;font-weight:700;cursor:pointer;transition:all 0.15s;position:relative;z-index:1}
     .ld-cta-btn:hover{background:#5aabff;transform:translateY(-2px);box-shadow:0 8px 32px rgba(59,158,255,0.4)}
     .ld-cta-trust{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:20px;flex-wrap:wrap;position:relative;z-index:1}
     .ld-cta-trust-item{font-size:12px;color:var(--dim);display:flex;align-items:center;gap:5px}
@@ -1511,8 +1511,8 @@ export default function Landing() {
           <div style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", marginBottom: 10, letterSpacing: "-0.5px" }}>Got a GO verdict? <span style={{ color: "var(--blue)" }}>Get it funded.</span></div>
           <p style={{ fontSize: 14, color: "var(--sub)", marginBottom: 24, lineHeight: 1.7 }}>We work with CHMIC — a trusted private lender for fix &amp; flip and investment deals across Canada.</p>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
-            <a href="mailto:kaelan@chmic.ca?subject=Real%20Deal%20Referral" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--blue)", color: "#fff", borderRadius: 9, padding: "12px 22px", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>📩 Email Kaelan at CHMIC</a>
-            <a href="tel:5875854571" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: "var(--sub)", border: "1px solid var(--borderf)", borderRadius: 9, padding: "12px 22px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>📞 587-585-4571</a>
+            <a href="mailto:kaelan@chmic.ca?subject=Real%20Deal%20Referral" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--blue)", color: "#fff", borderRadius: 10, padding: "12px 22px", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>📩 Email Kaelan at CHMIC</a>
+            <a href="tel:5875854571" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: "var(--sub)", border: "1px solid var(--borderf)", borderRadius: 10, padding: "12px 22px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>📞 587-585-4571</a>
           </div>
         </div>
       </div>
@@ -1526,7 +1526,7 @@ export default function Landing() {
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
           {/* Free Plan */}
-          <div style={{background:"var(--card)",border:"1px solid var(--borderf)",borderRadius:20,padding:"32px 28px"}}>
+          <div style={{background:"var(--card)",border:"1px solid var(--borderf)",borderRadius: 16,padding:"32px 28px"}}>
             <div style={{fontSize:13,fontWeight:700,color:"var(--sub)",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:8}}>Free</div>
             <div style={{fontSize:42,fontWeight:800,color:"var(--text)",letterSpacing:"-2px",marginBottom:4}}>$0</div>
             <div style={{fontSize:13,color:"var(--dim)",marginBottom:24}}>Forever free during beta</div>
@@ -1541,7 +1541,7 @@ export default function Landing() {
             ].map(f => <div key={f} style={{display:"flex",alignItems:"center",gap:10,fontSize:13,color:"var(--sub)",marginBottom:10}}><span style={{color:"var(--green)",flexShrink:0}}>✓</span>{f}</div>)}
           </div>
           {/* Pro Plan */}
-          <div style={{background:"linear-gradient(135deg,rgba(59,158,255,0.07),var(--card))",border:"1px solid rgba(59,158,255,0.3)",borderRadius:20,padding:"32px 28px",position:"relative"}}>
+          <div style={{background:"linear-gradient(135deg,rgba(59,158,255,0.07),var(--card))",border:"1px solid rgba(59,158,255,0.3)",borderRadius: 16,padding:"32px 28px",position:"relative"}}>
             <div style={{position:"absolute",top:-12,right:20,background:"linear-gradient(135deg,var(--blue),var(--purple))",color:"#fff",fontSize:11,fontWeight:800,padding:"4px 14px",borderRadius:99,letterSpacing:"0.5px"}}>MOST POPULAR</div>
             <div style={{fontSize:13,fontWeight:700,color:"var(--blue)",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:8}}>Pro</div>
             <div style={{fontSize:42,fontWeight:800,color:"var(--text)",letterSpacing:"-2px",marginBottom:4}}>$29<span style={{fontSize:16,fontWeight:500,color:"var(--sub)"}}>/mo</span></div>

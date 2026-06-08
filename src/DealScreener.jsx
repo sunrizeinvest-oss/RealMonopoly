@@ -46,7 +46,7 @@ const CSS = `
   .ds-addr-input::placeholder{color:var(--dim)}
 
   /* ── Big input card ── */
-  .ds-input-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:20px 20px 18px;margin-bottom:12px;transition:border-color 0.2s}
+  .ds-input-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:20px 20px 18px;margin-bottom:12px;transition:border-color 0.15s}
   .ds-input-card:focus-within{border-color:rgba(59,158,255,0.4)}
   .ds-input-label{font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:block}
   .ds-input-hint{font-size:11px;color:var(--dim);margin-top:4px}
@@ -63,7 +63,7 @@ const CSS = `
   .ds-details-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
   .ds-sm-field{display:flex;flex-direction:column;gap:4px}
   .ds-sm-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.4px}
-  .ds-sm-input{background:var(--card2);border:1px solid var(--borderf);border-radius:8px;padding:8px 10px;font-size:14px;font-weight:700;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color 0.15s;-moz-appearance:textfield}
+  .ds-sm-input{background:var(--card2);border:1px solid var(--borderf);border-radius: 6px;padding:8px 10px;font-size:14px;font-weight:700;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color 0.15s;-moz-appearance:textfield}
   .ds-sm-input::-webkit-outer-spin-button,.ds-sm-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .ds-sm-input:focus{border-color:var(--blue)}
 

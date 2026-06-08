@@ -121,7 +121,7 @@ const CSS = `
   .cmp-field{display:flex;flex-direction:column;gap:4px}
   .cmp-label{font-size:10.5px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:0.4px;display:flex;justify-content:space-between;align-items:center}
   .cmp-hint{font-size:10px;color:var(--dim);font-weight:500}
-  .cmp-input{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:9px;padding:9px 12px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
+  .cmp-input{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:9px 12px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
   .cmp-input:focus{border-color:rgba(59,158,255,0.35);background:rgba(59,158,255,0.02)}
   .cmp-input::placeholder{color:var(--dim)}
   .deal-b .cmp-input:focus{border-color:rgba(52,217,138,0.35);background:rgba(52,217,138,0.02)}
@@ -153,7 +153,7 @@ const CSS = `
   .cmp-tlabel.bold{color:var(--text);font-weight:700}
   .cmp-tlabel.section{font-size:11px;font-weight:700;color:var(--text);letter-spacing:0.3px;padding-left:20px}
 
-  .cmp-tval{padding:8px 16px;font-size:13px;font-family:'Fira Code',monospace;font-weight:500;color:var(--text);border-radius:8px;transition:all 0.15s}
+  .cmp-tval{padding:8px 16px;font-size:13px;font-family:'Fira Code',monospace;font-weight:500;color:var(--text);border-radius: 6px;transition:all 0.15s}
   .cmp-tval.winner{color:var(--green);background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.15);display:flex;align-items:center;gap:6px}
   .cmp-tval.loser{color:var(--sub)}
   .cmp-tval.bold{font-weight:700;font-size:14px}
@@ -176,7 +176,7 @@ const CSS = `
   .cmp-verdict-wins-label{font-size:11px;color:var(--sub)}
 
   /* Grade pill */
-  .grade-pill{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;font-size:13px;font-weight:800}
+  .grade-pill{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius: 6px;font-size:13px;font-weight:800}
   .grade-A{background:rgba(52,217,138,0.15);color:var(--green)}
   .grade-B{background:rgba(59,158,255,0.15);color:var(--blue)}
   .grade-C{background:rgba(240,160,48,0.15);color:var(--amber)}
@@ -477,7 +477,7 @@ export default function DealComparison() {
                   const typeBg = deal.type==="brrrr" ? "rgba(167,130,255,0.1)" : deal.type==="flip" ? "rgba(59,158,255,0.1)" : "rgba(52,217,138,0.1)";
                   const typeColor2 = deal.type==="brrrr" ? "var(--purple)" : deal.type==="flip" ? "var(--blue)" : "var(--green)";
                   return (
-                    <div key={deal.id} style={{background:"rgba(255,255,255,0.02)",border:`1px solid ${typeColor}`,borderRadius:12,padding:"12px 16px",display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
+                    <div key={deal.id} style={{background:"rgba(255,255,255,0.02)",border:`1px solid ${typeColor}`,borderRadius: 10,padding:"12px 16px",display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
                       <div style={{flex:1,minWidth:160}}>
                         <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
                           <span style={{background:typeBg,color:typeColor2,borderRadius:99,padding:"2px 8px",fontSize:10,fontWeight:800}}>{typeText}</span>
@@ -497,9 +497,9 @@ export default function DealComparison() {
                         </div>
                       )}
                       <a href={deal.type==="brrrr"?"/brrrr":deal.type==="flip"?"/app":"/commercial"}
-                        style={{background:"var(--card2)",border:"1px solid var(--borderf)",borderRadius:8,padding:"7px 13px",fontSize:12,fontWeight:600,color:"var(--sub)",textDecoration:"none",flexShrink:0}}>Open →</a>
+                        style={{background:"var(--card2)",border:"1px solid var(--borderf)",borderRadius: 6,padding:"7px 13px",fontSize:12,fontWeight:600,color:"var(--sub)",textDecoration:"none",flexShrink:0}}>Open →</a>
                       <button onClick={()=>deleteSaved(deal.id)}
-                        style={{background:"rgba(242,92,92,0.08)",border:"1px solid rgba(242,92,92,0.2)",borderRadius:8,padding:"7px 10px",fontSize:12,color:"var(--red)",cursor:"pointer",flexShrink:0,fontFamily:"'DM Sans',sans-serif"}}>✕</button>
+                        style={{background:"rgba(242,92,92,0.08)",border:"1px solid rgba(242,92,92,0.2)",borderRadius: 6,padding:"7px 10px",fontSize:12,color:"var(--red)",cursor:"pointer",flexShrink:0,fontFamily:"'DM Sans',sans-serif"}}>✕</button>
                     </div>
                   );
                 })}

@@ -235,7 +235,7 @@ const CSS = `
   .dc-sum-stat:last-child{border-right:none}
   .dc-sum-val{font-size:20px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-0.5px}
   .dc-sum-lbl{font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
-  .dc-save-btn{margin-left:auto;margin-right:14px;background:var(--green);color:#07090f;border:none;border-radius:9px;padding:9px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0;transition:all 0.15s;white-space:nowrap}
+  .dc-save-btn{margin-left:auto;margin-right:14px;background:var(--green);color:#07090f;border:none;border-radius: 10px;padding:9px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0;transition:all 0.15s;white-space:nowrap}
   .dc-save-btn:hover{background:#4febb0}
   .dc-save-btn.saved{background:#1a4a35;color:var(--green);cursor:default}
 
@@ -275,7 +275,7 @@ const CSS = `
   .dc-empty-sub{font-size:14px;color:var(--sub);line-height:1.6}
 
   /* Province pill */
-  .dc-prov-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(167,130,255,0.1);border:1px solid rgba(167,130,255,0.25);border-radius:8px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--purple);margin-top:12px}
+  .dc-prov-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(167,130,255,0.1);border:1px solid rgba(167,130,255,0.25);border-radius: 6px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--purple);margin-top:12px}
 
   /* Responsive */
   @media(max-width:640px){
@@ -620,7 +620,7 @@ export default function DistressChecker() {
             {/* Bottom save CTA */}
             <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end", gap: 10 }}>
               <button
-                style={{ background: "transparent", border: "1px solid var(--borderf)", borderRadius: 9, padding: "10px 18px", fontSize: 13, fontWeight: 600, color: "var(--sub)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
+                style={{ background: "transparent", border: "1px solid var(--borderf)", borderRadius: 10, padding: "10px 18px", fontSize: 13, fontWeight: 600, color: "var(--sub)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
                 onClick={() => navigate("/pipeline")}
               >
                 View Pipeline →

@@ -358,7 +358,7 @@ const CSS = `
   .rc-propbar {
     background: var(--card);
     border: 1px solid var(--borderf);
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 18px 22px;
     display: flex;
     flex-wrap: wrap;
@@ -391,7 +391,7 @@ const CSS = `
     width: 100%;
     background: var(--card2);
     border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 9px 12px;
     font-size: 14px;
     font-family: 'DM Sans', sans-serif;
@@ -411,7 +411,7 @@ const CSS = `
     width: 100%;
     background: var(--card2);
     border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 9px 12px;
     font-size: 13px;
     font-family: 'DM Sans', sans-serif;
@@ -442,9 +442,9 @@ const CSS = `
   .rc-card {
     background: var(--card);
     border: 1px solid var(--borderf);
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 18px 20px;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s, box-shadow 0.15s;
     position: relative;
     cursor: default;
   }
@@ -539,7 +539,7 @@ const CSS = `
   .rc-estimate-box {
     background: var(--card2);
     border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 8px 12px;
     display: flex;
     flex-direction: column;
@@ -632,7 +632,7 @@ const CSS = `
     width: 100%;
     background: var(--card);
     border: 1px solid var(--borderf);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 14px 16px;
     font-size: 13px;
     font-family: 'DM Sans', sans-serif;
@@ -710,7 +710,7 @@ const CSS = `
   .rc-btn-primary {
     background: var(--blue);
     border: none;
-    border-radius: 9px;
+    border-radius: 10px;
     padding: 10px 20px;
     font-size: 13px;
     font-weight: 700;
@@ -727,7 +727,7 @@ const CSS = `
   .rc-btn-secondary {
     background: rgba(255,255,255,0.06);
     border: 1px solid var(--borderf);
-    border-radius: 9px;
+    border-radius: 10px;
     padding: 10px 18px;
     font-size: 13px;
     font-weight: 600;
@@ -754,7 +754,7 @@ const CSS = `
     font-size: 13px;
     font-weight: 700;
     padding: 10px 18px;
-    border-radius: 9px;
+    border-radius: 10px;
     z-index: 9999;
     box-shadow: 0 4px 20px rgba(52,217,138,0.35);
     animation: rc-fadein 0.2s ease;
@@ -1252,7 +1252,7 @@ export default function RehabCalculator() {
             style={{
               background: "var(--card)",
               border: "1px solid var(--borderf)",
-              borderRadius: 14,
+              borderRadius: 16,
               padding: "18px 20px",
             }}
           >
