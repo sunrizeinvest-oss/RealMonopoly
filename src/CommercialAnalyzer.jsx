@@ -5,6 +5,7 @@ import { irr as solveIRR, withCumulative } from "./lib/finance";
 import { useDocMeta } from "./lib/seo";
 import { celebrateFirstSave } from "./lib/celebrate";
 import DealCoach from "./components/DealCoach";
+import PropertyIntelCard from "./components/PropertyIntelCard";
 
 // Lazy-load charts (recharts is the heavy dep)
 const CommercialCharts = lazy(() => import("./components/CommercialCharts"));
@@ -684,6 +685,25 @@ export default function CommercialAnalyzer() {
             <div style={{padding:"0 20px"}}>
               <button className="mf-add-row" onClick={addUnit}>+ Add unit type</button>
             </div>
+          </div>
+        </div>
+
+        {/* ── PROPERTY ADDRESS + LIVE INTEL ─────────────────────────────────── */}
+        <div className="mf-card" style={{marginBottom:16}}>
+          <SectionHead title="Property"/>
+          <div style={{padding:"14px 20px"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--dim)",letterSpacing:"0.5px",textTransform:"uppercase",marginBottom:6}}>Address</div>
+            <input
+              className="mf-input"
+              type="text"
+              placeholder="8814 99 St NW, Edmonton, AB"
+              value={propertyAddress}
+              onChange={e => setPropertyAddress(e.target.value)}
+              style={{width:"100%"}}
+            />
+          </div>
+          <div style={{padding:"0 20px 14px"}}>
+            <PropertyIntelCard address={propertyAddress} />
           </div>
         </div>
 

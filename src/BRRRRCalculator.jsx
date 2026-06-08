@@ -5,6 +5,7 @@ import { irr as solveIRR, withCumulative } from "./lib/finance";
 import { useDocMeta } from "./lib/seo";
 import { celebrateFirstSave } from "./lib/celebrate";
 import DealCoach from "./components/DealCoach";
+import PropertyIntelCard from "./components/PropertyIntelCard";
 
 // Lazy-load the charts card so recharts (~200KB gzipped) doesn't ship in the
 // main bundle. Users only download it when they actually have a deal to view.
@@ -572,6 +573,9 @@ export default function BRRRRCalculator() {
               </div>
             </div>
           </div>
+
+          {/* Live zoning + assessment + permits + AI thesis (Edmonton + Calgary) */}
+          <PropertyIntelCard address={form.address} />
 
           {/* Phase 1: Buy */}
           <div className="br-card">

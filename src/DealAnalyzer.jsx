@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { generateFlipPDF } from "./generatePDF";
 import DealCoach from "./components/DealCoach";
+import PropertyIntelCard from "./components/PropertyIntelCard";
 
 const num = v => parseFloat(v) || 0;
 const fmt = n => new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(n || 0);
@@ -389,6 +390,10 @@ export default function DealAnalyzer() {
                 <input className="da-input" type="text" placeholder="123 Main St, Calgary, AB" value={form.address} onChange={set("address")} />
               </div>
             </div>
+
+            {/* Live zoning + assessment + permits + AI thesis (Edmonton + Calgary) */}
+            <PropertyIntelCard address={form.address} />
+
             <div className="da-field-row">
               <div className="da-field">
                 <div className="da-label">Purchase Price</div>
