@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ZoningMap from "./ZoningMap";
 
 /**
  * PropertyIntelCard — drop-in zoning + assessment + permits + AI thesis card.
@@ -138,6 +139,19 @@ export default function PropertyIntelCard({ address }) {
           }}>BYLAW ↗</a>
         )}
       </div>
+
+      {/* Neighbourhood activity map — pure SVG, no map lib */}
+      {zoningData.geocode?.lat && zoningData.geocode?.lng && (
+        <div style={{ padding: "1px 0 0", borderBottom: "1px solid var(--borderf, rgba(255,255,255,0.05))" }}>
+          <ZoningMap
+            center={{ lat: zoningData.geocode.lat, lng: zoningData.geocode.lng }}
+            polygon={z.raw?.geometry_multipolygon}
+            permits={permits}
+            zone={z.zone}
+            radiusM={600}
+          />
+        </div>
+      )}
 
       {/* Two-column body */}
       <div style={{
