@@ -83,9 +83,20 @@ export default function PropertyIntelCard({ address }) {
     { lbl: "Assessed value", val: a.assessedValue ? currency(a.assessedValue) : "—", mono: true, strong: true },
     { lbl: "Year built",     val: a.yearBuilt ?? "—", mono: true },
     { lbl: "Neighbourhood",  val: a.neighbourhood ?? "—", mono: false },
+    { lbl: "Ward",           val: a.ward ?? "—", mono: false },
     { lbl: "Tax class",      val: a.taxClass ?? a.buildingClass ?? "—", mono: false },
     { lbl: "Garage",         val: a.garage ?? "—", mono: false },
   ] : null;
+
+  // Aggregate redevelopment signal from permit data — total units added + total construction value
+  const permitTotals = permits.reduce((acc, p) => {
+    const units = parseInt(p.units_added, 10);
+    const val   = parseFloat(p.construction_value);
+    if (!isNaN(units) && units > 0) acc.units += units;
+    if (!isNaN(val)   && val   > 0) acc.value += val;
+    if (p.work_type === "(01) Building - New" || /Building - New/i.test(p.work_type || "")) acc.newBuilds++;
+    return acc;
+  }, { units: 0, value: 0, newBuilds: 0 });
 
   return (
     <div style={{
@@ -172,39 +183,101 @@ export default function PropertyIntelCard({ address }) {
       {permits.length > 0 && (
         <div style={{ padding: "12px 16px 14px", borderTop: "1px solid var(--borderf, rgba(255,255,255,0.05))" }}>
           <div style={{
-            fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
-            color: "var(--dim, #3a4a60)", letterSpacing: "0.6px", marginBottom: 8,
+            display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap",
+            marginBottom: 10,
           }}>
-            ▸ NEARBY DEV PERMITS · {permits.length} IN 1KM / 2YR
+            <div style={{
+              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+              color: "var(--dim, #3a4a60)", letterSpacing: "0.6px",
+            }}>
+              ▸ NEARBY DEV PERMITS · {permits.length} IN 1KM / 2YR
+            </div>
+            {(permitTotals.units > 0 || permitTotals.newBuilds > 0) && (
+              <div style={{
+                display: "flex", gap: 12, fontFamily: "'Fira Code',ui-monospace,monospace",
+                fontSize: 10, fontWeight: 700, letterSpacing: "0.5px",
+              }}>
+                {permitTotals.newBuilds > 0 && (
+                  <span style={{ color: "var(--green, #34d98a)" }}>
+                    ▸ {permitTotals.newBuilds} NEW BUILDS
+                  </span>
+                )}
+                {permitTotals.units > 0 && (
+                  <span style={{ color: "var(--green, #34d98a)" }}>
+                    ▸ +{permitTotals.units} UNITS
+                  </span>
+                )}
+                {permitTotals.value > 0 && (
+                  <span style={{ color: "var(--blue, #3b9eff)" }}>
+                    ▸ {currency(permitTotals.value)} CONSTR. VALUE
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           <div style={{
-            display: "grid", gridTemplateColumns: "100px 1fr 1.4fr", gap: 8,
+            display: "grid", gridTemplateColumns: "90px 1.3fr 1.3fr 90px 55px", gap: 8,
             fontSize: 10, fontWeight: 700, color: "var(--dim, #3a4a60)", letterSpacing: "0.5px",
             textTransform: "uppercase", paddingBottom: 6,
             borderBottom: "1px solid var(--borderf, rgba(255,255,255,0.05))",
             fontFamily: "'Fira Code',ui-monospace,monospace",
           }}>
-            <span>Date</span><span>Work</span><span>Address</span>
+            <span>Date</span>
+            <span>Work / Type</span>
+            <span>Address</span>
+            <span style={{ textAlign: "right" }}>Value</span>
+            <span style={{ textAlign: "right" }}>Units</span>
           </div>
-          <div style={{ maxHeight: 240, overflowY: "auto" }}>
-            {permits.map((p, i) => (
-              <div key={i} style={{
-                display: "grid", gridTemplateColumns: "100px 1fr 1.4fr", gap: 8,
-                padding: "6px 0",
-                borderBottom: i < permits.length - 1 ? "1px dashed rgba(255,255,255,0.04)" : "none",
-                fontSize: 11.5, alignItems: "baseline",
-              }}>
-                <span style={{ fontFamily: "'Fira Code',ui-monospace,monospace", color: "var(--dim, #3a4a60)" }}>
-                  {(p.permit_date || p.applieddate || "").slice(0, 10) || "—"}
-                </span>
-                <span style={{ color: "var(--sub, #6b7d96)" }}>
-                  {p.work_type || p.permit_type || p.work_type_group || "—"}
-                </span>
-                <span style={{ color: "var(--text, #dde4ef)", fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11 }}>
-                  {p.address || p.house_number || "—"}
-                </span>
-              </div>
-            ))}
+          <div style={{ maxHeight: 280, overflowY: "auto" }}>
+            {permits.map((p, i) => {
+              const work = p.work_type || p.permit_type || p.work_type_group || "—";
+              const bldg = p.building_type ? ` · ${p.building_type.replace(/\s*\(\d+\)\s*/, "")}` : "";
+              const value = parseFloat(p.construction_value);
+              const units = parseInt(p.units_added, 10);
+              return (
+                <div
+                  key={i}
+                  title={p.job_description || ""}
+                  style={{
+                    display: "grid", gridTemplateColumns: "90px 1.3fr 1.3fr 90px 55px", gap: 8,
+                    padding: "6px 0",
+                    borderBottom: i < permits.length - 1 ? "1px dashed rgba(255,255,255,0.04)" : "none",
+                    fontSize: 11.5, alignItems: "baseline",
+                    cursor: p.job_description ? "help" : "default",
+                  }}
+                >
+                  <span style={{ fontFamily: "'Fira Code',ui-monospace,monospace", color: "var(--dim, #3a4a60)", fontSize: 10.5 }}>
+                    {(p.permit_date || p.applieddate || p.issue_date || "").slice(0, 10) || "—"}
+                  </span>
+                  <span style={{ color: "var(--sub, #6b7d96)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {work}{bldg}
+                  </span>
+                  <span style={{ color: "var(--text, #dde4ef)", fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {p.address || p.house_number || "—"}
+                  </span>
+                  <span style={{
+                    textAlign: "right", fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5,
+                    color: !isNaN(value) && value > 0 ? "var(--blue, #3b9eff)" : "var(--dim, #3a4a60)",
+                  }}>
+                    {!isNaN(value) && value > 0 ? `$${Math.round(value / 1000)}K` : "—"}
+                  </span>
+                  <span style={{
+                    textAlign: "right", fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11,
+                    color: !isNaN(units) && units > 0 ? "var(--green, #34d98a)" : "var(--dim, #3a4a60)",
+                    fontWeight: !isNaN(units) && units > 0 ? 700 : 400,
+                  }}>
+                    {!isNaN(units) && units > 0 ? `+${units}` : "—"}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{
+            marginTop: 6,
+            fontFamily: "'Fira Code',ui-monospace,monospace",
+            fontSize: 9.5, color: "var(--dim, #3a4a60)", letterSpacing: "0.4px",
+          }}>
+            ▸ Hover any row for the full job description
           </div>
         </div>
       )}
