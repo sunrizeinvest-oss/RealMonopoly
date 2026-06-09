@@ -153,6 +153,37 @@ export default function CommercialLeaseMatrix({ target }) {
     setComps(c => c.map((deal, i) => i === idx ? { ...deal, [key]: value } : deal));
   }
 
+  function exportCSV() {
+    if (!columns.length) return;
+    const esc = v => {
+      if (v == null || v === "") return "";
+      const s = String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const header = ["Metric", ...columns.map(c => c.label), comps.length ? "Comp Avg" : null].filter(Boolean);
+    const lines = [header.map(esc).join(",")];
+    for (const row of ROWS) {
+      const cells = [row.label];
+      for (const col of columns) {
+        const n = numericForRow(row, col.deal);
+        // Use the raw value when numeric (spreadsheet-friendly), the string when not.
+        cells.push(n != null ? n : (col.deal[row.key] || ""));
+      }
+      if (comps.length) cells.push(avgRow[row.key] != null ? avgRow[row.key] : "");
+      lines.push(cells.map(esc).join(","));
+    }
+    const csv = lines.join("\n");
+    const fname = `realdeal-comps-${new Date().toISOString().slice(0,10)}.csv`;
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
   return (
     <div className="mf-card" style={{ marginTop: 16 }}>
       {/* Header */}
@@ -196,6 +227,24 @@ export default function CommercialLeaseMatrix({ target }) {
           >
             + ADD COMP
           </button>
+          {columns.length > 0 && (
+            <button
+              onClick={exportCSV}
+              title="Download all comps + the target as CSV for Excel / Google Sheets"
+              style={{
+                background: "var(--green)",
+                color: "#07090f",
+                border: "1px solid var(--green)",
+                borderRadius: 4,
+                padding: "7px 12px",
+                fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+                letterSpacing: "1px",
+                cursor: "pointer",
+              }}
+            >
+              📄 EXPORT CSV
+            </button>
+          )}
         </div>
       </div>
 
