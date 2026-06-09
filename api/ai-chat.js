@@ -11,6 +11,22 @@
  * Falls back to smart rule-based answers if no API key.
  */
 
+// Tolerant JSON extractor for Claude responses. Strips ```json fences AND
+// extracts the first balanced {...} object when Claude prepends a sentence
+// like "Here are the triggers I found:". Returns parsed object or null.
+function extractJSON(text) {
+  if (!text) return null;
+  const stripped = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  try { return JSON.parse(stripped); } catch {}
+  // Fallback: find the first { and the matching last }
+  const start = stripped.indexOf("{");
+  const end   = stripped.lastIndexOf("}");
+  if (start >= 0 && end > start) {
+    try { return JSON.parse(stripped.slice(start, end + 1)); } catch {}
+  }
+  return null;
+}
+
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -484,14 +500,10 @@ Output STRICT JSON only — no preamble, no markdown code fences, no commentary.
     const data = await r.json();
     const text = data.content?.[0]?.text?.trim() || "";
 
-    // Strip code fences if Claude wraps the JSON despite the prompt
-    const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
-
-    let extracted;
-    try { extracted = JSON.parse(cleaned); }
-    catch (e) {
-      console.error("[parse-document] JSON parse failed:", cleaned.slice(0, 200));
-      return res.status(502).json({ error: "AI returned non-JSON response", raw: cleaned.slice(0, 400) });
+    const extracted = extractJSON(text);
+    if (!extracted) {
+      console.error("[parse-document] JSON parse failed:", text.slice(0, 200));
+      return res.status(502).json({ error: "AI returned non-JSON response", raw: text.slice(0, 400) });
     }
 
     return res.status(200).json({ extracted, source: "claude-sonnet-4-6" });
@@ -567,12 +579,10 @@ These are directional comps for analyst review. Make them plausible, not perfect
 
     const data = await r.json();
     const text = data.content?.[0]?.text?.trim() || "";
-    const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
 
-    let parsed;
-    try { parsed = JSON.parse(cleaned); }
-    catch (e) {
-      console.error("[find-comps] JSON parse failed:", cleaned.slice(0, 200));
+    const parsed = extractJSON(text);
+    if (!parsed) {
+      console.error("[find-comps] JSON parse failed:", text.slice(0, 200));
       return res.status(502).json({ error: "AI returned non-JSON response" });
     }
 
@@ -650,12 +660,10 @@ These are directional signals for analyst review. Make them plausible, not perfe
 
     const data = await r.json();
     const text = data.content?.[0]?.text?.trim() || "";
-    const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
 
-    let parsed;
-    try { parsed = JSON.parse(cleaned); }
-    catch (e) {
-      console.error("[find-triggers] JSON parse failed:", cleaned.slice(0, 200));
+    const parsed = extractJSON(text);
+    if (!parsed) {
+      console.error("[find-triggers] JSON parse failed:", text.slice(0, 200));
       return res.status(502).json({ error: "AI returned non-JSON response" });
     }
 
