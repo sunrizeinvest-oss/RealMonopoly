@@ -1,5 +1,52 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { runMonteCarlo, DEFAULT_DISTRIBUTIONS } from "../lib/monteCarlo";
+
+// Institutional-style preset scenarios. Each maps to a delta from DEFAULT_DISTRIBUTIONS.
+// Bull = optimistic priors, Bear = stressed priors. Base = the defaults.
+const PRESETS = {
+  base: {
+    label: "BASE",
+    description: "Conservative institutional defaults — 3% rent growth, modest cap expansion, 7% vacancy.",
+    overrides: {},
+  },
+  bull: {
+    label: "BULL",
+    description: "Tight market: stronger rent growth, lower vacancy, cap compression, no rate shock.",
+    overrides: {
+      rentGrowthMean: 4.5, rentGrowthSigma: 0.8,
+      vacancyMean: 5.0, vacancySigma: 1.2,
+      rateShockMean: -0.25, rateShockSigma: 0.5,
+      exitCapSigma: 0.3,
+      constructionMedian: 0.95, constructionSigma: 0.10,
+    },
+  },
+  bear: {
+    label: "BEAR",
+    description: "Recessionary stress: rate spike risk, elevated vacancy, cap expansion, cost overruns.",
+    overrides: {
+      rentGrowthMean: 1.0, rentGrowthSigma: 1.5,
+      vacancyMean: 11.0, vacancySigma: 3.0,
+      rateShockMean: 1.0, rateShockSigma: 1.0,
+      exitCapMean: null, exitCapSigma: 1.0,
+      opexGrowthMean: 3.5, opexGrowthSigma: 0.8,
+      constructionMedian: 1.15, constructionSigma: 0.25,
+    },
+  },
+};
+
+const PRIOR_FIELDS = [
+  { key: "rentGrowthMean",     label: "Rent growth · mean",       suffix: "%/yr", min: -5, max: 12, step: 0.1 },
+  { key: "rentGrowthSigma",    label: "Rent growth · σ",          suffix: "%/yr", min: 0, max: 5, step: 0.1 },
+  { key: "vacancyMean",        label: "Vacancy · mean",           suffix: "%", min: 0, max: 25, step: 0.5 },
+  { key: "vacancySigma",       label: "Vacancy · σ",              suffix: "%", min: 0, max: 8, step: 0.25 },
+  { key: "rateShockMean",      label: "Rate shock · mean",        suffix: "%/yr", min: -2, max: 4, step: 0.1 },
+  { key: "rateShockSigma",     label: "Rate shock · σ",           suffix: "%/yr", min: 0, max: 3, step: 0.1 },
+  { key: "exitCapSigma",       label: "Exit cap · σ",             suffix: "%", min: 0, max: 2, step: 0.05 },
+  { key: "opexGrowthMean",     label: "OpEx growth · mean",       suffix: "%/yr", min: 0, max: 8, step: 0.1 },
+  { key: "opexGrowthSigma",    label: "OpEx growth · σ",          suffix: "%/yr", min: 0, max: 3, step: 0.1 },
+  { key: "constructionMedian", label: "Construction · multiplier", suffix: "x",   min: 0.7, max: 1.5, step: 0.01 },
+  { key: "constructionSigma",  label: "Construction · log-σ",      suffix: "",    min: 0, max: 0.5, step: 0.01 },
+];
 
 /**
  * RiskSimulator — institutional Monte Carlo: drives the deal through 1000
@@ -24,18 +71,48 @@ export default function RiskSimulator({ deal }) {
   const [results, setResults] = useState(null);
   const [running, setRunning] = useState(false);
   const [iterations, setIterations] = useState(1000);
+  const [activePreset, setActivePreset] = useState("base");
+  const [priors, setPriors] = useState(() => {
+    try {
+      const stored = localStorage.getItem("rde_risk_priors");
+      if (stored) return { ...DEFAULT_DISTRIBUTIONS, ...JSON.parse(stored) };
+    } catch {}
+    return { ...DEFAULT_DISTRIBUTIONS };
+  });
+  const [showPriors, setShowPriors] = useState(false);
+
+  // Persist any prior tweaks
+  useEffect(() => {
+    try { localStorage.setItem("rde_risk_priors", JSON.stringify(priors)); } catch {}
+  }, [priors]);
 
   const canRun = deal && deal.purchasePrice > 0 && deal.monthlyIncome > 0;
 
   function run() {
     if (!canRun) return;
     setRunning(true);
-    // Defer to next paint so the spinner shows before the 50-200ms sim block
     setTimeout(() => {
-      const r = runMonteCarlo(deal, { iterations });
+      const r = runMonteCarlo(deal, { iterations, distributions: priors });
       setResults(r);
       setRunning(false);
     }, 50);
+  }
+
+  function applyPreset(key) {
+    const p = PRESETS[key];
+    if (!p) return;
+    setActivePreset(key);
+    setPriors({ ...DEFAULT_DISTRIBUTIONS, ...p.overrides });
+  }
+  function tweakPrior(key, value) {
+    const n = Number(value);
+    if (Number.isNaN(n)) return;
+    setActivePreset("custom");
+    setPriors(p => ({ ...p, [key]: n }));
+  }
+  function resetPriors() {
+    setActivePreset("base");
+    setPriors({ ...DEFAULT_DISTRIBUTIONS });
   }
 
   return (
@@ -51,8 +128,21 @@ export default function RiskSimulator({ deal }) {
           fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 600,
           color: "var(--dim)", letterSpacing: "0.7px",
         }}>
-          · MONTE CARLO · {iterations.toLocaleString()} SIMULATIONS
+          · MONTE CARLO · {iterations.toLocaleString()} SIMS · {PRESETS[activePreset]?.label || "CUSTOM"} PRIORS
         </div>
+        <button
+          onClick={() => setShowPriors(v => !v)}
+          style={{
+            background: "transparent", color: "var(--sub)",
+            border: "1px solid var(--borderf)", borderRadius: 4,
+            padding: "7px 12px",
+            fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+            letterSpacing: "1px",
+            cursor: "pointer",
+          }}
+        >
+          {showPriors ? "HIDE PRIORS ▴" : "📊 CUSTOMIZE PRIORS"}
+        </button>
         <button
           onClick={run}
           disabled={!canRun || running}
@@ -74,6 +164,101 @@ export default function RiskSimulator({ deal }) {
           {running ? "RUNNING…" : results ? "▶ RE-RUN SIMULATION" : "▶ RUN SIMULATION"}
         </button>
       </div>
+
+      {/* Priors editor */}
+      {showPriors && (
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--borderf)", background: "rgba(167,130,255,0.02)" }}>
+          <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "center", flexWrap: "wrap" }}>
+            <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1.2px" }}>
+              ▸ SCENARIO PRESETS
+            </div>
+            {Object.entries(PRESETS).map(([key, p]) => {
+              const active = activePreset === key;
+              const color = key === "bull" ? "var(--green)" : key === "bear" ? "var(--red)" : "var(--blue)";
+              return (
+                <button
+                  key={key}
+                  onClick={() => applyPreset(key)}
+                  style={{
+                    background: active ? color : "transparent",
+                    color: active ? "#07090f" : color,
+                    border: `1px solid ${color}`,
+                    borderRadius: 3,
+                    padding: "5px 10px",
+                    fontFamily: "'Fira Code',ui-monospace,monospace",
+                    fontSize: 10, fontWeight: 700, letterSpacing: "1px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {p.label}
+                </button>
+              );
+            })}
+            <button
+              onClick={resetPriors}
+              style={{
+                background: "transparent", color: "var(--sub)",
+                border: "1px solid var(--borderf)", borderRadius: 3,
+                padding: "5px 10px",
+                fontFamily: "'Fira Code',ui-monospace,monospace",
+                fontSize: 10, fontWeight: 700, letterSpacing: "0.8px",
+                cursor: "pointer", marginLeft: "auto",
+              }}
+            >
+              ↺ RESET
+            </button>
+          </div>
+
+          <div style={{ fontSize: 11.5, color: "var(--sub)", lineHeight: 1.5, marginBottom: 14, fontStyle: "italic" }}>
+            {PRESETS[activePreset]?.description || "Custom priors — your tuned distributions. Cleared on Reset; saved across sessions in localStorage."}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8 }}>
+            {PRIOR_FIELDS.map(f => (
+              <div key={f.key} style={{
+                background: "var(--card2, #0a0e18)",
+                border: "1px solid var(--borderf)",
+                borderRadius: 4,
+                padding: "8px 10px",
+              }}>
+                <div style={{
+                  fontFamily: "'Fira Code',ui-monospace,monospace",
+                  fontSize: 9, fontWeight: 700,
+                  color: "var(--dim)", letterSpacing: "0.8px",
+                  textTransform: "uppercase", marginBottom: 4,
+                }}>
+                  {f.label}
+                </div>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                  <input
+                    type="number"
+                    value={priors[f.key] ?? ""}
+                    onChange={e => tweakPrior(f.key, e.target.value)}
+                    min={f.min}
+                    max={f.max}
+                    step={f.step}
+                    style={{
+                      flex: 1, minWidth: 0,
+                      background: "transparent",
+                      border: "1px solid var(--borderf)",
+                      borderRadius: 3,
+                      padding: "4px 7px",
+                      fontFamily: "'Fira Code',ui-monospace,monospace",
+                      fontSize: 12, fontWeight: 700,
+                      color: "var(--text)", outline: "none",
+                    }}
+                  />
+                  {f.suffix && (
+                    <span style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, color: "var(--dim)", flexShrink: 0 }}>
+                      {f.suffix}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Body */}
       {!canRun ? (
