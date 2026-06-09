@@ -11,6 +11,7 @@ import TopNav from "./components/TopNav";
 import AddressAutocomplete from "./AddressAutocomplete";
 import ShareDealButton from "./components/ShareDealButton";
 import AIDocumentDrop from "./components/AIDocumentDrop";
+import TierGate from "./components/TierGate";
 
 // Lazy-load the charts card so recharts (~200KB gzipped) doesn't ship in the
 // main bundle. Users only download it when they actually have a deal to view.
@@ -584,25 +585,31 @@ export default function BRRRRCalculator() {
             </div>
           </div>
 
-          {/* Drop a PDF, autofill the form */}
-          <AIDocumentDrop
-            target="residential"
-            onApply={({ field, value }) => {
-              const map = {
-                address:       "address",
-                purchasePrice: "purchasePrice",
-                arv:           "arv",
-                repairCosts:   "rehabBudget",
-                monthlyRent:   "monthlyRent",
-                propertyTaxes: "propTax",
-              };
-              const k = map[field];
-              if (!k) return;
-              // Taxes from doc are usually annual; BRRRR wants monthly
-              const v = (k === "propTax") ? Math.round(Number(value) / 12) : value;
-              setF(k, String(v));
-            }}
-          />
+          {/* Drop a PDF, autofill the form — Scale tier */}
+          <TierGate
+            tier="scale"
+            feature="AI Document Drop"
+            description="Drop a listing sheet, rent roll, lease, or appraisal — Claude Sonnet 4.6 reads it and the calculator fills in. Saves 5-10 minutes of typing per deal."
+          >
+            <AIDocumentDrop
+              target="residential"
+              onApply={({ field, value }) => {
+                const map = {
+                  address:       "address",
+                  purchasePrice: "purchasePrice",
+                  arv:           "arv",
+                  repairCosts:   "rehabBudget",
+                  monthlyRent:   "monthlyRent",
+                  propertyTaxes: "propTax",
+                };
+                const k = map[field];
+                if (!k) return;
+                // Taxes from doc are usually annual; BRRRR wants monthly
+                const v = (k === "propTax") ? Math.round(Number(value) / 12) : value;
+                setF(k, String(v));
+              }}
+            />
+          </TierGate>
 
           {/* Live zoning + assessment + permits + AI thesis (Edmonton + Calgary) */}
           <PropertyIntelCard address={form.address} />

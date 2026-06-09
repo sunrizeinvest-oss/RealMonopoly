@@ -49,6 +49,33 @@ export function AuthProvider({ children }) {
     return { data, error }
   }
 
+  // Cached user tier: resolves to "free" | "pro" | "scale". Updated whenever
+  // user signs in / out. Components read this via useUserTier() below.
+  const [userTier, setUserTier] = useState('free')
+  useEffect(() => {
+    let cancelled = false
+    async function resolve() {
+      if (!user) { setUserTier('free'); return }
+      try {
+        const { data } = await supabase
+          .from('subscriptions')
+          .select('plan, status')
+          .eq('user_id', user.id)
+          .single()
+        if (cancelled) return
+        if (data?.status === 'active' && (data?.plan === 'pro' || data?.plan === 'scale')) {
+          setUserTier(data.plan)
+        } else {
+          setUserTier('free')
+        }
+      } catch {
+        if (!cancelled) setUserTier('free')
+      }
+    }
+    resolve()
+    return () => { cancelled = true }
+  }, [user])
+
   const saveDeal = async (deal) => {
     if (!user) return { error: 'Not logged in' }
 
@@ -82,7 +109,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signInWithGoogle, signOut, getAccessToken, saveDeal, getDeals, deleteDeal, getDealByShareId, getSubscription }}>
+    <AuthContext.Provider value={{ user, loading, userTier, signUp, signIn, signInWithGoogle, signOut, getAccessToken, saveDeal, getDeals, deleteDeal, getDealByShareId, getSubscription }}>
       {children}
     </AuthContext.Provider>
   )

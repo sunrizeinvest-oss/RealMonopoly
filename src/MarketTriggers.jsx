@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
+import TierGate from "./components/TierGate";
 
 /**
  * MarketTriggers — distressed-listing radar.
@@ -110,6 +111,13 @@ export default function MarketTriggers() {
             Listings that were terminated, withdrawn, suspended, expired, or cancelled often signal distressed sellers, motivated owners, or undervalued land. Most agents and investors never see these. Search by area to surface them.
           </div>
         </div>
+
+        {/* Tier gate wraps the entire scanning UI; logged-in Scale users see the search */}
+        <TierGate
+          tier="scale"
+          feature="Market Triggers"
+          description="Surface terminated, withdrawn & suspended listings by area — distressed sellers, motivated owners, undervalued land that most investors never see. Search any city or neighbourhood."
+        >
 
         {/* Search */}
         <div style={{
@@ -241,6 +249,8 @@ export default function MarketTriggers() {
             </div>
           </>
         )}
+
+        </TierGate>
       </div>
     </div>
   );

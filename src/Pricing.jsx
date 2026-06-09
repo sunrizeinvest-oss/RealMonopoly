@@ -70,23 +70,23 @@ const PRO_FEATURES = [
 export default function Pricing() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(null); // null | "pro" | "scale"
 
-  async function handleUpgrade() {
+  async function handleUpgrade(plan = "pro") {
     if (!user) { navigate("/login"); return; }
-    setLoading(true);
+    setLoading(plan);
     try {
       const res = await fetch("/api/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: user.id, email: user.email }),
+        body: JSON.stringify({ userId: user.id, email: user.email, plan }),
       });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
-      else { alert("Something went wrong. Please try again."); setLoading(false); }
+      else { alert("Something went wrong. Please try again."); setLoading(null); }
     } catch (err) {
       alert("Something went wrong. Please try again.");
-      setLoading(false);
+      setLoading(null);
     }
   }
 
@@ -126,8 +126,144 @@ export default function Pricing() {
           <div style={{fontSize:12,color:"var(--dim)",marginTop:12}}>Takes 30 seconds. Cancel anytime (there's nothing to cancel).</div>
         </div>
 
+        {/* ── 3-TIER COMPARISON ──────────────────────────────────────────── */}
+        <div style={{maxWidth:1100,margin:"0 auto",padding:"0 24px 32px"}}>
+          <div style={{textAlign:"center",marginBottom:32}}>
+            <div style={{fontFamily:"'Fira Code',ui-monospace,monospace",fontSize:11,fontWeight:700,color:"var(--blue)",letterSpacing:"1.6px",marginBottom:6}}>
+              ▸ AFTER LAUNCH · PRICING
+            </div>
+            <div style={{fontSize:24,fontWeight:800,color:"var(--text)",letterSpacing:"-0.6px"}}>
+              Three tiers. Pick what fits.
+            </div>
+            <div style={{fontSize:13,color:"var(--sub)",marginTop:6,lineHeight:1.55}}>
+              Free during launch — these are the post-launch tiers. Lock in pricing early.
+            </div>
+          </div>
+
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))",gap:14}}>
+            {[
+              {
+                plan: "free", label: "Free", price: "$0", per: "forever",
+                color: "var(--sub)",
+                blurb: "Try the platform. No credit card.",
+                features: [
+                  "All 4 main calculators",
+                  "Address autocomplete",
+                  "Basic property intelligence (Edmonton + Calgary)",
+                  "3 saved deals",
+                  "Single-deal PDF export",
+                ],
+                cta: user ? "Currently using →" : "Sign up free →",
+                action: () => navigate(user ? "/analyze" : "/login"),
+                highlight: false,
+              },
+              {
+                plan: "pro", label: "Pro", price: "$99", per: "per month",
+                color: "var(--blue)",
+                blurb: "Independent residential investors, BRRRR strategists.",
+                features: [
+                  "Everything in Free",
+                  "Unlimited saved deals (up to 10 active properties)",
+                  "Predict-rent engine (CMHC + RentCast)",
+                  "All PDF exports (Investor Memo, Lender Package, Deal Report)",
+                  "Full BRRRR + Portfolio pipeline tracking",
+                  "Email + chat support",
+                ],
+                cta: "Upgrade to Pro →",
+                action: () => handleUpgrade("pro"),
+                highlight: true,
+              },
+              {
+                plan: "scale", label: "Scale", price: "$299", per: "per month",
+                color: "var(--purple)",
+                blurb: "Commercial brokers, land developers, wholesalers.",
+                features: [
+                  "Everything in Pro · unlimited",
+                  "AI Document Drop (PDF → calculator autofill)",
+                  "Institutional Risk Simulator (Monte Carlo)",
+                  "Commercial Lease & Sales Matrix",
+                  "Market Triggers (terminated/suspended radar)",
+                  "Vancouver + Toronto zoning intelligence",
+                  "Priority support · 24h SLA",
+                ],
+                cta: "Upgrade to Scale →",
+                action: () => handleUpgrade("scale"),
+                highlight: false,
+              },
+            ].map(tier => (
+              <div key={tier.plan} style={{
+                background: "var(--card)",
+                border: `1px solid ${tier.highlight ? tier.color : "var(--borderf)"}`,
+                borderRadius: 8,
+                padding: 22,
+                display: "flex", flexDirection: "column",
+                boxShadow: tier.highlight ? `0 0 0 1px ${tier.color}55, 0 18px 56px rgba(0,0,0,0.45)` : "none",
+                position: "relative",
+              }}>
+                {tier.highlight && (
+                  <div style={{
+                    position: "absolute", top: -10, left: 16,
+                    background: tier.color, color: "#07090f",
+                    fontFamily: "'Fira Code',ui-monospace,monospace",
+                    fontSize: 9.5, fontWeight: 700, letterSpacing: "1.2px",
+                    padding: "3px 9px", borderRadius: 3,
+                  }}>
+                    MOST POPULAR
+                  </div>
+                )}
+                <div style={{
+                  fontFamily: "'Fira Code',ui-monospace,monospace",
+                  fontSize: 11, fontWeight: 700, letterSpacing: "1.4px",
+                  color: tier.color, marginBottom: 6,
+                }}>
+                  ▸ {tier.label.toUpperCase()}
+                </div>
+                <div style={{display:"flex", alignItems:"baseline", gap:6, marginBottom:6}}>
+                  <span style={{fontFamily:"'DM Sans',sans-serif",fontSize:38,fontWeight:800,color:"var(--text)",letterSpacing:"-1.2px"}}>{tier.price}</span>
+                  <span style={{fontSize:13,color:"var(--sub)"}}>{tier.per}</span>
+                </div>
+                <div style={{fontSize:13,color:"var(--sub)",lineHeight:1.5,marginBottom:14}}>
+                  {tier.blurb}
+                </div>
+                <div style={{flex:1,display:"flex",flexDirection:"column",gap:7,marginBottom:18}}>
+                  {tier.features.map(f => (
+                    <div key={f} style={{display:"flex",alignItems:"baseline",gap:8,fontSize:12.5,color:"var(--text)",lineHeight:1.55}}>
+                      <span style={{color:tier.color,flexShrink:0}}>✓</span>
+                      <span>{f}</span>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={tier.action}
+                  disabled={loading === tier.plan}
+                  style={{
+                    background: tier.highlight ? tier.color : "transparent",
+                    color: tier.highlight ? "#07090f" : tier.color,
+                    border: tier.highlight ? "none" : `1px solid ${tier.color}`,
+                    borderRadius: 5,
+                    padding: "12px 18px",
+                    fontFamily: "'Fira Code',ui-monospace,monospace",
+                    fontSize: 11.5, fontWeight: 700, letterSpacing: "1.2px",
+                    cursor: loading === tier.plan ? "wait" : "pointer",
+                    opacity: loading && loading !== tier.plan ? 0.5 : 1,
+                    transition: "transform 0.15s, box-shadow 0.15s",
+                  }}
+                  onMouseEnter={e => { if (!loading) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = `0 8px 22px ${tier.color}55`; } }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
+                >
+                  {loading === tier.plan ? "OPENING…" : tier.cta}
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div style={{textAlign:"center",marginTop:32,fontSize:12.5,color:"var(--dim)",lineHeight:1.65}}>
+            All paid tiers cancel anytime · Course bundle ($1,497 + Pro $99/mo) coming soon · Annual pricing available on Scale
+          </div>
+        </div>
+
         <div style={{textAlign:"center",padding:"0 24px 60px",color:"var(--sub)",fontSize:13,lineHeight:1.7}}>
-          Pricing will be introduced later. Early users get a head start — and will always be taken care of.
+          Early users get a head start — and will always be taken care of.
         </div>
       </div>
     </div>

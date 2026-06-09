@@ -13,6 +13,7 @@ import ShareDealButton from "./components/ShareDealButton";
 import AIDocumentDrop from "./components/AIDocumentDrop";
 import RiskSimulator from "./components/RiskSimulator";
 import CommercialLeaseMatrix from "./components/CommercialLeaseMatrix";
+import TierGate from "./components/TierGate";
 
 // Lazy-load charts (recharts is the heavy dep)
 const CommercialCharts = lazy(() => import("./components/CommercialCharts"));
@@ -737,15 +738,21 @@ export default function CommercialAnalyzer() {
             <PropertyIntelCard address={propertyAddress} />
           </div>
           <div style={{padding:"0 20px 14px"}}>
-            <AIDocumentDrop
-              target="multifamily"
-              onApply={({ field, value }) => {
-                if (field === "address")       setPropertyAddress(String(value));
-                else if (field === "purchasePrice") setPurchasePrice(Number(value));
-                else if (field === "monthlyRent")   setSimpleMonthlyIncome(Number(value));
-                else if (field === "propertyTaxes") setPropTax(Number(value));
-              }}
-            />
+            <TierGate
+              tier="scale"
+              feature="AI Document Drop"
+              description="Drop a rent roll, lease, or appraisal — Claude Sonnet 4.6 reads it and the calculator fills in. Saves 5-10 minutes of typing per deal."
+            >
+              <AIDocumentDrop
+                target="multifamily"
+                onApply={({ field, value }) => {
+                  if (field === "address")       setPropertyAddress(String(value));
+                  else if (field === "purchasePrice") setPurchasePrice(Number(value));
+                  else if (field === "monthlyRent")   setSimpleMonthlyIncome(Number(value));
+                  else if (field === "propertyTaxes") setPropTax(Number(value));
+                }}
+              />
+            </TierGate>
           </div>
         </div>
 
@@ -1125,7 +1132,12 @@ export default function CommercialAnalyzer() {
           </div>
         </div>
 
-      {/* Comparable property matrix */}
+      {/* Comparable property matrix — Scale tier */}
+      <TierGate
+        tier="scale"
+        feature="Commercial Lease & Sales Matrix"
+        description="Side-by-side comparable-property table with best-value highlighting per row. Generate 4 starter comps with one click."
+      >
       <CommercialLeaseMatrix
         target={{
           address: propertyAddress,
@@ -1140,7 +1152,14 @@ export default function CommercialAnalyzer() {
         }}
       />
 
-      {/* Institutional Monte Carlo */}
+      </TierGate>
+
+      {/* Institutional Monte Carlo — Scale tier */}
+      <TierGate
+        tier="scale"
+        feature="Institutional Risk Simulator"
+        description="1,000-iteration Monte Carlo — P10/P50/P90 IRR, equity multiple, min DSCR, plus probability of meeting thresholds. Replaces deterministic sensitivity grids."
+      >
       <RiskSimulator
         deal={{
           purchasePrice: Number(purchasePrice) || 0,
@@ -1158,6 +1177,7 @@ export default function CommercialAnalyzer() {
           otherOpex:     (Number(utilities) || 0) + (Number(maintPerUnit) || 0) * (c.totalUnits || 1),
         }}
       />
+      </TierGate>
 
       {/* PDF Export */}
       <div style={{padding:"0 20px 12px"}}>
