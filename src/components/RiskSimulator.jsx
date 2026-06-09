@@ -1,5 +1,6 @@
 import { useMemo, useState, useEffect } from "react";
 import { runMonteCarlo, DEFAULT_DISTRIBUTIONS } from "../lib/monteCarlo";
+import { generateTier2Report } from "../lib/tier2Report";
 
 // Institutional-style preset scenarios. Each maps to a delta from DEFAULT_DISTRIBUTIONS.
 // Bull = optimistic priors, Bear = stressed priors. Base = the defaults.
@@ -67,7 +68,7 @@ const fmtPct = n => n == null ? "—" : `${(n * 100).toFixed(1)}%`;
 const fmtX   = n => n == null ? "—" : `${n.toFixed(2)}x`;
 const fmtProb = p => `${Math.round(p * 100)}%`;
 
-export default function RiskSimulator({ deal }) {
+export default function RiskSimulator({ deal, calcSummary }) {
   const [results, setResults] = useState(null);
   const [running, setRunning] = useState(false);
   const [iterations, setIterations] = useState(1000);
@@ -113,6 +114,27 @@ export default function RiskSimulator({ deal }) {
   function resetPriors() {
     setActivePreset("base");
     setPriors({ ...DEFAULT_DISTRIBUTIONS });
+  }
+
+  function exportICReport() {
+    const doc = generateTier2Report({
+      deal: {
+        address: deal?.address || "Multifamily Property",
+        propertyType: "Multifamily",
+        purchasePrice: deal?.purchasePrice,
+      },
+      calc: calcSummary || {
+        capRate: (deal?.monthlyIncome * 12 * 0.62) / (deal?.purchasePrice || 1),
+        irr: results?.irr?.p50,
+        eqMultiple: results?.eqMult?.p50,
+        DSCR: results?.minDSCR?.p50,
+      },
+      monteCarloResults: results,
+      presetName: PRESETS[activePreset]?.label || "CUSTOM",
+      priors,
+    });
+    const fname = `realdeal-ic-report-${new Date().toISOString().slice(0,10)}.pdf`;
+    doc.save(fname);
   }
 
   return (
@@ -163,6 +185,20 @@ export default function RiskSimulator({ deal }) {
         >
           {running ? "RUNNING…" : results ? "▶ RE-RUN SIMULATION" : "▶ RUN SIMULATION"}
         </button>
+        {results && (
+          <button
+            onClick={exportICReport}
+            style={{
+              background: "transparent", color: "var(--green)",
+              border: "1px solid var(--green)", borderRadius: 4,
+              padding: "8px 14px",
+              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
+              letterSpacing: "1px", cursor: "pointer",
+            }}
+          >
+            📄 EXPORT IC REPORT
+          </button>
+        )}
       </div>
 
       {/* Priors editor */}

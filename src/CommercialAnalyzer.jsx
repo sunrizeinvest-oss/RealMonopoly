@@ -1178,6 +1178,13 @@ export default function CommercialAnalyzer() {
           taxAnnual:     Number(propTax) || 0,
           insuranceAnnual: Number(insurance) || 0,
           otherOpex:     (Number(utilities) || 0) + (Number(maintPerUnit) || 0) * (c.totalUnits || 1),
+          address: propertyAddress,
+        }}
+        calcSummary={{
+          GPR: c.GPR, vacancyLoss: c.vacancyLoss, EGI: c.EGI, totalOpex: c.totalOpex,
+          NOI: c.NOI, ADS: c.ADS, BTCF: c.BTCF,
+          irr: c.irr, eqMultiple: c.eqMultiple,
+          CoC: c.CoC, capRate: c.actualCap, DSCR: c.DSCR,
         }}
       />
       </TierGate>
