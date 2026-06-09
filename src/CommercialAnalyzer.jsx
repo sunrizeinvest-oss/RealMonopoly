@@ -258,8 +258,34 @@ export default function CommercialAnalyzer() {
     } catch {}
   }, []);
 
+  // Simple/Advanced mode (default to Simple for new users; persisted in localStorage)
+  const [simpleMode, setSimpleMode] = useState(() => {
+    try { return localStorage.getItem("rde_mf_simple") !== "0"; }
+    catch { return true; }
+  });
+  function toggleSimpleMode() {
+    setSimpleMode(v => {
+      try { localStorage.setItem("rde_mf_simple", v ? "0" : "1"); } catch {}
+      return !v;
+    });
+  }
+
   // ── Inputs ─────────────────────────────────────────────────────────────────
   const [unitMix, setUnitMix] = useState(DEFAULT_UNITS);
+
+  // Simple-mode override: a single composite "total monthly income" that drives
+  // the calc when Essentials mode is on. Default = sum of DEFAULT_UNITS' mix.
+  const [simpleMonthlyIncome, setSimpleMonthlyIncome] = useState(() =>
+    DEFAULT_UNITS.reduce((s, r) => s + (r.units || 0) * (r.marketRent || r.currentRent || 0), 0)
+  );
+
+  // When simple mode is on, sync the unit mix to a single composite row so the
+  // existing calc (which reads from unitMix) still works without surgery.
+  useEffect(() => {
+    if (!simpleMode) return;
+    const inc = parseFloat(simpleMonthlyIncome) || 0;
+    setUnitMix([{ type: "Combined building", units: 1, sqft: 0, currentRent: inc, marketRent: inc }]);
+  }, [simpleMode, simpleMonthlyIncome]);
 
   // Assumptions
   const [purchasePrice, setPurchasePrice] = useState(4500000);
@@ -709,7 +735,62 @@ export default function CommercialAnalyzer() {
           </div>
         </div>
 
+        {/* ── SIMPLE / ADVANCED MODE TOGGLE ─────────────────────────────────── */}
+        <div style={{
+          display:"flex", alignItems:"center", justifyContent:"space-between",
+          gap:10, padding:"10px 14px", marginBottom:16,
+          background:"var(--card)", border:"1px solid var(--borderf)", borderRadius:6,
+          borderLeft:`3px solid ${simpleMode ? "var(--green)" : "var(--blue)"}`,
+        }}>
+          <div>
+            <div style={{fontFamily:"'Fira Code',ui-monospace,monospace",fontSize:10.5,fontWeight:700,color:simpleMode?"var(--green)":"var(--blue)",letterSpacing:"1.2px"}}>
+              ▸ {simpleMode ? "ESSENTIALS ONLY" : "ADVANCED · UNIT MIX, EXPENSES, EXIT"}
+            </div>
+            <div style={{fontSize:11.5,color:"var(--sub)",marginTop:2}}>
+              {simpleMode
+                ? "4 fields. Smart defaults for vacancy, expenses, growth, exit cap, taxes."
+                : "Tune every assumption — unit-by-unit mix, expense detail, hold + exit."}
+            </div>
+          </div>
+          <button
+            onClick={toggleSimpleMode}
+            style={{
+              background:"transparent", border:`1px solid var(--borderf)`, borderRadius:5,
+              padding:"7px 14px", fontFamily:"'Fira Code',ui-monospace,monospace",
+              fontSize:10.5, fontWeight:700, color:"var(--text)", letterSpacing:"1px",
+              cursor:"pointer", transition:"border-color 0.15s, background 0.15s",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--blue)"; e.currentTarget.style.background = "rgba(59,158,255,0.06)"; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--borderf)"; e.currentTarget.style.background = "transparent"; }}
+          >
+            {simpleMode ? "SHOW ALL INPUTS →" : "← BACK TO ESSENTIALS"}
+          </button>
+        </div>
+
+        {/* ── ESSENTIALS-ONLY CARD ──────────────────────────────────────────── */}
+        {simpleMode && (
+          <div className="mf-card" style={{marginBottom:16}}>
+            <SectionHead title="The 4 inputs that matter" sub="Address is above — everything else uses smart defaults"/>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
+              <Field label="Purchase Price ($)"          value={purchasePrice}        onChange={setPurchasePrice}/>
+              <Field label="Total Monthly Income ($)"    value={simpleMonthlyIncome}  onChange={setSimpleMonthlyIncome}/>
+              <Field label="Down Payment (%)"            value={downPct}              onChange={setDownPct}/>
+              <Field label="Interest Rate (%)"           value={interestRate}         onChange={setInterestRate}/>
+            </div>
+            <div style={{
+              margin:"10px 20px 16px", padding:"10px 12px",
+              background:"rgba(59,158,255,0.05)", border:"1px solid rgba(59,158,255,0.15)",
+              borderRadius:4, fontSize:11.5, color:"var(--sub)", lineHeight:1.55,
+            }}>
+              <strong style={{color:"var(--blue)"}}>Smart defaults applied:</strong> 7% vacancy, 9% mgmt, $1k/unit maintenance, 5% reserves,
+              25-yr amort, 5.5% entry / 5.75% exit cap, 3% rent growth, 5-yr hold, $18k tax + $8k insurance + $6k utilities.
+              Click "Show all inputs" to tune any of them.
+            </div>
+          </div>
+        )}
+
         {/* ── ASSUMPTIONS ───────────────────────────────────────────────────── */}
+        {!simpleMode && (
         <div className="mf-card">
           <SectionHead title="Key Assumptions"/>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
@@ -759,6 +840,7 @@ export default function CommercialAnalyzer() {
             </div>
           </div>
         </div>
+        )}
 
         {/* ── INCOME & NOI ──────────────────────────────────────────────────── */}
         <div className="mf-card">

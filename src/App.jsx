@@ -335,7 +335,15 @@ export default function FlipCalc() {
   const [importError, setImportError] = useState("");
   const [importSuccess, setImportSuccess] = useState(false);
   const importRef = useState(null);
-  const [mode, setMode] = useState("advanced");
+  // Default first-time users to the simplified 4-question "beginner" flow.
+  // Power users who flip to "advanced" keep that choice across visits.
+  const [mode, setMode] = useState(() => {
+    try { return localStorage.getItem("rde_flip_mode") || "beginner"; }
+    catch { return "beginner"; }
+  });
+  useEffect(() => {
+    try { localStorage.setItem("rde_flip_mode", mode); } catch {}
+  }, [mode]);
 
   // ── Generate Offer Letter ─────────────────────────────────────────────────
   function generateOfferLetter() {
