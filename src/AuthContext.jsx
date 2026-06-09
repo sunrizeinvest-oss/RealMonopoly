@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from './supabase'
+import { dealLimit } from './lib/tiers'
 
 const AuthContext = createContext({})
 
@@ -79,20 +80,27 @@ export function AuthProvider({ children }) {
   const saveDeal = async (deal) => {
     if (!user) return { error: 'Not logged in' }
 
-    // Check subscription status
-    const { data: sub } = await getSubscription()
-    const isPro = sub?.status === 'active' && sub?.plan === 'pro'
-
-    if (!isPro) {
-      // Count existing saves
+    // Tier-aware cap. FREE=3, PRO=10, SCALE=∞ (per src/lib/tiers.js).
+    // Counts the user's existing saved_deals and refuses the insert if the
+    // tier limit is reached.
+    const limit = dealLimit(userTier)
+    if (Number.isFinite(limit)) {
       const { count } = await supabase.from('saved_deals').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
-      if (count >= 3) {
-        return { error: 'SAVE_LIMIT_REACHED', count }
+      if ((count ?? 0) >= limit) {
+        return { error: 'SAVE_LIMIT_REACHED', count, limit, tier: userTier }
       }
     }
 
     const { data, error } = await supabase.from('saved_deals').insert([{ ...deal, user_id: user.id }]).select().single()
     return { data, error }
+  }
+
+  // Used by Portfolio / nav badges: "5 / 10 used". Returns { count, limit }
+  // where limit is Infinity for SCALE.
+  const getDealUsage = async () => {
+    if (!user) return { count: 0, limit: dealLimit('free') }
+    const { count } = await supabase.from('saved_deals').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
+    return { count: count ?? 0, limit: dealLimit(userTier), tier: userTier }
   }
   const getDeals = async () => {
     if (!user) return { data: [], error: null }
@@ -109,7 +117,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, userTier, signUp, signIn, signInWithGoogle, signOut, getAccessToken, saveDeal, getDeals, deleteDeal, getDealByShareId, getSubscription }}>
+    <AuthContext.Provider value={{ user, loading, userTier, signUp, signIn, signInWithGoogle, signOut, getAccessToken, saveDeal, getDeals, deleteDeal, getDealByShareId, getSubscription, getDealUsage }}>
       {children}
     </AuthContext.Provider>
   )

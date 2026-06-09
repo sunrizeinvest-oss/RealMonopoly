@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { dealLimit, TIER_LABEL, TIER_COLOR } from "./lib/tiers";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import TopNav from "./components/TopNav";
@@ -174,7 +175,7 @@ function groupByMonth(deals) {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 export default function Portfolio() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, userTier } = useAuth();
   const navigate = useNavigate();
 
   const [deals,      setDeals]      = useState([]);
@@ -278,6 +279,61 @@ export default function Portfolio() {
           <h1>Your <span>Portfolio</span></h1>
           <p>Track every closed deal. See your real numbers — total profit, win rate, average ROI, and your best deal ever.</p>
         </div>
+
+        {/* Tier-cap usage badge — surfaces the ceiling before the user hits it */}
+        {(() => {
+          const limit = dealLimit(userTier);
+          const used  = deals.length;
+          const pct   = Number.isFinite(limit) && limit > 0 ? Math.min(100, (used / limit) * 100) : 0;
+          const isUnlimited = !Number.isFinite(limit);
+          const tierColor = TIER_COLOR[userTier] || "var(--sub)";
+          const nearCap = !isUnlimited && used / limit >= 0.8;
+          return (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 16,
+              padding: "12px 16px", marginBottom: 18,
+              background: "var(--card)",
+              border: "1px solid var(--borderf)",
+              borderLeft: `3px solid ${nearCap ? "var(--amber)" : tierColor}`,
+              borderRadius: 6, flexWrap: "wrap",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{
+                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
+                  letterSpacing: "1.2px", color: tierColor,
+                  padding: "3px 8px", border: `1px solid ${tierColor}`, borderRadius: 3,
+                }}>
+                  {TIER_LABEL[userTier] || "Free"}
+                </span>
+                <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: "var(--text)", fontWeight: 600 }}>
+                  {isUnlimited ? `${used} deals saved` : `${used} / ${limit} deals used`}
+                </span>
+              </div>
+              {!isUnlimited && (
+                <div style={{ flex: 1, minWidth: 160, height: 8, background: "rgba(255,255,255,0.05)", borderRadius: 4, overflow: "hidden" }}>
+                  <div style={{
+                    height: "100%", width: `${pct}%`,
+                    background: nearCap ? "var(--amber)" : tierColor,
+                    transition: "width 0.3s",
+                  }} />
+                </div>
+              )}
+              {!isUnlimited && used >= limit && (
+                <a href="/pricing" style={{
+                  background: "var(--purple)", color: "#07090f",
+                  border: "none", borderRadius: 4, padding: "6px 14px",
+                  fontSize: 12, fontWeight: 700, textDecoration: "none",
+                  fontFamily: "'Fira Code',ui-monospace,monospace", letterSpacing: "0.8px",
+                }}>UPGRADE FOR MORE →</a>
+              )}
+              {isUnlimited && (
+                <span style={{ fontSize: 12, color: "var(--green)", fontWeight: 600, fontFamily: "'Fira Code',ui-monospace,monospace" }}>
+                  ∞ UNLIMITED
+                </span>
+              )}
+            </div>
+          );
+        })()}
 
         {/* Scoreboard */}
         <div className="pf-scoreboard">

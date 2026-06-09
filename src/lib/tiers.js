@@ -78,6 +78,25 @@ export function requiredTier(featureKey) {
   return FEATURE_TIER[featureKey] || TIER.FREE;
 }
 
+/**
+ * Tier limits — how many saved deals each tier can hold.
+ *   FREE  → 3 (taste of the product)
+ *   PRO   → 10 (Tier 1 retail residential investors per spec)
+ *   SCALE → unlimited (Infinity — commercial / wholesale operators)
+ *
+ * Read via dealLimit(tier). UI should also show "X / Y used" so the user
+ * sees the ceiling before they hit it.
+ */
+export const TIER_LIMITS = {
+  [TIER.FREE]:  { savedDeals: 3 },
+  [TIER.PRO]:   { savedDeals: 10 },
+  [TIER.SCALE]: { savedDeals: Infinity },
+};
+
+export function dealLimit(tier) {
+  return TIER_LIMITS[tier]?.savedDeals ?? TIER_LIMITS[TIER.FREE].savedDeals;
+}
+
 // Pretty labels for the UI
 export const TIER_LABEL = {
   [TIER.FREE]:  "Free",
