@@ -595,12 +595,15 @@ export default function BRRRRCalculator() {
               target="residential"
               onApply={({ field, value }) => {
                 const map = {
-                  address:       "address",
-                  purchasePrice: "purchasePrice",
-                  arv:           "arv",
-                  repairCosts:   "rehabBudget",
-                  monthlyRent:   "monthlyRent",
-                  propertyTaxes: "propTax",
+                  address:        "address",
+                  purchasePrice:  "purchasePrice",
+                  // Appraisals don't have a purchase price — fall back to the
+                  // appraised value if the user hasn't entered one yet.
+                  appraisedValue: form.purchasePrice ? null : "purchasePrice",
+                  arv:            "arv",
+                  repairCosts:    "rehabBudget",
+                  monthlyRent:    "monthlyRent",
+                  propertyTaxes:  "propTax",
                 };
                 const k = map[field];
                 if (!k) return;

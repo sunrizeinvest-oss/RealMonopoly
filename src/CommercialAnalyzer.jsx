@@ -746,8 +746,11 @@ export default function CommercialAnalyzer() {
               <AIDocumentDrop
                 target="multifamily"
                 onApply={({ field, value }) => {
-                  if (field === "address")       setPropertyAddress(String(value));
+                  if (field === "address")            setPropertyAddress(String(value));
                   else if (field === "purchasePrice") setPurchasePrice(Number(value));
+                  // Appraisals don't have a purchase price — fall back to the
+                  // appraised value when the user hasn't entered one yet.
+                  else if (field === "appraisedValue" && !purchasePrice) setPurchasePrice(Number(value));
                   else if (field === "monthlyRent")   setSimpleMonthlyIncome(Number(value));
                   else if (field === "propertyTaxes") setPropTax(Number(value));
                 }}

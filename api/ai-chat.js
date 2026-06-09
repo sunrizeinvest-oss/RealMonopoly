@@ -437,6 +437,7 @@ Schema:
 - address           — full street address (no city)
 - city             — "City, Province/State"
 - purchasePrice     — list/asking/contract price, in dollars, integer
+- appraisedValue    — market value from an appraisal or BPO, in dollars, integer (DIFFERENT from purchasePrice — only populate if this is an appraisal, BPO, or valuation report)
 - arv              — after-repair value, in dollars, integer (only if mentioned)
 - repairCosts      — estimated rehab budget, in dollars, integer (only if mentioned)
 - monthlyRent      — current gross monthly rent OR market rent estimate

@@ -15,6 +15,7 @@ const FIELD_LABELS = {
   address:        { label: "Address",            kind: "text" },
   city:           { label: "City / Region",      kind: "text" },
   purchasePrice:  { label: "Purchase Price",     kind: "currency" },
+  appraisedValue: { label: "Appraised Value",    kind: "currency" },
   arv:            { label: "ARV (After-Repair)", kind: "currency" },
   repairCosts:    { label: "Repair Budget",      kind: "currency" },
   monthlyRent:    { label: "Monthly Rent",       kind: "currency" },
