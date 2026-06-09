@@ -10,6 +10,7 @@ import CrossLinkCTA from "./components/CrossLinkCTA";
 import TopNav from "./components/TopNav";
 import AddressAutocomplete from "./AddressAutocomplete";
 import ShareDealButton from "./components/ShareDealButton";
+import AIDocumentDrop from "./components/AIDocumentDrop";
 
 // Lazy-load charts (recharts is the heavy dep)
 const CommercialCharts = lazy(() => import("./components/CommercialCharts"));
@@ -732,6 +733,17 @@ export default function CommercialAnalyzer() {
           </div>
           <div style={{padding:"0 20px 14px"}}>
             <PropertyIntelCard address={propertyAddress} />
+          </div>
+          <div style={{padding:"0 20px 14px"}}>
+            <AIDocumentDrop
+              target="multifamily"
+              onApply={({ field, value }) => {
+                if (field === "address")       setPropertyAddress(String(value));
+                else if (field === "purchasePrice") setPurchasePrice(Number(value));
+                else if (field === "monthlyRent")   setSimpleMonthlyIncome(Number(value));
+                else if (field === "propertyTaxes") setPropTax(Number(value));
+              }}
+            />
           </div>
         </div>
 

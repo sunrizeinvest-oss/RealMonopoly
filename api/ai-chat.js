@@ -27,6 +27,9 @@ export default async function handler(req, res) {
   if (req.body?.mode === "deal-thesis") {
     return handleDealThesis(req, res);
   }
+  if (req.body?.mode === "parse-document") {
+    return handleParseDocument(req, res);
+  }
 
   const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -390,4 +393,102 @@ function buildDealTemplateThesis({ strategy, metrics, verdict }) {
 
   // Generic
   return `${dscr != null ? `DSCR ${dscr.toFixed(2)}x` : ""}${coc != null ? `, CoC ${pct(coc)}` : ""}${profit != null ? `, ${fmt(profit)} profit` : ""}. ${verdict || "Review the numbers in detail."}`;
+}
+
+// ─── Parse Document Mode (AI Document Drop) ────────────────────────────────
+// Accepts a base64-encoded PDF and asks Claude Sonnet 4.6 to extract the
+// fields a residential or multifamily underwriter needs to populate a calc:
+// address, price, ARV, repair budget, monthly rent, taxes, unit count, etc.
+//
+// Body shape:
+//   { mode: "parse-document",
+//     document: base64Str,         // raw bytes, no "data:..." prefix
+//     mediaType: "application/pdf",// or image/png, image/jpeg
+//     target?: "residential"|"multifamily" }
+//
+// Response:
+//   { extracted: { address, city, purchasePrice, arv, repairCosts,
+//                  monthlyRent, propertyTaxes, unitCount, bedrooms,
+//                  bathrooms, sqft, yearBuilt, notes }, source: "claude-sonnet-4-6" }
+async function handleParseDocument(req, res) {
+  const { document, mediaType = "application/pdf", target = "residential" } = req.body || {};
+  if (!document || typeof document !== "string") {
+    return res.status(400).json({ error: "Missing 'document' (base64 string)." });
+  }
+  // Strip any data-URL prefix if the client included it
+  const b64 = document.replace(/^data:[^;]+;base64,/, "");
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") {
+    return res.status(503).json({ error: "AI parsing is not configured on this deployment." });
+  }
+
+  const SCHEMA_PROMPT = `You are extracting structured deal data from a real estate document — a listing sheet, rent roll, lease, appraisal, BPO, MLS export, or assessment notice.
+
+Read the attached document carefully. Extract the following fields. **Return null for any you cannot find** — do NOT guess.
+
+Schema:
+- address           — full street address (no city)
+- city             — "City, Province/State"
+- purchasePrice     — list/asking/contract price, in dollars, integer
+- arv              — after-repair value, in dollars, integer (only if mentioned)
+- repairCosts      — estimated rehab budget, in dollars, integer (only if mentioned)
+- monthlyRent      — current gross monthly rent OR market rent estimate
+- propertyTaxes    — annual property taxes, in dollars
+- unitCount        — number of units (1 if single-family, 2+ if multifamily)
+- bedrooms, bathrooms — counts
+- sqft             — livable square footage
+- yearBuilt        — 4-digit year
+- notes            — 1-2 sentence summary of what this document is and any salient details that don't fit elsewhere (e.g. "5-unit walkup; 2 units vacant; deferred maintenance on roof")
+
+Target: ${target === "multifamily" ? "MULTIFAMILY (5+ units)" : "RESIDENTIAL (1-4 units)"}.
+
+Output STRICT JSON only — no preamble, no markdown code fences, no commentary. Just the JSON object.`;
+
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1200,
+        messages: [{
+          role: "user",
+          content: [
+            { type: "document", source: { type: "base64", media_type: mediaType, data: b64 } },
+            { type: "text", text: SCHEMA_PROMPT },
+          ],
+        }],
+      }),
+      signal: AbortSignal.timeout(55_000),
+    });
+
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      console.error("[parse-document] Claude API error:", r.status, errBody.slice(0, 200));
+      return res.status(502).json({ error: `AI parsing failed (${r.status})`, detail: errBody.slice(0, 200) });
+    }
+
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim() || "";
+
+    // Strip code fences if Claude wraps the JSON despite the prompt
+    const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+
+    let extracted;
+    try { extracted = JSON.parse(cleaned); }
+    catch (e) {
+      console.error("[parse-document] JSON parse failed:", cleaned.slice(0, 200));
+      return res.status(502).json({ error: "AI returned non-JSON response", raw: cleaned.slice(0, 400) });
+    }
+
+    return res.status(200).json({ extracted, source: "claude-sonnet-4-6" });
+  } catch (e) {
+    console.error("[parse-document] timeout or fetch error:", e.message);
+    return res.status(504).json({ error: `Parsing failed: ${e.message}` });
+  }
 }
