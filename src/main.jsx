@@ -60,6 +60,13 @@ function Home() {
   return user ? <Navigate to="/analyze" replace /> : <Landing />
 }
 
+// /worth was a basic AVM-only page; /property does everything it did and more.
+// Forwards any ?address= deep-link through so existing bookmarks still work.
+function WorthRedirect() {
+  const search = typeof window !== "undefined" ? window.location.search : ""
+  return <Navigate to={`/property${search}`} replace />
+}
+
 // Tiny indeterminate progress bar at the top of the viewport. Used as the
 // Suspense fallback during route chunk fetches — ~200ms on first visit to a
 // route, instant on subsequent visits (browser caches the chunk).
@@ -96,7 +103,10 @@ createRoot(document.getElementById('root')).render(
             <Route path="/brrrr" element={<BRRRRCalculator />} />
             <Route path="/loans" element={<LoanCompare />} />
             <Route path="/compare" element={<DealComparison />} />
-            <Route path="/worth" element={<PropertyWorth />} />
+            {/* /worth was a basic AVM-only page; all its functionality and more
+                lives at /property now (Canadian open-data + RentCast + zoning +
+                CMHC + AI thesis). Forwards any ?address= deep-link through. */}
+            <Route path="/worth" element={<WorthRedirect />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/deal/:shareId" element={<SharedDeal />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />

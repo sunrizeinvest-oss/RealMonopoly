@@ -401,6 +401,29 @@ export default function PropertyHub() {
         <h1>Type an address.<br /><span>Get everything.</span></h1>
         <p>Value, rent, sold comps, active listings, rental comps — then run the deal as a flip, BRRRR, or rental. Numbers auto-fill.</p>
 
+        {/* Canonical-page hint: /property delivers zoning + AI thesis + permits
+            + Canadian open-data fallback on top of everything here. Hubs the
+            user toward the deeper intel page; deep-links the current query. */}
+        <div style={{
+          display: "inline-flex", alignItems: "center", gap: 10,
+          marginTop: 14, marginBottom: 4,
+          padding: "8px 14px",
+          background: "rgba(167,130,255,0.07)",
+          border: "1px solid rgba(167,130,255,0.28)",
+          borderRadius: 999,
+          fontSize: 12, fontWeight: 600, color: "var(--text)",
+        }}>
+          <span style={{ color: "var(--purple)", fontWeight: 700 }}>NEW</span>
+          <span>Want zoning + permits + AI thesis too?</span>
+          <a
+            href={query ? `/property?address=${encodeURIComponent(query)}` : "/property"}
+            style={{
+              color: "var(--purple)", fontWeight: 800, textDecoration: "none",
+              borderLeft: "1px solid rgba(167,130,255,0.4)", paddingLeft: 10,
+            }}
+          >📍 FULL PROPERTY INTEL →</a>
+        </div>
+
         <div className="ph-search-wrap">
           <div className="ph-search-box">
             <span className="ph-search-icon">📍</span>
@@ -419,7 +442,7 @@ export default function PropertyHub() {
           </div>
           <div className="ph-search-hint">
             US &amp; Canadian addresses supported &nbsp;·&nbsp;
-            <span onClick={() => navigate("/worth")} style={{color:"#ffb43c",cursor:"pointer",fontWeight:600}}>Don't know the value? Estimate it free →</span>
+            <span onClick={() => navigate(`/property?address=${encodeURIComponent(query)}`)} style={{color:"#ffb43c",cursor:"pointer",fontWeight:600}}>Don't know the value? Estimate it free →</span>
           </div>
         </div>
       </div>
@@ -459,7 +482,7 @@ export default function PropertyHub() {
                   <div style={{fontSize:13,fontWeight:700,color:"#ffb43c",marginBottom:3}}>Don't have the property value?</div>
                   <div style={{fontSize:12,color:"var(--sub)"}}>Use our free estimator — get value range, rent estimate & cash flow instantly.</div>
                 </div>
-                <button onClick={() => navigate("/worth")} style={{background:"linear-gradient(135deg,#ffb43c,var(--amber))",color:"#07090f",border:"none",borderRadius: 10,padding:"9px 18px",fontSize:13,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit"}}>
+                <button onClick={() => navigate(`/property?address=${encodeURIComponent(query)}`)} style={{background:"linear-gradient(135deg,#ffb43c,var(--amber))",color:"#07090f",border:"none",borderRadius: 10,padding:"9px 18px",fontSize:13,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit"}}>
                   Estimate Value →
                 </button>
               </div>

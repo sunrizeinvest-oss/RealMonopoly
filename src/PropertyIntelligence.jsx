@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { useAuth } from "./AuthContext"
 import { useDocMeta } from "./lib/seo"
 import { celebrateFirstSave } from "./lib/celebrate"
@@ -884,8 +884,17 @@ export default function PropertyIntelligence() {
   const chatBottomRef = useRef(null)
   const searchInputRef = useRef(null)
 
-  // ─── Prefill from localStorage ─────────────────────────────────────────────
+  // ─── Prefill from ?address= query param OR localStorage ────────────────────
+  // /property is the canonical address-lookup. Other pages deep-link in by
+  // passing `?address=<encoded>` and we auto-fire the lookup on mount.
+  const [searchParams] = useSearchParams()
   useEffect(() => {
+    const qp = searchParams.get("address")
+    if (qp) {
+      setQuery(qp)
+      setTimeout(() => handleSearch(qp), 200)
+      return
+    }
     try {
       const prefill = JSON.parse(localStorage.getItem("rde_prefill") || "{}")
       const addr = prefill.address || prefill.searchQuery
