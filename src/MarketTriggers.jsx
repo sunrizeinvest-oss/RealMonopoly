@@ -16,6 +16,12 @@ import TierGate from "./components/TierGate";
  */
 
 const STORAGE_KEY = "rde_market_triggers_v1";
+const SEARCHES_KEY = "rde_market_searches_v1";
+
+// Stable per-trigger key so "new since last visit" detection isn't fooled
+// by AI rewording the same property. Compare by address + status + listed date.
+const triggerKey = (t) =>
+  `${(t.address || "").toLowerCase().trim()}|${t.status || ""}|${t.listedDate || ""}`;
 
 const STATUS_META = {
   Terminated:  { color: "var(--red)",    icon: "✗" },
@@ -43,10 +49,22 @@ export default function MarketTriggers() {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
     catch { return []; }
   });
+  // Saved searches: { id, name, area, propertyType, maxPrice, lastScanAt, lastScanKeys: [triggerKey,...] }
+  const [savedSearches, setSavedSearches] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(SEARCHES_KEY) || "[]"); }
+    catch { return []; }
+  });
+  // Keys of triggers seen on the previous run of the currently-loaded search
+  const [previousKeys, setPreviousKeys] = useState(new Set());
+  // Currently active saved-search id (so we know which one to update on next run)
+  const [activeSearchId, setActiveSearchId] = useState(null);
 
   useEffect(() => {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(watch)); } catch {}
   }, [watch]);
+  useEffect(() => {
+    try { localStorage.setItem(SEARCHES_KEY, JSON.stringify(savedSearches)); } catch {}
+  }, [savedSearches]);
 
   async function runSearch() {
     if (!area.trim()) return;
@@ -68,7 +86,82 @@ export default function MarketTriggers() {
         throw new Error(j.error || `Failed (${r.status})`);
       }
       const j = await r.json();
-      setTriggers(j.triggers || []);
+      const newTriggers = j.triggers || [];
+      setTriggers(newTriggers);
+      // If this run was launched from a saved search, update its last-scan record
+      if (activeSearchId) {
+        const keys = newTriggers.map(triggerKey);
+        setSavedSearches(s => s.map(x =>
+          x.id === activeSearchId
+            ? { ...x, lastScanAt: Date.now(), lastScanKeys: keys }
+            : x
+        ));
+      }
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setRunning(false);
+    }
+  }
+
+  function saveCurrentSearch() {
+    if (!area.trim()) return;
+    const id = `s_${Date.now().toString(36)}`;
+    const keys = triggers.map(triggerKey);
+    setSavedSearches(s => [
+      { id, name: area.trim(), area: area.trim(), propertyType, maxPrice, lastScanAt: Date.now(), lastScanKeys: keys },
+      ...s.filter(x => x.area.toLowerCase() !== area.trim().toLowerCase())
+    ]);
+    setActiveSearchId(id);
+  }
+  function loadSavedSearch(s) {
+    setArea(s.area);
+    setPropertyType(s.propertyType || "any");
+    setMaxPrice(s.maxPrice || "");
+    setPreviousKeys(new Set(s.lastScanKeys || []));
+    setActiveSearchId(s.id);
+    setTriggers([]);
+    // Run immediately so the user sees the diff
+    setTimeout(() => {
+      // Trick: setArea is async; runSearch uses the closure's `area` value.
+      // Run the actual fetch directly to avoid the race.
+      runWithArea(s.area, s.propertyType || "any", s.maxPrice || "");
+    }, 50);
+  }
+  function deleteSavedSearch(id) {
+    setSavedSearches(s => s.filter(x => x.id !== id));
+    if (activeSearchId === id) { setActiveSearchId(null); setPreviousKeys(new Set()); }
+  }
+
+  async function runWithArea(a, pType, maxP) {
+    setRunning(true);
+    setError(null);
+    try {
+      const r = await fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "find-triggers",
+          area: a,
+          propertyType: pType,
+          maxPrice: maxP ? Number(maxP) : null,
+        }),
+      });
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        throw new Error(j.error || `Failed (${r.status})`);
+      }
+      const j = await r.json();
+      const newTriggers = j.triggers || [];
+      setTriggers(newTriggers);
+      if (activeSearchId) {
+        const keys = newTriggers.map(triggerKey);
+        setSavedSearches(s => s.map(x =>
+          x.id === activeSearchId
+            ? { ...x, lastScanAt: Date.now(), lastScanKeys: keys }
+            : x
+        ));
+      }
     } catch (e) {
       setError(e.message);
     } finally {
@@ -89,10 +182,17 @@ export default function MarketTriggers() {
     navigate(`${route}?${params.toString()}`);
   }
 
-  const sortedTriggers = useMemo(
-    () => [...triggers].sort((a, b) => (b.redevScore || 0) - (a.redevScore || 0)),
-    [triggers]
-  );
+  // Tag each trigger as "new" if its key wasn't in the previous run for this saved search.
+  const sortedTriggers = useMemo(() => {
+    return [...triggers]
+      .map(t => ({ ...t, _isNew: previousKeys.size > 0 && !previousKeys.has(triggerKey(t)) }))
+      .sort((a, b) => {
+        // New triggers float to the top within the redev-score sort
+        if (a._isNew !== b._isNew) return b._isNew - a._isNew;
+        return (b.redevScore || 0) - (a.redevScore || 0);
+      });
+  }, [triggers, previousKeys]);
+  const newCount = sortedTriggers.filter(t => t._isNew).length;
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)", fontFamily: "'DM Sans',sans-serif" }}>
@@ -190,6 +290,61 @@ export default function MarketTriggers() {
           </div>
         )}
 
+        {/* Saved Searches panel */}
+        {savedSearches.length > 0 && (
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 10 }}>
+              <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700, color: "var(--blue)", letterSpacing: "1.4px" }}>
+                ▸ MY SEARCHES · {savedSearches.length}
+              </div>
+              <div style={{ fontSize: 11, color: "var(--dim)" }}>
+                Re-scan to see what's new since your last visit
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 8 }}>
+              {savedSearches.map(s => {
+                const isActive = activeSearchId === s.id;
+                const daysAgo = s.lastScanAt ? Math.floor((Date.now() - s.lastScanAt) / 86400000) : null;
+                return (
+                  <div key={s.id} style={{
+                    background: "var(--card)",
+                    border: `1px solid ${isActive ? "var(--blue)" : "var(--borderf)"}`,
+                    borderLeft: `3px solid var(--blue)`,
+                    borderRadius: 5, padding: "10px 12px",
+                    display: "flex", flexDirection: "column", gap: 4,
+                    cursor: "pointer",
+                    transition: "transform 0.15s, box-shadow 0.15s",
+                  }}
+                    onClick={() => loadSavedSearch(s)}
+                    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 22px rgba(0,0,0,0.45)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {s.name}
+                      </span>
+                      <button
+                        onClick={e => { e.stopPropagation(); deleteSavedSearch(s.id); }}
+                        style={{ background: "transparent", border: "none", color: "var(--dim)", cursor: "pointer", padding: "0 4px", fontSize: 13 }}
+                        title="Remove saved search"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div style={{ display: "flex", gap: 8, fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, color: "var(--dim)", letterSpacing: "0.4px" }}>
+                      <span>{s.propertyType !== "any" ? s.propertyType.toUpperCase() : "ANY"}</span>
+                      {s.maxPrice && <span>· ≤ ${Math.round(Number(s.maxPrice)/1000)}K</span>}
+                      <span style={{ marginLeft: "auto", color: daysAgo > 7 ? "var(--amber)" : "var(--green)" }}>
+                        {daysAgo == null ? "—" : daysAgo === 0 ? "today" : daysAgo === 1 ? "1d ago" : `${daysAgo}d ago`}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Watch list */}
         {watch.length > 0 && (
           <div style={{ marginBottom: 20 }}>
@@ -228,13 +383,38 @@ export default function MarketTriggers() {
 
         {sortedTriggers.length > 0 && (
           <>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 12 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
               <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700, color: "var(--red)", letterSpacing: "1.4px" }}>
                 ▸ {triggers.length} SIGNALS · SORTED BY REDEV POTENTIAL
               </div>
+              {newCount > 0 && (
+                <div style={{
+                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+                  color: "var(--green)", letterSpacing: "1px",
+                  padding: "2px 8px", background: "rgba(52,217,138,0.1)",
+                  border: "1px solid var(--green)", borderRadius: 3,
+                }}>
+                  🆕 {newCount} NEW SINCE LAST SCAN
+                </div>
+              )}
               <div style={{ fontSize: 11.5, color: "var(--dim)" }}>
                 AI-suggested · directional only — verify with MLS before contacting
               </div>
+              {!savedSearches.some(s => s.area.toLowerCase() === area.trim().toLowerCase()) && (
+                <button
+                  onClick={saveCurrentSearch}
+                  style={{
+                    marginLeft: "auto",
+                    background: "rgba(59,158,255,0.08)", color: "var(--blue)",
+                    border: "1px solid var(--blue)", borderRadius: 4,
+                    padding: "6px 12px",
+                    fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+                    letterSpacing: "1px", cursor: "pointer",
+                  }}
+                >
+                  ⭐ SAVE THIS SEARCH
+                </button>
+              )}
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 10 }}>
               {sortedTriggers.map((t, i) => (
@@ -265,11 +445,25 @@ function TriggerCard({ t, compact, saved, onToggle, onOpenBRRRR, onOpenMF }) {
   const isMF = t.propertyType === "Multifamily" || t.units > 4;
   return (
     <div style={{
-      background: "var(--card)", border: "1px solid var(--borderf)",
+      background: t._isNew ? "rgba(52,217,138,0.04)" : "var(--card)",
+      border: `1px solid ${t._isNew ? "rgba(52,217,138,0.35)" : "var(--borderf)"}`,
       borderLeft: `3px solid ${meta.color}`,
       borderRadius: 6, padding: 12,
       display: "flex", flexDirection: "column", gap: 8,
+      position: "relative",
     }}>
+      {t._isNew && (
+        <span style={{
+          position: "absolute", top: -8, right: 10,
+          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9, fontWeight: 700,
+          color: "#07090f", background: "var(--green)",
+          letterSpacing: "0.9px",
+          padding: "2px 6px", borderRadius: 3,
+          boxShadow: "0 4px 12px rgba(52,217,138,0.4)",
+        }}>
+          🆕 NEW
+        </span>
+      )}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{
           fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
