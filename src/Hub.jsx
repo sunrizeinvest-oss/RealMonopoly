@@ -162,7 +162,7 @@ export default function Hub() {
         </div>
 
         {/* What's My Property Worth Card — full width */}
-        <div className="hub-card worth" style={{gridColumn:"1 / -1"}} onClick={() => navigate("/worth")}>
+        <div className="hub-card worth" style={{gridColumn:"1 / -1"}} onClick={() => navigate("/property")}>
           <div className="hub-card-badge" style={{background:"linear-gradient(135deg,#ffb43c,var(--red))"}}>NEW</div>
           <div style={{display:"flex",alignItems:"center",gap:20}}>
             <div className="hub-card-icon" style={{fontSize:48}}>🏠</div>
