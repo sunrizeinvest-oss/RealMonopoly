@@ -941,6 +941,7 @@ export default function Landing() {
                 { icon: "💎", name: "Property Worth",        desc: "AVM valuation with low / mid / high range.",                  route: "/worth" },
                 { icon: "🔎", name: "Deal Screener",         desc: "Bulk evaluate dozens of properties. Filter by margin / MAO.",  route: "/screen" },
                 { icon: "🚨", name: "Distress Checker",      desc: "Detect distressed-property signals (price drops, DOM, tax).",  route: "/distress" },
+                { icon: "📡", name: "Market Triggers",       desc: "Surface terminated, withdrawn & suspended listings by area.",   route: "/triggers" },
               ],
             },
             {

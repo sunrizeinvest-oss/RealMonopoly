@@ -33,6 +33,9 @@ export default async function handler(req, res) {
   if (req.body?.mode === "find-comps") {
     return handleFindComps(req, res);
   }
+  if (req.body?.mode === "find-triggers") {
+    return handleFindTriggers(req, res);
+  }
 
   const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -575,5 +578,88 @@ These are directional comps for analyst review. Make them plausible, not perfect
   } catch (e) {
     console.error("[find-comps] timeout or fetch error:", e.message);
     return res.status(504).json({ error: `Comp generation failed: ${e.message}` });
+  }
+}
+
+// ─── Find Market Triggers Mode ─────────────────────────────────────────────
+// Generates plausible "terminated / withdrawn / suspended" listings for a
+// search area. Real MLS data requires RETS/Trestle access — this is a
+// directional signal layer the user reviews; replace the AI call with a
+// real feed when the data deal lands.
+async function handleFindTriggers(req, res) {
+  const { area, propertyType = "any", minPrice, maxPrice } = req.body || {};
+  if (!area) return res.status(400).json({ error: "Missing 'area' (city / neighbourhood)." });
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") {
+    return res.status(503).json({ error: "AI trigger finder is not configured." });
+  }
+
+  const prompt = `You are a real-estate market analyst. Generate 8 PLAUSIBLE distressed-listing signals for the search area below — properties that recently failed to sell, were withdrawn, suspended, expired, or terminated. Use realistic addresses, property types, and pricing for the area.
+
+SEARCH AREA: ${area}
+PROPERTY TYPE: ${propertyType}
+${minPrice ? `MIN PRICE: $${Number(minPrice).toLocaleString()}` : ""}
+${maxPrice ? `MAX PRICE: $${Number(maxPrice).toLocaleString()}` : ""}
+
+Each trigger is a JSON object with these fields:
+- address       — plausible street + city
+- status        — one of: "Terminated", "Withdrawn", "Suspended", "Expired", "Cancelled"
+- triggerDate   — YYYY-MM-DD (within last 6 months)
+- listedDate    — YYYY-MM-DD (original listing)
+- daysOnMarket  — integer
+- lastPrice     — integer dollars
+- originalPrice — integer dollars (typically higher than lastPrice if there were drops)
+- priceDrops    — count of price reductions during the listing
+- propertyType  — "Single Family", "Multifamily", "Land", "Commercial", "Mixed-Use"
+- units         — integer (1 for SFH, more for MF)
+- yearBuilt     — 4-digit
+- zoning        — best-guess realistic code
+- suspectedReason — 1 SHORT phrase: "Overpriced", "Title issue", "Inspection problems", "Owner withdrew", "Market timing", "Financing fell through", etc.
+- redevScore    — integer 0-100 (your assessment of off-market redev/distress acquisition potential, where 100 = excellent)
+- notes         — 1 SHORT sentence with the most relevant insight (e.g., "Owner held 12 years; suspected motivated seller", "Tear-down on rare R-CG corner lot")
+
+Output STRICT JSON only — no preamble, no markdown fences:
+{ "triggers": [ {...}, {...}, ... ] }
+
+These are directional signals for analyst review. Make them plausible, not perfect. Vary the statuses, reasons, and redev scores.`;
+
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 3000,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: AbortSignal.timeout(45_000),
+    });
+
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      console.error("[find-triggers] Claude API error:", r.status, errBody.slice(0, 200));
+      return res.status(502).json({ error: `Trigger generation failed (${r.status})` });
+    }
+
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim() || "";
+    const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+
+    let parsed;
+    try { parsed = JSON.parse(cleaned); }
+    catch (e) {
+      console.error("[find-triggers] JSON parse failed:", cleaned.slice(0, 200));
+      return res.status(502).json({ error: "AI returned non-JSON response" });
+    }
+
+    return res.status(200).json({ triggers: parsed.triggers || [], source: "claude-sonnet-4-6" });
+  } catch (e) {
+    console.error("[find-triggers] timeout or fetch error:", e.message);
+    return res.status(504).json({ error: `Trigger generation failed: ${e.message}` });
   }
 }

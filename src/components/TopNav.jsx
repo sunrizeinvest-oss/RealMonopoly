@@ -33,6 +33,7 @@ const PRELOAD = {
   "/worth":      () => import("../PropertyWorth.jsx"),
   "/screen":     () => import("../DealScreener.jsx"),
   "/distress":   () => import("../DistressChecker.jsx"),
+  "/triggers":   () => import("../MarketTriggers.jsx"),
   "/dashboard":  () => import("../Dashboard.jsx"),
   "/pipeline":   () => import("../Pipeline.jsx"),
   "/portfolio":  () => import("../Portfolio.jsx"),
@@ -79,6 +80,7 @@ const TOOLS = [
       { icon: "💎", name: "Property Worth",      route: "/worth" },
       { icon: "🔎", name: "Deal Screener",       route: "/screen" },
       { icon: "🚨", name: "Distress Checker",    route: "/distress" },
+      { icon: "📡", name: "Market Triggers",     route: "/triggers" },
     ],
   },
   {
