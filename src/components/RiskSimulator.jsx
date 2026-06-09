@@ -82,6 +82,42 @@ export default function RiskSimulator({ deal, calcSummary }) {
   });
   const [showPriors, setShowPriors] = useState(false);
 
+  // Saved named scenarios — each is {id, name, priors, savedAt}.
+  // Lets a Scale user keep "RBC Stress Test", "LP Conservative", "My Bear
+  // Case" side-by-side and swap them in with one click on any deal.
+  const SCENARIOS_KEY = "rde_risk_scenarios_v1";
+  const [savedScenarios, setSavedScenarios] = useState(() => {
+    try {
+      const raw = localStorage.getItem(SCENARIOS_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  });
+  const [activeScenarioId, setActiveScenarioId] = useState(null);
+  useEffect(() => {
+    try { localStorage.setItem(SCENARIOS_KEY, JSON.stringify(savedScenarios)); } catch {}
+  }, [savedScenarios]);
+
+  function saveScenario() {
+    const name = window.prompt("Name this scenario (e.g. \"RBC Stress Test\", \"LP Conservative\"):");
+    if (!name || !name.trim()) return;
+    const trimmed = name.trim().slice(0, 40);
+    const id = `s_${Math.random().toString(36).slice(2, 9)}`;
+    const entry = { id, name: trimmed, priors: { ...priors }, savedAt: new Date().toISOString() };
+    setSavedScenarios(s => [entry, ...s].slice(0, 12));
+    setActiveScenarioId(id);
+  }
+  function loadScenario(id) {
+    const s = savedScenarios.find(x => x.id === id);
+    if (!s) return;
+    setPriors({ ...DEFAULT_DISTRIBUTIONS, ...s.priors });
+    setActivePreset("custom");
+    setActiveScenarioId(id);
+  }
+  function deleteScenario(id) {
+    setSavedScenarios(s => s.filter(x => x.id !== id));
+    if (activeScenarioId === id) setActiveScenarioId(null);
+  }
+
   // Persist any prior tweaks
   useEffect(() => {
     try { localStorage.setItem("rde_risk_priors", JSON.stringify(priors)); } catch {}
@@ -103,16 +139,19 @@ export default function RiskSimulator({ deal, calcSummary }) {
     const p = PRESETS[key];
     if (!p) return;
     setActivePreset(key);
+    setActiveScenarioId(null);
     setPriors({ ...DEFAULT_DISTRIBUTIONS, ...p.overrides });
   }
   function tweakPrior(key, value) {
     const n = Number(value);
     if (Number.isNaN(n)) return;
     setActivePreset("custom");
+    setActiveScenarioId(null);
     setPriors(p => ({ ...p, [key]: n }));
   }
   function resetPriors() {
     setActivePreset("base");
+    setActiveScenarioId(null);
     setPriors({ ...DEFAULT_DISTRIBUTIONS });
   }
 
@@ -247,6 +286,87 @@ export default function RiskSimulator({ deal, calcSummary }) {
 
           <div style={{ fontSize: 11.5, color: "var(--sub)", lineHeight: 1.5, marginBottom: 14, fontStyle: "italic" }}>
             {PRESETS[activePreset]?.description || "Custom priors — your tuned distributions. Cleared on Reset; saved across sessions in localStorage."}
+          </div>
+
+          {/* Saved named scenarios — Scale users save "RBC Stress Test", "LP
+              Conservative", "My Bear Case" and swap them in with one click. */}
+          <div style={{
+            display: "flex", gap: 8, marginBottom: 14, alignItems: "center", flexWrap: "wrap",
+            padding: "10px 12px",
+            background: "rgba(74,158,255,0.04)",
+            border: "1px solid rgba(74,158,255,0.18)",
+            borderLeft: "3px solid var(--blue)",
+            borderRadius: 4,
+          }}>
+            <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--blue)", letterSpacing: "1.2px", flexShrink: 0 }}>
+              ▸ MY SCENARIOS
+            </div>
+            {savedScenarios.length === 0 && (
+              <span style={{ fontSize: 11, color: "var(--dim)", fontStyle: "italic" }}>
+                None saved yet. Tune the priors below, then "Save as scenario" to recall later on any deal.
+              </span>
+            )}
+            {savedScenarios.map(s => {
+              const active = activeScenarioId === s.id;
+              return (
+                <div key={s.id} style={{
+                  display: "inline-flex", alignItems: "center", gap: 0,
+                  background: active ? "var(--blue)" : "transparent",
+                  border: `1px solid var(--blue)`,
+                  borderRadius: 3,
+                  overflow: "hidden",
+                }}>
+                  <button
+                    onClick={() => loadScenario(s.id)}
+                    title={`Saved ${new Date(s.savedAt).toLocaleDateString()}`}
+                    style={{
+                      background: "transparent",
+                      color: active ? "#07090f" : "var(--blue)",
+                      border: "none",
+                      padding: "5px 10px",
+                      fontFamily: "'Fira Code',ui-monospace,monospace",
+                      fontSize: 10, fontWeight: 700, letterSpacing: "0.5px",
+                      cursor: "pointer", maxWidth: 200,
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                    }}
+                  >
+                    {s.name}
+                  </button>
+                  <button
+                    onClick={() => deleteScenario(s.id)}
+                    title="Delete this scenario"
+                    style={{
+                      background: "transparent",
+                      color: active ? "#07090f" : "var(--blue)",
+                      border: "none",
+                      borderLeft: `1px solid ${active ? "rgba(7,9,15,0.3)" : "var(--blue)"}`,
+                      padding: "5px 8px",
+                      fontFamily: "'Fira Code',ui-monospace,monospace",
+                      fontSize: 10, fontWeight: 700,
+                      cursor: "pointer", opacity: 0.7,
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              );
+            })}
+            <button
+              onClick={saveScenario}
+              style={{
+                marginLeft: "auto",
+                background: "var(--blue)",
+                color: "#07090f",
+                border: "1px solid var(--blue)",
+                borderRadius: 3,
+                padding: "5px 11px",
+                fontFamily: "'Fira Code',ui-monospace,monospace",
+                fontSize: 10, fontWeight: 700, letterSpacing: "0.8px",
+                cursor: "pointer", flexShrink: 0,
+              }}
+            >
+              ＋ SAVE AS SCENARIO
+            </button>
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8 }}>
