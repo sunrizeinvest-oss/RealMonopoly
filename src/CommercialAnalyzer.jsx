@@ -11,6 +11,7 @@ import TopNav from "./components/TopNav";
 import AddressAutocomplete from "./AddressAutocomplete";
 import ShareDealButton from "./components/ShareDealButton";
 import AIDocumentDrop from "./components/AIDocumentDrop";
+import RiskSimulator from "./components/RiskSimulator";
 
 // Lazy-load charts (recharts is the heavy dep)
 const CommercialCharts = lazy(() => import("./components/CommercialCharts"));
@@ -1122,6 +1123,25 @@ export default function CommercialAnalyzer() {
             </div>
           </div>
         </div>
+
+      {/* Institutional Monte Carlo */}
+      <RiskSimulator
+        deal={{
+          purchasePrice: Number(purchasePrice) || 0,
+          downPct:       (Number(downPct) || 0) / 100,
+          renoBudget:    Number(renoBudget) || 0,
+          monthlyIncome: c.GPR ? c.GPR / 12 : Number(simpleMonthlyIncome) || 0,
+          holdYears:     Number(holdYears) || 5,
+          baseInterestRate: Number(interestRate) || 6.5,
+          amortYears:    Number(amortYears) || 25,
+          entryCap:      Number(entryCap) || 5.5,
+          targetIRR:     0.15,
+          mgmtPct:       (Number(mgmtPct) || 9) / 100,
+          taxAnnual:     Number(propTax) || 0,
+          insuranceAnnual: Number(insurance) || 0,
+          otherOpex:     (Number(utilities) || 0) + (Number(maintPerUnit) || 0) * (c.totalUnits || 1),
+        }}
+      />
 
       {/* PDF Export */}
       <div style={{padding:"0 20px 12px"}}>
