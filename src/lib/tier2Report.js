@@ -36,14 +36,15 @@ const fmtPct = n => n == null || isNaN(n) ? "—" : `${(n*100).toFixed(1)}%`;
 const fmtX   = n => n == null || isNaN(n) ? "—" : `${n.toFixed(2)}x`;
 
 // Build the PDF — accepts { deal, calc, monteCarloResults, presetName }
-export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = null, presetName = "BASE", priors = {}, comps = [] }) {
+export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = null, presetName = "BASE", priors = {}, comps = [], memo = null }) {
   const doc = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   const M = 56;
   const today = new Date().toISOString().slice(0, 10);
   const hasComps = Array.isArray(comps) && comps.length > 0;
-  const totalPages = hasComps ? 5 : 4;
+  const hasMemo  = !!(memo && (memo.executiveSummary || memo.oneLiner));
+  const totalPages = 4 + (hasComps ? 1 : 0) + (hasMemo ? 1 : 0);
 
   // Header helper — drawn at top of every page after page 1
   function pageHeader(pageNum, totalPages) {
@@ -124,13 +125,98 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   doc.text(`Report ID · ${reportId}`, W - M, H - 80, { align: "right" });
   doc.text(`CONFIDENTIAL — do not distribute without authorisation`, W - M, H - 64, { align: "right" });
 
+  let pageNum = 1;
+
   // ──────────────────────────────────────────────────────────────────────
-  // PAGE 2 — RISK SIMULATION
+  // PAGE 2 (optional) — AI DEAL MEMO
+  // Inserts only when the user has generated a memo. Sits before the risk
+  // page because it's the narrative the LP / IC reads first.
+  // ──────────────────────────────────────────────────────────────────────
+  let y;
+  if (hasMemo) {
+    doc.addPage();
+    doc.setFillColor(255, 255, 255).rect(0, 0, W, H, "F");
+    pageNum++;
+    pageHeader(pageNum, totalPages);
+    y = 64;
+
+    doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(C.text);
+    doc.text("Investment Memo", M, y); y += 26;
+
+    // One-liner banner
+    if (memo.oneLiner) {
+      doc.setFillColor(241, 236, 255);
+      doc.setDrawColor(C.purple).setLineWidth(2);
+      const blockY = y;
+      doc.rect(M, blockY, W - M*2, 38, "F");
+      doc.line(M, blockY, M, blockY + 38);
+      doc.setFont("helvetica", "bold").setFontSize(12).setTextColor(C.text);
+      const lines = doc.splitTextToSize(memo.oneLiner, W - M*2 - 24);
+      doc.text(lines.slice(0, 2), M + 14, blockY + 18, { lineHeightFactor: 1.35 });
+      y += 50;
+    }
+
+    // Executive summary
+    if (memo.executiveSummary) {
+      doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(C.blue);
+      doc.text("EXECUTIVE SUMMARY", M, y); y += 14;
+      doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(C.text);
+      const lines = doc.splitTextToSize(memo.executiveSummary, W - M*2);
+      doc.text(lines, M, y, { lineHeightFactor: 1.55 });
+      y += lines.length * 13 + 16;
+    }
+
+    // Investment thesis bullets
+    if (Array.isArray(memo.investmentThesis) && memo.investmentThesis.length) {
+      doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(C.green);
+      doc.text("INVESTMENT THESIS", M, y); y += 14;
+      doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(C.text);
+      memo.investmentThesis.forEach(b => {
+        const lines = doc.splitTextToSize(`• ${b}`, W - M*2 - 12);
+        doc.text(lines, M + 6, y, { lineHeightFactor: 1.45 });
+        y += lines.length * 12 + 4;
+      });
+      y += 10;
+    }
+
+    // Key risks bullets
+    if (Array.isArray(memo.keyRisks) && memo.keyRisks.length) {
+      doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(C.red);
+      doc.text("KEY RISKS", M, y); y += 14;
+      doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(C.text);
+      memo.keyRisks.forEach(b => {
+        const lines = doc.splitTextToSize(`• ${b}`, W - M*2 - 12);
+        doc.text(lines, M + 6, y, { lineHeightFactor: 1.45 });
+        y += lines.length * 12 + 4;
+      });
+      y += 10;
+    }
+
+    // Recommendation box
+    if (memo.recommendation) {
+      const recY = y;
+      doc.setFillColor(232, 250, 240);
+      doc.rect(M, recY, W - M*2, 56, "F");
+      doc.setDrawColor(C.green).setLineWidth(3);
+      doc.line(M, recY, M, recY + 56);
+      doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(C.green);
+      doc.text("RECOMMENDATION", M + 14, recY + 16);
+      doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(C.text);
+      const recLines = doc.splitTextToSize(memo.recommendation, W - M*2 - 24);
+      doc.text(recLines, M + 14, recY + 32, { lineHeightFactor: 1.4 });
+    }
+
+    pageFooter();
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // PAGE — RISK SIMULATION (page 2 without memo, page 3 with memo)
   // ──────────────────────────────────────────────────────────────────────
   doc.addPage();
   doc.setFillColor(255, 255, 255).rect(0, 0, W, H, "F");
-  pageHeader(2, totalPages);
-  let y = 64;
+  pageNum++;
+  pageHeader(pageNum, totalPages);
+  y = 64;
 
   doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(C.text);
   doc.text("Risk Analysis · Monte Carlo", M, y); y += 26;
@@ -236,7 +322,8 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   // ──────────────────────────────────────────────────────────────────────
   doc.addPage();
   doc.setFillColor(255, 255, 255).rect(0, 0, W, H, "F");
-  pageHeader(3, totalPages);
+  pageNum++;
+  pageHeader(pageNum, totalPages);
   y = 64;
 
   doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(C.text);
@@ -303,7 +390,8 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   if (hasComps) {
     doc.addPage();
     doc.setFillColor(255, 255, 255).rect(0, 0, W, H, "F");
-    pageHeader(4, totalPages);
+    pageNum++;
+    pageHeader(pageNum, totalPages);
     y = 64;
 
     doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(C.text);
@@ -429,7 +517,8 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   // ──────────────────────────────────────────────────────────────────────
   doc.addPage();
   doc.setFillColor(255, 255, 255).rect(0, 0, W, H, "F");
-  pageHeader(hasComps ? 5 : 4, totalPages);
+  pageNum++;
+  pageHeader(pageNum, totalPages);
   y = 64;
 
   doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(C.text);

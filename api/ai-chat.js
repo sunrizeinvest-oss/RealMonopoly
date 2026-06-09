@@ -52,6 +52,9 @@ export default async function handler(req, res) {
   if (req.body?.mode === "find-triggers") {
     return handleFindTriggers(req, res);
   }
+  if (req.body?.mode === "deal-memo") {
+    return handleDealMemo(req, res);
+  }
 
   const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -671,5 +674,113 @@ These are directional signals for analyst review. Make them plausible, not perfe
   } catch (e) {
     console.error("[find-triggers] timeout or fetch error:", e.message);
     return res.status(504).json({ error: `Trigger generation failed: ${e.message}` });
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   mode: "deal-memo"
+//   Generate a 1-page institutional deal memo from the full underwriting
+//   context — used by Scale users as the narrative cover for the IC Report
+//   or as standalone correspondence to LPs / lenders.
+// ──────────────────────────────────────────────────────────────────────
+async function handleDealMemo(req, res) {
+  const { deal = {}, calc = {}, monteCarlo = {}, comps = [] } = req.body || {};
+  if (!deal.address && !deal.purchasePrice) {
+    return res.status(400).json({ error: "Missing deal context — provide deal.address and deal.purchasePrice." });
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") {
+    return res.status(503).json({ error: "AI deal memo is not configured." });
+  }
+
+  // Short snapshot strings the model can quote verbatim.
+  const fmtMoney = n => n == null || !Number.isFinite(Number(n)) ? "n/a" : `$${Math.round(Number(n)).toLocaleString()}`;
+  const fmtPct = n => n == null || !Number.isFinite(Number(n)) ? "n/a" : `${(Number(n) * 100).toFixed(1)}%`;
+  const compSummary = comps.length === 0 ? "(no comparable sales provided)" : comps.slice(0, 6).map((c, i) =>
+    `  Comp ${i+1}: ${c.address || "n/a"} · ${fmtMoney(c.price)} · ${c.units || "?"} units · cap ${fmtPct(c.capRate)} · ${c.saleDate || "?"}`
+  ).join("\n");
+
+  const prompt = `You are an experienced commercial real-estate analyst writing a tight, institutional 1-page deal memo. Tone: confident, specific, no hedge-y filler, no marketing language. Numbers > adjectives.
+
+DEAL CONTEXT
+  Address:          ${deal.address || "(unnamed)"}
+  Property type:    ${deal.propertyType || "Multifamily"}
+  Purchase price:   ${fmtMoney(deal.purchasePrice)}
+  Total units:      ${calc.totalUnits || deal.units || "?"}
+  Hold:             ${deal.holdYears || 5} years
+  Loan rate:        ${deal.baseInterestRate ?? "?"}%
+
+UNDERWRITING SNAPSHOT
+  Cap rate:         ${fmtPct(calc.capRate)}
+  NOI:              ${fmtMoney(calc.NOI)}
+  Cash-on-cash:     ${fmtPct(calc.CoC)}
+  DSCR:             ${calc.DSCR ? Number(calc.DSCR).toFixed(2) + "x" : "n/a"}
+  Deterministic IRR: ${fmtPct(calc.irr)}
+  Equity multiple:  ${calc.eqMultiple ? Number(calc.eqMultiple).toFixed(2) + "x" : "n/a"}
+
+MONTE CARLO RISK (1,000 sims)
+  IRR P10/P50/P90:   ${fmtPct(monteCarlo?.irr?.p10)} / ${fmtPct(monteCarlo?.irr?.p50)} / ${fmtPct(monteCarlo?.irr?.p90)}
+  EqMult P10/P50/P90:${monteCarlo?.eqMult ? ` ${(monteCarlo.eqMult.p10||0).toFixed(2)}x / ${(monteCarlo.eqMult.p50||0).toFixed(2)}x / ${(monteCarlo.eqMult.p90||0).toFixed(2)}x` : " n/a"}
+  Min DSCR P10/P50/P90:${monteCarlo?.minDSCR ? ` ${(monteCarlo.minDSCR.p10||0).toFixed(2)}x / ${(monteCarlo.minDSCR.p50||0).toFixed(2)}x / ${(monteCarlo.minDSCR.p90||0).toFixed(2)}x` : " n/a"}
+  P(DSCR ≥ 1.25):    ${monteCarlo?.probDSCROK != null ? Math.round(monteCarlo.probDSCROK*100)+"%" : "n/a"}
+  P(IRR ≥ 15%):      ${monteCarlo?.probIRRMeetsTarget != null ? Math.round(monteCarlo.probIRRMeetsTarget*100)+"%" : "n/a"}
+
+COMPARABLE SALES (${comps.length})
+${compSummary}
+
+Write the memo with the following STRICT JSON shape:
+{
+  "oneLiner": "A single sentence (≤25 words) suitable for an email subject line — punchy, specific, actionable.",
+  "executiveSummary": "One paragraph, 4-6 sentences. State what the deal is, what the underwriting says, and why this matters. Cite specific numbers from the snapshot.",
+  "investmentThesis": [
+    "3-4 bullet points. Each is a single sentence backed by a number from the snapshot. Frame the OPPORTUNITY: cap vs comps, NOI growth potential, DSCR coverage, IRR distribution."
+  ],
+  "keyRisks": [
+    "3-4 bullet points. Each is a single sentence about a specific RISK — Monte Carlo P10 outcomes, DSCR thin spots, cap expansion exposure, comp-relative pricing risk, etc. Be honest, not boilerplate."
+  ],
+  "recommendation": "One concrete recommendation in 1-2 sentences. Either 'Pursue at asking', 'Bid $X (Y% below asking) given Z', 'Pass — reason', or 'Conditional — proceed if [specific condition]'. State a price, percentage, or condition.",
+  "suggestedSubject": "An email subject line: 'IC Memo · [property] · [recommendation summary]'"
+}
+
+CRITICAL:
+- Output STRICT JSON only — no preamble, no markdown code fences.
+- Quote specific numbers from the snapshot in EVERY bullet.
+- Don't invent metrics that aren't provided.
+- If a metric is "n/a", DO NOT cite it.`;
+
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 2500,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: AbortSignal.timeout(60_000),
+    });
+
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      console.error("[deal-memo] Claude API error:", r.status, errBody.slice(0, 200));
+      return res.status(502).json({ error: `Memo generation failed (${r.status})` });
+    }
+
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim() || "";
+    const parsed = extractJSON(text);
+    if (!parsed) {
+      console.error("[deal-memo] JSON parse failed:", text.slice(0, 200));
+      return res.status(502).json({ error: "AI returned non-JSON response" });
+    }
+    return res.status(200).json({ memo: parsed, source: "claude-sonnet-4-6" });
+  } catch (e) {
+    console.error("[deal-memo] timeout or fetch error:", e.message);
+    return res.status(504).json({ error: `Memo generation failed: ${e.message}` });
   }
 }

@@ -172,9 +172,79 @@ export default function RiskSimulator({ deal, calcSummary, comps }) {
       presetName: PRESETS[activePreset]?.label || "CUSTOM",
       priors,
       comps,
+      memo,
     });
     const fname = `realdeal-ic-report-${new Date().toISOString().slice(0,10)}.pdf`;
     doc.save(fname);
+  }
+
+  // AI Deal Memo — Claude reads full underwriting context and writes the
+  // executive narrative the IC / LP actually reads first. Stored in state so
+  // the user can re-export the IC Report with the memo embedded as page 2.
+  const [memo, setMemo] = useState(null);
+  const [memoLoading, setMemoLoading] = useState(false);
+  const [memoError, setMemoError] = useState(null);
+
+  async function generateMemo() {
+    if (!results) {
+      setMemoError("Run the simulation first — the memo needs Monte Carlo results.");
+      return;
+    }
+    setMemoLoading(true);
+    setMemoError(null);
+    try {
+      const r = await fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "deal-memo",
+          deal: {
+            address: deal?.address || "Multifamily Property",
+            propertyType: "Multifamily",
+            purchasePrice: deal?.purchasePrice,
+            units: calcSummary?.totalUnits,
+            holdYears: deal?.holdYears,
+            baseInterestRate: deal?.baseInterestRate,
+          },
+          calc: calcSummary || {},
+          monteCarlo: results,
+          comps: comps || [],
+        }),
+      });
+      if (!r.ok) {
+        const j = await r.json().catch(() => ({}));
+        throw new Error(j.error || `Failed (${r.status})`);
+      }
+      const j = await r.json();
+      setMemo(j.memo);
+    } catch (e) {
+      setMemoError(e.message);
+    } finally {
+      setMemoLoading(false);
+    }
+  }
+
+  function copyMemo() {
+    if (!memo) return;
+    const text = [
+      memo.suggestedSubject ? `Subject: ${memo.suggestedSubject}\n` : null,
+      memo.oneLiner ? `${memo.oneLiner}\n` : null,
+      "EXECUTIVE SUMMARY",
+      memo.executiveSummary,
+      "",
+      "INVESTMENT THESIS",
+      ...(memo.investmentThesis || []).map(b => `  • ${b}`),
+      "",
+      "KEY RISKS",
+      ...(memo.keyRisks || []).map(b => `  • ${b}`),
+      "",
+      "RECOMMENDATION",
+      memo.recommendation,
+    ].filter(Boolean).join("\n");
+    navigator.clipboard?.writeText(text).then(() => {
+      setMemoError("Copied to clipboard.");
+      setTimeout(() => setMemoError(null), 2200);
+    });
   }
 
   return (
@@ -225,6 +295,22 @@ export default function RiskSimulator({ deal, calcSummary, comps }) {
         >
           {running ? "RUNNING…" : results ? "▶ RE-RUN SIMULATION" : "▶ RUN SIMULATION"}
         </button>
+        {results && (
+          <button
+            onClick={generateMemo}
+            disabled={memoLoading}
+            style={{
+              background: memoLoading ? "rgba(167,130,255,0.15)" : "transparent",
+              color: "var(--purple)",
+              border: "1px solid var(--purple)", borderRadius: 4,
+              padding: "8px 14px",
+              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
+              letterSpacing: "1px", cursor: memoLoading ? "wait" : "pointer",
+            }}
+          >
+            {memoLoading ? "WRITING…" : memo ? "🔄 REGENERATE MEMO" : "📝 AI DEAL MEMO"}
+          </button>
+        )}
         {results && (
           <button
             onClick={exportICReport}
@@ -513,6 +599,110 @@ function Results({ results, target }) {
         The <span style={{color:"var(--text)",fontWeight:700}}>P10 row</span> is your "things went wrong" downside.{" "}
         For an institutional LP, the median should hit target and the P10 should stay above 0.
       </div>
+
+      {/* AI Deal Memo — Claude reads full underwriting + comps and writes a
+          1-page institutional narrative. The numbers above are the proof; the
+          memo is the story a Scale user actually emails to LPs. */}
+      {(memo || memoLoading || memoError) && (
+        <div style={{
+          margin: "16px 20px 20px",
+          padding: "16px 18px",
+          background: "rgba(167,130,255,0.04)",
+          border: "1px solid rgba(167,130,255,0.25)",
+          borderLeft: "3px solid var(--purple)",
+          borderRadius: 5,
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: memo ? 14 : 0, flexWrap: "wrap" }}>
+            <div style={{
+              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+              color: "var(--purple)", letterSpacing: "1.4px",
+            }}>
+              ▸ AI DEAL MEMO {memoLoading ? "· WRITING…" : memo ? "· DRAFT" : ""}
+            </div>
+            {memo && (
+              <button
+                onClick={copyMemo}
+                style={{
+                  marginLeft: "auto",
+                  background: "transparent", color: "var(--purple)",
+                  border: "1px solid var(--purple)", borderRadius: 3,
+                  padding: "4px 10px",
+                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+                  letterSpacing: "0.8px", cursor: "pointer",
+                }}
+              >
+                ⎘ COPY TO CLIPBOARD
+              </button>
+            )}
+          </div>
+
+          {memoError && (
+            <div style={{
+              padding: "8px 12px",
+              background: memoError === "Copied to clipboard." ? "rgba(52,217,138,0.08)" : "rgba(242,92,92,0.08)",
+              border: `1px solid ${memoError === "Copied to clipboard." ? "rgba(52,217,138,0.3)" : "rgba(242,92,92,0.3)"}`,
+              borderRadius: 4,
+              fontSize: 12, color: memoError === "Copied to clipboard." ? "var(--green)" : "var(--red)",
+            }}>
+              {memoError}
+            </div>
+          )}
+
+          {memo && (
+            <div style={{ fontFamily: "'DM Sans',sans-serif", color: "var(--text)" }}>
+              {memo.oneLiner && (
+                <div style={{
+                  fontSize: 15, fontWeight: 700, color: "var(--text)",
+                  padding: "8px 12px", marginBottom: 12,
+                  background: "rgba(167,130,255,0.08)",
+                  border: "1px solid rgba(167,130,255,0.25)",
+                  borderRadius: 4, lineHeight: 1.45,
+                }}>
+                  {memo.oneLiner}
+                </div>
+              )}
+              {memo.executiveSummary && (
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--dim)", letterSpacing: "1.2px", marginBottom: 5 }}>EXECUTIVE SUMMARY</div>
+                  <div style={{ fontSize: 13.5, lineHeight: 1.6, color: "var(--text)" }}>{memo.executiveSummary}</div>
+                </div>
+              )}
+              {Array.isArray(memo.investmentThesis) && memo.investmentThesis.length > 0 && (
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--green)", letterSpacing: "1.2px", marginBottom: 5 }}>INVESTMENT THESIS</div>
+                  <ul style={{ margin: 0, paddingLeft: 18, color: "var(--text)" }}>
+                    {memo.investmentThesis.map((b, i) => (
+                      <li key={i} style={{ fontSize: 13, lineHeight: 1.55, marginBottom: 4 }}>{b}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {Array.isArray(memo.keyRisks) && memo.keyRisks.length > 0 && (
+                <div style={{ marginBottom: 14 }}>
+                  <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--red)", letterSpacing: "1.2px", marginBottom: 5 }}>KEY RISKS</div>
+                  <ul style={{ margin: 0, paddingLeft: 18, color: "var(--text)" }}>
+                    {memo.keyRisks.map((b, i) => (
+                      <li key={i} style={{ fontSize: 13, lineHeight: 1.55, marginBottom: 4 }}>{b}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {memo.recommendation && (
+                <div style={{
+                  padding: "10px 14px",
+                  background: "rgba(52,217,138,0.06)",
+                  border: "1px solid rgba(52,217,138,0.3)",
+                  borderLeft: "3px solid var(--green)",
+                  borderRadius: 4,
+                }}>
+                  <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--green)", letterSpacing: "1.2px", marginBottom: 5 }}>RECOMMENDATION</div>
+                  <div style={{ fontSize: 13.5, lineHeight: 1.55, color: "var(--text)", fontWeight: 600 }}>{memo.recommendation}</div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
