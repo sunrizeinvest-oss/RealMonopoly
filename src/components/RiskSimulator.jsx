@@ -68,7 +68,7 @@ const fmtPct = n => n == null ? "—" : `${(n * 100).toFixed(1)}%`;
 const fmtX   = n => n == null ? "—" : `${n.toFixed(2)}x`;
 const fmtProb = p => `${Math.round(p * 100)}%`;
 
-export default function RiskSimulator({ deal, calcSummary }) {
+export default function RiskSimulator({ deal, calcSummary, comps }) {
   const [results, setResults] = useState(null);
   const [running, setRunning] = useState(false);
   const [iterations, setIterations] = useState(1000);
@@ -171,6 +171,7 @@ export default function RiskSimulator({ deal, calcSummary }) {
       monteCarloResults: results,
       presetName: PRESETS[activePreset]?.label || "CUSTOM",
       priors,
+      comps,
     });
     const fname = `realdeal-ic-report-${new Date().toISOString().slice(0,10)}.pdf`;
     doc.save(fname);

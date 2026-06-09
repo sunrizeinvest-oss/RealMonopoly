@@ -222,6 +222,9 @@ export default function CommercialAnalyzer() {
   const [proChecked, setProChecked] = useState(false);
   const [mfSaved, setMfSaved] = useState(false);
   const [aiThesis, setAiThesis] = useState(null);
+  // Comp matrix lifts its rows up here so the IC Report PDF (in RiskSimulator)
+  // can embed them as an extra page when present.
+  const [matrixComps, setMatrixComps] = useState([]);
 
   useEffect(() => {
     async function check() {
@@ -1168,6 +1171,7 @@ export default function CommercialAnalyzer() {
           noi: c.NOI || null,
           zoning: null,
         }}
+        onCompsChange={setMatrixComps}
       />
 
       </TierGate>
@@ -1201,6 +1205,7 @@ export default function CommercialAnalyzer() {
           irr: c.irr, eqMultiple: c.eqMultiple,
           CoC: c.CoC, capRate: c.actualCap, DSCR: c.DSCR,
         }}
+        comps={matrixComps}
       />
       </TierGate>
 

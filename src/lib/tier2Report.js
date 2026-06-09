@@ -36,12 +36,14 @@ const fmtPct = n => n == null || isNaN(n) ? "—" : `${(n*100).toFixed(1)}%`;
 const fmtX   = n => n == null || isNaN(n) ? "—" : `${n.toFixed(2)}x`;
 
 // Build the PDF — accepts { deal, calc, monteCarloResults, presetName }
-export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = null, presetName = "BASE", priors = {} }) {
+export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = null, presetName = "BASE", priors = {}, comps = [] }) {
   const doc = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   const M = 56;
   const today = new Date().toISOString().slice(0, 10);
+  const hasComps = Array.isArray(comps) && comps.length > 0;
+  const totalPages = hasComps ? 5 : 4;
 
   // Header helper — drawn at top of every page after page 1
   function pageHeader(pageNum, totalPages) {
@@ -127,7 +129,7 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   // ──────────────────────────────────────────────────────────────────────
   doc.addPage();
   doc.setFillColor(255, 255, 255).rect(0, 0, W, H, "F");
-  pageHeader(2, 4);
+  pageHeader(2, totalPages);
   let y = 64;
 
   doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(C.text);
@@ -234,7 +236,7 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   // ──────────────────────────────────────────────────────────────────────
   doc.addPage();
   doc.setFillColor(255, 255, 255).rect(0, 0, W, H, "F");
-  pageHeader(3, 4);
+  pageHeader(3, totalPages);
   y = 64;
 
   doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(C.text);
@@ -296,11 +298,138 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   pageFooter();
 
   // ──────────────────────────────────────────────────────────────────────
-  // PAGE 4 — METHODOLOGY + DISCLAIMERS
+  // PAGE 4 — COMPARABLE SALES (only when the user has comps in the matrix)
+  // ──────────────────────────────────────────────────────────────────────
+  if (hasComps) {
+    doc.addPage();
+    doc.setFillColor(255, 255, 255).rect(0, 0, W, H, "F");
+    pageHeader(4, totalPages);
+    y = 64;
+
+    doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(C.text);
+    doc.text("Comparable Sales", M, y); y += 8;
+    doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(C.sub);
+    doc.text(`${comps.length} comp${comps.length === 1 ? "" : "s"} · normalised against target`, M, y + 14);
+    y += 36;
+
+    // Table column setup. Address gets more room than the numeric columns.
+    const cols = [
+      { label: "Address",   width: 156, get: c => c.address || "—" },
+      { label: "Price",     width: 64,  get: c => fmtMoneyK(c.price), align: "right" },
+      { label: "Sqft",      width: 50,  get: c => c.sqft ? Number(c.sqft).toLocaleString() : "—", align: "right" },
+      { label: "$/Sqft",    width: 50,  get: c => (c.price && c.sqft) ? `$${Math.round(c.price/c.sqft)}` : "—", align: "right" },
+      { label: "Units",     width: 38,  get: c => c.units ?? "—", align: "right" },
+      { label: "$/Unit",    width: 60,  get: c => (c.price && c.units) ? fmtMoneyK(c.price/c.units) : "—", align: "right" },
+      { label: "Cap",       width: 48,  get: c => fmtPct(c.capRate), align: "right" },
+      { label: "Distance",  width: 50,  get: c => c.distanceKm != null ? `${Number(c.distanceKm).toFixed(1)}km` : "—", align: "right" },
+    ];
+
+    // Header row
+    let x = M;
+    doc.setFillColor(13, 17, 25);
+    doc.rect(M, y, cols.reduce((s, c) => s + c.width, 0), 22, "F");
+    doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(C.blue);
+    for (const col of cols) {
+      const opts = col.align === "right" ? { align: "right" } : {};
+      const tx = col.align === "right" ? x + col.width - 6 : x + 8;
+      doc.text(col.label.toUpperCase(), tx, y + 14, opts);
+      x += col.width;
+    }
+    y += 22;
+
+    // Target row first (highlighted), then each comp
+    const allRows = [{ label: "TARGET", deal, isTarget: true, color: C.green }];
+    comps.forEach((c, i) => allRows.push({ label: `COMP ${i+1}`, deal: c, color: C.text }));
+
+    doc.setFont("helvetica", "normal").setFontSize(9);
+    for (const row of allRows) {
+      // Row background for target
+      if (row.isTarget) {
+        doc.setFillColor(232, 250, 240).rect(M, y, cols.reduce((s, c) => s + c.width, 0), 22, "F");
+        doc.setDrawColor(C.green).setLineWidth(2).line(M, y, M, y + 22);
+      }
+      x = M;
+      for (let i = 0; i < cols.length; i++) {
+        const col = cols[i];
+        let value = String(col.get(row.deal) ?? "—");
+        // Address column shows the row label (TARGET / COMP n) as prefix
+        if (i === 0) {
+          doc.setFont("helvetica", "bold").setFontSize(7).setTextColor(row.color);
+          doc.text(row.label, x + 8, y + 9);
+          doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(C.text);
+          // Truncate addresses that would overflow
+          if (value.length > 28) value = value.slice(0, 26) + "…";
+          doc.text(value, x + 8, y + 18);
+        } else {
+          doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(C.text);
+          const opts = col.align === "right" ? { align: "right" } : {};
+          const tx = col.align === "right" ? x + col.width - 6 : x + 8;
+          doc.text(value, tx, y + 14, opts);
+        }
+        x += col.width;
+      }
+      // Subtle row separator
+      doc.setDrawColor(220, 224, 232).setLineWidth(0.4);
+      doc.line(M, y + 22, M + cols.reduce((s, c) => s + c.width, 0), y + 22);
+      y += 22;
+      // Don't run off the page
+      if (y > H - 100) break;
+    }
+
+    // Average row (comps only — never the target)
+    const numericMean = (key, derive) => {
+      const vs = comps.map(c => derive ? derive(c) : Number(c[key])).filter(v => Number.isFinite(v));
+      return vs.length ? vs.reduce((s, x) => s + x, 0) / vs.length : null;
+    };
+    const avgPrice  = numericMean("price");
+    const avgSqft   = numericMean("sqft");
+    const avgPsf    = numericMean(null, c => (c.price && c.sqft) ? c.price / c.sqft : null);
+    const avgUnits  = numericMean("units");
+    const avgPpu    = numericMean(null, c => (c.price && c.units) ? c.price / c.units : null);
+    const avgCap    = numericMean("capRate");
+
+    y += 4;
+    doc.setFillColor(245, 247, 250).rect(M, y, cols.reduce((s, c) => s + c.width, 0), 22, "F");
+    doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(C.blue);
+    const avgValues = [
+      "COMP AVERAGE", fmtMoneyK(avgPrice),
+      avgSqft ? Math.round(avgSqft).toLocaleString() : "—",
+      avgPsf ? `$${Math.round(avgPsf)}` : "—",
+      avgUnits ? Math.round(avgUnits).toLocaleString() : "—",
+      fmtMoneyK(avgPpu), fmtPct(avgCap), "—",
+    ];
+    x = M;
+    for (let i = 0; i < cols.length; i++) {
+      const col = cols[i];
+      const opts = col.align === "right" ? { align: "right" } : {};
+      const tx = col.align === "right" ? x + col.width - 6 : x + 8;
+      doc.text(avgValues[i], tx, y + 14, opts);
+      x += col.width;
+    }
+    y += 36;
+
+    // Brief interpretive line below the table
+    doc.setFont("helvetica", "italic").setFontSize(9).setTextColor(C.sub);
+    if (avgPsf && deal.purchasePrice && calc?.sqft) {
+      const targetPsf = deal.purchasePrice / calc.sqft;
+      const delta = ((targetPsf - avgPsf) / avgPsf) * 100;
+      doc.text(`Target priced at ${delta >= 0 ? "+" : ""}${delta.toFixed(1)}% vs comp average on $/sqft basis.`, M, y);
+      y += 16;
+    }
+    if (avgCap && calc?.capRate) {
+      const delta = (calc.capRate - avgCap) * 10000; // bps
+      doc.text(`Target cap rate is ${delta >= 0 ? "+" : ""}${Math.round(delta)} bps vs comp average.`, M, y);
+    }
+
+    pageFooter();
+  }
+
+  // ──────────────────────────────────────────────────────────────────────
+  // PAGE 5 (or 4 if no comps) — METHODOLOGY + DISCLAIMERS
   // ──────────────────────────────────────────────────────────────────────
   doc.addPage();
   doc.setFillColor(255, 255, 255).rect(0, 0, W, H, "F");
-  pageHeader(4, 4);
+  pageHeader(hasComps ? 5 : 4, totalPages);
   y = 64;
 
   doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(C.text);

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 /**
  * CommercialLeaseMatrix — side-by-side comparable-property table.
@@ -67,10 +67,14 @@ const numericForRow = (row, comp) => {
   return Number.isFinite(n) ? n : null;
 };
 
-export default function CommercialLeaseMatrix({ target }) {
+export default function CommercialLeaseMatrix({ target, onCompsChange }) {
   const [comps, setComps] = useState([]);
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
+
+  // Mirror the comps array up to the parent so siblings (e.g. RiskSimulator's
+  // IC Report PDF) can include them. Parent stays out of comp ownership.
+  useEffect(() => { onCompsChange?.(comps); }, [comps]);
 
   const hasTarget = target && (target.address || target.price);
   const targetAsComp = useMemo(() => target ? { ...target } : null, [target]);
