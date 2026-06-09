@@ -164,6 +164,20 @@ export default function BRRRRCalculator() {
   // ── Pre-fill from PropertyHub ─────────────────────────────────────────────
   const [prefillApplied, setPrefillApplied] = useState(false);
 
+  // Simple mode: hide Phases 1-5 detail behind one compact 5-field card.
+  // All hidden form values keep their sane defaults, so the calc still runs.
+  // Default ON; persist user preference in localStorage.
+  const [simpleMode, setSimpleMode] = useState(() => {
+    try { return localStorage.getItem("rde_brrrr_simple") !== "0"; }
+    catch { return true; }
+  });
+  function toggleSimpleMode() {
+    setSimpleMode(v => {
+      try { localStorage.setItem("rde_brrrr_simple", v ? "0" : "1"); } catch {}
+      return !v;
+    });
+  }
+
   const [form, setForm] = useState(() => {
     // Priority 1: URL params (Chrome extension, shareable links)
     try {
@@ -572,6 +586,84 @@ export default function BRRRRCalculator() {
           {/* Live zoning + assessment + permits + AI thesis (Edmonton + Calgary) */}
           <PropertyIntelCard address={form.address} />
 
+          {/* Simple / Advanced mode toggle */}
+          <div style={{
+            display:"flex", alignItems:"center", justifyContent:"space-between",
+            gap:10, padding:"10px 14px", marginBottom:10,
+            background:"var(--card)", border:"1px solid var(--borderf)", borderRadius:6,
+            borderLeft:`3px solid ${simpleMode ? "var(--green)" : "var(--blue)"}`,
+          }}>
+            <div>
+              <div style={{fontFamily:"'Fira Code',ui-monospace,monospace",fontSize:10.5,fontWeight:700,color:simpleMode?"var(--green)":"var(--blue)",letterSpacing:"1.2px"}}>
+                ▸ {simpleMode ? "ESSENTIALS ONLY" : "ADVANCED · ALL INPUTS"}
+              </div>
+              <div style={{fontSize:11.5,color:"var(--sub)",marginTop:2}}>
+                {simpleMode
+                  ? "5 fields. Sensible defaults for closing, refi, taxes, insurance, holding."
+                  : "Every input. Tune any assumption — phases 1-5 below."}
+              </div>
+            </div>
+            <button
+              onClick={toggleSimpleMode}
+              style={{
+                background:"transparent", border:`1px solid var(--borderf)`, borderRadius:5,
+                padding:"7px 14px", fontFamily:"'Fira Code',ui-monospace,monospace",
+                fontSize:10.5, fontWeight:700, color:"var(--text)", letterSpacing:"1px",
+                cursor:"pointer", transition:"border-color 0.15s, background 0.15s",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--blue)"; e.currentTarget.style.background = "rgba(59,158,255,0.06)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--borderf)"; e.currentTarget.style.background = "transparent"; }}
+            >
+              {simpleMode ? "SHOW ALL INPUTS →" : "← BACK TO ESSENTIALS"}
+            </button>
+          </div>
+
+          {/* ─── ESSENTIALS-ONLY CARD ────────────────────────────────────────── */}
+          {simpleMode && (
+            <div className="br-card">
+              <div className="br-card-header">
+                <div className="br-card-icon" style={{background:"rgba(52,217,138,0.12)",color:"var(--green)"}}>⚡</div>
+                <div>
+                  <div className="br-card-title">The 5 inputs that matter</div>
+                  <div className="br-card-sub">Address is above. Everything else uses smart defaults.</div>
+                </div>
+              </div>
+              <div className="br-card-body">
+                <div className="br-row2">
+                  <div className="br-field">
+                    <div className="br-label">Purchase Price</div>
+                    <input className="br-input" type="number" placeholder="350,000" value={form.purchasePrice} onChange={e=>setF("purchasePrice",e.target.value)} />
+                  </div>
+                  <div className="br-field">
+                    <div className="br-label">Rehab Budget</div>
+                    <input className="br-input" type="number" placeholder="45,000" value={form.rehabBudget} onChange={e=>setF("rehabBudget",e.target.value)} />
+                  </div>
+                </div>
+                <div className="br-row2">
+                  <div className="br-field">
+                    <div className="br-label">ARV (after-repair value)</div>
+                    <input className="br-input" type="number" placeholder="500,000" value={form.arv} onChange={e=>setF("arv",e.target.value)} />
+                  </div>
+                  <div className="br-field">
+                    <div className="br-label">Monthly Rent (stabilized)</div>
+                    <input className="br-input" type="number" placeholder="2,400" value={form.monthlyRent} onChange={e=>setF("monthlyRent",e.target.value)} />
+                  </div>
+                </div>
+                <div style={{
+                  marginTop:14, padding:"10px 12px",
+                  background:"rgba(59,158,255,0.05)", border:"1px solid rgba(59,158,255,0.15)",
+                  borderRadius:4, fontSize:11.5, color:"var(--sub)", lineHeight:1.55,
+                }}>
+                  <strong style={{color:"var(--blue)"}}>Smart defaults applied:</strong> 80% LTV refi at 5.75% / 25yr, 5% vacancy, 8% management,
+                  5% maintenance, 2% closing, 1.5% refi closing, 3% rent growth, 5-yr hold. Click "Show all inputs" to tune any of them.
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Phases 1-5 — advanced inputs (hidden in Essentials mode) */}
+          {!simpleMode && (
+          <>
           {/* Phase 1: Buy */}
           <div className="br-card">
             <div className="br-card-header">
@@ -848,6 +940,8 @@ export default function BRRRRCalculator() {
               </div>
             </div>
           </div>
+          </>
+          )}
         </div>
 
         {/* ── RIGHT: Results ── */}
@@ -860,13 +954,56 @@ export default function BRRRRCalculator() {
             </div>
           ) : verdict && (<>
 
-            {/* Verdict */}
-            <div className="br-card">
+            {/* ── TL;DR: big verdict + 3 key numbers ─────────────────────────── */}
+            <div className="br-card" style={{marginBottom:10}}>
               <div className="br-card-body">
-                <div className="br-verdict" style={{background:verdict.bg,border:`1px solid ${verdict.border}`,borderRadius: 16,padding:20,textAlign:"center"}}>
-                  <div className="br-verdict-icon">{verdict.icon}</div>
-                  <div className="br-verdict-title" style={{color:`var(--${verdict.cls})`}}>{verdict.title}</div>
-                  <div className="br-verdict-sub" style={{color:"var(--sub)",fontSize:13,marginTop:6,lineHeight:1.55}}>{verdict.sub}</div>
+                <div style={{background:verdict.bg,border:`1px solid ${verdict.border}`,borderLeft:`4px solid var(--${verdict.cls})`,borderRadius:6,padding:"18px 20px"}}>
+                  <div style={{display:"flex",alignItems:"baseline",gap:12,marginBottom:4}}>
+                    <span style={{fontSize:28,lineHeight:1}}>{verdict.icon}</span>
+                    <span style={{fontFamily:"'DM Sans',sans-serif",fontSize:24,fontWeight:800,color:`var(--${verdict.cls})`,letterSpacing:"-0.4px"}}>
+                      {verdict.title}
+                    </span>
+                  </div>
+                  <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:14,color:"var(--sub)",lineHeight:1.5,marginBottom:16}}>
+                    {verdict.sub}
+                  </div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3, 1fr)",gap:8}}>
+                    {[
+                      {
+                        lbl: "Monthly Cash Flow",
+                        val: fmt(calc.monthlyCF),
+                        good: calc.monthlyCF >= 200,
+                        warn: calc.monthlyCF >= 0 && calc.monthlyCF < 200,
+                      },
+                      {
+                        lbl: "DSCR",
+                        val: calc.dscr ? fmtX(calc.dscr) : "—",
+                        good: calc.dscr >= 1.25,
+                        warn: calc.dscr >= 1.0 && calc.dscr < 1.25,
+                      },
+                      {
+                        lbl: "Cash Pulled Out",
+                        val: fmt(calc.cashPulledOut),
+                        good: calc.isTrueBRRRR,
+                        warn: calc.cashLeftInDeal > 0 && calc.cashLeftInDeal <= 10000,
+                      },
+                    ].map(m => {
+                      const c = m.good ? "var(--green)" : m.warn ? "var(--amber)" : "var(--red)";
+                      return (
+                        <div key={m.lbl} style={{
+                          background:"rgba(255,255,255,0.025)", border:"1px solid var(--borderf)",
+                          borderRadius:4, padding:"10px 12px", textAlign:"center",
+                        }}>
+                          <div style={{fontFamily:"'Fira Code',ui-monospace,monospace",fontSize:9,fontWeight:700,color:"var(--dim)",letterSpacing:"0.8px",textTransform:"uppercase",marginBottom:3}}>
+                            {m.lbl}
+                          </div>
+                          <div style={{fontFamily:"'Fira Code',ui-monospace,monospace",fontSize:20,fontWeight:700,color:c,letterSpacing:"-0.4px",lineHeight:1.1}}>
+                            {m.val}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
                 {aiThesis?.thesis && (
                   <div style={{
