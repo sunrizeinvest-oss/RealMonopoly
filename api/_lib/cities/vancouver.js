@@ -17,9 +17,12 @@
 
 const ODS_BASE = "https://opendata.vancouver.ca/api/explore/v2.1/catalog/datasets";
 
-async function fetchODS(dataset, params) {
+async function fetchODS(dataset, params, extraQS = {}) {
   const u = new URL(`${ODS_BASE}/${dataset}/records`);
   for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
+  // ODS uses dot-notation query params (geofilter.distance etc.) alongside the
+  // ODSQL `where` — set them raw so we don't mangle the keys.
+  for (const [k, v] of Object.entries(extraQS)) u.searchParams.set(k, v);
   const r = await fetch(u.toString(), { signal: AbortSignal.timeout(7000) });
   if (!r.ok) throw new Error(`${dataset} fetch failed: ${r.status}`);
   return r.json();
@@ -27,31 +30,38 @@ async function fetchODS(dataset, params) {
 
 export async function getZoning({ lat, lng, address }) {
   try {
-    // ODSQL spatial: within_distance(geo_field, geom, distance). 1m ≈ point-in-polygon.
-    const data = await fetchODS("zoning-districts-and-labels", {
-      where: `within_distance(geom, GEOMFROMTEXT('POINT(${lng} ${lat})'), 1m)`,
-      limit: 1,
-    });
+    // Opendatasoft point-in-polygon via geofilter.distance — a 1-metre
+    // radius effectively asks "which polygon contains this point?"
+    const data = await fetchODS(
+      "zoning-districts-and-labels",
+      { limit: 1 },
+      { "geofilter.distance": `${lat},${lng},1` },
+    );
     const rec = data?.results?.[0];
     if (!rec) return { city: "vancouver", found: false, address };
 
-    // Vancouver's zoning fields vary by dataset version; try the common ones.
+    // Vancouver's actual schema (verified): zoning_district, zoning_category,
+    // zoning_classification. zoning_classification is the descriptive label
+    // (e.g. "Comprehensive Development"), zoning_district is the code (CD-1).
     const zone =
-      rec.zone_category ||
       rec.zoning_district ||
-      rec.zone_name ||
+      rec.zone_district ||
       rec.zone_code ||
-      rec.zoning_district_name ||
+      rec.zoning_category ||
       null;
-    if (!zone) return { city: "vancouver", found: false, address };
+    const zoneDescription =
+      rec.zoning_classification ||
+      rec.descriptive_text ||
+      null;
+    if (!zone && !zoneDescription) return { city: "vancouver", found: false, address };
 
     const info = ZONE_INFO[zone] || matchPrefix(zone) || {};
     return {
       city: "vancouver",
       found: true,
       address,
-      zone,
-      zoneDescription: info.description || rec.descriptive_text || null,
+      zone: zone || zoneDescription,
+      zoneDescription: zoneDescription || info.description || null,
       permittedUses: [],
       maxHeightM: info.maxHeightM || null,
       maxStoreys: info.maxStoreys || null,
@@ -97,12 +107,11 @@ export async function getAssessment({ address }) {
 
 export async function getPermits({ lat, lng, radiusMeters = 1000 }) {
   try {
-    const km = radiusMeters / 1000;
-    const data = await fetchODS("issued-building-permits", {
-      where: `within_distance(geom, GEOMFROMTEXT('POINT(${lng} ${lat})'), ${km}km)`,
-      order_by: "issuedate DESC",
-      limit: 20,
-    });
+    const data = await fetchODS(
+      "issued-building-permits",
+      { order_by: "issuedate DESC", limit: 20 },
+      { "geofilter.distance": `${lat},${lng},${radiusMeters}` },
+    );
     return (data?.results || []).map(r => ({
       permit_date:        r.issuedate || r.applieddate || null,
       issue_date:         r.issuedate || null,
