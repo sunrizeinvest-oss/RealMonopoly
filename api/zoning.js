@@ -30,10 +30,11 @@ const ADAPTERS = {
   toronto,
 };
 
-// Adapters that actually fetch live data. Vancouver + Toronto are stubs that
-// return reference zone tables only — surface them as "not yet supported"
-// rather than letting the empty response look like a successful lookup.
-const LIVE_ADAPTERS = new Set(["edmonton", "calgary"]);
+// Adapters that actually fetch live data. Each does its own best-effort
+// query against the city's open-data API and silently falls back to
+// {found:false} on schema drift, network failure, or dataset rename —
+// so adding a new city here is low-risk.
+const LIVE_ADAPTERS = new Set(["edmonton", "calgary", "vancouver", "toronto"]);
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
 function setCors(res) {
@@ -58,7 +59,7 @@ export default async function handler(req, res) {
         address,
         geocode: geo,
         zoning: null,
-        error: `city "${geo.city}" not yet supported. Currently: Edmonton, Calgary. Coming soon: Vancouver, Toronto.`,
+        error: `city "${geo.city}" not yet supported. Currently: Edmonton, Calgary, Vancouver, Toronto.`,
       });
     }
     const adapter = ADAPTERS[geo.citySlug];
