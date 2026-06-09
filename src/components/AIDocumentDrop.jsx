@@ -126,6 +126,13 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
     ? Object.keys(FIELD_LABELS).filter(f => extracted[f] != null)
     : [];
 
+  const hasRentRoll = Array.isArray(extracted?.units) && extracted.units.length > 0;
+  function applyRentRoll() {
+    if (!hasRentRoll) return;
+    onApply?.({ field: "units", value: extracted.units });
+    setApplied(a => ({ ...a, units: true }));
+  }
+
   return (
     <div style={{
       background: "var(--card)", border: "1px solid var(--borderf)",
@@ -331,6 +338,75 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* Rent roll: per-unit detail when the document is a rent roll */}
+          {hasRentRoll && (
+            <div style={{
+              marginTop: 14,
+              background: "rgba(52,217,138,0.04)",
+              border: "1px solid rgba(52,217,138,0.3)",
+              borderLeft: "3px solid var(--green)",
+              borderRadius: 5, overflow: "hidden",
+            }}>
+              <div style={{
+                display: "flex", alignItems: "center", gap: 10,
+                padding: "10px 14px",
+                background: "rgba(52,217,138,0.07)",
+                borderBottom: "1px solid var(--borderf)",
+              }}>
+                <span style={{
+                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+                  color: "var(--green)", letterSpacing: "1.2px",
+                }}>
+                  ▸ RENT ROLL · {extracted.units.length} UNIT TYPES · {extracted.units.reduce((s, u) => s + (Number(u.count) || 0), 0)} TOTAL UNITS
+                </span>
+                <button
+                  onClick={applyRentRoll}
+                  disabled={applied.units}
+                  style={{
+                    marginLeft: "auto",
+                    background: applied.units ? "transparent" : "var(--green)",
+                    color: applied.units ? "var(--green)" : "#07090f",
+                    border: `1px solid var(--green)`, borderRadius: 3,
+                    padding: "5px 11px",
+                    fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
+                    letterSpacing: "0.8px",
+                    cursor: applied.units ? "default" : "pointer",
+                  }}
+                >
+                  {applied.units ? "✓ UNITS APPLIED" : "▶ APPLY UNIT MIX"}
+                </button>
+              </div>
+              <div style={{ padding: 10, overflowX: "auto" }}>
+                <table style={{
+                  width: "100%", borderCollapse: "collapse",
+                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11,
+                  minWidth: 480,
+                }}>
+                  <thead>
+                    <tr style={{ color: "var(--dim)", fontWeight: 700, fontSize: 9, letterSpacing: "0.8px" }}>
+                      <th style={{ textAlign: "left", padding: "4px 8px" }}>TYPE</th>
+                      <th style={{ textAlign: "right", padding: "4px 8px" }}>COUNT</th>
+                      <th style={{ textAlign: "right", padding: "4px 8px" }}>SQFT</th>
+                      <th style={{ textAlign: "right", padding: "4px 8px" }}>CURRENT</th>
+                      <th style={{ textAlign: "right", padding: "4px 8px" }}>MARKET</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {extracted.units.map((u, i) => (
+                      <tr key={i} style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                        <td style={{ padding: "5px 8px", color: "var(--text)", fontWeight: 600 }}>{u.type || "—"}</td>
+                        <td style={{ padding: "5px 8px", textAlign: "right", color: "var(--text)" }}>{u.count != null ? u.count : "—"}</td>
+                        <td style={{ padding: "5px 8px", textAlign: "right", color: "var(--sub)" }}>{u.sqft != null ? u.sqft : "—"}</td>
+                        <td style={{ padding: "5px 8px", textAlign: "right", color: "var(--text)", fontWeight: 700 }}>{u.currentRent != null ? `$${u.currentRent}` : "—"}</td>
+                        <td style={{ padding: "5px 8px", textAlign: "right", color: "var(--green)" }}>{u.marketRent != null ? `$${u.marketRent}` : "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
 

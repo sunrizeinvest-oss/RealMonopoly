@@ -753,6 +753,21 @@ export default function CommercialAnalyzer() {
                   else if (field === "appraisedValue" && !purchasePrice) setPurchasePrice(Number(value));
                   else if (field === "monthlyRent")   setSimpleMonthlyIncome(Number(value));
                   else if (field === "propertyTaxes") setPropTax(Number(value));
+                  // Rent-roll: replace the unit mix with the parsed rows and
+                  // pop out of simple mode so the user can see them.
+                  else if (field === "units" && Array.isArray(value) && value.length) {
+                    const mapped = value.map(u => ({
+                      type:        u.type || "Unit",
+                      units:       Number(u.count) || 0,
+                      sqft:        Number(u.sqft) || 0,
+                      currentRent: Number(u.currentRent) || 0,
+                      marketRent:  Number(u.marketRent || u.currentRent) || 0,
+                    })).filter(r => r.units > 0);
+                    if (mapped.length) {
+                      setUnitMix(mapped);
+                      if (simpleMode) toggleSimpleMode();
+                    }
+                  }
                 }}
               />
             </TierGate>

@@ -447,8 +447,9 @@ Schema:
 - sqft             — livable square footage
 - yearBuilt        — 4-digit year
 - notes            — 1-2 sentence summary of what this document is and any salient details that don't fit elsewhere (e.g. "5-unit walkup; 2 units vacant; deferred maintenance on roof")
+- units            — ONLY IF the document is a rent roll with per-unit detail: an array of unit-type groupings. Each entry: { "type": "1 Bed / 1 Bath" or similar, "count": integer, "sqft": integer, "currentRent": monthly rent in dollars, "marketRent": estimated market rent if mentioned }. Group identical unit types together (don't list every single unit individually). Omit this field entirely if the document is not a rent roll.
 
-Target: ${target === "multifamily" ? "MULTIFAMILY (5+ units)" : "RESIDENTIAL (1-4 units)"}.
+Target: ${target === "multifamily" ? "MULTIFAMILY (5+ units) — if this looks like a rent roll with per-unit detail, populate the units array with the unique unit groupings" : "RESIDENTIAL (1-4 units)"}.
 
 Output STRICT JSON only — no preamble, no markdown code fences, no commentary. Just the JSON object.`;
 
