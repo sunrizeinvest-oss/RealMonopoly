@@ -30,6 +30,9 @@ export default async function handler(req, res) {
   if (req.body?.mode === "parse-document") {
     return handleParseDocument(req, res);
   }
+  if (req.body?.mode === "find-comps") {
+    return handleFindComps(req, res);
+  }
 
   const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -490,5 +493,87 @@ Output STRICT JSON only — no preamble, no markdown code fences, no commentary.
   } catch (e) {
     console.error("[parse-document] timeout or fetch error:", e.message);
     return res.status(504).json({ error: `Parsing failed: ${e.message}` });
+  }
+}
+
+// ─── Find Comparable Properties Mode ───────────────────────────────────────
+// Claude generates 3-4 plausible commercial comps for a given target address.
+// Returns structured JSON the UI can drop straight into the matrix table.
+// These are AI-suggested directional comps, not verified MLS data — meant as
+// a credible starting point an analyst can refine.
+async function handleFindComps(req, res) {
+  const { address, propertyType = "multifamily", units, sqft } = req.body || {};
+  if (!address) return res.status(400).json({ error: "Missing 'address'." });
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") {
+    return res.status(503).json({ error: "AI comp finder is not configured on this deployment." });
+  }
+
+  const prompt = `You are an institutional real estate analyst building a comparable-property matrix.
+
+TARGET PROPERTY:
+- Address: ${address}
+- Type: ${propertyType}
+${units ? `- Units: ${units}` : ""}
+${sqft ? `- Sqft: ${sqft}` : ""}
+
+Generate 4 PLAUSIBLE comparable sales/leases for this target. Use realistic numbers anchored to the geography and property type — typical $/sqft and cap rates for the city/submarket. The comps should be a mix of recent activity (last 12-18 months).
+
+Each comp returns a JSON object with these fields:
+- address     (street + city, plausible nearby address)
+- saleDate    (YYYY-MM)
+- price       (integer dollars)
+- sqft        (integer)
+- units       (integer, for multifamily)
+- yearBuilt   (4-digit year)
+- capRate     (decimal, e.g. 0.058 for 5.8%)
+- noi         (annual NOI in dollars — derive from price × cap)
+- zoning      (best-guess realistic zone code)
+- distanceKm  (decimal, plausible distance from target, 0.2-3.5)
+- notes       (1 short sentence — what makes this comp relevant or noteworthy)
+
+Output STRICT JSON only — no preamble, no markdown fences. Format:
+{ "comps": [ {...}, {...}, {...}, {...} ] }
+
+These are directional comps for analyst review. Make them plausible, not perfect.`;
+
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1500,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: AbortSignal.timeout(40_000),
+    });
+
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      console.error("[find-comps] Claude API error:", r.status, errBody.slice(0, 200));
+      return res.status(502).json({ error: `Comp generation failed (${r.status})` });
+    }
+
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim() || "";
+    const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+
+    let parsed;
+    try { parsed = JSON.parse(cleaned); }
+    catch (e) {
+      console.error("[find-comps] JSON parse failed:", cleaned.slice(0, 200));
+      return res.status(502).json({ error: "AI returned non-JSON response" });
+    }
+
+    return res.status(200).json({ comps: parsed.comps || [], source: "claude-sonnet-4-6" });
+  } catch (e) {
+    console.error("[find-comps] timeout or fetch error:", e.message);
+    return res.status(504).json({ error: `Comp generation failed: ${e.message}` });
   }
 }

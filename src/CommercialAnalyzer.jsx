@@ -12,6 +12,7 @@ import AddressAutocomplete from "./AddressAutocomplete";
 import ShareDealButton from "./components/ShareDealButton";
 import AIDocumentDrop from "./components/AIDocumentDrop";
 import RiskSimulator from "./components/RiskSimulator";
+import CommercialLeaseMatrix from "./components/CommercialLeaseMatrix";
 
 // Lazy-load charts (recharts is the heavy dep)
 const CommercialCharts = lazy(() => import("./components/CommercialCharts"));
@@ -1123,6 +1124,21 @@ export default function CommercialAnalyzer() {
             </div>
           </div>
         </div>
+
+      {/* Comparable property matrix */}
+      <CommercialLeaseMatrix
+        target={{
+          address: propertyAddress,
+          propertyType: "multifamily",
+          price: Number(purchasePrice) || null,
+          sqft: unitMix.reduce((s, r) => s + (Number(r.sqft) || 0) * (Number(r.units) || 0), 0) || null,
+          units: c.totalUnits || null,
+          yearBuilt: null,
+          capRate: c.actualCap || null,
+          noi: c.NOI || null,
+          zoning: null,
+        }}
+      />
 
       {/* Institutional Monte Carlo */}
       <RiskSimulator
