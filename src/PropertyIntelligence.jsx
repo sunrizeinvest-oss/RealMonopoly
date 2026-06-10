@@ -1852,6 +1852,130 @@ export default function PropertyIntelligence() {
                         </div>
                       )}
                     </div>
+
+                    {/* ── Development Potential — buildable envelope math ──
+                        Pure deterministic derivation from FAR / max storeys /
+                        max units + lot size. No AI call. Surfaces what a land
+                        developer actually wants to know: "given this zoning,
+                        what can I build on this lot?" */}
+                    {(() => {
+                      const z = zoningData.zoning;
+                      const lotSqft = Number(property?.lotSize) || 0;
+                      const far     = Number(z.maxFAR) || 0;
+                      const storeys = Number(z.maxStoreys) || 0;
+                      const maxUnits = Number(z.maxUnits) || 0;
+                      const purchase = Number(property?.estimatedValue) || Number(purchasePrice) || 0;
+                      // No useful derivation possible — skip the widget entirely.
+                      if (!far && !storeys && !maxUnits) return null;
+
+                      const buildableSqft = far && lotSqft ? Math.round(lotSqft * far) : null;
+                      const perFloor      = buildableSqft && storeys ? Math.round(buildableSqft / storeys) : null;
+                      // Heuristic — Canadian multifamily averages ~900 sqft / unit.
+                      const heuristicUnits = buildableSqft ? Math.floor(buildableSqft / 900) : null;
+                      const derivedUnits   = maxUnits
+                        ? (heuristicUnits ? Math.min(maxUnits, heuristicUnits) : maxUnits)
+                        : heuristicUnits;
+                      const pricePerBuildable = (purchase && buildableSqft) ? Math.round(purchase / buildableSqft) : null;
+                      const pricePerUnit      = (purchase && derivedUnits)  ? Math.round(purchase / derivedUnits) : null;
+
+                      return (
+                        <div style={{
+                          background: "var(--card)",
+                          borderTop: "1px solid var(--borderf)",
+                          padding: "16px 18px",
+                        }}>
+                          <div style={{
+                            display: "flex", alignItems: "baseline", gap: 10, marginBottom: 12,
+                            flexWrap: "wrap",
+                          }}>
+                            <div style={{
+                              fontFamily: "'Geist Mono',monospace", fontSize: 10.5, fontWeight: 700,
+                              color: "var(--amber)", letterSpacing: "1.3px",
+                            }}>
+                              ▸ DEVELOPMENT POTENTIAL
+                            </div>
+                            <div style={{ fontSize: 11.5, color: "var(--sub)" }}>
+                              {lotSqft ? `Lot ${lotSqft.toLocaleString()} sqft` : "Lot size not in record — enter below"} ·
+                              {far ? ` FAR ${far}` : " FAR not set"}
+                              {storeys ? ` · max ${storeys} storeys` : ""}
+                            </div>
+                          </div>
+
+                          {!lotSqft && (
+                            <div style={{
+                              display: "flex", alignItems: "center", gap: 10,
+                              padding: "10px 12px", marginBottom: 12,
+                              background: "rgba(167,130,255,0.05)",
+                              border: "1px solid rgba(167,130,255,0.25)",
+                              borderRadius: 4,
+                            }}>
+                              <span style={{ fontSize: 11.5, color: "var(--sub)" }}>Add lot size to derive buildable envelope:</span>
+                              <input
+                                type="number"
+                                placeholder="sqft"
+                                onChange={e => {
+                                  const v = Number(e.target.value);
+                                  if (Number.isFinite(v) && v > 0) setProperty(p => p ? { ...p, lotSize: v } : p);
+                                }}
+                                style={{
+                                  background: "var(--card2,#0a0e18)", color: "var(--text)",
+                                  border: "1px solid var(--borderf)", borderRadius: 3,
+                                  padding: "5px 10px", width: 100,
+                                  fontFamily: "'Geist Mono',monospace", fontSize: 12, fontWeight: 700,
+                                }}
+                              />
+                              <span style={{ fontSize: 11, color: "var(--dim)" }}>sqft</span>
+                            </div>
+                          )}
+
+                          <div style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+                            gap: 8,
+                          }}>
+                            {[
+                              { label: "Buildable area",    value: buildableSqft ? `${buildableSqft.toLocaleString()} sqft` : "—", hint: far && lotSqft ? `${lotSqft.toLocaleString()} × ${far} FAR` : "Need lot + FAR", color: "var(--text)" },
+                              { label: "Per floor",         value: perFloor       ? `${perFloor.toLocaleString()} sqft`     : "—", hint: storeys ? `÷ ${storeys} storeys` : "Need storeys",     color: "var(--text)" },
+                              { label: "Max units",         value: derivedUnits   ? `${derivedUnits} dwellings`              : "—", hint: maxUnits ? (heuristicUnits && heuristicUnits < maxUnits ? `lot-limited (zone allows ${maxUnits})` : `zone cap`) : "@ ~900 sqft / unit", color: "var(--green)" },
+                              { label: "$ / buildable sqft", value: pricePerBuildable ? `$${pricePerBuildable.toLocaleString()}` : "—", hint: purchase ? "based on est. value" : "Need price", color: "var(--blue)" },
+                              { label: "$ / unit",          value: pricePerUnit  ? `$${(pricePerUnit/1000).toFixed(0)}K`     : "—", hint: purchase ? "implied at max units" : "Need price",   color: "var(--purple)" },
+                            ].map(tile => (
+                              <div key={tile.label} style={{
+                                background: "var(--card2,#0a0e18)",
+                                border: "1px solid var(--borderf)",
+                                borderRadius: 4,
+                                padding: "9px 12px",
+                              }}>
+                                <div style={{
+                                  fontFamily: "'Geist Mono',monospace", fontSize: 8.5, fontWeight: 700,
+                                  color: "var(--dim)", letterSpacing: "0.9px", marginBottom: 4,
+                                }}>
+                                  {tile.label.toUpperCase()}
+                                </div>
+                                <div style={{
+                                  fontFamily: "'Geist Mono',monospace", fontSize: 15, fontWeight: 800,
+                                  color: tile.value === "—" ? "var(--dim)" : tile.color, letterSpacing: "-0.3px",
+                                  lineHeight: 1.15,
+                                }}>
+                                  {tile.value}
+                                </div>
+                                <div style={{ fontSize: 10, color: "var(--dim)", marginTop: 3, fontStyle: "italic" }}>
+                                  {tile.hint}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+
+                          <div style={{
+                            fontSize: 11, color: "var(--dim)", lineHeight: 1.5,
+                            marginTop: 10, fontStyle: "italic",
+                          }}>
+                            Indicative envelope only. Actual buildable area depends on setbacks, parking variance, height
+                            transitions, and discretionary review by the municipality. Confirm with planning before underwriting.
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </>
                 )}
 
