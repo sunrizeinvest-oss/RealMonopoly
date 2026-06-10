@@ -277,12 +277,138 @@ export default function DealScreener() {
   const [toast, setToast] = useState("");
 
   // ── Bulk mode state ───────────────────────────────────────────────────────
-  const [mode, setMode] = useState("single");      // "single" | "bulk"
+  const [mode, setMode] = useState("single");      // "single" | "bulk" | "lookup"
   const [csvText, setCsvText] = useState("");
   const [bulkResults, setBulkResults] = useState(null);  // null | { rows: [...] }
   const [bulkError, setBulkError] = useState(null);
   const [bulkSort, setBulkSort] = useState({ key: "profit", dir: -1 });
   const [bulkFilter, setBulkFilter] = useState("all");   // "all" | "strong" | "thin" | "pass"
+
+  // ── Address bulk-lookup state ─────────────────────────────────────────────
+  // Paste one address per line; system runs property-lookup on each and scores
+  // by implied cap rate. Tier 2 wholesaler / commercial broker workflow.
+  const [lookupText, setLookupText] = useState("");
+  const [lookupRows, setLookupRows] = useState([]);
+  const [lookupRunning, setLookupRunning] = useState(false);
+  const [lookupProgress, setLookupProgress] = useState({ done: 0, total: 0 });
+  const [lookupError, setLookupError] = useState(null);
+  const [lookupSort, setLookupSort] = useState({ key: "cap", dir: -1 });
+  const LOOKUP_MAX = 30;
+  const LOOKUP_CONCURRENCY = 5;
+
+  // Score a lookup row by implied cap rate. Assumes ~35% expense ratio for
+  // small residential income property — STRONG ≥ 6%, OK 4.5-6%, THIN < 4.5%.
+  function scoreLookup(row) {
+    const v = Number(row.value), r = Number(row.rent);
+    if (!v || !r) return { ...row, cap: null, grm: null, verdict: "DATA", verdictClass: "skip" };
+    const noi = r * 12 * 0.65;          // crude — same heuristic the IC report uses
+    const cap = noi / v;
+    const grm = v / (r * 12);
+    let verdict, verdictClass;
+    if (cap >= 0.06)      { verdict = "STRONG"; verdictClass = "strong"; }
+    else if (cap >= 0.045){ verdict = "OK";     verdictClass = "thin";   }
+    else                  { verdict = "THIN";   verdictClass = "pass";   }
+    return { ...row, cap, grm, verdict, verdictClass };
+  }
+
+  async function runLookup() {
+    setLookupError(null);
+    const lines = (lookupText || "")
+      .split(/\r?\n/)
+      .map(s => s.trim())
+      .filter(s => s.length > 4);  // drop blanks + obvious junk
+    const deduped = [...new Set(lines)];
+    if (!deduped.length) {
+      setLookupError("Paste at least one address (one per line).");
+      return;
+    }
+    if (deduped.length > LOOKUP_MAX) {
+      setLookupError(`Capped at ${LOOKUP_MAX} addresses per run — got ${deduped.length}. Trim the list and try again.`);
+      return;
+    }
+    setLookupRunning(true);
+    setLookupProgress({ done: 0, total: deduped.length });
+    setLookupRows(deduped.map(a => ({ address: a, status: "pending" })));
+
+    // Concurrency-bounded worker pool
+    let cursor = 0;
+    const results = new Array(deduped.length);
+    async function worker() {
+      while (true) {
+        const i = cursor++;
+        if (i >= deduped.length) return;
+        const addr = deduped[i];
+        try {
+          const r = await fetch(`/api/property-lookup?address=${encodeURIComponent(addr)}`);
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok) {
+            results[i] = scoreLookup({ address: addr, status: "error", error: j.error || `HTTP ${r.status}` });
+          } else {
+            results[i] = scoreLookup({
+              address:   j.address || addr,
+              status:    "ok",
+              country:   j.country || null,
+              value:     j.estimatedValue,
+              rent:      j.rentEstimate,
+              yearBuilt: j.yearBuilt,
+              sqft:      j.squareFootage,
+              zone:      j.zoning?.code || null,
+              source:    j.source,
+            });
+          }
+        } catch (e) {
+          results[i] = scoreLookup({ address: addr, status: "error", error: e.message });
+        }
+        // Update progress + visible row in place
+        setLookupProgress(p => ({ ...p, done: p.done + 1 }));
+        setLookupRows(rows => {
+          const next = [...rows];
+          next[i] = results[i];
+          return next;
+        });
+      }
+    }
+    await Promise.all(Array.from({ length: LOOKUP_CONCURRENCY }, worker));
+    setLookupRunning(false);
+  }
+
+  const sortedLookupRows = useMemo(() => {
+    const { key, dir } = lookupSort;
+    return [...lookupRows].sort((a, b) => {
+      const av = a[key], bv = b[key];
+      if (av == null) return 1;
+      if (bv == null) return -1;
+      if (typeof av === "string") return av.localeCompare(bv) * dir;
+      return ((av ?? 0) - (bv ?? 0)) * dir;
+    });
+  }, [lookupRows, lookupSort]);
+
+  function exportLookupCSV() {
+    if (!lookupRows.length) return;
+    const esc = v => {
+      if (v == null || v === "") return "";
+      const s = String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const headers = ["Address", "Status", "Country", "Est. Value", "Rent Est.", "Implied Cap", "GRM", "Year Built", "Sqft", "Zoning", "Verdict"];
+    const lines = [headers.join(",")];
+    for (const r of lookupRows) {
+      lines.push([
+        r.address, r.status, r.country || "",
+        r.value || "", r.rent || "",
+        r.cap != null ? (r.cap * 100).toFixed(2) + "%" : "",
+        r.grm != null ? r.grm.toFixed(2) : "",
+        r.yearBuilt || "", r.sqft || "", r.zone || "",
+        r.verdict || "",
+      ].map(esc).join(","));
+    }
+    const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `realdeal-bulk-lookup-${new Date().toISOString().slice(0,10)}.csv`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
 
   const sortedFilteredBulk = useMemo(() => {
     if (!bulkResults?.rows?.length) return [];
@@ -501,9 +627,139 @@ export default function DealScreener() {
           <button className={`ds-tab ${mode === "bulk" ? "active" : ""}`} onClick={() => setMode("bulk")}>
             ▸ BULK IMPORT {bulkResults?.rows?.length ? <span className="ds-tab-count">{bulkResults.rows.length}</span> : null}
           </button>
+          <button className={`ds-tab ${mode === "lookup" ? "active" : ""}`} onClick={() => setMode("lookup")}>
+            ▸ ADDRESS LOOKUP {lookupRows.length ? <span className="ds-tab-count">{lookupRows.length}</span> : null}
+          </button>
         </div>
 
-        {mode === "bulk" ? (
+        {mode === "lookup" ? (<>
+          {/* ── Address Bulk Lookup ── */}
+          <div className="ds-bulk-card">
+            <div className="ds-bulk-h">▸ PASTE ADDRESSES · ONE PER LINE</div>
+            <div className="ds-bulk-sub">
+              System runs <code style={{color:"var(--blue)"}}>/api/property-lookup</code> on each (free for Canadian addresses via open-data, RentCast for US). Computes implied cap rate + GRM, scores each row. Max <strong>{LOOKUP_MAX}</strong> addresses per run.
+            </div>
+            <textarea
+              className="ds-csv"
+              value={lookupText}
+              onChange={e => setLookupText(e.target.value)}
+              placeholder={`123 Main St, Calgary, AB\n456 Oak Ave, Vancouver, BC\n789 Pine Rd, Edmonton, AB\n...`}
+              spellCheck={false}
+            />
+            <div className="ds-csv-actions">
+              <button className="ds-csv-action" onClick={() => setLookupText("425 W Cordova St, Vancouver, BC\n8814 99 St NW, Edmonton, AB\n2424 Westmount Rd NW, Calgary, AB")}>▸ LOAD SAMPLE</button>
+              <button className="ds-csv-action" onClick={() => { setLookupText(""); setLookupRows([]); setLookupError(null); }}>▸ CLEAR</button>
+              <button
+                className="ds-csv-eval"
+                onClick={runLookup}
+                disabled={lookupRunning || !lookupText.trim()}
+              >
+                {lookupRunning ? `LOOKING UP · ${lookupProgress.done} / ${lookupProgress.total}` : "▶ RUN LOOKUP"}
+              </button>
+            </div>
+            {lookupRunning && (
+              <div style={{ marginTop: 10, height: 6, background: "rgba(255,255,255,0.04)", borderRadius: 3, overflow: "hidden" }}>
+                <div style={{
+                  height: "100%",
+                  width: lookupProgress.total ? `${(lookupProgress.done / lookupProgress.total) * 100}%` : "0%",
+                  background: "var(--blue)", transition: "width 0.3s",
+                }} />
+              </div>
+            )}
+            {lookupError && <div className="ds-csv-error">{lookupError}</div>}
+          </div>
+
+          {lookupRows.length > 0 && (
+            <div className="ds-bulk-results">
+              <div className="ds-bulk-results-head">
+                <span className="ds-bulk-results-tag">▸ RESULTS</span>
+                <span className="ds-bulk-results-count">
+                  {lookupRows.filter(r => r.status === "ok").length} found · {lookupRows.filter(r => r.status === "error").length} failed · {lookupRows.filter(r => r.verdictClass === "strong").length} STRONG
+                </span>
+                <button onClick={exportLookupCSV} className="ds-csv-action" style={{ marginLeft: "auto" }}>📄 EXPORT CSV</button>
+              </div>
+              <div style={{ overflowX: "auto" }}>
+                <table style={{
+                  width: "100%", borderCollapse: "collapse",
+                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 12,
+                }}>
+                  <thead>
+                    <tr style={{ background: "rgba(255,255,255,0.02)" }}>
+                      {[
+                        { k: "address", l: "Address",    align: "left" },
+                        { k: "value",   l: "Est. Value", align: "right" },
+                        { k: "rent",    l: "Rent",       align: "right" },
+                        { k: "cap",     l: "Cap Rate",   align: "right" },
+                        { k: "grm",     l: "GRM",        align: "right" },
+                        { k: "yearBuilt", l: "Built",    align: "right" },
+                        { k: "zone",    l: "Zoning",     align: "left" },
+                        { k: "verdict", l: "Verdict",    align: "center" },
+                      ].map(col => (
+                        <th
+                          key={col.k}
+                          onClick={() => setLookupSort(s => ({ key: col.k, dir: s.key === col.k ? -s.dir : -1 }))}
+                          style={{
+                            textAlign: col.align, padding: "9px 12px",
+                            fontSize: 9.5, fontWeight: 700, color: "var(--dim)",
+                            letterSpacing: "1.1px", cursor: "pointer",
+                            borderBottom: "1px solid var(--borderf)",
+                            userSelect: "none",
+                          }}
+                        >
+                          {col.l.toUpperCase()}
+                          {lookupSort.key === col.k && <span style={{ marginLeft: 4, color: "var(--blue)" }}>{lookupSort.dir === -1 ? "▼" : "▲"}</span>}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sortedLookupRows.map((r, i) => {
+                      const verdictColor =
+                        r.verdictClass === "strong" ? "var(--green)" :
+                        r.verdictClass === "thin"   ? "var(--amber)" :
+                        r.verdictClass === "pass"   ? "var(--red)"   : "var(--dim)";
+                      return (
+                        <tr key={i} style={{ borderTop: "1px solid rgba(255,255,255,0.03)" }}>
+                          <td style={{ padding: "9px 12px", color: "var(--text)", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={r.address}>
+                            {r.address}
+                            {r.country && <span style={{ marginLeft: 6, fontSize: 9, color: "var(--dim)" }}>· {r.country}</span>}
+                          </td>
+                          <td style={{ padding: "9px 12px", textAlign: "right", color: "var(--text)" }}>
+                            {r.status === "pending" ? <span style={{ color: "var(--dim)" }}>…</span>
+                             : r.status === "error" ? <span style={{ color: "var(--red)" }} title={r.error}>—</span>
+                             : r.value ? `$${Math.round(r.value/1000)}K` : "—"}
+                          </td>
+                          <td style={{ padding: "9px 12px", textAlign: "right", color: "var(--text)" }}>
+                            {r.rent ? `$${Math.round(r.rent).toLocaleString()}` : "—"}
+                          </td>
+                          <td style={{ padding: "9px 12px", textAlign: "right", color: r.cap >= 0.06 ? "var(--green)" : r.cap >= 0.045 ? "var(--amber)" : "var(--text)", fontWeight: 700 }}>
+                            {r.cap != null ? `${(r.cap * 100).toFixed(1)}%` : "—"}
+                          </td>
+                          <td style={{ padding: "9px 12px", textAlign: "right", color: "var(--sub)" }}>
+                            {r.grm != null ? r.grm.toFixed(1) : "—"}
+                          </td>
+                          <td style={{ padding: "9px 12px", textAlign: "right", color: "var(--sub)" }}>{r.yearBuilt || "—"}</td>
+                          <td style={{ padding: "9px 12px", color: "var(--sub)", fontSize: 10.5 }}>{r.zone || "—"}</td>
+                          <td style={{ padding: "9px 12px", textAlign: "center" }}>
+                            <span style={{
+                              display: "inline-block", padding: "3px 10px",
+                              border: `1px solid ${verdictColor}`,
+                              color: verdictColor,
+                              borderRadius: 3,
+                              fontSize: 9.5, fontWeight: 700, letterSpacing: "0.8px",
+                            }}>
+                              {r.verdict || (r.status === "pending" ? "…" : r.status === "error" ? "ERR" : "—")}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>) : mode === "bulk" ? (
           <>
             {/* ── Bulk CSV input ── */}
             <div className="ds-bulk-card">
