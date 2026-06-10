@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from "react-router-dom"
 import { useAuth } from "./AuthContext"
 import { useDocMeta } from "./lib/seo"
 import { celebrateFirstSave } from "./lib/celebrate"
+import { estimateARV } from "./lib/arv"
 import TopNav from "./components/TopNav"
 
 // ─── Formatters ──────────────────────────────────────────────────────────────
@@ -1024,7 +1025,16 @@ export default function PropertyIntelligence() {
       // Canadian rent is seeded inside the predict-rent success path above.
       if (propData) {
         if (propData.lastSalePrice) setPurchasePrice(String(propData.lastSalePrice))
-        if (propData.estimatedValue) setArv(String(propData.estimatedValue))
+        // Seed ARV with the proper repair-uplifted estimate, not the raw
+        // estimated value (which is condition-agnostic). estimateARV() picks
+        // the strongest available signal — market PPSF > AVM > purchase.
+        const seed = estimateARV({
+          estimatedValue: propData.estimatedValue,
+          repairCost: 0,  // user will adjust
+          sqft: propData.squareFootage,
+          beds: propData.bedrooms,
+        });
+        if (seed.mid) setArv(String(seed.mid))
         if (!ca && propData.rentEstimate) setMonthlyRent(String(propData.rentEstimate))
       }
     } catch (err) {
@@ -2024,6 +2034,75 @@ export default function PropertyIntelligence() {
                 {/* ── FLIP TAB ── */}
                 {activeTab === "flip" && (
                   <div className="pi-card">
+                    {(() => {
+                      // Live ARV re-derivation as user adjusts repair budget.
+                      // Picks the strongest available signal: market PPSF >
+                      // estimatedValue > purchase. Shown as a hint pill
+                      // alongside the manual input so the user can refresh
+                      // their ARV when the repair number changes.
+                      const live = estimateARV({
+                        estimatedValue: property?.estimatedValue,
+                        purchasePrice: Number(purchasePrice) || property?.estimatedValue,
+                        repairCost: Number(repairCosts) || 0,
+                        sqft: property?.squareFootage,
+                        beds: property?.bedrooms,
+                      });
+                      if (!live.mid) return null;
+                      const manual = Number(arv) || 0;
+                      const drift = manual && live.mid ? Math.abs(manual - live.mid) / live.mid : 0;
+                      const matched = drift < 0.03;  // within 3% — count as match
+                      const confColor = live.confidence === "high" ? "var(--green)" : live.confidence === "med" ? "var(--amber)" : "var(--dim)";
+                      return (
+                        <div style={{
+                          display: "flex", alignItems: "center", gap: 10,
+                          padding: "10px 14px", marginBottom: 12,
+                          background: "rgba(167,130,255,0.04)",
+                          border: "1px solid rgba(167,130,255,0.25)",
+                          borderLeft: "3px solid var(--purple)",
+                          borderRadius: 4, flexWrap: "wrap",
+                        }}>
+                          <div style={{
+                            fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                            color: "var(--purple)", letterSpacing: "1.1px",
+                          }}>▸ AUTO-ARV</div>
+                          <div style={{ fontFamily: "'Geist Mono',monospace", fontSize: 14, fontWeight: 800, color: "var(--text)" }}>
+                            ${live.mid.toLocaleString()}
+                          </div>
+                          <div style={{ fontSize: 11, color: "var(--sub)" }}>
+                            ${live.low.toLocaleString()} – ${live.high.toLocaleString()}
+                          </div>
+                          <span style={{
+                            fontFamily: "'Geist Mono',monospace", fontSize: 8.5, fontWeight: 700,
+                            color: confColor, letterSpacing: "0.8px",
+                            border: `1px solid ${confColor}`, borderRadius: 2,
+                            padding: "1px 6px",
+                          }}>{live.confidence.toUpperCase()} CONFIDENCE</span>
+                          {!matched && (
+                            <button
+                              onClick={() => setArv(String(live.mid))}
+                              style={{
+                                marginLeft: "auto",
+                                background: "var(--purple)", border: "none",
+                                color: "#07090f", borderRadius: 3,
+                                padding: "5px 11px",
+                                fontFamily: "'Geist Mono',monospace", fontSize: 9.5, fontWeight: 700,
+                                letterSpacing: "0.8px", cursor: "pointer",
+                              }}
+                            >▶ APPLY TO ARV</button>
+                          )}
+                          {matched && (
+                            <span style={{
+                              marginLeft: "auto",
+                              fontFamily: "'Geist Mono',monospace", fontSize: 9.5, fontWeight: 700,
+                              color: "var(--green)", letterSpacing: "0.7px",
+                            }}>✓ MATCHES MANUAL</span>
+                          )}
+                          <div style={{ fontSize: 11, color: "var(--dim)", flexBasis: "100%", lineHeight: 1.45 }}>
+                            {live.methodology}
+                          </div>
+                        </div>
+                      );
+                    })()}
                     <div className="pi-calc-inputs">
                       <Field label="Purchase Price" value={purchasePrice} onChange={setPurchasePrice} prefix="$" />
                       <Field label="ARV" value={arv} onChange={setArv} prefix="$" />
@@ -2069,6 +2148,40 @@ export default function PropertyIntelligence() {
                 {/* ── BRRRR TAB ── */}
                 {activeTab === "brrrr" && (
                   <div className="pi-card">
+                    {(() => {
+                      const live = estimateARV({
+                        estimatedValue: property?.estimatedValue,
+                        purchasePrice: Number(purchasePrice) || property?.estimatedValue,
+                        repairCost: Number(repairCosts) || 0,
+                        sqft: property?.squareFootage,
+                        beds: property?.bedrooms,
+                      });
+                      if (!live.mid) return null;
+                      const manual = Number(arv) || 0;
+                      const matched = manual && Math.abs(manual - live.mid) / live.mid < 0.03;
+                      const confColor = live.confidence === "high" ? "var(--green)" : live.confidence === "med" ? "var(--amber)" : "var(--dim)";
+                      return (
+                        <div style={{
+                          display: "flex", alignItems: "center", gap: 10,
+                          padding: "10px 14px", marginBottom: 12,
+                          background: "rgba(167,130,255,0.04)",
+                          border: "1px solid rgba(167,130,255,0.25)",
+                          borderLeft: "3px solid var(--purple)",
+                          borderRadius: 4, flexWrap: "wrap",
+                        }}>
+                          <div style={{ fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700, color: "var(--purple)", letterSpacing: "1.1px" }}>▸ AUTO-ARV</div>
+                          <div style={{ fontFamily: "'Geist Mono',monospace", fontSize: 14, fontWeight: 800, color: "var(--text)" }}>${live.mid.toLocaleString()}</div>
+                          <div style={{ fontSize: 11, color: "var(--sub)" }}>${live.low.toLocaleString()} – ${live.high.toLocaleString()}</div>
+                          <span style={{ fontFamily: "'Geist Mono',monospace", fontSize: 8.5, fontWeight: 700, color: confColor, letterSpacing: "0.8px", border: `1px solid ${confColor}`, borderRadius: 2, padding: "1px 6px" }}>{live.confidence.toUpperCase()}</span>
+                          {!matched && (
+                            <button onClick={() => setArv(String(live.mid))} style={{ marginLeft: "auto", background: "var(--purple)", border: "none", color: "#07090f", borderRadius: 3, padding: "5px 11px", fontFamily: "'Geist Mono',monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.8px", cursor: "pointer" }}>▶ APPLY TO ARV</button>
+                          )}
+                          {matched && (
+                            <span style={{ marginLeft: "auto", fontFamily: "'Geist Mono',monospace", fontSize: 9.5, fontWeight: 700, color: "var(--green)", letterSpacing: "0.7px" }}>✓ MATCHES</span>
+                          )}
+                        </div>
+                      );
+                    })()}
                     <div className="pi-calc-inputs">
                       <Field label="Purchase Price" value={purchasePrice} onChange={setPurchasePrice} prefix="$" />
                       <Field label="Repair Costs" value={repairCosts} onChange={setRepairCosts} prefix="$" />
