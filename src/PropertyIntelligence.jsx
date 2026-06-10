@@ -1510,6 +1510,125 @@ export default function PropertyIntelligence() {
                   );
                 })()}
 
+                {/* ── SELL · LEASE hero card ────────────────────────────
+                    The headline answer to "what's this place worth?" and
+                    "what does it rent for?" — visible the moment the
+                    lookup completes. Pulls the strongest available signals:
+                      SELL  ← AVM / RentCast / city assessment value range
+                      LEASE ← predict-rent (CMHC anchored) / RentCast rent
+                      ARV   ← only when repair budget > 0; otherwise hidden
+                    Designed to be the FIRST thing the user reads. */}
+                {(() => {
+                  const sellMid  = property?.estimatedValue;
+                  const sellLow  = property?.estimatedValueLow;
+                  const sellHigh = property?.estimatedValueHigh;
+                  const rentMid  = property?.rentEstimate;
+                  const rentLow  = property?.rentEstimateLow;
+                  const rentHigh = property?.rentEstimateHigh;
+                  if (!sellMid && !rentMid) return null;
+                  const sellPpsf = sellMid && property?.squareFootage ? Math.round(sellMid / property.squareFootage) : null;
+                  const grossYield = sellMid && rentMid ? (rentMid * 12) / sellMid : null;
+                  const fmtBig = n => n ? `$${Math.round(n).toLocaleString()}` : "—";
+                  const fmtK   = n => n ? `$${Math.round(n/1000)}K` : "—";
+                  return (
+                    <div style={{
+                      margin: "16px 0",
+                      background: "linear-gradient(135deg, rgba(52,217,138,0.06) 0%, rgba(59,158,255,0.05) 100%)",
+                      border: "1px solid var(--borderf)",
+                      borderRadius: 8,
+                      overflow: "hidden",
+                    }}>
+                      <div style={{
+                        padding: "10px 18px",
+                        background: "rgba(7,9,15,0.4)",
+                        borderBottom: "1px solid var(--borderf)",
+                        fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                        color: "var(--sub)", letterSpacing: "1.6px",
+                      }}>
+                        ▸ MARKET VALUATION · LIVE FROM PUBLIC RECORDS
+                      </div>
+                      <div style={{
+                        display: "grid",
+                        gridTemplateColumns: sellMid && rentMid ? "1fr 1fr" : "1fr",
+                        gap: 1,
+                        background: "var(--borderf)",
+                      }}>
+                        {sellMid && (
+                          <div style={{ background: "var(--card)", padding: "20px 22px" }}>
+                            <div style={{
+                              fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                              color: "var(--green)", letterSpacing: "1.4px", marginBottom: 8,
+                            }}>
+                              💰 WHAT IT SELLS FOR
+                            </div>
+                            <div style={{
+                              fontFamily: "'Geist',sans-serif", fontSize: 36, fontWeight: 800,
+                              color: "var(--text)", letterSpacing: "-1.5px", lineHeight: 1,
+                            }}>
+                              {fmtBig(sellMid)}
+                            </div>
+                            {sellLow && sellHigh && (
+                              <div style={{
+                                fontFamily: "'Geist Mono',monospace", fontSize: 12, fontWeight: 600,
+                                color: "var(--sub)", marginTop: 6,
+                              }}>
+                                Range  {fmtK(sellLow)} — {fmtK(sellHigh)}
+                              </div>
+                            )}
+                            {sellPpsf && (
+                              <div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 6, fontFamily: "'Geist Mono',monospace" }}>
+                                ${sellPpsf}/sqft · {property.squareFootage.toLocaleString()} sqft
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {rentMid && (
+                          <div style={{ background: "var(--card)", padding: "20px 22px" }}>
+                            <div style={{
+                              fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                              color: "var(--blue)", letterSpacing: "1.4px", marginBottom: 8,
+                            }}>
+                              🏘️ WHAT IT LEASES FOR
+                            </div>
+                            <div style={{
+                              fontFamily: "'Geist',sans-serif", fontSize: 36, fontWeight: 800,
+                              color: "var(--text)", letterSpacing: "-1.5px", lineHeight: 1,
+                            }}>
+                              {fmtBig(rentMid)}
+                              <span style={{ fontSize: 16, fontWeight: 600, color: "var(--sub)", marginLeft: 6 }}>/ mo</span>
+                            </div>
+                            {rentLow && rentHigh && (
+                              <div style={{
+                                fontFamily: "'Geist Mono',monospace", fontSize: 12, fontWeight: 600,
+                                color: "var(--sub)", marginTop: 6,
+                              }}>
+                                Range  ${Math.round(rentLow).toLocaleString()} — ${Math.round(rentHigh).toLocaleString()}
+                              </div>
+                            )}
+                            {grossYield && (
+                              <div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 6, fontFamily: "'Geist Mono',monospace" }}>
+                                Gross yield {(grossYield * 100).toFixed(1)}% · ${Math.round(rentMid * 12).toLocaleString()}/yr
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{
+                        padding: "9px 18px",
+                        background: "rgba(7,9,15,0.3)",
+                        borderTop: "1px solid var(--borderf)",
+                        fontSize: 11, color: "var(--dim)", lineHeight: 1.5,
+                      }}>
+                        {property?.source === "rentcast" ? "Source: RentCast AVM + rent model." :
+                         property?.source?.includes("open-data") ? "Source: city assessment + CMHC-anchored rent model." :
+                         property?.rentSource === "predicted" ? "Sell: assessment + range. Lease: CMHC-anchored model." :
+                         "Auto-sourced from the best available public records for this address."}
+                        {" "}Verify with active comps before listing.
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* Data provider down notice — surface only when there's no
                     alternate data path that recovered for this address. */}
                 {lookupStatus === "down" && !property.rentEstimate && !zoningData?.zoning?.found && (
