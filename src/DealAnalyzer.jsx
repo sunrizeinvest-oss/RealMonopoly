@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "./AuthContext";
-import { generateFlipPDF } from "./generatePDF";
 import { generateTier1Memo } from "./lib/tier1Memo";
 import DealCoach from "./components/DealCoach";
 import PropertyIntelCard from "./components/PropertyIntelCard";

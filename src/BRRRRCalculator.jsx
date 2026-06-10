@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect, lazy, Suspense } from "react";
 import { useAuth } from "./AuthContext";
-import { exportBRRRRPDF } from "./pdfExport";
 import { generateTier1Memo } from "./lib/tier1Memo";
 import { irr as solveIRR, withCumulative } from "./lib/finance";
 import { useDocMeta } from "./lib/seo";
