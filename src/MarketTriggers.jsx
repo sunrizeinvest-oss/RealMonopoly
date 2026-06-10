@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
 import TierGate from "./components/TierGate";
+import { useAuth } from "./AuthContext";
 
 /**
  * MarketTriggers — distressed-listing radar.
@@ -39,12 +40,53 @@ const fmtMoneyK = n => {
 
 export default function MarketTriggers() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [area, setArea] = useState("");
   const [propertyType, setPropertyType] = useState("any");
   const [maxPrice, setMaxPrice] = useState("");
   const [triggers, setTriggers] = useState([]);
   const [running, setRunning]  = useState(false);
   const [error, setError]      = useState(null);
+  // Email digest state — kept tight so it doesn't pollute the scan flow.
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailStatus, setEmailStatus]   = useState(null); // null | {kind:'ok',msg} | {kind:'err',msg}
+
+  async function sendEmailDigest() {
+    if (!user?.email) {
+      setEmailStatus({ kind: "err", msg: "Sign in to send the digest to your email." });
+      setTimeout(() => setEmailStatus(null), 4000);
+      return;
+    }
+    if (!triggers.length) {
+      setEmailStatus({ kind: "err", msg: "Run a scan first — there's nothing to email." });
+      setTimeout(() => setEmailStatus(null), 4000);
+      return;
+    }
+    setEmailSending(true);
+    setEmailStatus(null);
+    try {
+      const r = await fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "send-digest",
+          to: user.email,
+          area: area || "All areas",
+          propertyType: propertyType !== "any" ? propertyType : null,
+          triggers,
+        }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || `Failed (${r.status})`);
+      setEmailStatus({ kind: "ok", msg: `Sent to ${user.email} · ${triggers.length} signal${triggers.length === 1 ? "" : "s"}` });
+      setTimeout(() => setEmailStatus(null), 5000);
+    } catch (e) {
+      setEmailStatus({ kind: "err", msg: e.message });
+      setTimeout(() => setEmailStatus(null), 6000);
+    } finally {
+      setEmailSending(false);
+    }
+  }
   const [watch, setWatch]      = useState(() => {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); }
     catch { return []; }
@@ -276,6 +318,48 @@ export default function MarketTriggers() {
             {running ? "SCANNING…" : "▶ SCAN AREA"}
           </button>
         </div>
+
+        {/* Email digest — only meaningful once a scan has run and there's
+            something to send. Stays minimal: 1 button + ephemeral status line. */}
+        {triggers.length > 0 && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 12,
+            padding: "10px 12px", marginBottom: 14,
+            background: "rgba(59,158,255,0.04)",
+            border: "1px solid rgba(59,158,255,0.18)",
+            borderLeft: "3px solid var(--blue)",
+            borderRadius: 4, flexWrap: "wrap",
+          }}>
+            <button
+              onClick={sendEmailDigest}
+              disabled={emailSending || !user?.email}
+              title={!user?.email ? "Sign in to email yourself the digest" : `Send digest to ${user.email}`}
+              style={{
+                background: emailSending ? "rgba(59,158,255,0.15)" : "var(--blue)",
+                color: emailSending ? "var(--blue)" : "#07090f",
+                border: "none", borderRadius: 4,
+                padding: "8px 14px",
+                fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
+                letterSpacing: "1px",
+                cursor: emailSending ? "wait" : !user?.email ? "not-allowed" : "pointer",
+                opacity: !user?.email ? 0.45 : 1,
+              }}
+            >
+              {emailSending ? "SENDING…" : "📧 EMAIL ME THIS DIGEST"}
+            </button>
+            <span style={{ fontSize: 11.5, color: "var(--sub)" }}>
+              {user?.email ? <>Sends to <strong style={{ color: "var(--text)" }}>{user.email}</strong></> : "Sign in to receive"}
+            </span>
+            {emailStatus && (
+              <span style={{
+                marginLeft: "auto", fontSize: 11.5, fontWeight: 600,
+                color: emailStatus.kind === "ok" ? "var(--green)" : "var(--red)",
+              }}>
+                {emailStatus.kind === "ok" ? "✓ " : "⚠ "}{emailStatus.msg}
+              </span>
+            )}
+          </div>
+        )}
 
         {error && (
           <div style={{

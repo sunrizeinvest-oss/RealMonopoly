@@ -55,6 +55,9 @@ export default async function handler(req, res) {
   if (req.body?.mode === "deal-memo") {
     return handleDealMemo(req, res);
   }
+  if (req.body?.mode === "send-digest") {
+    return handleSendDigest(req, res);
+  }
 
   const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -783,4 +786,130 @@ CRITICAL:
     console.error("[deal-memo] timeout or fetch error:", e.message);
     return res.status(504).json({ error: `Memo generation failed: ${e.message}` });
   }
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   mode: "send-digest"
+//   Email a Market-Triggers digest to the requester. Folded into ai-chat
+//   to stay under Vercel's 12-function Hobby cap. Uses Resend's REST API
+//   directly (no SDK dep). Env vars: RESEND_API_KEY, RESEND_FROM_EMAIL.
+// ──────────────────────────────────────────────────────────────────────
+async function handleSendDigest(req, res) {
+  const { to, area, propertyType, triggers = [] } = req.body || {};
+  if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+    return res.status(400).json({ error: "Valid recipient email required ('to' field)." });
+  }
+  if (!Array.isArray(triggers)) {
+    return res.status(400).json({ error: "'triggers' must be an array." });
+  }
+
+  const apiKey = process.env.RESEND_API_KEY;
+  const from   = process.env.RESEND_FROM_EMAIL || "Real Deal <triggers@realdealestate.app>";
+  if (!apiKey) {
+    return res.status(503).json({ error: "Email digest is not configured. Set RESEND_API_KEY in Vercel." });
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const fmtMoney = n => n == null ? "—" : `$${Math.round(Number(n)).toLocaleString()}`;
+  const fmtDate  = s => { try { return new Date(s).toLocaleDateString("en-CA"); } catch { return s || "—"; } };
+
+  // Brand colours mirror the in-app palette.
+  const C = { bg:"#07090f", card:"#0d1119", text:"#dde4ef", sub:"#6b7d96", dim:"#3a4a60", blue:"#3b9eff", green:"#34d98a", red:"#f25c5c", amber:"#f0a030" };
+
+  const triggerRowsHtml = triggers.slice(0, 30).map((t, i) => {
+    const status = (t.status || "—").toUpperCase();
+    const statusColor = /TERMIN|EXPIR|CANCEL/.test(status) ? C.red : /WITHDRAW|SUSPEND/.test(status) ? C.amber : C.sub;
+    const drop = (t.originalPrice && t.lastPrice && t.originalPrice > t.lastPrice)
+      ? `<span style="color:${C.green};font-weight:700">↓ ${fmtMoney(t.originalPrice - t.lastPrice)}</span>` : "";
+    return `
+      <tr style="border-top:1px solid #1a2030">
+        <td style="padding:14px 16px;font-family:Inter,sans-serif;font-size:14px;color:${C.text};vertical-align:top">
+          <div style="font-weight:700;margin-bottom:4px">${escapeHtml(t.address || "—")}</div>
+          <div style="font-size:11px;color:${C.dim};letter-spacing:0.5px;text-transform:uppercase">
+            ${escapeHtml(t.propertyType || "—")} · ${t.units || "?"} unit${t.units === 1 ? "" : "s"}${t.yearBuilt ? ` · built ${t.yearBuilt}` : ""}${t.zoning ? ` · ${escapeHtml(t.zoning)}` : ""}
+          </div>
+          ${t.notes ? `<div style="margin-top:8px;font-size:12px;color:${C.sub};line-height:1.45">${escapeHtml(t.notes)}</div>` : ""}
+        </td>
+        <td style="padding:14px 16px;text-align:right;vertical-align:top;font-family:'SF Mono',Menlo,monospace;font-size:13px;color:${C.text};white-space:nowrap">
+          <div style="font-weight:700">${fmtMoney(t.lastPrice)}</div>
+          ${drop ? `<div style="font-size:11px;margin-top:3px">${drop}</div>` : ""}
+          <div style="font-size:11px;color:${C.dim};margin-top:6px">DOM ${t.daysOnMarket ?? "—"}</div>
+        </td>
+        <td style="padding:14px 16px;text-align:right;vertical-align:top;font-family:'SF Mono',Menlo,monospace;font-size:11px;white-space:nowrap">
+          <div style="color:${statusColor};font-weight:700;letter-spacing:0.5px">${status}</div>
+          <div style="color:${C.dim};margin-top:5px">${fmtDate(t.triggerDate)}</div>
+          ${t.redevScore != null ? `<div style="color:${C.amber};margin-top:5px;font-weight:700">SCORE ${t.redevScore}</div>` : ""}
+        </td>
+      </tr>`;
+  }).join("");
+
+  const summary = triggers.length === 0
+    ? "No new distress signals matched this search."
+    : `${triggers.length} distress signal${triggers.length === 1 ? "" : "s"} matched your scan.`;
+
+  const html = `<!doctype html>
+<html><head><meta charset="utf-8"><title>Real Deal · Trigger Digest</title></head>
+<body style="margin:0;padding:0;background:${C.bg};font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;color:${C.text}">
+  <div style="max-width:680px;margin:0 auto;padding:32px 16px">
+    <div style="background:${C.card};border:1px solid #1a2030;border-radius:8px;overflow:hidden">
+      <div style="padding:24px 28px;border-bottom:1px solid #1a2030">
+        <div style="font-family:'SF Mono',Menlo,monospace;font-size:11px;font-weight:700;color:${C.blue};letter-spacing:1.6px;margin-bottom:6px">▸ REAL DEAL · TRIGGER DIGEST</div>
+        <div style="font-size:22px;font-weight:800;color:${C.text};letter-spacing:-0.5px">${escapeHtml(area || "All areas")}</div>
+        <div style="font-size:13px;color:${C.sub};margin-top:5px">${propertyType ? escapeHtml(propertyType) + " · " : ""}Generated ${today}</div>
+      </div>
+      <div style="padding:18px 28px;background:rgba(59,158,255,0.04);border-bottom:1px solid #1a2030;font-size:13px;color:${C.sub}">
+        ${summary}
+      </div>
+      ${triggers.length > 0 ? `
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse">
+        ${triggerRowsHtml}
+      </table>
+      ${triggers.length > 30 ? `<div style="padding:14px 28px;font-size:12px;color:${C.dim};font-style:italic">…and ${triggers.length - 30} more — open the app to see the full list.</div>` : ""}
+      ` : `<div style="padding:36px 28px;text-align:center;color:${C.dim};font-size:14px">Run another scan or widen your area to surface more signals.</div>`}
+      <div style="padding:20px 28px;border-top:1px solid #1a2030;background:rgba(255,255,255,0.015)">
+        <a href="https://www.realdealestate.app/triggers" style="display:inline-block;background:${C.blue};color:#07090f;text-decoration:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:5px;font-family:'SF Mono',Menlo,monospace;letter-spacing:0.8px">OPEN MARKET TRIGGERS →</a>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:${C.dim};margin-top:18px;line-height:1.6">
+      Real Deal · realdealestate.app<br>
+      Triggers are AI-generated directional signals for analyst review. Verify before acting.
+    </div>
+  </div>
+</body></html>`;
+
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from,
+        to: [to],
+        subject: `Real Deal Triggers · ${area || "All areas"} · ${triggers.length} signal${triggers.length === 1 ? "" : "s"}`,
+        html,
+      }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      console.error("[send-digest] Resend error:", r.status, errBody.slice(0, 200));
+      return res.status(502).json({ error: `Email send failed (${r.status})` });
+    }
+    const data = await r.json();
+    return res.status(200).json({ ok: true, id: data.id, sentTo: to, count: triggers.length });
+  } catch (e) {
+    console.error("[send-digest] fetch error:", e.message);
+    return res.status(504).json({ error: `Email send failed: ${e.message}` });
+  }
+}
+
+// Minimal HTML escape — guards against the address / notes fields injecting
+// markup into the digest. Fine for the limited fields we send.
+function escapeHtml(s) {
+  if (s == null) return "";
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
