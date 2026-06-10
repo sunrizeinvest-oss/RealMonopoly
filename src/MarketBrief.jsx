@@ -74,6 +74,101 @@ export default function MarketBrief() {
   const [previewLoading, setPreviewLoading] = useState(false)
   const [sendingTest, setSendingTest] = useState(false)
 
+  // Setup diagnostic — probes each piece of the pipeline so the user can
+  // see green checks land as they wire env vars tonight. Auto-runs once on
+  // mount; "RE-RUN" rebuilds the report.
+  const [diag, setDiag] = useState({ running: false, ran: false, checks: [] })
+  async function runDiagnostic() {
+    setDiag(d => ({ ...d, running: true, ran: true }))
+    const checks = []
+
+    // 1. RSS feeds responding
+    try {
+      const r = await fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mode: "fetch-market-brief", market: "all" }),
+      })
+      const j = await r.json().catch(() => ({}))
+      if (r.ok && Array.isArray(j.items)) {
+        checks.push({ key: "rss", ok: j.items.length > 0, label: "RSS feeds responding", detail: `${j.items.length} item${j.items.length === 1 ? "" : "s"} from ${j.sources?.length || 0} source${j.sources?.length === 1 ? "" : "s"}`, fix: null })
+      } else {
+        checks.push({ key: "rss", ok: false, label: "RSS feeds responding", detail: j.error || `HTTP ${r.status}`, fix: "Endpoint is reachable but the AI chat handler returned an error. Check Vercel logs." })
+      }
+    } catch (e) {
+      checks.push({ key: "rss", ok: false, label: "RSS feeds responding", detail: e.message, fix: "Endpoint unreachable — is the deploy live?" })
+    }
+
+    // 2. Resend configured (probe send-market-brief; 503 = not configured)
+    if (user?.email) {
+      try {
+        // Use a deliberately-invalid recipient to trigger a fast Resend response
+        // without spamming the user's inbox — Resend rejects malformed and we
+        // can read the response status to infer the key is configured.
+        const r = await fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mode: "send-market-brief", to: "probe@example.invalid", market: "all" }),
+        })
+        const j = await r.json().catch(() => ({}))
+        if (r.status === 503) {
+          checks.push({ key: "resend", ok: false, label: "Resend (email service)", detail: "RESEND_API_KEY not set", fix: "Add RESEND_API_KEY + RESEND_FROM_EMAIL to Vercel env vars." })
+        } else if (r.status === 502) {
+          checks.push({ key: "resend", ok: "partial", label: "Resend (email service)", detail: "API key wired; Resend rejected the test send (likely sender domain not verified)", fix: "Verify your sending domain at resend.com → Domains, or start with onboarding@resend.dev." })
+        } else if (r.ok || j.ok) {
+          checks.push({ key: "resend", ok: true, label: "Resend (email service)", detail: "API key wired + accepting sends", fix: null })
+        } else {
+          checks.push({ key: "resend", ok: false, label: "Resend (email service)", detail: j.error || `HTTP ${r.status}`, fix: "Unexpected error — check Vercel logs." })
+        }
+      } catch (e) {
+        checks.push({ key: "resend", ok: false, label: "Resend (email service)", detail: e.message, fix: null })
+      }
+    } else {
+      checks.push({ key: "resend", ok: "skip", label: "Resend (email service)", detail: "Sign in to probe", fix: null })
+    }
+
+    // 3. Cron handler reachable + CRON_SECRET configured
+    try {
+      const r = await fetch("/api/ai-chat?mode=cron-market-brief", { method: "GET" })
+      const j = await r.json().catch(() => ({}))
+      if (r.status === 401) {
+        checks.push({ key: "cron", ok: true, label: "Cron auth (CRON_SECRET)", detail: "CRON_SECRET configured (endpoint correctly rejects unauthed)", fix: null })
+      } else if (r.status === 503 && /supabase/i.test(j.error || "")) {
+        checks.push({ key: "cron", ok: "partial", label: "Cron auth (CRON_SECRET)", detail: "Auth missing — got Supabase error instead of 401", fix: "Set CRON_SECRET in Vercel env vars + enable Cron Jobs in project settings." })
+      } else {
+        checks.push({ key: "cron", ok: false, label: "Cron auth (CRON_SECRET)", detail: `Unexpected HTTP ${r.status}`, fix: "Enable Cron Jobs in Vercel project settings." })
+      }
+    } catch (e) {
+      checks.push({ key: "cron", ok: false, label: "Cron auth (CRON_SECRET)", detail: e.message, fix: null })
+    }
+
+    // 4. Supabase subscriptions table (probe — requires sign-in)
+    if (user?.id) {
+      try {
+        const { error } = await supabase
+          .from("market_subscriptions")
+          .select("id", { count: "exact", head: true })
+          .limit(1)
+        if (error) {
+          if (/relation.*does not exist|table.*not found/i.test(error.message)) {
+            checks.push({ key: "supabase", ok: false, label: "Supabase market_subscriptions table", detail: "Table doesn't exist", fix: "Run supabase/migrations/002_market_subscriptions.sql in your Supabase SQL editor." })
+          } else {
+            checks.push({ key: "supabase", ok: false, label: "Supabase market_subscriptions table", detail: error.message, fix: null })
+          }
+        } else {
+          checks.push({ key: "supabase", ok: true, label: "Supabase market_subscriptions table", detail: "Table reachable + RLS responding", fix: null })
+        }
+      } catch (e) {
+        checks.push({ key: "supabase", ok: false, label: "Supabase market_subscriptions table", detail: e.message, fix: null })
+      }
+    } else {
+      checks.push({ key: "supabase", ok: "skip", label: "Supabase market_subscriptions table", detail: "Sign in to probe", fix: null })
+    }
+
+    setDiag({ running: false, ran: true, checks })
+  }
+  useEffect(() => { runDiagnostic() }, [user?.id])
+
   // Load existing subscriptions
   useEffect(() => {
     if (!user) { setLoading(false); return }
@@ -195,6 +290,57 @@ export default function MarketBrief() {
           </div>
         ) : (
           <>
+            {/* Setup Diagnostic — live probe of the full email pipeline */}
+            <div className="mb-card" style={{ borderLeft: "3px solid var(--amber)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
+                <div className="mb-card-h" style={{ marginBottom: 0, color: "var(--amber)" }}>▸ SETUP DIAGNOSTIC</div>
+                <button
+                  onClick={runDiagnostic}
+                  disabled={diag.running}
+                  style={{
+                    marginLeft: "auto",
+                    background: "transparent", color: "var(--sub)",
+                    border: "1px solid var(--borderf)", borderRadius: 4,
+                    padding: "5px 11px",
+                    fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                    letterSpacing: "0.8px", cursor: diag.running ? "wait" : "pointer",
+                  }}
+                >
+                  {diag.running ? "PROBING…" : "↻ RE-RUN"}
+                </button>
+              </div>
+              <div style={{ display: "grid", gap: 8 }}>
+                {diag.checks.map(c => {
+                  const color = c.ok === true ? "var(--green)" : c.ok === "partial" ? "var(--amber)" : c.ok === "skip" ? "var(--dim)" : "var(--red)"
+                  const glyph = c.ok === true ? "✓" : c.ok === "partial" ? "◐" : c.ok === "skip" ? "·" : "✗"
+                  return (
+                    <div key={c.key} style={{
+                      display: "grid", gridTemplateColumns: "20px 1fr auto", gap: 10,
+                      padding: "8px 12px",
+                      background: "var(--card2,#0a0e18)",
+                      border: "1px solid var(--borderf)",
+                      borderLeft: `3px solid ${color}`,
+                      borderRadius: 4, alignItems: "start",
+                    }}>
+                      <div style={{ color, fontFamily: "'Geist Mono',monospace", fontSize: 14, fontWeight: 800, lineHeight: 1.4 }}>{glyph}</div>
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 2 }}>{c.label}</div>
+                        <div style={{ fontSize: 11.5, color: "var(--sub)", lineHeight: 1.4 }}>{c.detail}</div>
+                        {c.fix && (
+                          <div style={{ fontSize: 11, color: "var(--amber)", marginTop: 4, lineHeight: 1.4 }}>
+                            <strong>Fix:</strong> {c.fix}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })}
+                {diag.running && diag.checks.length === 0 && (
+                  <div style={{ fontSize: 12, color: "var(--sub)", padding: 8 }}>Running probes…</div>
+                )}
+              </div>
+            </div>
+
             <div className="mb-card">
               <div className="mb-card-h">▸ PICK YOUR MARKETS</div>
               <div className="mb-card-sub">Select one or more — "All Canada" includes every item; city markets filter by name + metro suburbs.</div>
