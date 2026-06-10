@@ -6,6 +6,10 @@
     {
       "path": "/api/ai-chat?mode=cron-digest",
       "schedule": "0 16 * * 1"
+    },
+    {
+      "path": "/api/ai-chat?mode=cron-market-brief",
+      "schedule": "0 15 * * *"
     }
   ]
 }

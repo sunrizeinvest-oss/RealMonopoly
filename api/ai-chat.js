@@ -33,10 +33,13 @@ export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  // The Vercel cron path hits us as a GET with ?mode=cron-digest and an
+  // The Vercel cron path hits us as a GET with ?mode=cron-<x> and an
   // Authorization: Bearer <CRON_SECRET> header. Everything else stays POST.
   if (req.method === "GET" && req.query?.mode === "cron-digest") {
     return handleCronDigest(req, res);
+  }
+  if (req.method === "GET" && req.query?.mode === "cron-market-brief") {
+    return handleCronMarketBrief(req, res);
   }
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
@@ -63,6 +66,12 @@ export default async function handler(req, res) {
   }
   if (req.body?.mode === "send-digest") {
     return handleSendDigest(req, res);
+  }
+  if (req.body?.mode === "fetch-market-brief") {
+    return handleFetchMarketBrief(req, res);
+  }
+  if (req.body?.mode === "send-market-brief") {
+    return handleSendMarketBrief(req, res);
   }
 
   const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
@@ -1072,4 +1081,360 @@ function baseUrlFromReq(req) {
   if (!host) return "";
   const proto = (req.headers["x-forwarded-proto"] || "https");
   return `${proto}://${host}`;
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   Market Brief — daily 8am Pacific RSS-aggregated email per market
+//
+//   Three handlers + one cron entry:
+//     POST  mode=fetch-market-brief  → returns the assembled brief
+//                                       payload (for in-app preview)
+//     POST  mode=send-market-brief   → fires the brief to a single
+//                                       recipient (manual / preview)
+//     GET   mode=cron-market-brief   → walks every market_subscriptions
+//                                       row and sends per-subscriber
+//
+//   Sources (all free, all RSS — no scraping fragility):
+//     Bank of Canada announcements: https://www.bankofcanada.ca/feed/
+//     Storeys (Canadian RE news):   https://storeys.com/feed/
+//     Better Dwelling:              https://betterdwelling.com/feed/
+//
+//   Market filter is keyword-based on title + description. "All Canada"
+//   subscribers get every item; city subscribers get items mentioning
+//   their city or its metro suburbs.
+// ──────────────────────────────────────────────────────────────────────
+
+const RSS_FEEDS = [
+  { source: "Bank of Canada", url: "https://www.bankofcanada.ca/feed/", priority: 10 },
+  { source: "Storeys",        url: "https://storeys.com/feed/",        priority: 6 },
+  { source: "Better Dwelling",url: "https://betterdwelling.com/feed/", priority: 5 },
+];
+
+// Each market lists its core city + metro suburbs. Match is case-insensitive
+// substring against item title + description.
+const MARKET_KEYWORDS = {
+  calgary:   ["calgary", "airdrie", "cochrane", "okotoks", "chestermere", "alberta"],
+  vancouver: ["vancouver", "burnaby", "richmond", "surrey", "coquitlam", "north vancouver", "west vancouver", "delta", "new westminster", "british columbia"],
+  edmonton:  ["edmonton", "sherwood park", "st. albert", "spruce grove", "fort saskatchewan", "leduc", "alberta"],
+  toronto:   ["toronto", "mississauga", "brampton", "markham", "vaughan", "pickering", "ajax", "oakville", "burlington", "richmond hill", "north york", "scarborough", "etobicoke", "ontario", "gta"],
+  all:       null,  // sentinel — keep everything
+};
+
+const MARKET_LABEL = {
+  calgary:   "Calgary",
+  vancouver: "Vancouver",
+  edmonton:  "Edmonton",
+  toronto:   "Toronto",
+  all:       "All Canada",
+};
+
+// Minimal RSS parser. RSS 2.0 + Atom both work because both expose <item>
+// or <entry> with <title>, <link>, <description>/<summary>, <pubDate>.
+// Extracts via regex — robust enough for the well-formed feeds we hit;
+// gracefully returns [] on any malformed input.
+function parseRSS(xml, source) {
+  if (!xml || typeof xml !== "string") return [];
+  const items = [];
+  // <item>...</item> for RSS 2.0; <entry>...</entry> for Atom
+  const itemRegex = /<(item|entry)\b[^>]*>([\s\S]*?)<\/\1>/gi;
+  let m;
+  while ((m = itemRegex.exec(xml)) && items.length < 20) {
+    const block = m[2];
+    const title = pickTag(block, "title");
+    const link  = pickTag(block, "link") || (block.match(/<link[^>]*href="([^"]+)"/) || [])[1] || "";
+    const desc  = pickTag(block, "description") || pickTag(block, "summary") || pickTag(block, "content:encoded") || "";
+    const date  = pickTag(block, "pubDate") || pickTag(block, "published") || pickTag(block, "updated") || "";
+    if (!title) continue;
+    items.push({
+      source,
+      title:       stripHtml(title).slice(0, 240),
+      link:        link.trim(),
+      description: stripHtml(desc).slice(0, 320),
+      publishedAt: date.trim(),
+    });
+  }
+  return items;
+}
+
+function pickTag(block, tag) {
+  // Match <tag>...</tag> or <tag attr="x">...</tag> — tolerant of CDATA.
+  const re = new RegExp(`<${tag}\\b[^>]*>(?:<!\\[CDATA\\[)?([\\s\\S]*?)(?:\\]\\]>)?<\\/${tag}>`, "i");
+  const m = block.match(re);
+  return m ? m[1].trim() : "";
+}
+
+function stripHtml(s) {
+  return String(s || "")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8220;/g, '"')
+    .replace(/&#8221;/g, '"')
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function matchesMarket(item, market) {
+  if (market === "all" || !MARKET_KEYWORDS[market]) return true;
+  const haystack = `${item.title} ${item.description}`.toLowerCase();
+  return MARKET_KEYWORDS[market].some(kw => haystack.includes(kw));
+}
+
+// Fetch every feed in parallel, parse, dedupe, filter by market, sort by
+// (priority desc, publishedAt desc). Returns up to `limit` items.
+async function aggregateMarketNews({ market = "all", limit = 8 }) {
+  const feedResults = await Promise.allSettled(
+    RSS_FEEDS.map(async f => {
+      try {
+        const r = await fetch(f.url, {
+          signal: AbortSignal.timeout(12_000),
+          headers: { "User-Agent": "RealDealEstate/1.0 (+https://realdealestate.app)" },
+        });
+        if (!r.ok) return [];
+        const xml = await r.text();
+        return parseRSS(xml, f.source).map(it => ({ ...it, priority: f.priority }));
+      } catch (e) {
+        console.warn(`[market-brief] feed failed: ${f.source}: ${e.message}`);
+        return [];
+      }
+    })
+  );
+
+  let all = feedResults
+    .flatMap(r => r.status === "fulfilled" ? r.value : [])
+    .filter(it => matchesMarket(it, market));
+
+  // Dedupe by lowercased title
+  const seen = new Set();
+  all = all.filter(it => {
+    const key = it.title.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  // Sort: higher priority first, then more recent
+  all.sort((a, b) => {
+    if (a.priority !== b.priority) return b.priority - a.priority;
+    const ta = Date.parse(a.publishedAt) || 0;
+    const tb = Date.parse(b.publishedAt) || 0;
+    return tb - ta;
+  });
+
+  return all.slice(0, limit);
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   POST mode=fetch-market-brief — preview the brief payload (no email)
+//   Body: { market: "all" | "calgary" | "vancouver" | "edmonton" | "toronto" }
+// ──────────────────────────────────────────────────────────────────────
+async function handleFetchMarketBrief(req, res) {
+  const market = String(req.body?.market || "all").toLowerCase();
+  if (!MARKET_LABEL[market]) {
+    return res.status(400).json({ error: `Unknown market "${market}". Options: ${Object.keys(MARKET_LABEL).join(", ")}` });
+  }
+  const items = await aggregateMarketNews({ market, limit: 8 });
+  return res.status(200).json({
+    market,
+    label: MARKET_LABEL[market],
+    items,
+    generatedAt: new Date().toISOString(),
+    sources: RSS_FEEDS.map(f => f.source),
+  });
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   POST mode=send-market-brief — fire to a single recipient
+//   Body: { to, market }   (used for preview + manual sends)
+// ──────────────────────────────────────────────────────────────────────
+async function handleSendMarketBrief(req, res) {
+  const { to, market = "all" } = req.body || {};
+  if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+    return res.status(400).json({ error: "Valid recipient email required ('to' field)." });
+  }
+  const norm = String(market).toLowerCase();
+  if (!MARKET_LABEL[norm]) {
+    return res.status(400).json({ error: `Unknown market "${market}".` });
+  }
+  const items = await aggregateMarketNews({ market: norm, limit: 8 });
+  const result = await deliverMarketBrief({ to, market: norm, items });
+  return res.status(result.ok ? 200 : 502).json(result);
+}
+
+// HTML template + Resend send. Returns { ok, id?, error? }.
+async function deliverMarketBrief({ to, market, items }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from   = process.env.RESEND_FROM_EMAIL || "Real Deal <brief@realdealestate.app>";
+  if (!apiKey) return { ok: false, error: "Email is not configured (RESEND_API_KEY missing)." };
+
+  const C = { bg:"#07090f", card:"#0d1119", text:"#dde4ef", sub:"#6b7d96", dim:"#3a4a60", blue:"#3b9eff", green:"#34d98a", red:"#f25c5c", amber:"#f0a030" };
+  const today = new Date().toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+
+  const rowsHtml = items.map(it => `
+    <tr style="border-top:1px solid #1a2030">
+      <td style="padding:14px 18px;font-family:Inter,sans-serif;vertical-align:top">
+        <div style="font-family:'SF Mono',Menlo,monospace;font-size:9.5px;font-weight:700;color:${C.blue};letter-spacing:1.1px;margin-bottom:5px">${escapeHtml(it.source.toUpperCase())}</div>
+        <a href="${escapeHtml(it.link)}" style="display:block;color:${C.text};font-size:15px;font-weight:700;line-height:1.35;text-decoration:none;margin-bottom:6px">${escapeHtml(it.title)}</a>
+        ${it.description ? `<div style="font-size:12.5px;color:${C.sub};line-height:1.5">${escapeHtml(it.description)}</div>` : ""}
+      </td>
+    </tr>
+  `).join("");
+
+  const html = `<!doctype html>
+<html><head><meta charset="utf-8"><title>Real Deal · Daily Market Brief</title></head>
+<body style="margin:0;padding:0;background:${C.bg};font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;color:${C.text}">
+  <div style="max-width:680px;margin:0 auto;padding:32px 16px">
+    <div style="background:${C.card};border:1px solid #1a2030;border-radius:8px;overflow:hidden">
+      <div style="padding:24px 28px;border-bottom:1px solid #1a2030">
+        <div style="font-family:'SF Mono',Menlo,monospace;font-size:11px;font-weight:700;color:${C.amber};letter-spacing:1.6px;margin-bottom:6px">▸ REAL DEAL · DAILY MARKET BRIEF</div>
+        <div style="font-size:22px;font-weight:800;color:${C.text};letter-spacing:-0.5px">${escapeHtml(MARKET_LABEL[market])}</div>
+        <div style="font-size:13px;color:${C.sub};margin-top:5px">${today}</div>
+      </div>
+      ${items.length === 0 ? `
+      <div style="padding:36px 28px;text-align:center;color:${C.dim};font-size:14px">
+        No matching items today. Markets are quiet — or the feeds are slow. We'll keep watching.
+      </div>
+      ` : `
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse">${rowsHtml}</table>
+      `}
+      <div style="padding:20px 28px;border-top:1px solid #1a2030;background:rgba(255,255,255,0.015);text-align:center">
+        <a href="https://www.realdealestate.app/market-brief" style="display:inline-block;background:${C.blue};color:#07090f;text-decoration:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:5px;font-family:'SF Mono',Menlo,monospace;letter-spacing:0.8px">MANAGE SUBSCRIPTIONS →</a>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:${C.dim};margin-top:18px;line-height:1.6">
+      Real Deal · realdealestate.app<br>
+      Aggregated from public RSS feeds. Verify sources before acting on any item.<br>
+      <a href="https://www.realdealestate.app/market-brief" style="color:${C.dim}">Manage your subscriptions →</a>
+    </div>
+  </div>
+</body></html>`;
+
+  try {
+    const r = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from,
+        to: [to],
+        subject: `Real Deal Brief · ${MARKET_LABEL[market]} · ${today}`,
+        html,
+      }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      console.error("[market-brief] Resend error:", r.status, errBody.slice(0, 200));
+      return { ok: false, error: `Email send failed (${r.status})` };
+    }
+    const data = await r.json();
+    return { ok: true, id: data.id, sentTo: to, market, count: items.length };
+  } catch (e) {
+    console.error("[market-brief] fetch error:", e.message);
+    return { ok: false, error: `Email send failed: ${e.message}` };
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   GET cron-market-brief — daily 8am Pacific Vercel cron
+//
+//   Walks every enabled market_subscriptions row, groups by user_id,
+//   batches by market to share one RSS fetch across many subscribers,
+//   then per (user, market) sends one email.
+// ──────────────────────────────────────────────────────────────────────
+async function handleCronMarketBrief(req, res) {
+  const expected = process.env.CRON_SECRET;
+  const auth = req.headers.authorization || "";
+  if (!expected || auth !== `Bearer ${expected}`) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) {
+    return res.status(503).json({ error: "Supabase service config missing." });
+  }
+  const sbHeaders = {
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+    "Content-Type": "application/json",
+  };
+
+  // 1. Pull every enabled subscription
+  let subs = [];
+  try {
+    const r = await fetch(
+      `${supabaseUrl}/rest/v1/market_subscriptions?select=id,user_id,market&enabled=eq.true`,
+      { headers: sbHeaders }
+    );
+    if (!r.ok) {
+      const eb = await r.text().catch(() => "");
+      console.error("[cron-market-brief] read failed:", r.status, eb.slice(0, 200));
+      return res.status(502).json({ error: "Could not read market subscriptions" });
+    }
+    subs = await r.json();
+  } catch (e) {
+    return res.status(504).json({ error: `Supabase fetch failed: ${e.message}` });
+  }
+
+  if (!subs.length) {
+    return res.status(200).json({ ok: true, processed: 0, note: "No enabled subscriptions." });
+  }
+
+  // 2. Aggregate once per unique market — multiple subscribers to the same
+  // market share one RSS fetch.
+  const uniqueMarkets = [...new Set(subs.map(s => s.market))];
+  const briefByMarket = {};
+  await Promise.all(uniqueMarkets.map(async m => {
+    briefByMarket[m] = await aggregateMarketNews({ market: m, limit: 8 });
+  }));
+
+  // 3. Per subscription: resolve email, send, update last_sent_at. Cap at 5
+  // concurrent to be polite to Resend.
+  const results = [];
+  const concurrency = 5;
+  async function processOne(s) {
+    const out = { subId: s.id, market: s.market, sentTo: null, error: null };
+    try {
+      const uRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${s.user_id}`, { headers: sbHeaders });
+      if (!uRes.ok) throw new Error(`auth.users lookup ${uRes.status}`);
+      const u = await uRes.json();
+      const email = u?.email;
+      if (!email) throw new Error("user has no email");
+
+      const items = briefByMarket[s.market] || [];
+      const delivery = await deliverMarketBrief({ to: email, market: s.market, items });
+      if (!delivery.ok) throw new Error(delivery.error || "send failed");
+      out.sentTo = email;
+      out.count = delivery.count;
+
+      await fetch(`${supabaseUrl}/rest/v1/market_subscriptions?id=eq.${s.id}`, {
+        method: "PATCH",
+        headers: { ...sbHeaders, Prefer: "return=minimal" },
+        body: JSON.stringify({ last_sent_at: new Date().toISOString() }),
+      });
+    } catch (e) { out.error = e.message; }
+    return out;
+  }
+
+  for (let i = 0; i < subs.length; i += concurrency) {
+    const batch = subs.slice(i, i + concurrency);
+    const batchResults = await Promise.all(batch.map(processOne));
+    results.push(...batchResults);
+  }
+
+  const summary = {
+    ok: true,
+    processed: results.length,
+    sent: results.filter(r => r.sentTo && !r.error).length,
+    errors: results.filter(r => r.error).length,
+    markets: Object.fromEntries(Object.entries(briefByMarket).map(([m, items]) => [m, items.length])),
+    results,
+  };
+  console.log("[cron-market-brief] complete:", JSON.stringify(summary).slice(0, 800));
+  return res.status(200).json(summary);
 }
