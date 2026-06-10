@@ -156,7 +156,7 @@ function Field({ label, value, onChange, prefix, suffix, type = "number", hint, 
   const iStyle = {
     width: "100%", background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6,
     padding: `9px ${suffix ? "36px" : "11px"} 9px ${prefix ? "24px" : "11px"}`,
-    fontSize: 13, color: "var(--text)", fontFamily: "'Fira Code', monospace", outline: "none", boxSizing: "border-box",
+    fontSize: 13, color: "var(--text)", fontFamily: "'Geist Mono', monospace", outline: "none", boxSizing: "border-box",
     transition: "border-color 0.15s, box-shadow 0.15s",
   };
   return (
@@ -167,7 +167,7 @@ function Field({ label, value, onChange, prefix, suffix, type = "number", hint, 
         </label>
       )}
       <div style={{ position: "relative" }}>
-        {prefix && <span style={{ position: "absolute", left: 9, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 12, fontWeight: 600, pointerEvents: "none", fontFamily: "'Fira Code', monospace" }}>{prefix}</span>}
+        {prefix && <span style={{ position: "absolute", left: 9, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 12, fontWeight: 600, pointerEvents: "none", fontFamily: "'Geist Mono', monospace" }}>{prefix}</span>}
         {type === "select" ? (
           <select value={value} onChange={e => onChange(e.target.value)} style={iStyle}>
             <option>Yes</option><option>No</option>
@@ -183,7 +183,7 @@ function Field({ label, value, onChange, prefix, suffix, type = "number", hint, 
             onBlur={e => { e.target.style.borderColor = "rgba(255,255,255,0.08)"; e.target.style.boxShadow = "none"; }}
           />
         )}
-        {suffix && <span style={{ position: "absolute", right: 9, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 11, pointerEvents: "none", fontFamily: "'Fira Code', monospace" }}>{suffix}</span>}
+        {suffix && <span style={{ position: "absolute", right: 9, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 11, pointerEvents: "none", fontFamily: "'Geist Mono', monospace" }}>{suffix}</span>}
       </div>
       {hint && <span style={{ fontSize: 10.5, color: "var(--blue)", fontWeight: 500 }}>{hint}</span>}
     </div>
@@ -219,7 +219,7 @@ function SubtotalBar({ label, value, accent = "var(--blue)" }) {
   return (
     <div style={{ marginTop: 14, background: "rgba(255,255,255,0.03)", border: `1px solid ${accent}22`, borderLeft: `3px solid ${accent}`, borderRadius: "0 8px 8px 0", padding: "9px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <span style={{ fontSize: 12, color: "var(--sub)", fontWeight: 600 }}>{label}</span>
-      <span style={{ fontSize: 14, fontWeight: 800, color: accent, fontFamily: "'Fira Code', monospace" }}>{value}</span>
+      <span style={{ fontSize: 14, fontWeight: 800, color: accent, fontFamily: "'Geist Mono', monospace" }}>{value}</span>
     </div>
   );
 }
@@ -231,7 +231,7 @@ function SRow({ label, value, bold, green, red, indent, divider, sub }) {
       {divider && <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "8px 0" }} />}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", paddingLeft: indent ? 16 : 0 }}>
         <span style={{ fontSize: 12.5, color: indent ? "var(--sub)" : "var(--sub)", fontWeight: bold ? 700 : 400, fontStyle: sub ? "italic" : "normal" }}>{label}</span>
-        <span style={{ fontSize: 12.5, fontWeight: bold ? 800 : 500, color: green ? "var(--green)" : red ? "var(--red)" : "var(--text)", fontFamily: "'Fira Code', monospace" }}>{value}</span>
+        <span style={{ fontSize: 12.5, fontWeight: bold ? 800 : 500, color: green ? "var(--green)" : red ? "var(--red)" : "var(--text)", fontFamily: "'Geist Mono', monospace" }}>{value}</span>
       </div>
     </>
   );
@@ -244,7 +244,7 @@ function MetricCard({ label, value, sub, accent, tooltip }) {
       <div style={{ fontSize: 10, color: "var(--sub)", fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 7, display: "flex", alignItems: "center" }}>
         {label}{tooltip && <Tooltip text={tooltip} />}
       </div>
-      <div style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", fontFamily: "'Fira Code', monospace", lineHeight: 1.1 }}>{value}</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", fontFamily: "'Geist Mono', monospace", lineHeight: 1.1 }}>{value}</div>
       {sub && <div style={{ fontSize: 10.5, color: "var(--sub)", marginTop: 5 }}>{sub}</div>}
     </div>
   );
@@ -1442,7 +1442,7 @@ export default function FlipCalc() {
     const hasResult = num(v.arv) > 0 && num(v.purchasePrice) > 0 && num(v.repairCosts) > 0;
 
     return (
-      <div style={{ minHeight: "100vh", background: "rgba(255,255,255,0.03)", fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ minHeight: "100vh", background: "rgba(255,255,255,0.03)", fontFamily: "'Geist', sans-serif" }}>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
 
         {/* Header */}
@@ -1492,13 +1492,13 @@ export default function FlipCalc() {
                   </div>
                 </div>
                 <div style={{ position: "relative" }}>
-                  {step.prefix && <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 16, fontWeight: 600, pointerEvents: "none", fontFamily: "'Fira Code', monospace" }}>{step.prefix}</span>}
+                  {step.prefix && <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 16, fontWeight: 600, pointerEvents: "none", fontFamily: "'Geist Mono', monospace" }}>{step.prefix}</span>}
                   <input
                     type="number"
                     value={v[step.key]}
                     onChange={e => set(step.key)(e.target.value)}
                     placeholder={step.placeholder}
-                    style={{ width: "100%", background: "rgba(255,255,255,0.03)", border: "2px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: `14px ${step.suffix ? "70px" : "14px"} 14px ${step.prefix ? "30px" : "14px"}`, fontSize: 18, fontWeight: 700, color: "var(--text)", fontFamily: "'Fira Code', monospace", outline: "none", boxSizing: "border-box", transition: "border-color 0.15s" }}
+                    style={{ width: "100%", background: "rgba(255,255,255,0.03)", border: "2px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: `14px ${step.suffix ? "70px" : "14px"} 14px ${step.prefix ? "30px" : "14px"}`, fontSize: 18, fontWeight: 700, color: "var(--text)", fontFamily: "'Geist Mono', monospace", outline: "none", boxSizing: "border-box", transition: "border-color 0.15s" }}
                     onFocus={e => e.target.style.borderColor = "var(--blue)"}
                     onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.08)"}
                   />
@@ -1524,7 +1524,7 @@ export default function FlipCalc() {
                 ].map(m => (
                   <div key={m.label} style={{ background: "rgba(255,255,255,0.7)", borderRadius: 10, padding: "14px 16px" }}>
                     <div style={{ fontSize: 10, color: "var(--sub)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>{m.label}</div>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: m.color, fontFamily: "'Fira Code', monospace" }}>{m.val}</div>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: m.color, fontFamily: "'Geist Mono', monospace" }}>{m.val}</div>
                   </div>
                 ))}
               </div>
@@ -1565,7 +1565,7 @@ export default function FlipCalc() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#07090f", fontFamily: "'DM Sans', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: "#07090f", fontFamily: "'Geist', sans-serif", display: "flex", flexDirection: "column" }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
       <style>{`
         @media (max-width: 768px) {
@@ -1679,7 +1679,7 @@ export default function FlipCalc() {
         <div style={{ marginTop: "auto", padding: "16px 16px 22px", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
           {/* Deal Grade */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, padding: "10px 12px", background: c.gradeBg, border: `1px solid ${c.gradeColor}33`, borderRadius: 10 }}>
-            <div style={{ fontSize: 28, fontWeight: 900, color: c.gradeColor, fontFamily: "'Fira Code', monospace", lineHeight: 1 }}>{c.grade}</div>
+            <div style={{ fontSize: 28, fontWeight: 900, color: c.gradeColor, fontFamily: "'Geist Mono', monospace", lineHeight: 1 }}>{c.grade}</div>
             <div>
               <div style={{ fontSize: 10, fontWeight: 700, color: c.gradeColor, textTransform: "uppercase", letterSpacing: 0.5 }}>Deal Grade</div>
               <div style={{ fontSize: 10, color: "var(--sub)" }}>Score: {c.score}/100</div>
@@ -1695,7 +1695,7 @@ export default function FlipCalc() {
           ].map(item => (
             <div key={item.label} style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, alignItems: "center" }}>
               <span style={{ fontSize: 11, color: "var(--sub)" }}>{item.label}</span>
-              <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "'Fira Code', monospace", color: item.color || "var(--sub)" }}>{item.val}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, fontFamily: "'Geist Mono', monospace", color: item.color || "var(--sub)" }}>{item.val}</span>
             </div>
           ))}
         </div>
@@ -1770,9 +1770,9 @@ export default function FlipCalc() {
                       {f.label}{f.tooltip && <Tooltip text={f.tooltip} />}
                     </label>
                     <div style={{ position: "relative" }}>
-                      {f.prefix && <span style={{ position: "absolute", left: 9, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 12, fontFamily: "'Fira Code', monospace", pointerEvents: "none" }}>{f.prefix}</span>}
+                      {f.prefix && <span style={{ position: "absolute", left: 9, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 12, fontFamily: "'Geist Mono', monospace", pointerEvents: "none" }}>{f.prefix}</span>}
                       <input type="number" value={v[f.key]} onChange={e => set(f.key)(e.target.value)}
-                        style={{ width: "100%", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, padding: `9px ${f.suffix ? "52px" : "10px"} 9px ${f.prefix ? "22px" : "10px"}`, fontSize: 14, color: "rgba(255,255,255,0.04)", fontFamily: "'Fira Code', monospace", outline: "none", boxSizing: "border-box" }} />
+                        style={{ width: "100%", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, padding: `9px ${f.suffix ? "52px" : "10px"} 9px ${f.prefix ? "22px" : "10px"}`, fontSize: 14, color: "rgba(255,255,255,0.04)", fontFamily: "'Geist Mono', monospace", outline: "none", boxSizing: "border-box" }} />
                       {f.suffix && <span style={{ position: "absolute", right: 9, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 11, pointerEvents: "none" }}>{f.suffix}</span>}
                     </div>
                   </div>
@@ -1789,7 +1789,7 @@ export default function FlipCalc() {
                 ].map(item => (
                   <div key={item.label} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: "10px 12px", textAlign: "center" }}>
                     <div style={{ fontSize: 9, color: "var(--sub)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>{item.label}</div>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: item.color, fontFamily: "'Fira Code', monospace", lineHeight: 1 }}>{item.val}</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: item.color, fontFamily: "'Geist Mono', monospace", lineHeight: 1 }}>{item.val}</div>
                   </div>
                 ))}
               </div>
@@ -1939,14 +1939,14 @@ export default function FlipCalc() {
                         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:12}}>
                           <div style={{background:"rgba(59,158,255,0.08)",border:"1px solid rgba(59,158,255,0.2)",borderRadius:10,padding:"10px 13px"}}>
                             <div style={{fontSize:9.5,color:"var(--sub)",fontWeight:600,marginBottom:4,textTransform:"uppercase"}}>🏠 Estimated Value (AVM)</div>
-                            <div style={{fontSize:18,fontWeight:800,color:"var(--blue)",fontFamily:"'Fira Code',monospace"}}>{lookupData.estimatedValue ? fmt(lookupData.estimatedValue) : "—"}</div>
+                            <div style={{fontSize:18,fontWeight:800,color:"var(--blue)",fontFamily:"'Geist Mono',monospace"}}>{lookupData.estimatedValue ? fmt(lookupData.estimatedValue) : "—"}</div>
                             {lookupData.estimatedValueLow && lookupData.estimatedValueHigh && (
                               <div style={{fontSize:10.5,color:"var(--sub)",marginTop:3}}>Range: {fmt(lookupData.estimatedValueLow)} – {fmt(lookupData.estimatedValueHigh)}</div>
                             )}
                           </div>
                           <div style={{background:"rgba(52,217,138,0.08)",border:"1px solid rgba(52,217,138,0.2)",borderRadius:10,padding:"10px 13px"}}>
                             <div style={{fontSize:9.5,color:"var(--sub)",fontWeight:600,marginBottom:4,textTransform:"uppercase"}}>💰 Rent Estimate / mo</div>
-                            <div style={{fontSize:18,fontWeight:800,color:"var(--green)",fontFamily:"'Fira Code',monospace"}}>{lookupData.rentEstimate ? fmt(lookupData.rentEstimate) : "—"}</div>
+                            <div style={{fontSize:18,fontWeight:800,color:"var(--green)",fontFamily:"'Geist Mono',monospace"}}>{lookupData.rentEstimate ? fmt(lookupData.rentEstimate) : "—"}</div>
                             {lookupData.rentEstimateLow && lookupData.rentEstimateHigh && (
                               <div style={{fontSize:10.5,color:"var(--sub)",marginTop:3}}>Range: {fmt(lookupData.rentEstimateLow)} – {fmt(lookupData.rentEstimateHigh)}</div>
                             )}
@@ -1996,7 +1996,7 @@ export default function FlipCalc() {
                 ].map(item => (
                   <div key={item.label} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "10px 14px" }}>
                     <div style={{ fontSize: 10, color: "var(--sub)", fontWeight: 600, marginBottom: 4 }}>{item.icon && item.icon + " "}{item.label}</div>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: item.color || "var(--blue)", fontFamily: "'Fira Code', monospace" }}>{item.val}</div>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: item.color || "var(--blue)", fontFamily: "'Geist Mono', monospace" }}>{item.val}</div>
                   </div>
                 ))}
               </div>
@@ -2070,7 +2070,7 @@ export default function FlipCalc() {
                 <span style={{ fontSize: 12, color: "#0f766e" }}>
                   <strong>{fmt(c.totalMonthlyHolding)}/mo</strong> × {num(v.holdMonths)} months
                 </span>
-                <span style={{ fontSize: 13, fontWeight: 800, color: "var(--blue)", fontFamily: "'Fira Code', monospace" }}>
+                <span style={{ fontSize: 13, fontWeight: 800, color: "var(--blue)", fontFamily: "'Geist Mono', monospace" }}>
                   Total: {fmt(c.totalHolding)}
                 </span>
               </div>
@@ -2110,7 +2110,7 @@ export default function FlipCalc() {
                         tooltip="Total commission paid to both agents. Typically 5–6% in the US, 3–5% in Canada." hint={`= ${fmt(c.realtorFees)}`} />
                       <div style={{ background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "10px 14px" }}>
                         <div style={{ fontSize: 10, color: "var(--sub)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Total Commission</div>
-                        <div style={{ fontSize: 16, fontWeight: 800, color: "var(--blue)", fontFamily: "'Fira Code', monospace" }}>{fmt(c.realtorFees)}</div>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: "var(--blue)", fontFamily: "'Geist Mono', monospace" }}>{fmt(c.realtorFees)}</div>
                       </div>
                     </div>
                   ) : (
@@ -2129,17 +2129,17 @@ export default function FlipCalc() {
                         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--sub)" }}>
                             <span>{v.realtorTier1Pct}% on first {fmt(Math.min(num(v.arv), num(v.realtorTier1Cap)))}</span>
-                            <span style={{ fontFamily: "'Fira Code', monospace", fontWeight: 600 }}>{fmt(Math.min(num(v.arv), num(v.realtorTier1Cap)) * (num(v.realtorTier1Pct)/100))}</span>
+                            <span style={{ fontFamily: "'Geist Mono', monospace", fontWeight: 600 }}>{fmt(Math.min(num(v.arv), num(v.realtorTier1Cap)) * (num(v.realtorTier1Pct)/100))}</span>
                           </div>
                           {num(v.arv) > num(v.realtorTier1Cap) && (
                             <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--sub)" }}>
                               <span>{v.realtorTier2Pct}% on remaining {fmt(num(v.arv) - num(v.realtorTier1Cap))}</span>
-                              <span style={{ fontFamily: "'Fira Code', monospace", fontWeight: 600 }}>{fmt((num(v.arv) - num(v.realtorTier1Cap)) * (num(v.realtorTier2Pct)/100))}</span>
+                              <span style={{ fontFamily: "'Geist Mono', monospace", fontWeight: 600 }}>{fmt((num(v.arv) - num(v.realtorTier1Cap)) * (num(v.realtorTier2Pct)/100))}</span>
                             </div>
                           )}
                           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "var(--blue)", fontWeight: 800, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 6, marginTop: 2 }}>
                             <span>Total Commission</span>
-                            <span style={{ fontFamily: "'Fira Code', monospace" }}>{fmt(c.realtorFees)}</span>
+                            <span style={{ fontFamily: "'Geist Mono', monospace" }}>{fmt(c.realtorFees)}</span>
                           </div>
                         </div>
                       </div>
@@ -2353,7 +2353,7 @@ export default function FlipCalc() {
 
             {/* Deal Grade Banner */}
             <div style={{ background: c.gradeBg, border: `1px solid ${c.gradeColor}33`, borderRadius: 16, padding: "18px 24px", marginBottom: 24, display: "flex", alignItems: "center", gap: 20 }}>
-              <div style={{ fontSize: 52, fontWeight: 900, color: c.gradeColor, fontFamily: "'Fira Code', monospace", lineHeight: 1 }}>{c.grade}</div>
+              <div style={{ fontSize: 52, fontWeight: 900, color: c.gradeColor, fontFamily: "'Geist Mono', monospace", lineHeight: 1 }}>{c.grade}</div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: 16, fontWeight: 800, color: c.gradeColor }}>Deal Grade — Score {c.score}/100</div>
                 <div style={{ fontSize: 12, color: "var(--sub)", marginTop: 3 }}>

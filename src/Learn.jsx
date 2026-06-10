@@ -7,13 +7,13 @@ const CSS = `
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body { background: #07090f; color: var(--text); font-family: 'DM Sans', sans-serif; }
+  body { background: #07090f; color: var(--text); font-family: 'Geist', sans-serif; }
 
   .learn-page {
     min-height: 100vh;
     background: #07090f;
     color: var(--text);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
   }
 
   /* ── Nav ── */
@@ -54,7 +54,7 @@ const CSS = `
     transition: all 0.15s;
     cursor: pointer;
     background: transparent;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
   }
   .learn-nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
   .learn-nav-link.active {
@@ -268,7 +268,7 @@ const CSS = `
     padding: 12px 16px 12px 42px;
     font-size: 14px;
     color: var(--text);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     outline: none;
     transition: border-color 0.15s, box-shadow 0.15s;
   }
@@ -311,7 +311,7 @@ const CSS = `
     margin-bottom: 12px;
   }
   .glossary-formula {
-    font-family: 'Fira Code', monospace;
+    font-family: 'Geist Mono', monospace;
     font-size: 12px;
     color: var(--green);
     background: rgba(52,217,138,0.06);
@@ -373,7 +373,7 @@ const CSS = `
     width: fit-content;
   }
   .rule-formula {
-    font-family: 'Fira Code', monospace;
+    font-family: 'Geist Mono', monospace;
     font-size: 13px;
     color: var(--blue);
     background: rgba(59,158,255,0.07);
@@ -489,7 +489,7 @@ const CSS = `
     border-radius: 10px;
     border: none;
     cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     text-decoration: none;
     transition: background 0.15s, transform 0.1s;
     margin-top: 8px;
@@ -513,7 +513,7 @@ const CSS = `
     color: var(--blue);
     font-size: 12px;
     font-weight: 700;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     padding: 8px 14px;
     border-radius: 16px;
     cursor: pointer;

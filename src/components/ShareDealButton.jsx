@@ -63,7 +63,7 @@ export default function ShareDealButton({ deal, strategy = "brrrr", compact = fa
         borderRadius: 6,
         padding: compact ? "8px 12px" : "10px 16px",
         color,
-        fontFamily: "'Fira Code',ui-monospace,monospace",
+        fontFamily: "'Geist Mono',ui-monospace,monospace",
         fontSize: compact ? 13 : 11.5,
         fontWeight: 700,
         letterSpacing: "1.2px",

@@ -208,7 +208,7 @@ const css = `
   padding:12px 18px; border-radius:6px;
   background:var(--card); color:var(--text);
   border:1px solid var(--border); border-left:3px solid var(--blue);
-  font-family:'Fira Code',ui-monospace,monospace; font-size:12px; font-weight:700;
+  font-family:'Geist Mono',ui-monospace,monospace; font-size:12px; font-weight:700;
   letter-spacing:1.4px;
   box-shadow:0 14px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(59,158,255,0.08) inset;
   cursor:pointer; transition:transform 0.18s, border-color 0.18s, box-shadow 0.15s;
@@ -228,7 +228,7 @@ const css = `
   display:flex; flex-direction:column;
   box-shadow:0 30px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(59,158,255,0.06) inset;
   overflow:hidden;
-  font-family:'DM Sans',sans-serif;
+  font-family:'Geist',sans-serif;
 }
 
 .dc-head{
@@ -239,7 +239,7 @@ const css = `
 }
 .dc-head-left{ display:flex; align-items:center; gap:10px; }
 .dc-head-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:dc-blink 2s infinite; }
-.dc-head-title{ font-family:'Fira Code',ui-monospace,monospace; font-size:11px; font-weight:700; color:var(--blue); letter-spacing:1.2px; }
+.dc-head-title{ font-family:'Geist Mono',ui-monospace,monospace; font-size:11px; font-weight:700; color:var(--blue); letter-spacing:1.2px; }
 .dc-close{ background:none; border:none; color:var(--sub); font-size:22px; cursor:pointer; padding:0 4px; line-height:1; }
 .dc-close:hover{ color:var(--text); }
 
@@ -254,7 +254,7 @@ const css = `
   padding:8px 4px;
   background:transparent; color:var(--sub);
   border:1px solid var(--borderf); border-radius:4px;
-  font-family:'Fira Code',ui-monospace,monospace; font-size:9.5px; font-weight:700;
+  font-family:'Geist Mono',ui-monospace,monospace; font-size:9.5px; font-weight:700;
   letter-spacing:0.8px;
   cursor:pointer; transition:all 0.15s;
 }
@@ -263,7 +263,7 @@ const css = `
 
 .dc-hint{
   padding:8px 14px;
-  font-family:'Fira Code',ui-monospace,monospace; font-size:10.5px; color:var(--dim);
+  font-family:'Geist Mono',ui-monospace,monospace; font-size:10.5px; color:var(--dim);
   letter-spacing:0.3px;
   border-bottom:1px solid var(--borderf);
   background:rgba(255,255,255,0.008);
@@ -280,14 +280,14 @@ const css = `
   padding:8px 0;
 }
 .dc-empty-label{
-  font-family:'Fira Code',ui-monospace,monospace; font-size:10px; font-weight:700;
+  font-family:'Geist Mono',ui-monospace,monospace; font-size:10px; font-weight:700;
   color:var(--dim); letter-spacing:1.2px; margin-bottom:4px;
 }
 .dc-suggest{
   text-align:left; padding:10px 12px;
   background:rgba(255,255,255,0.025);
   border:1px solid var(--borderf); border-radius:5px;
-  color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px;
+  color:var(--text); font-family:'Geist',sans-serif; font-size:13px;
   cursor:pointer; transition:background 0.15s, border-color 0.15s;
   display:flex; align-items:center; gap:8px;
 }
@@ -296,19 +296,19 @@ const css = `
 
 .dc-msg{ display:flex; flex-direction:column; gap:4px; }
 .dc-msg-author{
-  font-family:'Fira Code',ui-monospace,monospace; font-size:9.5px; font-weight:700;
+  font-family:'Geist Mono',ui-monospace,monospace; font-size:9.5px; font-weight:700;
   color:var(--dim); letter-spacing:1.2px;
   display:flex; align-items:center; gap:8px;
 }
 .dc-msg-badge{
-  font-family:'Fira Code',ui-monospace,monospace; font-size:8.5px; font-weight:700;
+  font-family:'Geist Mono',ui-monospace,monospace; font-size:8.5px; font-weight:700;
   color:var(--amber); border:1px solid var(--amber); border-radius:2px;
   padding:1px 5px; letter-spacing:0.6px;
 }
 .dc-msg-badge.err{ color:var(--red); border-color:var(--red); }
 .dc-msg-body{
   padding:10px 12px; border-radius:6px;
-  font-family:'DM Sans',sans-serif; font-size:13.5px; line-height:1.55;
+  font-family:'Geist',sans-serif; font-size:13.5px; line-height:1.55;
   color:var(--text);
 }
 .dc-msg-user .dc-msg-body{
@@ -341,7 +341,7 @@ const css = `
   padding:10px 12px;
   background:rgba(255,255,255,0.04);
   border:1px solid var(--borderf); border-radius:5px;
-  color:var(--text); font-family:'DM Sans',sans-serif; font-size:13.5px;
+  color:var(--text); font-family:'Geist',sans-serif; font-size:13.5px;
   outline:none; transition:border-color 0.15s;
 }
 .dc-input:focus{ border-color:var(--blue); }
@@ -350,7 +350,7 @@ const css = `
   padding:0 16px;
   background:transparent;
   border:1px solid var(--blue); border-radius:5px;
-  color:var(--blue); font-family:'Fira Code',ui-monospace,monospace; font-size:14px; font-weight:700;
+  color:var(--blue); font-family:'Geist Mono',ui-monospace,monospace; font-size:14px; font-weight:700;
   cursor:pointer; transition:background 0.15s, transform 0.15s;
 }
 .dc-send:hover:not(:disabled){ background:rgba(59,158,255,0.1); transform:translateX(2px); }

@@ -268,7 +268,7 @@ const CSS = `
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -394,7 +394,7 @@ const CSS = `
     border-radius: 6px;
     padding: 9px 12px;
     font-size: 14px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     color: var(--text);
     outline: none;
     transition: border-color 0.15s, box-shadow 0.15s;
@@ -414,7 +414,7 @@ const CSS = `
     border-radius: 6px;
     padding: 9px 12px;
     font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     color: var(--text);
     outline: none;
     cursor: pointer;
@@ -577,7 +577,7 @@ const CSS = `
     border-radius: 7px;
     padding: 7px 10px;
     font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     color: var(--text);
     outline: none;
     transition: border-color 0.15s;
@@ -635,7 +635,7 @@ const CSS = `
     border-radius: 10px;
     padding: 14px 16px;
     font-size: 13px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     color: var(--text);
     outline: none;
     resize: vertical;
@@ -714,7 +714,7 @@ const CSS = `
     padding: 10px 20px;
     font-size: 13px;
     font-weight: 700;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     color: #fff;
     cursor: pointer;
     transition: opacity 0.15s, transform 0.1s;
@@ -731,7 +731,7 @@ const CSS = `
     padding: 10px 18px;
     font-size: 13px;
     font-weight: 600;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     color: var(--sub);
     cursor: pointer;
     transition: all 0.15s;

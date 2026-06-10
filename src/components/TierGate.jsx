@@ -46,7 +46,7 @@ export default function TierGate({
         display: "flex", alignItems: "baseline", gap: 12, marginBottom: 10, flexWrap: "wrap",
       }}>
         <span style={{
-          fontFamily: "'Fira Code',ui-monospace,monospace",
+          fontFamily: "'Geist Mono',ui-monospace,monospace",
           fontSize: 10.5, fontWeight: 700,
           padding: "3px 8px",
           background: `${color}18`,
@@ -59,7 +59,7 @@ export default function TierGate({
         </span>
         {feature && (
           <span style={{
-            fontFamily: "'DM Sans',sans-serif", fontSize: 16, fontWeight: 700,
+            fontFamily: "'Geist',sans-serif", fontSize: 16, fontWeight: 700,
             color: "var(--text)", letterSpacing: "-0.3px",
           }}>
             {feature}
@@ -86,7 +86,7 @@ export default function TierGate({
             background: color, color: "#07090f",
             border: "none", borderRadius: 5,
             padding: "11px 18px",
-            fontFamily: "'Fira Code',ui-monospace,monospace",
+            fontFamily: "'Geist Mono',ui-monospace,monospace",
             fontSize: 11.5, fontWeight: 700, letterSpacing: "1.2px",
             cursor: "pointer",
             transition: "transform 0.15s, box-shadow 0.15s",
@@ -102,7 +102,7 @@ export default function TierGate({
             background: "transparent", color: "var(--sub)",
             border: "1px solid var(--borderf)", borderRadius: 5,
             padding: "11px 18px",
-            fontFamily: "'Fira Code',ui-monospace,monospace",
+            fontFamily: "'Geist Mono',ui-monospace,monospace",
             fontSize: 11.5, fontWeight: 700, letterSpacing: "1.2px",
             cursor: "pointer",
           }}
@@ -114,7 +114,7 @@ export default function TierGate({
       <div style={{
         marginTop: 12, paddingTop: 12,
         borderTop: "1px solid var(--borderf)",
-        fontFamily: "'Fira Code',ui-monospace,monospace",
+        fontFamily: "'Geist Mono',ui-monospace,monospace",
         fontSize: 10, color: "var(--dim)", letterSpacing: "0.6px",
         lineHeight: 1.5,
       }}>

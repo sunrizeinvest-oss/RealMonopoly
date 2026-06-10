@@ -7,7 +7,7 @@ import OnboardingTour from "./components/OnboardingTour";
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;min-height:100vh}
 
   .hub-wrap{min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
 
@@ -16,8 +16,8 @@ const CSS = `
   .hub-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.hub-logo span{color:var(--blue)}
   .hub-nav-right{display:flex;align-items:center;gap:10px}
   .hub-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 12px;border-radius:7px}.hub-nav-link:hover{color:var(--text)}
-  .hub-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none}
-  .hub-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}.hub-nav-ghost:hover{color:var(--text)}
+  .hub-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none}
+  .hub-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif}.hub-nav-ghost:hover{color:var(--text)}
 
   /* Hero */
   .hub-hero{text-align:center;padding:72px 24px 48px;position:relative;overflow:hidden}
@@ -28,25 +28,25 @@ const CSS = `
 
   /* Cards */
   .hub-cards{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:960px;margin:0 auto;padding:0 24px 80px;width:100%}
-  .hub-section-label{grid-column:1/-1;font-family:'Fira Code',ui-monospace,monospace;font-size:10.5px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1.4px;padding-top:8px}
+  .hub-section-label{grid-column:1/-1;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:1.4px;padding-top:8px}
   .hub-section-label::before{content:"// "}
   .hub-card.worth{border-color:rgba(255,180,60,0.25);background:linear-gradient(135deg,rgba(255,180,60,0.04) 0%,var(--card) 60%)}
   .hub-card.worth:hover{border-color:rgba(255,180,60,0.5);box-shadow:0 16px 48px rgba(255,180,60,0.08)}
   .hub-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:28px 26px;cursor:pointer;transition:all 0.15s;position:relative;display:flex;flex-direction:column;gap:12px}
   .hub-card:hover{border-color:rgba(59,158,255,0.45);transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,0,0,0.45)}
-  .hub-card::before{content:"";position:absolute;top:14px;left:18px;font-family:'Fira Code',monospace;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:0.7px}
+  .hub-card::before{content:"";position:absolute;top:14px;left:18px;font-family:'Geist Mono',monospace;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:0.7px}
   .hub-card.featured{border-color:rgba(52,217,138,0.3);background:linear-gradient(135deg,rgba(52,217,138,0.04) 0%,var(--card) 60%)}
   .hub-card.featured:hover{border-color:rgba(52,217,138,0.55);box-shadow:0 12px 36px rgba(52,217,138,0.1)}
 
-  .hub-card-badge{position:absolute;top:18px;right:18px;background:rgba(52,217,138,0.08);color:var(--green);border:1px solid rgba(52,217,138,0.4);font-family:'Fira Code',monospace;font-size:9px;font-weight:700;letter-spacing:0.8px;padding:3px 8px;border-radius:3px}
+  .hub-card-badge{position:absolute;top:18px;right:18px;background:rgba(52,217,138,0.08);color:var(--green);border:1px solid rgba(52,217,138,0.4);font-family:'Geist Mono',monospace;font-size:9px;font-weight:700;letter-spacing:0.8px;padding:3px 8px;border-radius:3px}
   .hub-card-icon{font-size:34px;line-height:1;margin-top:14px}
   .hub-card-title{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-0.4px}
   .hub-card-sub{font-size:13px;color:var(--sub);line-height:1.55}
   .hub-card-divider{height:1px;background:var(--borderf);margin:4px 0}
   .hub-card-pills{display:flex;flex-wrap:wrap;gap:6px}
-  .hub-pill{background:rgba(255,255,255,0.025);border:1px solid var(--borderf);border-radius:3px;padding:2px 8px;font-family:'Fira Code',monospace;font-size:10px;color:var(--sub);font-weight:600;letter-spacing:0.3px}
+  .hub-pill{background:rgba(255,255,255,0.025);border:1px solid var(--borderf);border-radius:3px;padding:2px 8px;font-family:'Geist Mono',monospace;font-size:10px;color:var(--sub);font-weight:600;letter-spacing:0.3px}
   .hub-card.featured .hub-pill{border-color:rgba(52,217,138,0.18);color:var(--sub)}
-  .hub-card-cta{margin-top:auto;padding-top:10px;font-family:'Fira Code',monospace;font-size:12px;font-weight:700;letter-spacing:0.6px;color:var(--blue);display:flex;align-items:center;gap:6px;text-transform:uppercase}
+  .hub-card-cta{margin-top:auto;padding-top:10px;font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.6px;color:var(--blue);display:flex;align-items:center;gap:6px;text-transform:uppercase}
   .hub-card.featured .hub-card-cta{color:var(--green)}
 
   @media(max-width:640px){
@@ -85,12 +85,12 @@ export default function Hub() {
         <p>Type an address to get everything — property data, comps, rent estimates, AI analysis, and calculators — all on one page.</p>
         <div data-tour="search" style={{maxWidth:600,margin:"20px auto 0",display:"flex",gap:10}}>
           <input
-            style={{flex:1,background:"var(--card2)",border:"1px solid var(--borderf)",borderRadius:10,padding:"12px 16px",fontSize:14,color:"var(--text)",fontFamily:"'DM Sans',sans-serif",outline:"none"}}
+            style={{flex:1,background:"var(--card2)",border:"1px solid var(--borderf)",borderRadius:10,padding:"12px 16px",fontSize:14,color:"var(--text)",fontFamily:"'Geist',sans-serif",outline:"none"}}
             placeholder="Enter any address — US or Canadian property"
             onKeyDown={e => { if(e.key==="Enter" && e.target.value.trim()) { localStorage.setItem("rde_prefill", JSON.stringify({searchQuery:e.target.value.trim(),timestamp:Date.now()})); navigate("/property"); } }}
           />
           <button
-            style={{background:"var(--blue)",color:"#fff",border:"none",borderRadius:10,padding:"12px 20px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",whiteSpace:"nowrap"}}
+            style={{background:"var(--blue)",color:"#fff",border:"none",borderRadius:10,padding:"12px 20px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Geist',sans-serif",whiteSpace:"nowrap"}}
             onClick={e => { const inp = e.target.previousSibling; if(inp?.value?.trim()) { localStorage.setItem("rde_prefill", JSON.stringify({searchQuery:inp.value.trim(),timestamp:Date.now()})); navigate("/property"); } else navigate("/property"); }}
           >
             🔍 Analyze →

@@ -285,13 +285,13 @@ export default function MarketTriggers() {
   const newCount = sortedTriggers.filter(t => t._isNew).length;
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)", fontFamily: "'DM Sans',sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--text)", fontFamily: "'Geist',sans-serif" }}>
       <TopNav />
 
       <div style={{ maxWidth: 1140, margin: "0 auto", padding: "28px 24px 80px" }}>
         {/* Header */}
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 12, fontWeight: 700, color: "var(--red)", letterSpacing: "1.8px", marginBottom: 6 }}>
+          <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 12, fontWeight: 700, color: "var(--red)", letterSpacing: "1.8px", marginBottom: 6 }}>
             ▸ MARKET TRIGGERS · OFF-MARKET RADAR
           </div>
           <div style={{ fontSize: 28, fontWeight: 800, color: "var(--text)", letterSpacing: "-0.8px", lineHeight: 1.15, marginBottom: 6 }}>
@@ -317,7 +317,7 @@ export default function MarketTriggers() {
           display: "grid", gridTemplateColumns: "1.6fr 0.8fr 0.8fr auto", gap: 10, alignItems: "end",
         }}>
           <div>
-            <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1px", marginBottom: 5 }}>SEARCH AREA</div>
+            <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1px", marginBottom: 5 }}>SEARCH AREA</div>
             <input
               type="text"
               placeholder="e.g. West Hillhurst, Calgary OR Sherbrooke, Edmonton OR Williamsburg, Brooklyn"
@@ -328,7 +328,7 @@ export default function MarketTriggers() {
             />
           </div>
           <div>
-            <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1px", marginBottom: 5 }}>PROPERTY TYPE</div>
+            <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1px", marginBottom: 5 }}>PROPERTY TYPE</div>
             <select value={propertyType} onChange={e => setPropertyType(e.target.value)} style={inputStyle}>
               <option value="any">Any</option>
               <option value="Single Family">Single Family</option>
@@ -339,7 +339,7 @@ export default function MarketTriggers() {
             </select>
           </div>
           <div>
-            <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1px", marginBottom: 5 }}>MAX PRICE</div>
+            <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1px", marginBottom: 5 }}>MAX PRICE</div>
             <input
               type="number"
               placeholder="any"
@@ -356,7 +356,7 @@ export default function MarketTriggers() {
               color: running ? "var(--red)" : "#07090f",
               border: "none", borderRadius: 5,
               padding: "11px 18px",
-              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 12, fontWeight: 700,
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 12, fontWeight: 700,
               letterSpacing: "1.2px",
               cursor: area.trim() && !running ? "pointer" : "not-allowed",
               opacity: area.trim() ? 1 : 0.5,
@@ -387,7 +387,7 @@ export default function MarketTriggers() {
                 color: emailSending ? "var(--blue)" : "#07090f",
                 border: "none", borderRadius: 4,
                 padding: "8px 14px",
-                fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
+                fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
                 letterSpacing: "1px",
                 cursor: emailSending ? "wait" : !user?.email ? "not-allowed" : "pointer",
                 opacity: !user?.email ? 0.45 : 1,
@@ -426,7 +426,7 @@ export default function MarketTriggers() {
         {savedSearches.length > 0 && (
           <div style={{ marginBottom: 20 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 10 }}>
-              <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700, color: "var(--blue)", letterSpacing: "1.4px" }}>
+              <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700, color: "var(--blue)", letterSpacing: "1.4px" }}>
                 ▸ MY SEARCHES · {savedSearches.length}
               </div>
               <div style={{ fontSize: 11, color: "var(--dim)" }}>
@@ -463,7 +463,7 @@ export default function MarketTriggers() {
                         ✕
                       </button>
                     </div>
-                    <div style={{ display: "flex", gap: 8, fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, color: "var(--dim)", letterSpacing: "0.4px" }}>
+                    <div style={{ display: "flex", gap: 8, fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, color: "var(--dim)", letterSpacing: "0.4px" }}>
                       <span>{s.propertyType !== "any" ? s.propertyType.toUpperCase() : "ANY"}</span>
                       {s.maxPrice && <span>· ≤ ${Math.round(Number(s.maxPrice)/1000)}K</span>}
                       <span style={{ marginLeft: "auto", color: daysAgo > 7 ? "var(--amber)" : "var(--green)" }}>
@@ -481,10 +481,10 @@ export default function MarketTriggers() {
         {watch.length > 0 && (
           <div style={{ marginBottom: 20 }}>
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 10 }}>
-              <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700, color: "var(--amber)", letterSpacing: "1.4px" }}>
+              <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700, color: "var(--amber)", letterSpacing: "1.4px" }}>
                 ▸ MY WATCH LIST · {watch.length}
               </div>
-              <button onClick={clearWatch} style={{ background: "transparent", border: "1px solid var(--borderf)", borderRadius: 3, padding: "4px 8px", color: "var(--sub)", fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.8px", cursor: "pointer" }}>
+              <button onClick={clearWatch} style={{ background: "transparent", border: "1px solid var(--borderf)", borderRadius: 3, padding: "4px 8px", color: "var(--sub)", fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.8px", cursor: "pointer" }}>
                 CLEAR
               </button>
             </div>
@@ -516,12 +516,12 @@ export default function MarketTriggers() {
         {sortedTriggers.length > 0 && (
           <>
             <div style={{ display: "flex", alignItems: "baseline", gap: 12, marginBottom: 12, flexWrap: "wrap" }}>
-              <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700, color: "var(--red)", letterSpacing: "1.4px" }}>
+              <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700, color: "var(--red)", letterSpacing: "1.4px" }}>
                 ▸ {triggers.length} SIGNALS · SORTED BY REDEV POTENTIAL
               </div>
               {newCount > 0 && (
                 <div style={{
-                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+                  fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
                   color: "var(--green)", letterSpacing: "1px",
                   padding: "2px 8px", background: "rgba(52,217,138,0.1)",
                   border: "1px solid var(--green)", borderRadius: 3,
@@ -540,7 +540,7 @@ export default function MarketTriggers() {
                     background: "rgba(59,158,255,0.08)", color: "var(--blue)",
                     border: "1px solid var(--blue)", borderRadius: 4,
                     padding: "6px 12px",
-                    fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+                    fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
                     letterSpacing: "1px", cursor: "pointer",
                   }}
                 >
@@ -587,7 +587,7 @@ function TriggerCard({ t, compact, saved, onToggle, onOpenBRRRR, onOpenMF }) {
       {t._isNew && (
         <span style={{
           position: "absolute", top: -8, right: 10,
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9, fontWeight: 700,
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 700,
           color: "#07090f", background: "var(--green)",
           letterSpacing: "0.9px",
           padding: "2px 6px", borderRadius: 3,
@@ -598,16 +598,16 @@ function TriggerCard({ t, compact, saved, onToggle, onOpenBRRRR, onOpenMF }) {
       )}
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
           color: meta.color, letterSpacing: "0.8px",
           padding: "2px 6px", border: `1px solid ${meta.color}`, borderRadius: 3,
         }}>
           {meta.icon} {t.status?.toUpperCase()}
         </span>
-        <span style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, color: "var(--dim)" }}>
+        <span style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, color: "var(--dim)" }}>
           {t.triggerDate}
         </span>
-        <span style={{ marginLeft: "auto", fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: redevColor, letterSpacing: "0.8px" }}>
+        <span style={{ marginLeft: "auto", fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: redevColor, letterSpacing: "0.8px" }}>
           REDEV {t.redevScore}/100
         </span>
       </div>
@@ -618,7 +618,7 @@ function TriggerCard({ t, compact, saved, onToggle, onOpenBRRRR, onOpenMF }) {
 
       <div style={{
         display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6,
-        fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11,
+        fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11,
       }}>
         <div>
           <div style={{ color: "var(--dim)", fontSize: 9, letterSpacing: "0.8px", textTransform: "uppercase" }}>Last Price</div>
@@ -651,7 +651,7 @@ function TriggerCard({ t, compact, saved, onToggle, onOpenBRRRR, onOpenMF }) {
           borderRadius: 3,
           fontSize: 11, color: "var(--text)", lineHeight: 1.4,
         }}>
-          <span style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9, fontWeight: 700, color: "var(--purple)", letterSpacing: "0.8px", marginRight: 4 }}>WHY:</span>
+          <span style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 700, color: "var(--purple)", letterSpacing: "0.8px", marginRight: 4 }}>WHY:</span>
           {t.suspectedReason}
         </div>
       )}
@@ -668,7 +668,7 @@ function TriggerCard({ t, compact, saved, onToggle, onOpenBRRRR, onOpenMF }) {
           border: `1px solid ${saved ? "var(--amber)" : "var(--borderf)"}`,
           color: saved ? "var(--amber)" : "var(--sub)",
           borderRadius: 4, padding: "5px 9px",
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.8px",
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.8px",
           cursor: "pointer", flexShrink: 0,
         }}>
           {saved ? "★ SAVED" : "☆ WATCH"}
@@ -679,7 +679,7 @@ function TriggerCard({ t, compact, saved, onToggle, onOpenBRRRR, onOpenMF }) {
           border: "1px solid var(--blue)",
           color: "var(--blue)",
           borderRadius: 4, padding: "5px 9px",
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.8px",
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.8px",
           cursor: "pointer",
         }}>
           ▶ ANALYZE {isMF ? "AS MF" : "AS BRRRR"}
@@ -696,7 +696,7 @@ const inputStyle = {
   borderRadius: 4,
   padding: "10px 12px",
   fontSize: 14,
-  fontFamily: "'DM Sans',sans-serif",
+  fontFamily: "'Geist',sans-serif",
   color: "var(--text)",
   outline: "none",
 };

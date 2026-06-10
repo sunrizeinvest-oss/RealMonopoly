@@ -278,13 +278,13 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
     <div className="mf-card" style={{ marginTop: 16 }}>
       <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--borderf)", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
         <div style={{
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
           color: "var(--purple)", letterSpacing: "1.6px",
         }}>
           ▸ INSTITUTIONAL RISK SIMULATOR
         </div>
         <div style={{
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 600,
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 600,
           color: "var(--dim)", letterSpacing: "0.7px",
         }}>
           · MONTE CARLO · {iterations.toLocaleString()} SIMS · {PRESETS[activePreset]?.label || "CUSTOM"} PRIORS
@@ -295,7 +295,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
             background: "transparent", color: "var(--sub)",
             border: "1px solid var(--borderf)", borderRadius: 4,
             padding: "7px 12px",
-            fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+            fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
             letterSpacing: "1px",
             cursor: "pointer",
           }}
@@ -311,7 +311,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
             color: running ? "var(--purple)" : "#07090f",
             border: "none", borderRadius: 4,
             padding: "8px 16px",
-            fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
+            fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
             letterSpacing: "1px",
             cursor: canRun && !running ? "pointer" : "not-allowed",
             opacity: canRun ? 1 : 0.4,
@@ -331,7 +331,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
               color: "var(--purple)",
               border: "1px solid var(--purple)", borderRadius: 4,
               padding: "8px 14px",
-              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
               letterSpacing: "1px", cursor: memoLoading ? "wait" : "pointer",
             }}
           >
@@ -345,7 +345,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
               background: "transparent", color: "var(--green)",
               border: "1px solid var(--green)", borderRadius: 4,
               padding: "8px 14px",
-              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
               letterSpacing: "1px", cursor: "pointer",
             }}
           >
@@ -358,7 +358,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
       {showPriors && (
         <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--borderf)", background: "rgba(167,130,255,0.02)" }}>
           <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "center", flexWrap: "wrap" }}>
-            <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1.2px" }}>
+            <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1.2px" }}>
               ▸ SCENARIO PRESETS
             </div>
             {Object.entries(PRESETS).map(([key, p]) => {
@@ -374,7 +374,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
                     border: `1px solid ${color}`,
                     borderRadius: 3,
                     padding: "5px 10px",
-                    fontFamily: "'Fira Code',ui-monospace,monospace",
+                    fontFamily: "'Geist Mono',ui-monospace,monospace",
                     fontSize: 10, fontWeight: 700, letterSpacing: "1px",
                     cursor: "pointer",
                   }}
@@ -389,7 +389,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
                 background: "transparent", color: "var(--sub)",
                 border: "1px solid var(--borderf)", borderRadius: 3,
                 padding: "5px 10px",
-                fontFamily: "'Fira Code',ui-monospace,monospace",
+                fontFamily: "'Geist Mono',ui-monospace,monospace",
                 fontSize: 10, fontWeight: 700, letterSpacing: "0.8px",
                 cursor: "pointer", marginLeft: "auto",
               }}
@@ -412,7 +412,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
             borderLeft: "3px solid var(--blue)",
             borderRadius: 4,
           }}>
-            <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--blue)", letterSpacing: "1.2px", flexShrink: 0 }}>
+            <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--blue)", letterSpacing: "1.2px", flexShrink: 0 }}>
               ▸ MY SCENARIOS
             </div>
             {savedScenarios.length === 0 && (
@@ -438,7 +438,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
                       color: active ? "#07090f" : "var(--blue)",
                       border: "none",
                       padding: "5px 10px",
-                      fontFamily: "'Fira Code',ui-monospace,monospace",
+                      fontFamily: "'Geist Mono',ui-monospace,monospace",
                       fontSize: 10, fontWeight: 700, letterSpacing: "0.5px",
                       cursor: "pointer", maxWidth: 200,
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
@@ -455,7 +455,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
                       border: "none",
                       borderLeft: `1px solid ${active ? "rgba(7,9,15,0.3)" : "var(--blue)"}`,
                       padding: "5px 8px",
-                      fontFamily: "'Fira Code',ui-monospace,monospace",
+                      fontFamily: "'Geist Mono',ui-monospace,monospace",
                       fontSize: 10, fontWeight: 700,
                       cursor: "pointer", opacity: 0.7,
                     }}
@@ -474,7 +474,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
                 border: "1px solid var(--blue)",
                 borderRadius: 3,
                 padding: "5px 11px",
-                fontFamily: "'Fira Code',ui-monospace,monospace",
+                fontFamily: "'Geist Mono',ui-monospace,monospace",
                 fontSize: 10, fontWeight: 700, letterSpacing: "0.8px",
                 cursor: "pointer", flexShrink: 0,
               }}
@@ -492,7 +492,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
                 padding: "8px 10px",
               }}>
                 <div style={{
-                  fontFamily: "'Fira Code',ui-monospace,monospace",
+                  fontFamily: "'Geist Mono',ui-monospace,monospace",
                   fontSize: 9, fontWeight: 700,
                   color: "var(--dim)", letterSpacing: "0.8px",
                   textTransform: "uppercase", marginBottom: 4,
@@ -513,13 +513,13 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
                       border: "1px solid var(--borderf)",
                       borderRadius: 3,
                       padding: "4px 7px",
-                      fontFamily: "'Fira Code',ui-monospace,monospace",
+                      fontFamily: "'Geist Mono',ui-monospace,monospace",
                       fontSize: 12, fontWeight: 700,
                       color: "var(--text)", outline: "none",
                     }}
                   />
                   {f.suffix && (
-                    <span style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, color: "var(--dim)", flexShrink: 0 }}>
+                    <span style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, color: "var(--dim)", flexShrink: 0 }}>
                       {f.suffix}
                     </span>
                   )}
@@ -598,7 +598,7 @@ function Results({ results, target }) {
 
       {/* Probability bars */}
       <div style={{ marginBottom: 16 }}>
-        <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1.2px", marginBottom: 8 }}>
+        <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1.2px", marginBottom: 8 }}>
           ▸ PROBABILITY OF OUTCOME
         </div>
         <Bar label="Positive IRR"             p={probabilities.positiveIRR} good={0.95}/>
@@ -608,7 +608,7 @@ function Results({ results, target }) {
 
       {/* IRR distribution histogram */}
       <div>
-        <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1.2px", marginBottom: 8 }}>
+        <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1.2px", marginBottom: 8 }}>
           ▸ IRR DISTRIBUTION · {distributions.irr.length.toLocaleString()} SIMS
         </div>
         <Histogram values={distributions.irr} target={target} median={irr.p50}/>
@@ -641,7 +641,7 @@ function Results({ results, target }) {
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: memo ? 14 : 0, flexWrap: "wrap" }}>
             <div style={{
-              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
               color: "var(--purple)", letterSpacing: "1.4px",
             }}>
               ▸ AI DEAL MEMO {memoLoading ? "· WRITING…" : memo ? "· DRAFT" : ""}
@@ -654,7 +654,7 @@ function Results({ results, target }) {
                   background: "transparent", color: "var(--purple)",
                   border: "1px solid var(--purple)", borderRadius: 3,
                   padding: "4px 10px",
-                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+                  fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
                   letterSpacing: "0.8px", cursor: "pointer",
                 }}
               >
@@ -676,7 +676,7 @@ function Results({ results, target }) {
           )}
 
           {memo && (
-            <div style={{ fontFamily: "'DM Sans',sans-serif", color: "var(--text)" }}>
+            <div style={{ fontFamily: "'Geist',sans-serif", color: "var(--text)" }}>
               {memo.oneLiner && (
                 <div style={{
                   fontSize: 15, fontWeight: 700, color: "var(--text)",
@@ -690,13 +690,13 @@ function Results({ results, target }) {
               )}
               {memo.executiveSummary && (
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--dim)", letterSpacing: "1.2px", marginBottom: 5 }}>EXECUTIVE SUMMARY</div>
+                  <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--dim)", letterSpacing: "1.2px", marginBottom: 5 }}>EXECUTIVE SUMMARY</div>
                   <div style={{ fontSize: 13.5, lineHeight: 1.6, color: "var(--text)" }}>{memo.executiveSummary}</div>
                 </div>
               )}
               {Array.isArray(memo.investmentThesis) && memo.investmentThesis.length > 0 && (
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--green)", letterSpacing: "1.2px", marginBottom: 5 }}>INVESTMENT THESIS</div>
+                  <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--green)", letterSpacing: "1.2px", marginBottom: 5 }}>INVESTMENT THESIS</div>
                   <ul style={{ margin: 0, paddingLeft: 18, color: "var(--text)" }}>
                     {memo.investmentThesis.map((b, i) => (
                       <li key={i} style={{ fontSize: 13, lineHeight: 1.55, marginBottom: 4 }}>{b}</li>
@@ -706,7 +706,7 @@ function Results({ results, target }) {
               )}
               {Array.isArray(memo.keyRisks) && memo.keyRisks.length > 0 && (
                 <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--red)", letterSpacing: "1.2px", marginBottom: 5 }}>KEY RISKS</div>
+                  <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--red)", letterSpacing: "1.2px", marginBottom: 5 }}>KEY RISKS</div>
                   <ul style={{ margin: 0, paddingLeft: 18, color: "var(--text)" }}>
                     {memo.keyRisks.map((b, i) => (
                       <li key={i} style={{ fontSize: 13, lineHeight: 1.55, marginBottom: 4 }}>{b}</li>
@@ -722,7 +722,7 @@ function Results({ results, target }) {
                   borderLeft: "3px solid var(--green)",
                   borderRadius: 4,
                 }}>
-                  <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--green)", letterSpacing: "1.2px", marginBottom: 5 }}>RECOMMENDATION</div>
+                  <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700, color: "var(--green)", letterSpacing: "1.2px", marginBottom: 5 }}>RECOMMENDATION</div>
                   <div style={{ fontSize: 13.5, lineHeight: 1.55, color: "var(--text)", fontWeight: 600 }}>{memo.recommendation}</div>
                 </div>
               )}
@@ -740,7 +740,7 @@ function Cell({ children, value, head, label, right, bold, color }) {
     <div style={{
       background: "var(--card)",
       padding: "9px 14px",
-      fontFamily: "'Fira Code',ui-monospace,monospace",
+      fontFamily: "'Geist Mono',ui-monospace,monospace",
       fontSize: head ? 9.5 : (bold ? 16 : 14),
       fontWeight: head ? 700 : (bold ? 700 : 500),
       color: head ? "var(--dim)" : (color || "var(--text)"),
@@ -748,7 +748,7 @@ function Cell({ children, value, head, label, right, bold, color }) {
       textTransform: head ? "uppercase" : "none",
       textAlign: right ? "right" : "left",
     }}>
-      {value != null ? value : (label != null ? <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12.5, color: "var(--sub)", fontWeight: 500, letterSpacing: 0 }}>{label}</span> : children)}
+      {value != null ? value : (label != null ? <span style={{ fontFamily: "'Geist',sans-serif", fontSize: 12.5, color: "var(--sub)", fontWeight: 500, letterSpacing: 0 }}>{label}</span> : children)}
     </div>
   );
 }
@@ -758,11 +758,11 @@ function Bar({ label, p, good }) {
   const color = pct >= good ? "var(--green)" : pct >= good * 0.7 ? "var(--amber)" : "var(--red)";
   return (
     <div style={{ display: "grid", gridTemplateColumns: "200px 1fr 50px", gap: 12, alignItems: "center", marginBottom: 6 }}>
-      <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: "var(--text)" }}>{label}</div>
+      <div style={{ fontFamily: "'Geist',sans-serif", fontSize: 13, color: "var(--text)" }}>{label}</div>
       <div style={{ height: 16, background: "rgba(255,255,255,0.04)", border: "1px solid var(--borderf)", borderRadius: 3, overflow: "hidden" }}>
         <div style={{ height: "100%", width: `${pct * 100}%`, background: color, transition: "width 0.6s" }} />
       </div>
-      <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 13, fontWeight: 700, color, textAlign: "right" }}>
+      <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 13, fontWeight: 700, color, textAlign: "right" }}>
         {fmtProb(pct)}
       </div>
     </div>
@@ -822,7 +822,7 @@ function Histogram({ values, target, median }) {
       {target >= bins[0].x0 && target <= bins[bins.length-1].x1 && (
         <>
           <line x1={xScale(target)} y1={0} x2={xScale(target)} y2={H} stroke="var(--amber)" strokeWidth="1.5" strokeDasharray="4 2"/>
-          <text x={xScale(target)} y={H + 16} textAnchor="middle" fill="var(--amber)" style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9, fontWeight: 700, letterSpacing: 0.5 }}>
+          <text x={xScale(target)} y={H + 16} textAnchor="middle" fill="var(--amber)" style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 700, letterSpacing: 0.5 }}>
             TARGET {fmtPct(target)}
           </text>
         </>
@@ -836,10 +836,10 @@ function Histogram({ values, target, median }) {
       )}
 
       {/* X-axis labels */}
-      <text x={PAD}        y={H + 16} textAnchor="start" fill="var(--dim)" style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9, fontWeight: 600 }}>
+      <text x={PAD}        y={H + 16} textAnchor="start" fill="var(--dim)" style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 600 }}>
         {fmtPct(bins[0].x0)}
       </text>
-      <text x={W - PAD}    y={H + 16} textAnchor="end"   fill="var(--dim)" style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9, fontWeight: 600 }}>
+      <text x={W - PAD}    y={H + 16} textAnchor="end"   fill="var(--dim)" style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 600 }}>
         {fmtPct(bins[bins.length-1].x1)}
       </text>
     </svg>

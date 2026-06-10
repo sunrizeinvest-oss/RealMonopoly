@@ -227,10 +227,10 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
     <div className="mf-card" style={{ marginTop: 16 }}>
       {/* Header */}
       <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--borderf)", display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-        <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700, color: "var(--blue)", letterSpacing: "1.6px" }}>
+        <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700, color: "var(--blue)", letterSpacing: "1.6px" }}>
           ▸ COMMERCIAL LEASE &amp; SALES MATRIX
         </div>
-        <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 600, color: "var(--dim)", letterSpacing: "0.7px" }}>
+        <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 600, color: "var(--dim)", letterSpacing: "0.7px" }}>
           · {comps.length} COMPS
         </div>
         {restored && comps.length > 0 && (
@@ -238,7 +238,7 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
             onClick={() => setRestored(false)}
             title="Restored from your previous session — click to dismiss"
             style={{
-              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
               color: "var(--green)", letterSpacing: "0.8px",
               border: "1px solid rgba(52,217,138,0.35)", borderRadius: 3,
               padding: "2px 7px", cursor: "pointer",
@@ -257,7 +257,7 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
               border: "1px solid var(--purple)",
               borderRadius: 4,
               padding: "7px 12px",
-              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
               letterSpacing: "1px",
               cursor: target?.address && !generating ? "pointer" : "not-allowed",
               opacity: target?.address ? 1 : 0.4,
@@ -273,7 +273,7 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
               border: "1px solid var(--borderf)",
               borderRadius: 4,
               padding: "7px 12px",
-              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
               letterSpacing: "1px",
               cursor: "pointer",
             }}
@@ -290,7 +290,7 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
                 border: "1px solid var(--green)",
                 borderRadius: 4,
                 padding: "7px 12px",
-                fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+                fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
                 letterSpacing: "1px",
                 cursor: "pointer",
               }}
@@ -325,7 +325,7 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
           <table style={{
             width: "100%",
             borderCollapse: "collapse",
-            fontFamily: "'Fira Code',ui-monospace,monospace",
+            fontFamily: "'Geist Mono',ui-monospace,monospace",
             fontSize: 12,
             minWidth: 600 + columns.length * 140,
           }}>
@@ -404,7 +404,7 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
                 <tr>
                   <td style={tdLabelStyle}>Notes</td>
                   {columns.map((col, ci) => (
-                    <td key={ci} style={{ ...tdStyle, fontFamily: "'DM Sans',sans-serif", fontSize: 11.5, color: "var(--sub)", whiteSpace: "normal", lineHeight: 1.4 }}>
+                    <td key={ci} style={{ ...tdStyle, fontFamily: "'Geist',sans-serif", fontSize: 11.5, color: "var(--sub)", whiteSpace: "normal", lineHeight: 1.4 }}>
                       {col.deal.notes || "—"}
                     </td>
                   ))}
@@ -461,7 +461,7 @@ const tdStyle = {
 };
 const tdLabelStyle = {
   ...tdStyle,
-  fontFamily: "'DM Sans',sans-serif",
+  fontFamily: "'Geist',sans-serif",
   fontSize: 12.5,
   fontWeight: 600,
   color: "var(--sub)",
@@ -471,7 +471,7 @@ const inputStyle = {
   border: "1px solid var(--borderf)",
   borderRadius: 3,
   padding: "4px 6px",
-  fontFamily: "'Fira Code',ui-monospace,monospace",
+  fontFamily: "'Geist Mono',ui-monospace,monospace",
   fontSize: 12,
   color: "inherit",
   width: 100,

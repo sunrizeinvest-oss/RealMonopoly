@@ -141,13 +141,13 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
     }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 10 }}>
         <div style={{
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
           color: "var(--purple)", letterSpacing: "1.4px",
         }}>
           ▸ AI DOCUMENT DROP
         </div>
         <div style={{
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 600,
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 600,
           color: "var(--dim)", letterSpacing: "0.6px",
         }}>
           · CLAUDE SONNET 4.6 · {target.toUpperCase()}
@@ -177,7 +177,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
         >
           <div style={{ fontSize: 28, marginBottom: 8 }}>📄</div>
           <div style={{
-            fontFamily: "'DM Sans',sans-serif", fontSize: 14, fontWeight: 700,
+            fontFamily: "'Geist',sans-serif", fontSize: 14, fontWeight: 700,
             color: "var(--text)", marginBottom: 4,
           }}>
             Drop a PDF here or click to upload
@@ -207,20 +207,20 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
             <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {file.name}
             </div>
-            <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, color: "var(--dim)" }}>
+            <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, color: "var(--dim)" }}>
               {(file.size / 1024).toFixed(0)} KB · {file.type || "unknown"}
             </div>
           </div>
           <button onClick={() => { setFile(null); setExtract(null); setApplied({}); }} style={{
             background: "transparent", border: "1px solid var(--borderf)",
             borderRadius: 4, padding: "6px 10px", cursor: "pointer",
-            fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10,
+            fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10,
             color: "var(--sub)", letterSpacing: "0.8px",
           }}>CLEAR</button>
           <button onClick={parse} style={{
             background: "var(--purple)", border: "none", color: "#07090f",
             borderRadius: 4, padding: "8px 16px", cursor: "pointer",
-            fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
+            fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
             letterSpacing: "1px",
           }}>▶ PARSE WITH AI</button>
         </div>
@@ -275,7 +275,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
             marginBottom: 10, flexWrap: "wrap",
           }}>
             <div style={{
-              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
               color: "var(--green)", letterSpacing: "1.2px",
             }}>
               ✓ EXTRACTED · {fieldsWithData.length} FIELDS
@@ -285,7 +285,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
                 marginLeft: "auto",
                 background: "var(--green)", border: "none", color: "#07090f",
                 borderRadius: 4, padding: "6px 12px", cursor: "pointer",
-                fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+                fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
                 letterSpacing: "1px",
               }}>▶ APPLY ALL TO CALCULATOR</button>
             )}
@@ -313,7 +313,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
                     display: "flex", alignItems: "center", gap: 10,
                   }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9, fontWeight: 700, color: "var(--dim)", letterSpacing: "1px" }}>
+                      <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 700, color: "var(--dim)", letterSpacing: "1px" }}>
                         {meta.label.toUpperCase()}
                       </div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginTop: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -329,7 +329,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
                         borderRadius: 3,
                         padding: "4px 9px",
                         cursor: isApplied ? "default" : "pointer",
-                        fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9, fontWeight: 700,
+                        fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 700,
                         color: "var(--green)", letterSpacing: "0.6px",
                       }}
                     >
@@ -357,7 +357,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
                 borderBottom: "1px solid var(--borderf)",
               }}>
                 <span style={{
-                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+                  fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
                   color: "var(--green)", letterSpacing: "1.2px",
                 }}>
                   ▸ RENT ROLL · {extracted.units.length} UNIT TYPES · {extracted.units.reduce((s, u) => s + (Number(u.count) || 0), 0)} TOTAL UNITS
@@ -371,7 +371,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
                     color: applied.units ? "var(--green)" : "#07090f",
                     border: `1px solid var(--green)`, borderRadius: 3,
                     padding: "5px 11px",
-                    fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
+                    fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
                     letterSpacing: "0.8px",
                     cursor: applied.units ? "default" : "pointer",
                   }}
@@ -382,7 +382,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
               <div style={{ padding: 10, overflowX: "auto" }}>
                 <table style={{
                   width: "100%", borderCollapse: "collapse",
-                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11,
+                  fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11,
                   minWidth: 480,
                 }}>
                   <thead>
@@ -424,7 +424,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
           <button onClick={() => { setFile(null); setExtract(null); setApplied({}); setStage("idle"); }} style={{
             marginTop: 10, background: "transparent", border: "1px solid var(--borderf)",
             borderRadius: 4, padding: "6px 12px", cursor: "pointer",
-            fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10,
+            fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10,
             color: "var(--sub)", letterSpacing: "0.8px",
           }}>
             ↑ UPLOAD ANOTHER

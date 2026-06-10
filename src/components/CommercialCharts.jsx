@@ -17,18 +17,18 @@ export default function CommercialCharts({ c, holdYears }) {
   return (
     <div className="mf-card" style={{borderRadius:6,borderColor:"rgba(240,160,48,0.18)"}}>
       <div className="mf-card-head" style={{padding:"10px 16px",background:"rgba(240,160,48,0.04)",gap:10}}>
-        <div style={{width:30,height:22,border:"1px solid rgba(240,160,48,0.4)",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"#f0a030",letterSpacing:"0.5px"}}>VIZ</div>
+        <div style={{width:30,height:22,border:"1px solid rgba(240,160,48,0.4)",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"#f0a030",letterSpacing:"0.5px"}}>VIZ</div>
         <div style={{flex:1}}>
           <div style={{display:"flex",alignItems:"center",gap:8}}>
-            <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"#f0a030",fontWeight:700,letterSpacing:"0.5px"}}>[ ANALYTICS ]</span>
-            <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"var(--dim)"}}>· {holdYears}YR</span>
+            <span style={{fontFamily:"'Geist Mono',monospace",fontSize:10,color:"#f0a030",fontWeight:700,letterSpacing:"0.5px"}}>[ ANALYTICS ]</span>
+            <span style={{fontFamily:"'Geist Mono',monospace",fontSize:10,color:"var(--dim)"}}>· {holdYears}YR</span>
           </div>
           <div style={{fontSize:12.5,marginTop:1,fontWeight:700,color:"var(--text)",letterSpacing:"0.2px"}}>Trajectory · DSCR · Equity Curve</div>
         </div>
       </div>
 
       <div style={{padding:"12px 16px 12px"}}>
-        <div style={{fontSize:9.5,fontWeight:700,color:"var(--dim)",fontFamily:"'Fira Code',monospace",letterSpacing:"0.6px",marginBottom:6,display:"flex",justifyContent:"space-between"}}>
+        <div style={{fontSize:9.5,fontWeight:700,color:"var(--dim)",fontFamily:"'Geist Mono',monospace",letterSpacing:"0.6px",marginBottom:6,display:"flex",justifyContent:"space-between"}}>
           <span>▸ NOI &amp; BTCF / YEAR</span>
           <span>$ CAD</span>
         </div>
@@ -47,7 +47,7 @@ export default function CommercialCharts({ c, holdYears }) {
       </div>
 
       <div style={{padding:"0 16px 12px"}}>
-        <div style={{fontSize:9.5,fontWeight:700,color:"var(--dim)",fontFamily:"'Fira Code',monospace",letterSpacing:"0.6px",marginBottom:6,display:"flex",justifyContent:"space-between"}}>
+        <div style={{fontSize:9.5,fontWeight:700,color:"var(--dim)",fontFamily:"'Geist Mono',monospace",letterSpacing:"0.6px",marginBottom:6,display:"flex",justifyContent:"space-between"}}>
           <span>▸ DSCR · LENDER MIN 1.25x</span>
           <span>× MULT</span>
         </div>
@@ -66,7 +66,7 @@ export default function CommercialCharts({ c, holdYears }) {
       </div>
 
       <div style={{padding:"0 16px 14px"}}>
-        <div style={{fontSize:9.5,fontWeight:700,color:"var(--dim)",fontFamily:"'Fira Code',monospace",letterSpacing:"0.6px",marginBottom:6,display:"flex",justifyContent:"space-between"}}>
+        <div style={{fontSize:9.5,fontWeight:700,color:"var(--dim)",fontFamily:"'Geist Mono',monospace",letterSpacing:"0.6px",marginBottom:6,display:"flex",justifyContent:"space-between"}}>
           <span>▸ CUM. INVESTOR POSITION · CROSSES 0 = RECOUPED</span>
           <span>$ CAD</span>
         </div>

@@ -24,7 +24,7 @@ function verdictColor(verdict) {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
   .db-wrap{min-height:100vh;background:var(--bg)}
 
   /* Nav */
@@ -32,8 +32,8 @@ const CSS = `
   .db-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.db-logo span{color:var(--blue)}
   .db-nav-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   .db-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 11px;border-radius:7px}.db-nav-link:hover{color:var(--text);background:rgba(255,255,255,0.05)}
-  .db-nav-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}.db-nav-btn:hover{color:var(--text)}
-  .db-nav-primary{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-flex;align-items:center}.db-nav-primary:hover{background:#5aaeff}
+  .db-nav-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;transition:all 0.15s}.db-nav-btn:hover{color:var(--text)}
+  .db-nav-primary{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none;display:inline-flex;align-items:center}.db-nav-primary:hover{background:#5aaeff}
 
   /* Body */
   .db-body{max-width:960px;margin:0 auto;padding:40px 20px 80px}
@@ -45,13 +45,13 @@ const CSS = `
   /* Stats row */
   .db-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}
   .db-stat{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:14px 16px;position:relative}
-  .db-stat-val{font-family:'Fira Code',ui-monospace,monospace;font-size:22px;font-weight:700;letter-spacing:-0.3px;line-height:1;margin-bottom:5px}
-  .db-stat-lbl{font-family:'Fira Code',ui-monospace,monospace;font-size:9.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:5px}
+  .db-stat-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:22px;font-weight:700;letter-spacing:-0.3px;line-height:1;margin-bottom:5px}
+  .db-stat-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:5px}
   .db-stat-lbl::before{content:"▸";color:var(--blue);font-size:8px}
 
   /* Filter bar */
   .db-filter-bar{display:flex;align-items:center;gap:6px;margin-bottom:18px;flex-wrap:wrap}
-  .db-filter-btn{background:var(--card2);border:1px solid var(--borderf);border-radius:3px;padding:5px 11px;font-family:'Fira Code',monospace;font-size:11px;font-weight:700;color:var(--sub);cursor:pointer;letter-spacing:0.4px;transition:all 0.15s;text-transform:uppercase}
+  .db-filter-btn{background:var(--card2);border:1px solid var(--borderf);border-radius:3px;padding:5px 11px;font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;color:var(--sub);cursor:pointer;letter-spacing:0.4px;transition:all 0.15s;text-transform:uppercase}
   .db-filter-btn.active{background:rgba(59,158,255,0.1);border-color:rgba(59,158,255,0.4);color:var(--blue)}
   .db-filter-btn:hover{color:var(--text);border-color:var(--blue)}
 
@@ -61,9 +61,9 @@ const CSS = `
   .db-deal:hover{border-color:rgba(59,158,255,0.35);box-shadow:0 6px 24px rgba(0,0,0,0.3)}
   .db-deal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;flex-wrap:wrap}
   .db-deal-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .db-type-pill{font-family:'Fira Code',monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:0.6px;text-transform:uppercase;border:1px solid currentColor}
-  .db-verdict-pill{font-family:'Fira Code',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:0.5px;border:1px solid currentColor}
-  .db-date{font-family:'Fira Code',monospace;font-size:10.5px;color:var(--dim);letter-spacing:0.3px}
+  .db-type-pill{font-family:'Geist Mono',monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:0.6px;text-transform:uppercase;border:1px solid currentColor}
+  .db-verdict-pill{font-family:'Geist Mono',monospace;font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;letter-spacing:0.5px;border:1px solid currentColor}
+  .db-date{font-family:'Geist Mono',monospace;font-size:10.5px;color:var(--dim);letter-spacing:0.3px}
   .db-deal-name{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-0.3px;margin-bottom:4px}
   .db-deal-addr{font-size:12.5px;color:var(--sub)}
   .db-deal-right{display:flex;align-items:center;gap:12px;flex-shrink:0}
@@ -71,11 +71,11 @@ const CSS = `
   .db-score-num{font-size:15px;font-weight:800;line-height:1}
   .db-score-of{font-size:8px;color:var(--dim)}
   .db-deal-metrics{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;padding-top:14px;border-top:1px solid var(--borderf)}
-  .db-metric-val{font-family:'Fira Code',monospace;font-size:15px;font-weight:700;color:var(--text);line-height:1;margin-bottom:3px;letter-spacing:-0.2px}
-  .db-metric-lbl{font-family:'Fira Code',monospace;font-size:9.5px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:0.6px}
+  .db-metric-val{font-family:'Geist Mono',monospace;font-size:15px;font-weight:700;color:var(--text);line-height:1;margin-bottom:3px;letter-spacing:-0.2px}
+  .db-metric-lbl{font-family:'Geist Mono',monospace;font-size:9.5px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:0.6px}
   .db-deal-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-  .db-action-btn{background:rgba(59,158,255,0.08);border:1px solid rgba(59,158,255,0.2);border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:all 0.15s}.db-action-btn:hover{background:rgba(59,158,255,0.15)}
-  .db-del-btn{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:13px;padding:6px 8px;border-radius:7px;transition:all 0.15s;font-family:'DM Sans',sans-serif}.db-del-btn:hover{color:var(--red);background:rgba(242,92,92,0.08)}
+  .db-action-btn{background:rgba(59,158,255,0.08);border:1px solid rgba(59,158,255,0.2);border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600;color:var(--blue);cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none;transition:all 0.15s}.db-action-btn:hover{background:rgba(59,158,255,0.15)}
+  .db-del-btn{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:13px;padding:6px 8px;border-radius:7px;transition:all 0.15s;font-family:'Geist',sans-serif}.db-del-btn:hover{color:var(--red);background:rgba(242,92,92,0.08)}
 
   /* Empty */
   .db-empty{background:var(--card);border:1px dashed var(--borderf);border-radius:16px;padding:72px 24px;text-align:center}
@@ -87,7 +87,7 @@ const CSS = `
   .db-sync-banner{background:linear-gradient(135deg,rgba(52,217,138,0.08),rgba(59,158,255,0.05));border:1px solid rgba(52,217,138,0.2);border-radius: 10px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;flex-wrap:wrap}
   .db-sync-text{font-size:13px;color:var(--sub)}
   .db-sync-text strong{color:var(--green)}
-  .db-sync-btn{background:rgba(52,217,138,0.12);border:1px solid rgba(52,217,138,0.3);color:var(--green);border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
+  .db-sync-btn{background:rgba(52,217,138,0.12);border:1px solid rgba(52,217,138,0.3);color:var(--green);border-radius:7px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap}
   .db-sync-btn:hover{background:rgba(52,217,138,0.2)}
 
   /* Responsive */

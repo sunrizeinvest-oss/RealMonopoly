@@ -48,8 +48,8 @@ function isCanadian(addr) {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
-  input,select{font-family:'DM Sans',sans-serif;font-size:14px!important}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
+  input,select{font-family:'Geist',sans-serif;font-size:14px!important}
 
   .br-wrap{min-height:100vh;background:var(--bg)}
 
@@ -58,8 +58,8 @@ const CSS = `
   .br-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.br-logo span{color:var(--blue)}
   .br-nav-right{display:flex;align-items:center;gap:10px}
   .br-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 12px;border-radius:7px}.br-nav-link:hover{color:var(--text)}.br-nav-link.active{color:var(--blue)}
-  .br-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none}
-  .br-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}.br-nav-ghost:hover{color:var(--text)}
+  .br-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none}
+  .br-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif}.br-nav-ghost:hover{color:var(--text)}
 
   /* Hero */
   .br-hero{text-align:center;padding:44px 24px 32px;position:relative;overflow:hidden}
@@ -122,7 +122,7 @@ const CSS = `
   .br-waterfall-title{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
   .br-wf-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12.5px}
   .br-wf-row:last-child{border-bottom:none;font-weight:700;font-size:13px;padding-top:9px;margin-top:2px}
-  .br-wf-label{color:var(--sub)}.br-wf-val{font-family:'Fira Code',monospace;font-size:12px;font-weight:500}
+  .br-wf-label{color:var(--sub)}.br-wf-val{font-family:'Geist Mono',monospace;font-size:12px;font-weight:500}
   .br-wf-val.pos{color:var(--green)}.br-wf-val.neg{color:var(--red)}.br-wf-val.purple{color:var(--purple)}
 
   /* Placeholder */
@@ -525,7 +525,7 @@ export default function BRRRRCalculator() {
             display:"flex",alignItems:"center",justifyContent:"space-between",gap:12
           }}>
             <div style={{flex:1,minWidth:0}}>
-              <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:3}}>
+              <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:3}}>
                 ▸ NEW HERE? TRY A SAMPLE
               </div>
               <div style={{fontSize:12.5,color:"var(--text)",lineHeight:1.4}}>
@@ -551,7 +551,7 @@ export default function BRRRRCalculator() {
                 setTimeout(() => window.scrollTo({top: window.scrollY + 400, behavior: "smooth"}), 80);
               }}
               style={{
-                fontFamily:"'Fira Code',monospace",fontSize:11,fontWeight:700,letterSpacing:"0.6px",
+                fontFamily:"'Geist Mono',monospace",fontSize:11,fontWeight:700,letterSpacing:"0.6px",
                 padding:"8px 14px",border:"1px solid var(--green)",borderRadius:"var(--r-sm,4px)",
                 color:"#07090f",background:"var(--green)",cursor:"pointer",whiteSpace:"nowrap",
                 transition:"all 0.15s"
@@ -626,7 +626,7 @@ export default function BRRRRCalculator() {
             borderLeft:`3px solid ${simpleMode ? "var(--green)" : "var(--blue)"}`,
           }}>
             <div>
-              <div style={{fontFamily:"'Fira Code',ui-monospace,monospace",fontSize:10.5,fontWeight:700,color:simpleMode?"var(--green)":"var(--blue)",letterSpacing:"1.2px"}}>
+              <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,color:simpleMode?"var(--green)":"var(--blue)",letterSpacing:"1.2px"}}>
                 ▸ {simpleMode ? "ESSENTIALS ONLY" : "ADVANCED · ALL INPUTS"}
               </div>
               <div style={{fontSize:11.5,color:"var(--sub)",marginTop:2}}>
@@ -639,7 +639,7 @@ export default function BRRRRCalculator() {
               onClick={toggleSimpleMode}
               style={{
                 background:"transparent", border:`1px solid var(--borderf)`, borderRadius:5,
-                padding:"7px 14px", fontFamily:"'Fira Code',ui-monospace,monospace",
+                padding:"7px 14px", fontFamily:"'Geist Mono',ui-monospace,monospace",
                 fontSize:10.5, fontWeight:700, color:"var(--text)", letterSpacing:"1px",
                 cursor:"pointer", transition:"border-color 0.15s, background 0.15s",
               }}
@@ -744,7 +744,7 @@ export default function BRRRRCalculator() {
               {calc && calc.totalCashIn > 0 && (
                 <div style={{background:"rgba(240,160,48,0.06)",border:"1px solid rgba(240,160,48,0.18)",borderRadius: 10,padding:"9px 13px",fontSize:12,display:"flex",justifyContent:"space-between",color:"var(--amber)",fontWeight:600}}>
                   <span>Total cash into deal</span>
-                  <span style={{fontFamily:"'Fira Code',monospace"}}>{fmt(calc.totalCashIn)}</span>
+                  <span style={{fontFamily:"'Geist Mono',monospace"}}>{fmt(calc.totalCashIn)}</span>
                 </div>
               )}
             </div>
@@ -783,7 +783,7 @@ export default function BRRRRCalculator() {
                         }}
                         disabled={!form.address || rentPredicting}
                         style={{
-                          fontSize:9.5, fontFamily:"'Fira Code',monospace", fontWeight:700,
+                          fontSize:9.5, fontFamily:"'Geist Mono',monospace", fontWeight:700,
                           letterSpacing:"0.5px", padding:"3px 7px",
                           border:"1px solid rgba(167,130,255,0.4)", borderRadius:"var(--r-xs,2px)",
                           color: rentPredicting ? "var(--dim)" : "var(--purple)",
@@ -801,7 +801,7 @@ export default function BRRRRCalculator() {
                       background:"rgba(167,130,255,0.06)",
                       border:"1px solid rgba(167,130,255,0.2)",
                       borderRadius:"var(--r-sm,4px)",
-                      fontFamily:"'Fira Code',monospace", fontSize:10, color:"var(--sub)"
+                      fontFamily:"'Geist Mono',monospace", fontSize:10, color:"var(--sub)"
                     }}>
                       <div style={{display:"flex",justifyContent:"space-between",gap:8}}>
                         <span style={{color:"var(--purple)",fontWeight:700,letterSpacing:"0.4px"}}>CMHC · {rentPrediction.unitType?.toUpperCase()}</span>
@@ -833,7 +833,7 @@ export default function BRRRRCalculator() {
                               borderRadius:"var(--r-xs,2px)",
                               background: predictBeds===b ? "rgba(167,130,255,0.15)" : "transparent",
                               color: predictBeds===b ? "var(--purple)" : "var(--dim)",
-                              cursor:"pointer", fontFamily:"'Fira Code',monospace"
+                              cursor:"pointer", fontFamily:"'Geist Mono',monospace"
                             }}>{l}</button>
                         ))}
                       </div>
@@ -877,7 +877,7 @@ export default function BRRRRCalculator() {
               {calc && calc.noi !== 0 && (
                 <div style={{background:"rgba(52,217,138,0.06)",border:"1px solid rgba(52,217,138,0.18)",borderRadius: 10,padding:"9px 13px",fontSize:12,display:"flex",justifyContent:"space-between",color:"var(--green)",fontWeight:600}}>
                   <span>Stabilized NOI</span>
-                  <span style={{fontFamily:"'Fira Code',monospace"}}>{fmt(calc.noi)}/yr · Cap {fmtPct(calc.entryCap)}</span>
+                  <span style={{fontFamily:"'Geist Mono',monospace"}}>{fmt(calc.noi)}/yr · Cap {fmtPct(calc.entryCap)}</span>
                 </div>
               )}
             </div>
@@ -930,7 +930,7 @@ export default function BRRRRCalculator() {
               {calc && calc.refiNetProceeds > 0 && (
                 <div style={{background:"rgba(167,130,255,0.06)",border:"1px solid rgba(167,130,255,0.2)",borderRadius: 10,padding:"9px 13px",fontSize:12,display:"flex",justifyContent:"space-between",color:"var(--purple)",fontWeight:600}}>
                   <span>Net refi proceeds</span>
-                  <span style={{fontFamily:"'Fira Code',monospace"}}>{fmt(calc.refiNetProceeds)}</span>
+                  <span style={{fontFamily:"'Geist Mono',monospace"}}>{fmt(calc.refiNetProceeds)}</span>
                 </div>
               )}
             </div>
@@ -992,11 +992,11 @@ export default function BRRRRCalculator() {
                 <div style={{background:verdict.bg,border:`1px solid ${verdict.border}`,borderLeft:`4px solid var(--${verdict.cls})`,borderRadius:6,padding:"18px 20px"}}>
                   <div style={{display:"flex",alignItems:"baseline",gap:12,marginBottom:4}}>
                     <span style={{fontSize:28,lineHeight:1}}>{verdict.icon}</span>
-                    <span style={{fontFamily:"'DM Sans',sans-serif",fontSize:24,fontWeight:800,color:`var(--${verdict.cls})`,letterSpacing:"-0.4px"}}>
+                    <span style={{fontFamily:"'Geist',sans-serif",fontSize:24,fontWeight:800,color:`var(--${verdict.cls})`,letterSpacing:"-0.4px"}}>
                       {verdict.title}
                     </span>
                   </div>
-                  <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:14,color:"var(--sub)",lineHeight:1.5,marginBottom:16}}>
+                  <div style={{fontFamily:"'Geist',sans-serif",fontSize:14,color:"var(--sub)",lineHeight:1.5,marginBottom:16}}>
                     {verdict.sub}
                   </div>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(3, 1fr)",gap:8}}>
@@ -1026,10 +1026,10 @@ export default function BRRRRCalculator() {
                           background:"rgba(255,255,255,0.025)", border:"1px solid var(--borderf)",
                           borderRadius:4, padding:"10px 12px", textAlign:"center",
                         }}>
-                          <div style={{fontFamily:"'Fira Code',ui-monospace,monospace",fontSize:9,fontWeight:700,color:"var(--dim)",letterSpacing:"0.8px",textTransform:"uppercase",marginBottom:3}}>
+                          <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:9,fontWeight:700,color:"var(--dim)",letterSpacing:"0.8px",textTransform:"uppercase",marginBottom:3}}>
                             {m.lbl}
                           </div>
-                          <div style={{fontFamily:"'Fira Code',ui-monospace,monospace",fontSize:20,fontWeight:700,color:c,letterSpacing:"-0.4px",lineHeight:1.1}}>
+                          <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:20,fontWeight:700,color:c,letterSpacing:"-0.4px",lineHeight:1.1}}>
                             {m.val}
                           </div>
                         </div>
@@ -1047,7 +1047,7 @@ export default function BRRRRCalculator() {
                   }}>
                     <span style={{fontSize:14,lineHeight:1.4}}>🤖</span>
                     <div style={{flex:1}}>
-                      <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:3}}>
+                      <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:3}}>
                         AI THESIS{aiThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:6}}>· {aiThesis.source}</span>}
                       </div>
                       <div style={{fontSize:12.5,color:"var(--text)",lineHeight:1.55}}>
@@ -1175,15 +1175,15 @@ export default function BRRRRCalculator() {
             {/* ── Hold + Exit Returns ─────────────────────────────────────────── */}
             <div className="br-card" style={{borderRadius:6,borderColor:"rgba(52,217,138,0.18)"}}>
               <div className="br-card-header" style={{padding:"10px 14px",background:"rgba(52,217,138,0.04)"}}>
-                <div style={{width:30,height:22,border:"1px solid rgba(52,217,138,0.4)",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.5px"}}>RTN</div>
+                <div style={{width:30,height:22,border:"1px solid rgba(52,217,138,0.4)",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.5px"}}>RTN</div>
                 <div style={{flex:1}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
-                    <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"var(--green)",fontWeight:700,letterSpacing:"0.5px"}}>[ HOLD/RETURNS ]</span>
-                    <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"var(--dim)"}}>· {calc.hold}YR</span>
+                    <span style={{fontFamily:"'Geist Mono',monospace",fontSize:10,color:"var(--green)",fontWeight:700,letterSpacing:"0.5px"}}>[ HOLD/RETURNS ]</span>
+                    <span style={{fontFamily:"'Geist Mono',monospace",fontSize:10,color:"var(--dim)"}}>· {calc.hold}YR</span>
                   </div>
                   <div className="br-card-title" style={{fontSize:12.5,marginTop:1,letterSpacing:"0.2px"}}>IRR / Equity Multiple / Exit Proceeds</div>
                 </div>
-                <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,color:calc.irr===Infinity||calc.irr>=0.15?"var(--green)":calc.irr>=0.10?"var(--amber)":"var(--red)",fontWeight:700}}>
+                <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,color:calc.irr===Infinity||calc.irr>=0.15?"var(--green)":calc.irr>=0.10?"var(--amber)":"var(--red)",fontWeight:700}}>
                   {calc.irr===Infinity?"▲ ∞":calc.irr>=0.15?"▲ STRONG":calc.irr>=0.10?"● HOLD":"▼ REVIEW"}
                 </div>
               </div>
@@ -1198,9 +1198,9 @@ export default function BRRRRCalculator() {
                     {lbl:"TOTAL RETURN",    val: fmt(calc.totalReturn),                                      sub: "Hold CF + exit", cls:"blue"},
                   ].map((m,i)=>(
                     <div key={i} className={`br-metric ${m.cls}`} style={{padding:10,borderRadius:4}}>
-                      <div className="br-metric-label" style={{fontSize:9,fontFamily:"'Fira Code',monospace",marginBottom:4,letterSpacing:"0.8px"}}>{m.lbl}</div>
-                      <div className="br-metric-val" style={{fontSize:17,fontFamily:"'Fira Code',monospace",letterSpacing:"-0.3px"}}>{m.val}</div>
-                      <div className="br-metric-sub" style={{fontSize:9.5,marginTop:3,fontFamily:"'Fira Code',monospace"}}>{m.sub}</div>
+                      <div className="br-metric-label" style={{fontSize:9,fontFamily:"'Geist Mono',monospace",marginBottom:4,letterSpacing:"0.8px"}}>{m.lbl}</div>
+                      <div className="br-metric-val" style={{fontSize:17,fontFamily:"'Geist Mono',monospace",letterSpacing:"-0.3px"}}>{m.val}</div>
+                      <div className="br-metric-sub" style={{fontSize:9.5,marginTop:3,fontFamily:"'Geist Mono',monospace"}}>{m.sub}</div>
                     </div>
                   ))}
                 </div>
@@ -1210,19 +1210,19 @@ export default function BRRRRCalculator() {
             {/* ── Year-by-Year Projection ──────────────────────────────────────── */}
             <div className="br-card" style={{borderRadius:6,borderColor:"rgba(59,158,255,0.18)"}}>
               <div className="br-card-header" style={{padding:"10px 14px",background:"rgba(59,158,255,0.04)"}}>
-                <div style={{width:30,height:22,border:"1px solid rgba(59,158,255,0.4)",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--blue)",letterSpacing:"0.5px"}}>P&amp;L</div>
+                <div style={{width:30,height:22,border:"1px solid rgba(59,158,255,0.4)",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--blue)",letterSpacing:"0.5px"}}>P&amp;L</div>
                 <div style={{flex:1}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
-                    <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"var(--blue)",fontWeight:700,letterSpacing:"0.5px"}}>[ PROJECTION ]</span>
-                    <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"var(--dim)"}}>· POST-REFI</span>
+                    <span style={{fontFamily:"'Geist Mono',monospace",fontSize:10,color:"var(--blue)",fontWeight:700,letterSpacing:"0.5px"}}>[ PROJECTION ]</span>
+                    <span style={{fontFamily:"'Geist Mono',monospace",fontSize:10,color:"var(--dim)"}}>· POST-REFI</span>
                   </div>
                   <div className="br-card-title" style={{fontSize:12.5,marginTop:1,letterSpacing:"0.2px"}}>{calc.hold}-Year Cash Flow Schedule</div>
                 </div>
-                <div style={{fontFamily:"'Fira Code',monospace",fontSize:9,color:"var(--dim)"}}>{form.rentGrowth}%·R / {form.opexGrowth}%·OX</div>
+                <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9,color:"var(--dim)"}}>{form.rentGrowth}%·R / {form.opexGrowth}%·OX</div>
               </div>
               <div className="br-card-body" style={{padding:"0",gap:0}}>
                 <div style={{overflowX:"auto"}}>
-                  <table style={{width:"100%",borderCollapse:"collapse",fontSize:11.5,minWidth:Math.max(560, 140 + 80*calc.proj.length),fontFamily:"'Fira Code',monospace"}}>
+                  <table style={{width:"100%",borderCollapse:"collapse",fontSize:11.5,minWidth:Math.max(560, 140 + 80*calc.proj.length),fontFamily:"'Geist Mono',monospace"}}>
                     <thead>
                       <tr style={{color:"var(--dim)",fontSize:9.5,fontWeight:700,letterSpacing:"0.6px",background:"rgba(255,255,255,0.015)"}}>
                         <th style={{textAlign:"left",padding:"8px 14px",borderBottom:"1px solid var(--borderf)"}}>LINE</th>
@@ -1265,7 +1265,7 @@ export default function BRRRRCalculator() {
             {/* ── Visual Analytics (lazy-loaded — recharts is the heavy dep) ── */}
             <Suspense fallback={
               <div className="br-card" style={{borderRadius:6,padding:"40px 14px",textAlign:"center"}}>
-                <div style={{fontFamily:"'Fira Code',monospace",fontSize:11,color:"var(--dim)",letterSpacing:"0.6px"}}>
+                <div style={{fontFamily:"'Geist Mono',monospace",fontSize:11,color:"var(--dim)",letterSpacing:"0.6px"}}>
                   ▸ LOADING CHARTS…
                 </div>
               </div>
@@ -1325,7 +1325,7 @@ export default function BRRRRCalculator() {
                     doc.save(`investor-memo-brrrr-${new Date().toISOString().slice(0,10)}.pdf`);
                   }}
                   disabled={!calc}
-                  style={{width:"100%",background:"rgba(52,217,138,0.1)",border:"1px solid rgba(52,217,138,0.25)",borderRadius: 10,padding:"12px 18px",color:"var(--green)",fontSize:13,fontWeight:700,cursor:calc?"pointer":"not-allowed",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s",opacity:calc?1:0.5}}
+                  style={{width:"100%",background:"rgba(52,217,138,0.1)",border:"1px solid rgba(52,217,138,0.25)",borderRadius: 10,padding:"12px 18px",color:"var(--green)",fontSize:13,fontWeight:700,cursor:calc?"pointer":"not-allowed",fontFamily:"'Geist',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s",opacity:calc?1:0.5}}
                   onMouseOver={e=>{if(calc)e.currentTarget.style.background="rgba(52,217,138,0.18)"}}
                   onMouseOut={e=>{e.currentTarget.style.background="rgba(52,217,138,0.1)"}}
                 >
@@ -1367,7 +1367,7 @@ export default function BRRRRCalculator() {
                 ) : (
                   <button
                     onClick={saveDeal}
-                    style={{width:"100%",background:"linear-gradient(135deg,rgba(167,130,255,0.15),rgba(59,158,255,0.12))",border:"1px solid rgba(167,130,255,0.3)",borderRadius: 10,padding:"14px 18px",color:"var(--text)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s"}}
+                    style={{width:"100%",background:"linear-gradient(135deg,rgba(167,130,255,0.15),rgba(59,158,255,0.12))",border:"1px solid rgba(167,130,255,0.3)",borderRadius: 10,padding:"14px 18px",color:"var(--text)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Geist',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s"}}
                     onMouseOver={e=>{e.currentTarget.style.borderColor="rgba(167,130,255,0.6)";e.currentTarget.style.background="linear-gradient(135deg,rgba(167,130,255,0.22),rgba(59,158,255,0.18))"}}
                     onMouseOut={e=>{e.currentTarget.style.borderColor="rgba(167,130,255,0.3)";e.currentTarget.style.background="linear-gradient(135deg,rgba(167,130,255,0.15),rgba(59,158,255,0.12))"}}
                   >

@@ -246,7 +246,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
           padding: "10px 16px",
           background: "rgba(52,217,138,0.05)",
           borderBottom: "1px solid var(--borderf, rgba(255,255,255,0.07))",
-          fontFamily: "'Fira Code',ui-monospace,monospace",
+          fontFamily: "'Geist Mono',ui-monospace,monospace",
           fontSize: 10, fontWeight: 700,
           color: "var(--green, #34d98a)", letterSpacing: "1.4px",
         }}>
@@ -260,7 +260,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
             marginLeft: "auto",
             background: "transparent", border: "none",
             color: "var(--dim, #3a4a60)",
-            fontFamily: "'Fira Code',ui-monospace,monospace",
+            fontFamily: "'Geist Mono',ui-monospace,monospace",
             fontSize: 10, fontWeight: 700, letterSpacing: "1px",
             cursor: "pointer", padding: 0,
           }}>SKIP ✕</button>
@@ -269,7 +269,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
         {/* Body */}
         <div style={{ padding: "18px 20px 14px" }}>
           <div style={{
-            fontFamily: "'DM Sans',sans-serif",
+            fontFamily: "'Geist',sans-serif",
             fontSize: 19, fontWeight: 800,
             color: "var(--text, #dde4ef)",
             letterSpacing: "-0.4px", lineHeight: 1.2,
@@ -278,7 +278,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
             {data.title}
           </div>
           <div style={{
-            fontFamily: "'DM Sans',sans-serif",
+            fontFamily: "'Geist',sans-serif",
             fontSize: 14, color: "var(--sub, #6b7d96)",
             lineHeight: 1.55, letterSpacing: "-0.1px",
           }}>
@@ -310,7 +310,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
             borderRadius: 4,
             padding: "8px 14px",
             color: step === 0 ? "var(--dim, #3a4a60)" : "var(--sub, #6b7d96)",
-            fontFamily: "'Fira Code',ui-monospace,monospace",
+            fontFamily: "'Geist Mono',ui-monospace,monospace",
             fontSize: 11, fontWeight: 700, letterSpacing: "1px",
             cursor: step === 0 ? "default" : "pointer",
             opacity: step === 0 ? 0.4 : 1,
@@ -324,7 +324,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
             borderRadius: 4,
             padding: "8px 18px",
             color: "#07090f",
-            fontFamily: "'Fira Code',ui-monospace,monospace",
+            fontFamily: "'Geist Mono',ui-monospace,monospace",
             fontSize: 11, fontWeight: 700, letterSpacing: "1px",
             cursor: "pointer",
             transition: "transform 0.15s",

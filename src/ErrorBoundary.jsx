@@ -42,7 +42,7 @@ export default class ErrorBoundary extends Component {
     return (
       <div style={{
         minHeight: "100vh", background: "#07090f", color: "var(--text)",
-        fontFamily: "'DM Sans', system-ui, sans-serif",
+        fontFamily: "'Geist', system-ui, sans-serif",
         display: "flex", alignItems: "center", justifyContent: "center", padding: 24
       }}>
         <div style={{
@@ -52,7 +52,7 @@ export default class ErrorBoundary extends Component {
           borderRadius: 6, padding: "24px 28px"
         }}>
           <div style={{
-            fontFamily: "'Fira Code', ui-monospace, monospace",
+            fontFamily: "'Geist Mono', ui-monospace, monospace",
             fontSize: 10.5, fontWeight: 700, color: "var(--red)",
             letterSpacing: "0.8px", marginBottom: 8,
           }}>
@@ -68,7 +68,7 @@ export default class ErrorBoundary extends Component {
           <div style={{
             background: "#07090f", border: "1px solid rgba(255,255,255,0.07)",
             borderRadius: 4, padding: "12px 14px", marginBottom: 14,
-            fontFamily: "'Fira Code', ui-monospace, monospace",
+            fontFamily: "'Geist Mono', ui-monospace, monospace",
             fontSize: 12, color: "var(--red)", overflow: "auto", maxHeight: 240
           }}>
             <div style={{ fontWeight: 700, marginBottom: 6 }}>{String(this.state.error?.message || this.state.error)}</div>
@@ -84,7 +84,7 @@ export default class ErrorBoundary extends Component {
               style={{
                 background: "var(--green)", color: "#07090f", border: "none",
                 borderRadius: 4, padding: "10px 16px",
-                fontFamily: "'Fira Code', ui-monospace, monospace", fontSize: 11.5,
+                fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 11.5,
                 fontWeight: 700, letterSpacing: "0.6px", cursor: "pointer"
               }}>
               ▸ RELOAD PAGE
@@ -95,7 +95,7 @@ export default class ErrorBoundary extends Component {
                 background: "transparent", color: "var(--sub)",
                 border: "1px solid rgba(255,255,255,0.07)", borderRadius: 4,
                 padding: "10px 16px",
-                fontFamily: "'Fira Code', ui-monospace, monospace", fontSize: 11.5,
+                fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 11.5,
                 fontWeight: 700, letterSpacing: "0.6px",
                 textDecoration: "none", display: "inline-flex", alignItems: "center"
               }}>

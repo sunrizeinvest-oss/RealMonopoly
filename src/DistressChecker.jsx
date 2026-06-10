@@ -195,7 +195,7 @@ const PIPELINE_KEY  = "rde_pipeline_v1";
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* Nav */
   .dc-nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -214,10 +214,10 @@ const CSS = `
   .dc-hero-title{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:4px}
   .dc-hero-sub{font-size:14px;color:var(--sub);margin-bottom:20px;line-height:1.5}
   .dc-addr-row{display:flex;gap:10px}
-  .dc-addr-input{flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:13px 16px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s,box-shadow 0.15s}
+  .dc-addr-input{flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:13px 16px;font-size:14px;color:var(--text);font-family:'Geist',sans-serif;outline:none;transition:border-color 0.15s,box-shadow 0.15s}
   .dc-addr-input:focus{border-color:rgba(59,158,255,0.5);box-shadow:0 0 0 3px rgba(59,158,255,0.1)}
   .dc-addr-input::placeholder{color:var(--dim)}
-  .dc-start-btn{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:0 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:background 0.15s;flex-shrink:0}
+  .dc-start-btn{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:0 22px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;transition:background 0.15s;flex-shrink:0}
   .dc-start-btn:hover{background:#5aaeff}
   .dc-start-btn:disabled{background:#2a4a6b;cursor:not-allowed}
 
@@ -226,7 +226,7 @@ const CSS = `
   .dc-prop-icon{font-size:22px;flex-shrink:0}
   .dc-prop-addr{font-size:16px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
   .dc-prop-prov{font-size:11px;font-weight:700;color:var(--blue);background:rgba(59,158,255,0.12);border:1px solid rgba(59,158,255,0.25);border-radius:3px;padding:2px 10px;margin-left:4px}
-  .dc-prop-change{margin-left:auto;background:transparent;border:1px solid var(--borderf);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;flex-shrink:0}
+  .dc-prop-change{margin-left:auto;background:transparent;border:1px solid var(--borderf);border-radius:7px;padding:6px 12px;font-size:12px;font-weight:600;color:var(--sub);cursor:pointer;font-family:'Geist',sans-serif;transition:all 0.15s;flex-shrink:0}
   .dc-prop-change:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
 
   /* Summary bar */
@@ -235,7 +235,7 @@ const CSS = `
   .dc-sum-stat:last-child{border-right:none}
   .dc-sum-val{font-size:20px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-0.5px}
   .dc-sum-lbl{font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
-  .dc-save-btn{margin-left:auto;margin-right:14px;background:var(--green);color:#07090f;border:none;border-radius: 10px;padding:9px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0;transition:all 0.15s;white-space:nowrap}
+  .dc-save-btn{margin-left:auto;margin-right:14px;background:var(--green);color:#07090f;border:none;border-radius: 10px;padding:9px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Geist',sans-serif;flex-shrink:0;transition:all 0.15s;white-space:nowrap}
   .dc-save-btn:hover{background:#4febb0}
   .dc-save-btn.saved{background:#1a4a35;color:var(--green);cursor:default}
 
@@ -258,9 +258,9 @@ const CSS = `
   .dc-research-btn{font-size:11px;font-weight:700;color:var(--blue);background:rgba(59,158,255,0.08);border:1px solid rgba(59,158,255,0.2);border-radius:7px;padding:6px 11px;text-decoration:none;white-space:nowrap;transition:all 0.15s;display:inline-flex;align-items:center;gap:4px;cursor:pointer}
   .dc-research-btn:hover{background:rgba(59,158,255,0.18);border-color:rgba(59,158,255,0.4)}
   .dc-row-bottom{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.04)}
-  .dc-status-sel{background:var(--card2);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:5px 8px;font-size:11px;font-weight:600;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;cursor:pointer;flex-shrink:0;transition:border-color 0.15s}
+  .dc-status-sel{background:var(--card2);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:5px 8px;font-size:11px;font-weight:600;color:var(--text);font-family:'Geist',sans-serif;outline:none;cursor:pointer;flex-shrink:0;transition:border-color 0.15s}
   .dc-status-sel:focus{border-color:rgba(59,158,255,0.4)}
-  .dc-notes-inp{flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.07);border-radius:7px;padding:5px 10px;font-size:12px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s;min-width:0}
+  .dc-notes-inp{flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.07);border-radius:7px;padding:5px 10px;font-size:12px;color:var(--text);font-family:'Geist',sans-serif;outline:none;transition:border-color 0.15s;min-width:0}
   .dc-notes-inp:focus{border-color:rgba(59,158,255,0.35)}
   .dc-notes-inp::placeholder{color:var(--dim)}
 
@@ -452,7 +452,7 @@ export default function DistressChecker() {
 
   // ─────────────────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: "100vh", background: "var(--bg)", fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ minHeight: "100vh", background: "var(--bg)", fontFamily: "'Geist', sans-serif" }}>
       <style>{CSS}</style>
 
       {/* ── Nav ── */}
@@ -620,7 +620,7 @@ export default function DistressChecker() {
             {/* Bottom save CTA */}
             <div style={{ marginTop: 24, display: "flex", justifyContent: "flex-end", gap: 10 }}>
               <button
-                style={{ background: "transparent", border: "1px solid var(--borderf)", borderRadius: 10, padding: "10px 18px", fontSize: 13, fontWeight: 600, color: "var(--sub)", cursor: "pointer", fontFamily: "'DM Sans', sans-serif" }}
+                style={{ background: "transparent", border: "1px solid var(--borderf)", borderRadius: 10, padding: "10px 18px", fontSize: 13, fontWeight: 600, color: "var(--sub)", cursor: "pointer", fontFamily: "'Geist', sans-serif" }}
                 onClick={() => navigate("/pipeline")}
               >
                 View Pipeline →

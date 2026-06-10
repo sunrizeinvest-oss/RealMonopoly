@@ -40,8 +40,8 @@ const num  = v => parseFloat(v) || 0;
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
-  input,select{font-family:'DM Sans',sans-serif;font-size:16px!important}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
+  input,select{font-family:'Geist',sans-serif;font-size:16px!important}
 
   .pw-wrap{min-height:100vh;background:var(--bg)}
 
@@ -50,7 +50,7 @@ const CSS = `
   .pw-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.pw-logo span{color:var(--blue)}
   .pw-nav-right{display:flex;align-items:center;gap:8px}
   .pw-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 11px;border-radius:7px}.pw-nav-link:hover{color:var(--text)}
-  .pw-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none}
+  .pw-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none}
 
   /* Hero */
   .pw-hero{text-align:center;padding:60px 24px 40px;position:relative;overflow:hidden}
@@ -102,7 +102,7 @@ const CSS = `
   .pw-metric-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
   .pw-metric-row:last-child{border-bottom:none}
   .pw-metric-name{font-size:13px;color:var(--sub)}
-  .pw-metric-val{font-family:'Fira Code',ui-monospace,monospace;font-size:14px;font-weight:700;color:var(--text)}
+  .pw-metric-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:14px;font-weight:700;color:var(--text)}
 
   /* Rent card */
   .pw-rent-block{background:rgba(52,217,138,0.06);border:1px solid rgba(52,217,138,0.18);border-radius:6px;padding:16px;margin-bottom:16px}
@@ -118,7 +118,7 @@ const CSS = `
   /* Strategy buttons */
   .pw-strategy-btns{display:flex;flex-direction:column;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--borderf)}
   .pw-strategy-label{font-size:10.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-  .pw-strat-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:6px;border:1px solid var(--borderf);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;text-decoration:none;width:100%}
+  .pw-strat-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:6px;border:1px solid var(--borderf);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.15s;font-family:'Geist',sans-serif;text-decoration:none;width:100%}
   .pw-strat-btn:hover{border-color:rgba(59,158,255,0.3);background:rgba(59,158,255,0.06)}
   .pw-strat-icon{font-size:18px;flex-shrink:0}
   .pw-strat-text{text-align:left}

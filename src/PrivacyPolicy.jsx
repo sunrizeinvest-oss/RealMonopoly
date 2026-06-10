@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html,body{overflow-x:hidden}
-  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
+  body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
   .lp-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .lp-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none;cursor:pointer}
   .lp-logo span{color:var(--blue)}
-  .lp-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none}
+  .lp-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none}
   .lp-body{max-width:740px;margin:0 auto;padding:56px 24px 96px}
   .lp-eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
   .lp-title{font-size:36px;font-weight:800;color:var(--text);letter-spacing:-1px;line-height:1.1;margin-bottom:10px}

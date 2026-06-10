@@ -22,8 +22,8 @@ const fmtShort = (n) => {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
-  input,select,button{font-family:'DM Sans',sans-serif}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
+  input,select,button{font-family:'Geist',sans-serif}
 
   /* Nav */
   .tc-nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -83,13 +83,13 @@ const CSS = `
   .tc-summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
   @media(max-width:600px){.tc-summary-grid{grid-template-columns:1fr}}
   .tc-metric{background:var(--card2);border:1px solid var(--borderf);border-radius:6px;padding:16px 18px}
-  .tc-metric-label{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
-  .tc-metric-val{font-family:'Fira Code',ui-monospace,monospace;font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px;line-height:1}
+  .tc-metric-label{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+  .tc-metric-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:22px;font-weight:800;color:var(--text);letter-spacing:-0.5px;line-height:1}
   .tc-metric-sub{font-size:10.5px;color:var(--dim);margin-top:5px}
-  .tc-metric.green{border-color:rgba(52,217,138,0.22);background:rgba(52,217,138,0.05)}.tc-metric.green .tc-metric-val{font-family:'Fira Code',ui-monospace,monospace;color:var(--green)}
-  .tc-metric.blue{border-color:rgba(59,158,255,0.22);background:rgba(59,158,255,0.05)}.tc-metric.blue .tc-metric-val{font-family:'Fira Code',ui-monospace,monospace;color:var(--blue)}
-  .tc-metric.amber{border-color:rgba(240,160,48,0.22);background:rgba(240,160,48,0.05)}.tc-metric.amber .tc-metric-val{font-family:'Fira Code',ui-monospace,monospace;color:var(--amber)}
-  .tc-metric.purple{border-color:rgba(167,130,255,0.22);background:rgba(167,130,255,0.05)}.tc-metric.purple .tc-metric-val{font-family:'Fira Code',ui-monospace,monospace;color:var(--purple)}
+  .tc-metric.green{border-color:rgba(52,217,138,0.22);background:rgba(52,217,138,0.05)}.tc-metric.green .tc-metric-val{font-family:'Geist Mono',ui-monospace,monospace;color:var(--green)}
+  .tc-metric.blue{border-color:rgba(59,158,255,0.22);background:rgba(59,158,255,0.05)}.tc-metric.blue .tc-metric-val{font-family:'Geist Mono',ui-monospace,monospace;color:var(--blue)}
+  .tc-metric.amber{border-color:rgba(240,160,48,0.22);background:rgba(240,160,48,0.05)}.tc-metric.amber .tc-metric-val{font-family:'Geist Mono',ui-monospace,monospace;color:var(--amber)}
+  .tc-metric.purple{border-color:rgba(167,130,255,0.22);background:rgba(167,130,255,0.05)}.tc-metric.purple .tc-metric-val{font-family:'Geist Mono',ui-monospace,monospace;color:var(--purple)}
 
   /* Status Banner */
   .tc-status{border-radius:6px;padding:16px 18px;margin-bottom:16px;display:flex;align-items:flex-start;gap:12px}

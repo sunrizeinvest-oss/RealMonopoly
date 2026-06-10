@@ -76,8 +76,8 @@ const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html,body{overflow-x:hidden}
-  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
-  input,select,textarea{font-size:16px!important;font-family:'DM Sans',sans-serif}
+  body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
+  input,select,textarea{font-size:16px!important;font-family:'Geist',sans-serif}
   .da-wrap{min-height:100vh;background:var(--bg)}
   .da-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .da-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}
@@ -85,9 +85,9 @@ const CSS = `
   .da-nav-right{display:flex;align-items:center;gap:10px}
   .da-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 12px;border-radius:7px}
   .da-nav-link:hover{color:var(--text)}
-  .da-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .da-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif}
   .da-nav-btn:hover{background:#5aaeff}
-  .da-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .da-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif}
   .da-nav-ghost:hover{border-color:var(--border);color:var(--text)}
   .da-hero{text-align:center;padding:48px 24px 40px;position:relative;overflow:hidden}
   .da-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(59,158,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,158,255,0.03) 1px,transparent 1px);background-size:56px 56px;pointer-events:none}
@@ -117,7 +117,7 @@ const CSS = `
   .da-field{display:flex;flex-direction:column;gap:5px}
   .da-label{font-size:11.5px;font-weight:600;color:var(--sub);letter-spacing:0.3px}
   .da-input-wrap{position:relative}
-  .da-input-pre{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:13px;font-weight:600;pointer-events:none;font-family:'Fira Code',monospace}
+  .da-input-pre{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:13px;font-weight:600;pointer-events:none;font-family:'Geist Mono',monospace}
   .da-input-suf{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:12px;pointer-events:none}
   .da-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:10px;padding:11px 12px;font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s;-webkit-appearance:none}
   .da-input:focus{border-color:rgba(59,158,255,0.4);box-shadow:0 0 0 3px rgba(59,158,255,0.08)}
@@ -126,22 +126,22 @@ const CSS = `
   .da-input-hint{font-size:11px;color:rgba(59,158,255,0.7);font-weight:500}
   .da-field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .da-type-toggle{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:10px;padding:3px;gap:3px}
-  .da-type-btn{flex:1;padding:9px 0;border:none;border-radius: 6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+  .da-type-btn{flex:1;padding:9px 0;border:none;border-radius: 6px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
   .da-type-btn.active{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(59,158,255,0.3)}
   .da-type-btn.inactive{background:transparent;color:var(--sub)}
-  .da-analyze-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:4px}
+  .da-analyze-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Geist',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:4px}
   .da-analyze-btn:hover{background:#5aaeff;transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,158,255,0.35)}
   .da-analyze-btn:disabled{background:var(--dim);cursor:not-allowed;transform:none;box-shadow:none}
   .da-results{display:flex;flex-direction:column;gap:16px}
   .da-score-card{border-radius:16px;padding:24px;border:1px solid;text-align:center}
   .da-score-ring{width:90px;height:90px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;margin:0 auto 16px;border:3px solid}
-  .da-score-num{font-size:30px;font-weight:800;letter-spacing:-1px;font-family:'Fira Code',monospace;line-height:1}
+  .da-score-num{font-size:30px;font-weight:800;letter-spacing:-1px;font-family:'Geist Mono',monospace;line-height:1}
   .da-score-of{font-size:11px;color:var(--sub);margin-top:1px}
   .da-verdict{font-size:20px;font-weight:800;letter-spacing:-0.5px;margin-bottom:6px}
   .da-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   .da-metric{background:var(--card2);border:1px solid var(--borderf);border-radius: 10px;padding:14px 16px}
   .da-metric-label{font-size:10px;font-weight:700;color:var(--dim);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:5px}
-  .da-metric-val{font-size:18px;font-weight:800;font-family:'Fira Code',monospace;letter-spacing:-0.5px;line-height:1}
+  .da-metric-val{font-size:18px;font-weight:800;font-family:'Geist Mono',monospace;letter-spacing:-0.5px;line-height:1}
   .da-metric-sub{font-size:10.5px;color:var(--sub);margin-top:4px}
   .da-reasons{background:var(--card);border:1px solid var(--border);border-radius: 16px;overflow:hidden}
   .da-reasons-header{padding:13px 18px;border-bottom:1px solid var(--borderf);background:var(--card2);font-size:12px;font-weight:700;color:var(--sub);letter-spacing:0.5px;text-transform:uppercase}
@@ -154,10 +154,10 @@ const CSS = `
   .da-save-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
   .da-save-sub{font-size:13px;color:var(--sub);margin-bottom:16px;line-height:1.55}
   .da-save-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
-  .da-save-btn{background:var(--blue);color:#fff;border:none;border-radius: 6px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
+  .da-save-btn{background:var(--blue);color:#fff;border:none;border-radius: 6px;padding:10px 20px;font-family:'Geist',sans-serif;font-size:13px;font-weight:700;cursor:pointer}
   .da-save-btn:hover{background:#5aaeff}
-  .da-save-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 6px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
-  .da-pdf-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 6px;padding:10px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .da-save-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 6px;padding:10px 20px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+  .da-pdf-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 6px;padding:10px 16px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
   .da-pdf-btn:hover{border-color:var(--border);color:var(--text)}
   .da-placeholder{background:var(--card);border:1px dashed var(--borderf);border-radius:16px;padding:48px 24px;text-align:center}
   .da-placeholder-icon{font-size:36px;margin-bottom:14px}
@@ -171,9 +171,9 @@ const CSS = `
   .da-modal-sub{font-size:13px;color:var(--sub);margin-bottom:24px;line-height:1.55}
   .da-modal-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
   .da-modal-label{font-size:11.5px;font-weight:600;color:var(--sub)}
-  .da-modal-input{background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius: 10px;padding:12px 14px;font-size:14px;color:var(--text);outline:none;width:100%;font-family:'DM Sans',sans-serif}
+  .da-modal-input{background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius: 10px;padding:12px 14px;font-size:14px;color:var(--text);outline:none;width:100%;font-family:'Geist',sans-serif}
   .da-modal-input:focus{border-color:rgba(59,158,255,0.4)}
-  .da-modal-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius: 10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px}
+  .da-modal-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius: 10px;padding:13px;font-family:'Geist',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px}
   .da-modal-btn:hover{background:#5aaeff}
   .da-modal-btn:disabled{background:var(--dim);cursor:not-allowed}
   .da-modal-toggle{text-align:center;margin-top:16px;font-size:13px;color:var(--sub)}
@@ -181,7 +181,7 @@ const CSS = `
   .da-modal-divider{display:flex;align-items:center;gap:12px;margin:18px 0}
   .da-modal-divider::before,.da-modal-divider::after{content:'';flex:1;height:1px;background:var(--borderf)}
   .da-modal-divider span{font-size:11px;color:var(--dim)}
-  .da-modal-google{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius: 10px;padding:12px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .da-modal-google{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius: 10px;padding:12px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
   .da-modal-google:hover{background:rgba(255,255,255,0.08)}
   .da-saved-banner{background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--green);font-weight:500}
   .da-upgrade-success{background:linear-gradient(135deg,rgba(52,217,138,0.1),rgba(59,158,255,0.1));border:1px solid rgba(52,217,138,0.3);border-radius: 10px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin:0 auto 0;max-width:1000px;width:calc(100% - 40px)}
@@ -201,7 +201,7 @@ const CSS = `
   .da-upgrade-perk-dot{width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0}
   .da-upgrade-price{font-size:13px;color:var(--sub);margin-bottom:16px}
   .da-upgrade-price strong{color:var(--text);font-size:18px}
-  .da-upgrade-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:15px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s}
+  .da-upgrade-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:15px;font-family:'Geist',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s}
   .da-upgrade-btn:hover{background:#5aaeff;transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,158,255,0.35)}
   .da-upgrade-cancel{margin-top:12px;font-size:13px;color:var(--dim);cursor:pointer}
   .da-upgrade-cancel:hover{color:var(--sub)}
@@ -383,7 +383,7 @@ export default function DealAnalyzer() {
               display:"flex",alignItems:"center",justifyContent:"space-between",gap:10
             }}>
               <div>
-                <div style={{fontFamily:"'Fira Code',monospace",fontSize:9,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:2}}>
+                <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:2}}>
                   ▸ TRY SAMPLE
                 </div>
                 <div style={{fontSize:12,color:"var(--text)"}}>Edmonton flip · pre-filled</div>
@@ -400,7 +400,7 @@ export default function DealAnalyzer() {
                   setTimeout(() => setAnalyzed(true), 100);
                 }}
                 style={{
-                  fontFamily:"'Fira Code',monospace",fontSize:10.5,fontWeight:700,letterSpacing:"0.5px",
+                  fontFamily:"'Geist Mono',monospace",fontSize:10.5,fontWeight:700,letterSpacing:"0.5px",
                   padding:"6px 12px",border:"1px solid var(--green)",borderRadius:"var(--r-sm,4px)",
                   color:"#07090f",background:"var(--green)",cursor:"pointer",whiteSpace:"nowrap"
                 }}>
@@ -551,10 +551,10 @@ export default function DealAnalyzer() {
                     borderRadius:"var(--r-md,6px)",padding:"14px 16px",marginBottom:16
                   }}>
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10}}>
-                      <div style={{fontFamily:"'Fira Code',monospace",fontSize:10,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px"}}>
+                      <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px"}}>
                         ▸ PROFIT WATERFALL · ARV {fmt(arv.mid)}
                       </div>
-                      <div style={{fontFamily:"'Fira Code',monospace",fontSize:10.5,fontWeight:700,color: realProfit >= 0 ? "var(--green)" : "var(--red)"}}>
+                      <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10.5,fontWeight:700,color: realProfit >= 0 ? "var(--green)" : "var(--red)"}}>
                         NET {realProfit >= 0 ? "▲" : "▼"} {fmt(Math.abs(realProfit))}
                       </div>
                     </div>
@@ -567,7 +567,7 @@ export default function DealAnalyzer() {
                           minWidth: s.pct > 0.005 ? "auto" : 0,
                           borderRight: "1px solid rgba(0,0,0,0.25)",
                           display:"flex",alignItems:"center",justifyContent:"center",
-                          fontFamily:"'Fira Code',monospace",fontSize:9,fontWeight:700,
+                          fontFamily:"'Geist Mono',monospace",fontSize:9,fontWeight:700,
                           color:"rgba(0,0,0,0.7)",letterSpacing:"0.4px",overflow:"hidden",whiteSpace:"nowrap"
                         }}>
                           {s.pct > 0.06 ? s.lbl : ""}
@@ -577,14 +577,14 @@ export default function DealAnalyzer() {
                     {/* Segment legend */}
                     <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginTop:10}}>
                       {segments.filter(s => s.val > 0).map(s => (
-                        <div key={s.lbl} style={{display:"flex",alignItems:"center",gap:6,fontSize:11,fontFamily:"'Fira Code',monospace"}}>
+                        <div key={s.lbl} style={{display:"flex",alignItems:"center",gap:6,fontSize:11,fontFamily:"'Geist Mono',monospace"}}>
                           <span style={{width:10,height:10,background:s.color,borderRadius:2,flexShrink:0}}/>
                           <span style={{color:"var(--sub)",flex:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.lbl}</span>
                           <span style={{color:"var(--text)",fontWeight:700}}>{fmt(s.val)}</span>
                         </div>
                       ))}
                     </div>
-                    <div style={{marginTop:8,fontSize:10,color:"var(--dim)",fontFamily:"'Fira Code',monospace",lineHeight:1.5}}>
+                    <div style={{marginTop:8,fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',monospace",lineHeight:1.5}}>
                       Includes 8.5% selling, 2% acquisition, ~0.5% holding (4mo). Scorecard "Net Profit" excludes these — waterfall is the truer number.
                     </div>
                   </div>

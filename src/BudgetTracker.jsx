@@ -40,7 +40,7 @@ const BLANK_EXPENSE = {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* ── Nav ── */
   .bt-nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -61,14 +61,14 @@ const CSS = `
   .bt-deal-bar-row{display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap}
   .bt-field{display:flex;flex-direction:column;gap:5px;flex:1;min-width:160px}
   .bt-field label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
-  .bt-input{background:var(--card2);border:1px solid var(--borderf);border-radius: 10px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;transition:border-color 0.15s;outline:none}
+  .bt-input{background:var(--card2);border:1px solid var(--borderf);border-radius: 10px;padding:9px 12px;font-size:14px;color:var(--text);font-family:'Geist',sans-serif;width:100%;transition:border-color 0.15s;outline:none}
   .bt-input:focus{border-color:var(--blue)}
   .bt-input::placeholder{color:var(--dim)}
   select.bt-input{cursor:pointer}
   .bt-hint{font-size:11px;color:var(--dim);margin-top:2px}
-  .bt-btn{background:var(--blue);color:#fff;border:none;border-radius: 10px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:opacity 0.15s;flex-shrink:0}
+  .bt-btn{background:var(--blue);color:#fff;border:none;border-radius: 10px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;transition:opacity 0.15s;flex-shrink:0}
   .bt-btn:hover{opacity:0.85}
-  .bt-btn-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 10px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s}
+  .bt-btn-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 10px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;transition:all 0.15s}
   .bt-btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.18)}
   .bt-btn-green{background:var(--green);color:#07090f}
   .bt-btn-green:hover{opacity:0.85}
@@ -117,7 +117,7 @@ const CSS = `
   .bt-cat-table tr:last-child td{border-bottom:none}
   .bt-cat-table tr:hover td{background:rgba(255,255,255,0.02)}
   .bt-cat-name{font-weight:600}
-  .bt-cat-input{background:transparent;border:1px solid transparent;border-radius:6px;padding:4px 8px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;width:110px;transition:border-color 0.15s}
+  .bt-cat-input{background:transparent;border:1px solid transparent;border-radius:6px;padding:4px 8px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;width:110px;transition:border-color 0.15s}
   .bt-cat-input:hover{border-color:var(--borderf)}
   .bt-cat-input:focus{border-color:var(--blue);background:var(--card2);outline:none}
   .pos{color:var(--green)}
@@ -131,7 +131,7 @@ const CSS = `
   .bt-exp-table tr:last-child td{border-bottom:none}
   .bt-exp-table tr:hover td{background:rgba(255,255,255,0.02)}
   .bt-exp-actions{display:flex;gap:6px}
-  .bt-icon-btn{background:transparent;border:1px solid var(--borderf);border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.15s;color:var(--sub);font-family:'DM Sans',sans-serif}
+  .bt-icon-btn{background:transparent;border:1px solid var(--borderf);border-radius:6px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;transition:all 0.15s;color:var(--sub);font-family:'Geist',sans-serif}
   .bt-icon-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.2)}
   .bt-icon-btn.del:hover{color:var(--red);border-color:var(--red)}
   .bt-total-row td{font-weight:800;color:var(--text);border-top:2px solid var(--borderf) !important;background:rgba(255,255,255,0.02)}

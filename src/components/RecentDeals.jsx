@@ -88,13 +88,13 @@ export default function RecentDeals({ limit = 6 }) {
         display: "flex", alignItems: "baseline", gap: 14, marginBottom: 12, flexWrap: "wrap",
       }}>
         <div style={{
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11.5, fontWeight: 700,
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11.5, fontWeight: 700,
           color: "var(--blue)", letterSpacing: "1.6px",
         }}>
           ▸ RECENT ANALYSES
         </div>
         <div style={{
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 600,
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 600,
           color: "var(--dim)", letterSpacing: "0.6px",
         }}>
           · {deals.length} OF {Math.min(20, deals.length)} SAVED · CLICK TO RESUME
@@ -124,7 +124,7 @@ export default function RecentDeals({ limit = 6 }) {
                 cursor: "pointer",
                 textAlign: "left",
                 display: "flex", flexDirection: "column", gap: 6,
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Geist',sans-serif",
                 transition: "transform 0.15s, border-color 0.15s, box-shadow 0.15s",
               }}
               onMouseEnter={e => {
@@ -139,11 +139,11 @@ export default function RecentDeals({ limit = 6 }) {
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{ fontSize: 18, lineHeight: 1 }}>{meta.emoji}</span>
                 <span style={{
-                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+                  fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
                   color: meta.color, letterSpacing: "1px",
                 }}>{meta.label.toUpperCase()}</span>
                 <span style={{ marginLeft: "auto",
-                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5,
+                  fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5,
                   color: "var(--dim)", letterSpacing: "0.4px",
                 }}>{timeSince(d.savedAt || d.id)}</span>
               </div>
@@ -157,7 +157,7 @@ export default function RecentDeals({ limit = 6 }) {
 
               {d.address && d.address !== d.name && (
                 <div style={{
-                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, color: "var(--sub)",
+                  fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, color: "var(--sub)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 }}>
                   {d.address}
@@ -168,7 +168,7 @@ export default function RecentDeals({ limit = 6 }) {
                 <div style={{
                   display: "flex", gap: 12, alignItems: "baseline",
                   marginTop: 2,
-                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
+                  fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
                 }}>
                   {profit != null && (
                     <span style={{ color: profitColor }}>

@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;background:#07090f;overflow-x:hidden}
-  body{color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-  input{font-size:16px!important;font-family:'DM Sans',sans-serif}
+  body{color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+  input{font-size:16px!important;font-family:'Geist',sans-serif}
   .rp-wrap{width:100%;min-height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden}
   .rp-wrap::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(59,158,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,158,255,0.03) 1px,transparent 1px);background-size:56px 56px;pointer-events:none}
   .rp-glow{position:absolute;top:30%;left:50%;transform:translate(-50%,-50%);width:600px;height:400px;background:radial-gradient(ellipse,rgba(59,158,255,0.08) 0%,transparent 65%);pointer-events:none}
@@ -21,7 +21,7 @@ const CSS = `
   .rp-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:6px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s}
   .rp-input:focus{border-color:rgba(59,158,255,0.5);box-shadow:0 0 0 3px rgba(59,158,255,0.1)}
   .rp-hint{font-size:11px;color:var(--dim);margin-top:4px}
-  .rp-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:6px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:8px}
+  .rp-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:6px;padding:14px;font-family:'Geist',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:8px}
   .rp-btn:hover{background:#5aaeff;transform:translateY(-1px);box-shadow:0 6px 20px rgba(59,158,255,0.35)}
   .rp-btn:disabled{background:var(--dim);cursor:not-allowed;transform:none;box-shadow:none}
   .rp-error{background:rgba(242,92,92,0.08);border:1px solid rgba(242,92,92,0.2);border-radius: 6px;padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:12px}

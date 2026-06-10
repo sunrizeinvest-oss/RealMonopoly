@@ -11,8 +11,8 @@ const fmtPct = (n, decimals = 2) => (isNaN(n) || !isFinite(n)) ? "—" : `${(n *
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
-  input,select{font-family:'DM Sans',sans-serif;font-size:14px!important}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
+  input,select{font-family:'Geist',sans-serif;font-size:14px!important}
 
   /* Nav */
   .mq-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
@@ -71,9 +71,9 @@ const CSS = `
   .mq-verdict.neutral{background:var(--card);border-color:var(--borderf)}
   .mq-verdict-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
   .mq-verdict-label{font-size:20px;font-weight:800}
-  .mq-verdict.pass .mq-verdict-label{font-family:'Fira Code',ui-monospace,monospace;color:var(--green)}
-  .mq-verdict.fail .mq-verdict-label{font-family:'Fira Code',ui-monospace,monospace;color:var(--red)}
-  .mq-verdict.neutral .mq-verdict-label{font-family:'Fira Code',ui-monospace,monospace;color:var(--sub)}
+  .mq-verdict.pass .mq-verdict-label{font-family:'Geist Mono',ui-monospace,monospace;color:var(--green)}
+  .mq-verdict.fail .mq-verdict-label{font-family:'Geist Mono',ui-monospace,monospace;color:var(--red)}
+  .mq-verdict.neutral .mq-verdict-label{font-family:'Geist Mono',ui-monospace,monospace;color:var(--sub)}
   .mq-verdict-rates{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px}
   .mq-rate-pill{padding:6px 14px;border-radius: 6px;font-size:12px;font-weight:600}
   .mq-rate-pill.contract{background:rgba(167,130,255,0.12);color:var(--purple);border:1px solid rgba(167,130,255,0.2)}
@@ -84,9 +84,9 @@ const CSS = `
   @media(max-width:640px){.mq-metrics{grid-template-columns:1fr}}
   .mq-metric-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:16px 18px}
   .mq-metric-card.highlight{background:rgba(52,217,138,0.06);border-color:rgba(52,217,138,0.2)}
-  .mq-metric-label{font-family:'Fira Code',ui-monospace,monospace;font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
-  .mq-metric-value{font-family:'Fira Code',ui-monospace,monospace;font-size:22px;font-weight:800;color:var(--text)}
-  .mq-metric-card.highlight .mq-metric-value{font-family:'Fira Code',ui-monospace,monospace;color:var(--green)}
+  .mq-metric-label{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+  .mq-metric-value{font-family:'Geist Mono',ui-monospace,monospace;font-size:22px;font-weight:800;color:var(--text)}
+  .mq-metric-card.highlight .mq-metric-value{font-family:'Geist Mono',ui-monospace,monospace;color:var(--green)}
   .mq-metric-sub{font-size:11px;color:var(--dim);margin-top:3px}
 
   /* GDS/TDS gauges */

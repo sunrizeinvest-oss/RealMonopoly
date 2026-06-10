@@ -48,16 +48,16 @@ const DEFAULT_UNITS = [
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
-  input,select{font-family:'DM Sans',sans-serif}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
+  input,select{font-family:'Geist',sans-serif}
 
   .mf-wrap{min-height:100vh;background:var(--bg)}
   .mf-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .mf-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.mf-logo span{color:var(--blue)}
   .mf-nav-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .mf-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 11px;border-radius:7px}.mf-nav-link:hover{color:var(--text)}
-  .mf-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}.mf-nav-ghost:hover{color:var(--text)}
-  .mf-nav-primary{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-flex;align-items:center}
+  .mf-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif}.mf-nav-ghost:hover{color:var(--text)}
+  .mf-nav-primary{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none;display:inline-flex;align-items:center}
 
   .mf-page{max-width:1040px;margin:0 auto;padding:32px 20px 100px}
   .mf-hero{text-align:center;padding:36px 24px 28px;position:relative;overflow:hidden}
@@ -77,9 +77,9 @@ const CSS = `
   .mf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;padding:16px 20px}
   .mf-field{display:flex;flex-direction:column;gap:4px}
   .mf-label{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.4px}
-  .mf-input{background:rgba(59,158,255,0.05);border:1px solid rgba(59,158,255,0.15);border-radius: 6px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:'Fira Code',monospace}
+  .mf-input{background:rgba(59,158,255,0.05);border:1px solid rgba(59,158,255,0.15);border-radius: 6px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:'Geist Mono',monospace}
   .mf-input:focus{border-color:rgba(59,158,255,0.4)}
-  .mf-input-text{background:rgba(255,255,255,0.03);border:1px solid var(--borderf);border-radius: 6px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:'DM Sans',sans-serif}
+  .mf-input-text{background:rgba(255,255,255,0.03);border:1px solid var(--borderf);border-radius: 6px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:'Geist',sans-serif}
   .mf-input-text:focus{border-color:rgba(59,158,255,0.3)}
 
   /* Unit mix table */
@@ -88,11 +88,11 @@ const CSS = `
   .mf-unit-table th:first-child{text-align:left}
   .mf-unit-table td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px;vertical-align:middle}
   .mf-unit-table tr:last-child td{border-bottom:none}
-  .mf-unit-table .unit-input{background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.15);border-radius:6px;padding:5px 8px;font-size:12px;color:var(--text);outline:none;width:80px;font-family:'Fira Code',monospace;text-align:right}
+  .mf-unit-table .unit-input{background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.15);border-radius:6px;padding:5px 8px;font-size:12px;color:var(--text);outline:none;width:80px;font-family:'Geist Mono',monospace;text-align:right}
   .mf-unit-table .unit-input:focus{border-color:rgba(59,158,255,0.4)}
-  .mf-unit-val{font-family:'Fira Code',monospace;font-size:13px;text-align:right;display:block}
+  .mf-unit-val{font-family:'Geist Mono',monospace;font-size:13px;text-align:right;display:block}
   .mf-unit-total{background:rgba(255,255,255,0.03);font-weight:700}
-  .mf-add-row{background:transparent;border:1px dashed var(--borderf);color:var(--dim);border-radius: 6px;padding:8px;font-size:12px;cursor:pointer;width:100%;margin:8px 0;font-family:'DM Sans',sans-serif}
+  .mf-add-row{background:transparent;border:1px dashed var(--borderf);color:var(--dim);border-radius: 6px;padding:8px;font-size:12px;cursor:pointer;width:100%;margin:8px 0;font-family:'Geist',sans-serif}
   .mf-add-row:hover{border-color:var(--blue);color:var(--blue)}
   .mf-del-btn{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:14px;padding:2px 6px}.mf-del-btn:hover{color:var(--red)}
 
@@ -105,7 +105,7 @@ const CSS = `
   .mf-metric-label.bold{font-weight:700;color:var(--text)}
   .mf-metric-label.indent{padding-left:16px;font-size:12.5px}
   .mf-metric-label.formula{padding-left:16px;font-size:12px;color:var(--dim)}
-  .mf-metric-val{font-family:'Fira Code',monospace;font-size:14px;color:var(--text);text-align:right;min-width:120px}
+  .mf-metric-val{font-family:'Geist Mono',monospace;font-size:14px;color:var(--text);text-align:right;min-width:120px}
   .mf-metric-val.pos{color:var(--green)}
   .mf-metric-val.neg{color:var(--red)}
   .mf-metric-val.bold{font-weight:700}
@@ -121,20 +121,20 @@ const CSS = `
   .mf-proj-table{width:100%;border-collapse:collapse;font-size:12.5px}
   .mf-proj-table th{padding:10px 14px;text-align:right;font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--borderf)}
   .mf-proj-table th:first-child{text-align:left}
-  .mf-proj-table td{padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.03);font-family:'Fira Code',monospace;text-align:right}
-  .mf-proj-table td:first-child{font-family:'DM Sans',sans-serif;text-align:left;color:var(--sub);font-size:12px}
+  .mf-proj-table td{padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.03);font-family:'Geist Mono',monospace;text-align:right}
+  .mf-proj-table td:first-child{font-family:'Geist',sans-serif;text-align:left;color:var(--sub);font-size:12px}
   .mf-proj-table tr.proj-total td{background:rgba(255,255,255,0.03);font-weight:700;color:var(--text)}
   .mf-proj-table tr.proj-noi td{color:var(--green)}
   .mf-proj-table tr.proj-noi td:first-child{color:var(--sub)}
   .mf-proj-table tr.proj-btcf td{color:var(--blue)}
   .mf-proj-table tr.proj-btcf td:first-child{color:var(--sub)}
-  .mf-proj-table tr.proj-section td{background:rgba(59,158,255,0.04);border-top:1px solid var(--borderf);color:var(--text);font-family:'DM Sans',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
+  .mf-proj-table tr.proj-section td{background:rgba(59,158,255,0.04);border-top:1px solid var(--borderf);color:var(--text);font-family:'Geist',sans-serif;font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.5px}
 
   /* Sensitivity grid */
   .mf-sens-table{width:100%;border-collapse:collapse;font-size:12px}
   .mf-sens-table th{padding:8px 12px;text-align:center;font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;background:rgba(255,255,255,0.02);border:1px solid var(--borderf)}
-  .mf-sens-table td{padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,0.04);font-family:'Fira Code',monospace;font-size:12px}
-  .mf-sens-table td.sens-label{text-align:left;font-family:'DM Sans',sans-serif;color:var(--sub);font-size:11px;font-weight:600;background:rgba(255,255,255,0.02)}
+  .mf-sens-table td{padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,0.04);font-family:'Geist Mono',monospace;font-size:12px}
+  .mf-sens-table td.sens-label{text-align:left;font-family:'Geist',sans-serif;color:var(--sub);font-size:11px;font-weight:600;background:rgba(255,255,255,0.02)}
   .mf-sens-good{background:rgba(52,217,138,0.08);color:var(--green)}
   .mf-sens-warn{background:rgba(240,160,48,0.08);color:var(--amber)}
   .mf-sens-bad{background:rgba(242,92,92,0.08);color:var(--red)}
@@ -142,7 +142,7 @@ const CSS = `
   /* Scorecard */
   .mf-scorecard{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 20px}
   .mf-score-tile{background:rgba(255,255,255,0.03);border-radius:10px;padding:14px 16px;border:1px solid var(--borderf)}
-  .mf-score-val{font-size:22px;font-weight:800;font-family:'Fira Code',monospace;line-height:1;margin-bottom:4px}
+  .mf-score-val{font-size:22px;font-weight:800;font-family:'Geist Mono',monospace;line-height:1;margin-bottom:4px}
   .mf-score-lbl{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px}
   .mf-score-bench{font-size:10px;color:var(--dim);font-style:italic}
 
@@ -566,7 +566,7 @@ export default function CommercialAnalyzer() {
 
           {/* Try Sample Deal — activation primer */}
           <div style={{display:"inline-flex",alignItems:"center",gap:10,marginTop:14,padding:"8px 14px",background:"rgba(52,217,138,0.08)",border:"1px solid rgba(52,217,138,0.3)",borderRadius:"var(--r-sm,4px)"}}>
-            <span style={{fontFamily:"'Fira Code',monospace",fontSize:10.5,color:"var(--green)",fontWeight:700,letterSpacing:"0.6px"}}>NEW HERE?</span>
+            <span style={{fontFamily:"'Geist Mono',monospace",fontSize:10.5,color:"var(--green)",fontWeight:700,letterSpacing:"0.6px"}}>NEW HERE?</span>
             <button
               type="button"
               onClick={() => {
@@ -588,7 +588,7 @@ export default function CommercialAnalyzer() {
                 setTimeout(() => window.scrollTo({top: window.scrollY + 500, behavior: "smooth"}), 80);
               }}
               style={{
-                fontFamily:"'Fira Code',monospace",fontSize:11,fontWeight:700,letterSpacing:"0.6px",
+                fontFamily:"'Geist Mono',monospace",fontSize:11,fontWeight:700,letterSpacing:"0.6px",
                 padding:"6px 14px",border:"1px solid var(--green)",borderRadius:"var(--r-sm,4px)",
                 color:"#07090f",background:"var(--green)",cursor:"pointer"
               }}>
@@ -646,7 +646,7 @@ export default function CommercialAnalyzer() {
             }}>
               <span style={{fontSize:18,lineHeight:1.4}}>🤖</span>
               <div style={{flex:1}}>
-                <div style={{fontFamily:"'Fira Code',monospace",fontSize:10,fontWeight:700,color:"var(--green)",letterSpacing:"0.8px",marginBottom:5}}>
+                <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,color:"var(--green)",letterSpacing:"0.8px",marginBottom:5}}>
                   AI THESIS{aiThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:8}}>· {aiThesis.source}</span>}
                 </div>
                 <div style={{fontSize:14,color:"var(--text)",lineHeight:1.55,letterSpacing:"-0.1px"}}>{aiThesis.thesis}</div>
@@ -785,7 +785,7 @@ export default function CommercialAnalyzer() {
           borderLeft:`3px solid ${simpleMode ? "var(--green)" : "var(--blue)"}`,
         }}>
           <div>
-            <div style={{fontFamily:"'Fira Code',ui-monospace,monospace",fontSize:10.5,fontWeight:700,color:simpleMode?"var(--green)":"var(--blue)",letterSpacing:"1.2px"}}>
+            <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,color:simpleMode?"var(--green)":"var(--blue)",letterSpacing:"1.2px"}}>
               ▸ {simpleMode ? "ESSENTIALS ONLY" : "ADVANCED · UNIT MIX, EXPENSES, EXIT"}
             </div>
             <div style={{fontSize:11.5,color:"var(--sub)",marginTop:2}}>
@@ -798,7 +798,7 @@ export default function CommercialAnalyzer() {
             onClick={toggleSimpleMode}
             style={{
               background:"transparent", border:`1px solid var(--borderf)`, borderRadius:5,
-              padding:"7px 14px", fontFamily:"'Fira Code',ui-monospace,monospace",
+              padding:"7px 14px", fontFamily:"'Geist Mono',ui-monospace,monospace",
               fontSize:10.5, fontWeight:700, color:"var(--text)", letterSpacing:"1px",
               cursor:"pointer", transition:"border-color 0.15s, background 0.15s",
             }}
@@ -1054,7 +1054,7 @@ export default function CommercialAnalyzer() {
         {/* ── VISUAL ANALYTICS (lazy-loaded) ─────────────────────────────────── */}
         <Suspense fallback={
           <div className="mf-card" style={{borderRadius:6,padding:"40px 16px",textAlign:"center"}}>
-            <div style={{fontFamily:"'Fira Code',monospace",fontSize:11,color:"var(--dim)",letterSpacing:"0.6px"}}>
+            <div style={{fontFamily:"'Geist Mono',monospace",fontSize:11,color:"var(--dim)",letterSpacing:"0.6px"}}>
               ▸ LOADING CHARTS…
             </div>
           </div>
@@ -1123,7 +1123,7 @@ export default function CommercialAnalyzer() {
 
           {/* IRR grid: rent growth × exit cap (the institutional exit-driven view) */}
           <div style={{padding:"0 20px 20px"}}>
-            <div style={{fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:8,fontFamily:"'Fira Code',monospace"}}>
+            <div style={{fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:8,fontFamily:"'Geist Mono',monospace"}}>
               ▸ IRR · RENT GROWTH × EXIT CAP RATE
             </div>
             <div style={{overflowX:"auto"}}>
@@ -1147,7 +1147,7 @@ export default function CommercialAnalyzer() {
                 </tbody>
               </table>
             </div>
-            <div style={{fontSize:10.5,color:"var(--dim)",marginTop:8,fontFamily:"'Fira Code',monospace"}}>
+            <div style={{fontSize:10.5,color:"var(--dim)",marginTop:8,fontFamily:"'Geist Mono',monospace"}}>
               Holds vacancy, opex growth, interest rate, hold years constant. Green ≥ 15% / Amber ≥ 10% / Red &lt; 10%.
             </div>
           </div>
@@ -1224,7 +1224,7 @@ export default function CommercialAnalyzer() {
             };
             exportMFPDF(inputs, calcData);
           }}
-          style={{width:"100%",background:"rgba(242,92,92,0.1)",border:"1px solid rgba(242,92,92,0.25)",borderRadius: 10,padding:"12px 18px",color:"var(--red)",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s"}}
+          style={{width:"100%",background:"rgba(242,92,92,0.1)",border:"1px solid rgba(242,92,92,0.25)",borderRadius: 10,padding:"12px 18px",color:"var(--red)",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'Geist',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s"}}
           onMouseOver={e=>e.currentTarget.style.background="rgba(242,92,92,0.18)"}
           onMouseOut={e=>e.currentTarget.style.background="rgba(242,92,92,0.1)"}
         >
@@ -1291,7 +1291,7 @@ export default function CommercialAnalyzer() {
               setTimeout(() => setMfSaved(false), 5000);
               celebrateFirstSave({ kind: "multifamily" });
             }}
-            style={{width:"100%",background:"linear-gradient(135deg,rgba(52,217,138,0.12),rgba(59,158,255,0.08))",border:"1px solid rgba(52,217,138,0.25)",borderRadius: 10,padding:"14px 18px",color:"var(--text)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}
+            style={{width:"100%",background:"linear-gradient(135deg,rgba(52,217,138,0.12),rgba(59,158,255,0.08))",border:"1px solid rgba(52,217,138,0.25)",borderRadius: 10,padding:"14px 18px",color:"var(--text)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"'Geist',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}
           >
             <span style={{fontSize:18}}>💾</span> Save This Deal · Compare with others →
           </button>

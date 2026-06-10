@@ -5,8 +5,8 @@ import { useNavigate } from "react-router-dom";
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-  input{font-size:16px!important;font-family:'DM Sans',sans-serif}
+  html,body{height:100%;background:var(--bg);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  input{font-size:16px!important;font-family:'Geist',sans-serif}
 
   /* Single-column centered layout — marketing is a slimmer left accent only on very wide screens */
   .lg-wrap{display:grid;grid-template-columns:1fr;min-height:100vh}
@@ -49,11 +49,11 @@ const CSS = `
   .lg-form-sub{font-size:14px;color:var(--sub);margin-bottom:28px}
 
   .lg-tabs{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:10px;padding:3px;gap:3px;margin-bottom:22px}
-  .lg-tab{flex:1;padding:9px 0;border:none;border-radius: 6px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center}
+  .lg-tab{flex:1;padding:9px 0;border:none;border-radius: 6px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center}
   .lg-tab.active{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(59,158,255,0.3)}
   .lg-tab.inactive{background:transparent;color:var(--sub)}
 
-  .lg-google{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius:10px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.15s;margin-bottom:4px}
+  .lg-google{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius:10px;padding:13px;font-family:'Geist',sans-serif;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.15s;margin-bottom:4px}
   .lg-google:hover{background:rgba(255,255,255,0.09);border-color:var(--border)}
 
   .lg-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
@@ -65,7 +65,7 @@ const CSS = `
   .lg-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:10px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s}
   .lg-input:focus{border-color:rgba(59,158,255,0.5);box-shadow:0 0 0 3px rgba(59,158,255,0.1)}
 
-  .lg-btn{width:100%;background:linear-gradient(135deg,var(--blue),#2980e8);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:4px;letter-spacing:-0.2px}
+  .lg-btn{width:100%;background:linear-gradient(135deg,var(--blue),#2980e8);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Geist',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:4px;letter-spacing:-0.2px}
   .lg-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,158,255,0.35)}
   .lg-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;box-shadow:none}
 

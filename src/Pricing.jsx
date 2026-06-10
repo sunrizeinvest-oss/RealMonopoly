@@ -5,12 +5,12 @@ import TopNav from "./components/TopNav";
 
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
+  body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
   .pr-wrap{min-height:100vh;background:var(--bg)}
   .pr-nav{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;border-bottom:1px solid var(--borderf);position:sticky;top:0;background:rgba(7,9,15,0.95);backdrop-filter:blur(20px);z-index:100}
   .pr-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none;cursor:pointer}
   .pr-logo span{color:var(--blue)}
-  .pr-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .pr-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif}
   .pr-body{max-width:860px;margin:0 auto;padding:60px 20px 80px}
   .pr-hero{text-align:center;margin-bottom:56px}
   .pr-tag{display:inline-block;font-size:10.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--blue);margin-bottom:16px}
@@ -26,7 +26,7 @@ const CSS = `
   .pr-price{font-size:48px;font-weight:800;color:var(--text);letter-spacing:-2px;line-height:1;margin-bottom:4px}
   .pr-price span{font-size:16px;font-weight:500;color:var(--sub);letter-spacing:0}
   .pr-price-note{font-size:12px;color:var(--dim);margin-bottom:24px}
-  .pr-btn{width:100%;border:none;border-radius:6px;padding:13px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-bottom:28px}
+  .pr-btn{width:100%;border:none;border-radius:6px;padding:13px;font-family:'Geist',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-bottom:28px}
   .pr-btn.free{background:rgba(255,255,255,0.06);color:var(--text);border:1px solid var(--borderf)}
   .pr-btn.free:hover{background:rgba(255,255,255,0.1)}
   .pr-btn.pro{background:var(--blue);color:#fff;box-shadow:0 4px 16px rgba(59,158,255,0.3)}
@@ -129,7 +129,7 @@ export default function Pricing() {
         {/* ── 3-TIER COMPARISON ──────────────────────────────────────────── */}
         <div style={{maxWidth:1100,margin:"0 auto",padding:"0 24px 32px"}}>
           <div style={{textAlign:"center",marginBottom:32}}>
-            <div style={{fontFamily:"'Fira Code',ui-monospace,monospace",fontSize:11,fontWeight:700,color:"var(--blue)",letterSpacing:"1.6px",marginBottom:6}}>
+            <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:11,fontWeight:700,color:"var(--blue)",letterSpacing:"1.6px",marginBottom:6}}>
               ▸ AFTER LAUNCH · PRICING
             </div>
             <div style={{fontSize:24,fontWeight:800,color:"var(--text)",letterSpacing:"-0.6px"}}>
@@ -204,7 +204,7 @@ export default function Pricing() {
                   <div style={{
                     position: "absolute", top: -10, left: 16,
                     background: tier.color, color: "#07090f",
-                    fontFamily: "'Fira Code',ui-monospace,monospace",
+                    fontFamily: "'Geist Mono',ui-monospace,monospace",
                     fontSize: 9.5, fontWeight: 700, letterSpacing: "1.2px",
                     padding: "3px 9px", borderRadius: 3,
                   }}>
@@ -212,14 +212,14 @@ export default function Pricing() {
                   </div>
                 )}
                 <div style={{
-                  fontFamily: "'Fira Code',ui-monospace,monospace",
+                  fontFamily: "'Geist Mono',ui-monospace,monospace",
                   fontSize: 11, fontWeight: 700, letterSpacing: "1.4px",
                   color: tier.color, marginBottom: 6,
                 }}>
                   ▸ {tier.label.toUpperCase()}
                 </div>
                 <div style={{display:"flex", alignItems:"baseline", gap:6, marginBottom:6}}>
-                  <span style={{fontFamily:"'DM Sans',sans-serif",fontSize:38,fontWeight:800,color:"var(--text)",letterSpacing:"-1.2px"}}>{tier.price}</span>
+                  <span style={{fontFamily:"'Geist',sans-serif",fontSize:38,fontWeight:800,color:"var(--text)",letterSpacing:"-1.2px"}}>{tier.price}</span>
                   <span style={{fontSize:13,color:"var(--sub)"}}>{tier.per}</span>
                 </div>
                 <div style={{fontSize:13,color:"var(--sub)",lineHeight:1.5,marginBottom:14}}>
@@ -242,7 +242,7 @@ export default function Pricing() {
                     border: tier.highlight ? "none" : `1px solid ${tier.color}`,
                     borderRadius: 5,
                     padding: "12px 18px",
-                    fontFamily: "'Fira Code',ui-monospace,monospace",
+                    fontFamily: "'Geist Mono',ui-monospace,monospace",
                     fontSize: 11.5, fontWeight: 700, letterSpacing: "1.2px",
                     cursor: loading === tier.plan ? "wait" : "pointer",
                     opacity: loading && loading !== tier.plan ? 0.5 : 1,

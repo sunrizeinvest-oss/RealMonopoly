@@ -24,13 +24,13 @@ const CSS = `
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body { background: #07090f; color: var(--text); font-family: 'DM Sans', sans-serif; }
+body { background: #07090f; color: var(--text); font-family: 'Geist', sans-serif; }
 
 .sd-root {
   min-height: 100vh;
   background: #07090f;
   color: var(--text);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Geist', sans-serif;
 }
 
 /* Nav */
@@ -189,7 +189,7 @@ textarea.sd-input {
   border: 1px solid rgba(255,255,255,0.07);
   border-radius: 10px;
   color: var(--text);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Geist', sans-serif;
   font-size: 14px;
   padding: 10px 14px;
   width: 100%;
@@ -228,7 +228,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   border: 1px solid rgba(255,255,255,0.07);
   background: #0a0e18;
   color: var(--sub);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Geist', sans-serif;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -253,7 +253,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   align-items: center;
   gap: 16px;
 }
-.sd-score-label {font-family:'Fira Code',ui-monospace,monospace;
+.sd-score-label {font-family:'Geist Mono',ui-monospace,monospace;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
@@ -261,7 +261,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   color: var(--sub);
   margin-bottom: 4px;
 }
-.sd-score-value {font-family:'Fira Code',ui-monospace,monospace;
+.sd-score-value {font-family:'Geist Mono',ui-monospace,monospace;
   font-size: 18px;
   font-weight: 700;
   letter-spacing: -0.3px;
@@ -284,7 +284,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   border: none;
   background: linear-gradient(135deg, var(--blue), var(--purple));
   color: #fff;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Geist', sans-serif;
   font-size: 16px;
   font-weight: 700;
   cursor: pointer;
@@ -356,7 +356,7 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   background: none;
   border: none;
   color: var(--sub);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Geist', sans-serif;
   font-size: 14px;
   cursor: pointer;
   text-decoration: underline;

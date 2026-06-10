@@ -117,12 +117,12 @@ export default function PropertyIntelCard({ address }) {
         <div style={{
           width: 32, height: 22, border: "1px solid rgba(52,217,138,0.4)",
           borderRadius: 2, display: "flex", alignItems: "center", justifyContent: "center",
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
           color: "var(--green, #34d98a)", letterSpacing: "0.5px",
         }}>ZON</div>
         <div style={{ flex: 1 }}>
           <div style={{
-            fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
+            fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
             color: "var(--green, #34d98a)", letterSpacing: "0.6px",
           }}>
             [ LIVE · {z.city?.toUpperCase()} OPEN DATA ]
@@ -133,7 +133,7 @@ export default function PropertyIntelCard({ address }) {
         </div>
         {z.bylawUrl && (
           <a href={z.bylawUrl} target="_blank" rel="noopener" style={{
-            fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 600,
+            fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 600,
             color: "var(--blue, #3b9eff)", textDecoration: "none",
             padding: "4px 8px", border: "1px solid rgba(59,158,255,0.3)", borderRadius: 2,
           }}>BYLAW ↗</a>
@@ -163,7 +163,7 @@ export default function PropertyIntelCard({ address }) {
         {/* Zoning */}
         <div style={{ background: "var(--card, #0d1119)", padding: "14px 16px" }}>
           <div style={{
-            fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+            fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
             color: "var(--green, #34d98a)", letterSpacing: "0.6px", marginBottom: 10,
           }}>▸ ZONING</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 7, fontSize: 12.5 }}>
@@ -176,7 +176,7 @@ export default function PropertyIntelCard({ address }) {
         {/* Assessment */}
         <div style={{ background: "var(--card, #0d1119)", padding: "14px 16px" }}>
           <div style={{
-            fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+            fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
             color: "var(--amber, #f0a030)", letterSpacing: "0.6px", marginBottom: 10,
           }}>▸ PROPERTY ASSESSMENT</div>
           {assessmentRows ? (
@@ -201,14 +201,14 @@ export default function PropertyIntelCard({ address }) {
             marginBottom: 10,
           }}>
             <div style={{
-              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
               color: "var(--dim, #3a4a60)", letterSpacing: "0.6px",
             }}>
               ▸ NEARBY DEV PERMITS · {permits.length} IN 1KM / 2YR
             </div>
             {(permitTotals.units > 0 || permitTotals.newBuilds > 0) && (
               <div style={{
-                display: "flex", gap: 12, fontFamily: "'Fira Code',ui-monospace,monospace",
+                display: "flex", gap: 12, fontFamily: "'Geist Mono',ui-monospace,monospace",
                 fontSize: 10, fontWeight: 700, letterSpacing: "0.5px",
               }}>
                 {permitTotals.newBuilds > 0 && (
@@ -235,7 +235,7 @@ export default function PropertyIntelCard({ address }) {
             fontSize: 10, fontWeight: 700, color: "var(--dim, #3a4a60)", letterSpacing: "0.5px",
             textTransform: "uppercase", paddingBottom: 6,
             borderBottom: "1px solid var(--borderf, rgba(255,255,255,0.05))",
-            fontFamily: "'Fira Code',ui-monospace,monospace",
+            fontFamily: "'Geist Mono',ui-monospace,monospace",
             minWidth: 560,
           }}>
             <span>Date</span>
@@ -262,23 +262,23 @@ export default function PropertyIntelCard({ address }) {
                     cursor: p.job_description ? "help" : "default",
                   }}
                 >
-                  <span style={{ fontFamily: "'Fira Code',ui-monospace,monospace", color: "var(--dim, #3a4a60)", fontSize: 10.5 }}>
+                  <span style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", color: "var(--dim, #3a4a60)", fontSize: 10.5 }}>
                     {(p.permit_date || p.applieddate || p.issue_date || "").slice(0, 10) || "—"}
                   </span>
                   <span style={{ color: "var(--sub, #6b7d96)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {work}{bldg}
                   </span>
-                  <span style={{ color: "var(--text, #dde4ef)", fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ color: "var(--text, #dde4ef)", fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {p.address || p.house_number || "—"}
                   </span>
                   <span style={{
-                    textAlign: "right", fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10.5,
+                    textAlign: "right", fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5,
                     color: !isNaN(value) && value > 0 ? "var(--blue, #3b9eff)" : "var(--dim, #3a4a60)",
                   }}>
                     {!isNaN(value) && value > 0 ? `$${Math.round(value / 1000)}K` : "—"}
                   </span>
                   <span style={{
-                    textAlign: "right", fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 11,
+                    textAlign: "right", fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11,
                     color: !isNaN(units) && units > 0 ? "var(--green, #34d98a)" : "var(--dim, #3a4a60)",
                     fontWeight: !isNaN(units) && units > 0 ? 700 : 400,
                   }}>
@@ -291,7 +291,7 @@ export default function PropertyIntelCard({ address }) {
           </div>
           <div style={{
             marginTop: 6,
-            fontFamily: "'Fira Code',ui-monospace,monospace",
+            fontFamily: "'Geist Mono',ui-monospace,monospace",
             fontSize: 9.5, color: "var(--dim, #3a4a60)", letterSpacing: "0.4px",
           }}>
             ▸ Hover any row for the full job description
@@ -312,7 +312,7 @@ export default function PropertyIntelCard({ address }) {
           <span style={{ fontSize: 14, lineHeight: 1.4 }}>🤖</span>
           <div style={{ flex: 1 }}>
             <div style={{
-              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
               color: "var(--green, #34d98a)", letterSpacing: "0.7px", marginBottom: 4,
             }}>
               AI THESIS HINT
@@ -342,7 +342,7 @@ function Row({ lbl, val, mono, strong }) {
       <span style={{
         color: "var(--text, #dde4ef)",
         fontWeight: strong ? 700 : 500,
-        fontFamily: mono ? "'Fira Code',ui-monospace,monospace" : "inherit",
+        fontFamily: mono ? "'Geist Mono',ui-monospace,monospace" : "inherit",
         textAlign: "right",
       }}>{val}</span>
     </div>

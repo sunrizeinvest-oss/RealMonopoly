@@ -260,7 +260,7 @@ const css = `
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
   border-bottom:1px solid var(--borderf, rgba(255,255,255,0.07));
-  font-family:'DM Sans',sans-serif;
+  font-family:'Geist',sans-serif;
 }
 
 .tn-logo{
@@ -278,7 +278,7 @@ const css = `
   border:1px solid var(--borderf);
   border-radius:5px;
   color:var(--text);
-  font-family:'DM Sans',sans-serif;
+  font-family:'Geist',sans-serif;
   font-size:13px; font-weight:700;
   letter-spacing:-0.1px;
   cursor:pointer;
@@ -301,7 +301,7 @@ const css = `
   min-width:0; overflow:hidden;
 }
 .tn-breadcrumb-sep{
-  color:var(--dim); font-family:'Fira Code',ui-monospace,monospace; font-size:13px;
+  color:var(--dim); font-family:'Geist Mono',ui-monospace,monospace; font-size:13px;
 }
 .tn-breadcrumb-name{
   color:var(--sub); font-size:13px; font-weight:600;
@@ -312,7 +312,7 @@ const css = `
 
 .tn-link{
   background:transparent; border:none;
-  color:var(--sub); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600;
+  color:var(--sub); font-family:'Geist',sans-serif; font-size:13px; font-weight:600;
   padding:7px 10px; cursor:pointer; border-radius:5px;
   transition:color 0.15s, background 0.15s;
 }
@@ -320,7 +320,7 @@ const css = `
 
 .tn-cta{
   background:var(--blue); border:none; color:#fff;
-  font-family:'DM Sans',sans-serif; font-size:13px; font-weight:700;
+  font-family:'Geist',sans-serif; font-size:13px; font-weight:700;
   padding:7px 16px; border-radius:5px; cursor:pointer;
   transition:transform 0.15s, box-shadow 0.15s;
 }
@@ -331,7 +331,7 @@ const css = `
   background:transparent;
   border:1px solid var(--borderf);
   color:var(--text);
-  font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600;
+  font-family:'Geist',sans-serif; font-size:13px; font-weight:600;
   padding:6px 12px; border-radius:5px; cursor:pointer;
   max-width:200px;
 }
@@ -355,14 +355,14 @@ const css = `
 .tn-acct-menu-email{
   padding:8px 10px 6px; font-size:11px; color:var(--dim);
   border-bottom:1px solid var(--borderf); margin-bottom:4px;
-  font-family:'Fira Code',ui-monospace,monospace;
+  font-family:'Geist Mono',ui-monospace,monospace;
   overflow:hidden; text-overflow:ellipsis;
 }
 .tn-acct-menu-item{
   display:block; width:100%; text-align:left;
   background:transparent; border:none;
   padding:8px 10px;
-  color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px;
+  color:var(--text); font-family:'Geist',sans-serif; font-size:13px;
   border-radius:4px; cursor:pointer;
 }
 .tn-acct-menu-item:hover{ background:rgba(255,255,255,0.04); }
@@ -387,7 +387,7 @@ const css = `
 
 .tn-mega-cat{ display:flex; flex-direction:column; gap:4px; min-width:0; }
 .tn-mega-cat-h{
-  font-family:'Fira Code',ui-monospace,monospace; font-size:10px; font-weight:700;
+  font-family:'Geist Mono',ui-monospace,monospace; font-size:10px; font-weight:700;
   letter-spacing:1.6px; text-transform:uppercase;
   padding-bottom:8px; margin-bottom:4px;
   border-bottom:1px solid var(--borderf);
@@ -403,7 +403,7 @@ const css = `
   border-left:2px solid transparent;
   border-radius:4px;
   color:var(--sub);
-  font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600;
+  font-family:'Geist',sans-serif; font-size:13px; font-weight:600;
   cursor:pointer; text-align:left;
   transition:color 0.12s, background 0.12s, border-color 0.12s;
 }
@@ -415,7 +415,7 @@ const css = `
 .tn-mega-tool-icon{ font-size:16px; line-height:1; }
 .tn-mega-tool-name{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .tn-mega-tool-here{
-  font-family:'Fira Code',ui-monospace,monospace; font-size:8.5px; font-weight:700;
+  font-family:'Geist Mono',ui-monospace,monospace; font-size:8.5px; font-weight:700;
   border:1px solid currentColor; border-radius:2px;
   padding:1px 5px; letter-spacing:0.6px;
 }

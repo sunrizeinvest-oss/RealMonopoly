@@ -35,15 +35,15 @@ const BLANK_DEAL = {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
 
   /* Nav */
   .pf-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .pf-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.pf-logo span{color:var(--blue)}
   .pf-nav-right{display:flex;align-items:center;gap:8px}
   .pf-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 11px;border-radius:7px}.pf-nav-link:hover{color:var(--text)}
-  .pf-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px}
-  .pf-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}.pf-nav-ghost:hover{color:var(--text)}
+  .pf-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;display:flex;align-items:center;gap:6px}
+  .pf-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif}.pf-nav-ghost:hover{color:var(--text)}
 
   /* Body */
   .pf-body{max-width:1000px;margin:0 auto;padding:40px 20px 100px}
@@ -62,13 +62,13 @@ const CSS = `
   .pf-score-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 16px;text-align:center;transition:border-color 0.15s}
   .pf-score-card.highlight{border-color:rgba(52,217,138,0.25);background:linear-gradient(135deg,rgba(52,217,138,0.04),var(--card))}
   .pf-score-icon{font-size:20px;margin-bottom:8px}
-  .pf-score-val{font-family:'Fira Code',ui-monospace,monospace;font-size:22px;font-weight:800;letter-spacing:-0.5px;line-height:1;margin-bottom:5px}
-  .pf-score-lbl{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px}
+  .pf-score-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:22px;font-weight:800;letter-spacing:-0.5px;line-height:1;margin-bottom:5px}
+  .pf-score-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px}
 
   /* Section header */
   .pf-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:8px}
   .pf-section-title{font-size:15px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px}
-  .pf-add-btn{background:rgba(59,158,255,0.1);border:1px solid rgba(59,158,255,0.25);border-radius: 10px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--blue);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;display:flex;align-items:center;gap:6px}
+  .pf-add-btn{background:rgba(59,158,255,0.1);border:1px solid rgba(59,158,255,0.25);border-radius: 10px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--blue);cursor:pointer;font-family:'Geist',sans-serif;transition:all 0.15s;display:flex;align-items:center;gap:6px}
   .pf-add-btn:hover{background:rgba(59,158,255,0.18)}
 
   /* Timeline chart */
@@ -95,9 +95,9 @@ const CSS = `
   .pf-profit-pos{color:var(--green);font-weight:800}
   .pf-profit-neg{color:var(--red);font-weight:800}
   .pf-addr-cell{font-weight:600;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .pf-action-btn{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:12px;padding:5px 8px;border-radius:6px;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+  .pf-action-btn{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:12px;padding:5px 8px;border-radius:6px;font-family:'Geist',sans-serif;transition:all 0.15s}
   .pf-action-btn:hover{color:var(--blue);background:rgba(59,158,255,0.08)}
-  .pf-del-btn{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:12px;padding:5px 8px;border-radius:6px;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+  .pf-del-btn{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:12px;padding:5px 8px;border-radius:6px;font-family:'Geist',sans-serif;transition:all 0.15s}
   .pf-del-btn:hover{color:var(--red);background:rgba(242,92,92,0.08)}
 
   /* Type breakdown */
@@ -117,17 +117,17 @@ const CSS = `
   .pf-field{display:flex;flex-direction:column;gap:6px}
   .pf-field.full{grid-column:1/-1}
   .pf-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
-  .pf-input{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 10px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
+  .pf-input{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 10px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
   .pf-input:focus{border-color:rgba(59,158,255,0.4)}
-  .pf-select{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 10px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;cursor:pointer}
+  .pf-select{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 10px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;cursor:pointer}
   .pf-modal-calc{background:rgba(52,217,138,0.05);border:1px solid rgba(52,217,138,0.15);border-radius:6px;padding:14px 16px;margin:16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .pf-calc-item{text-align:center}
   .pf-calc-val{font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px}
   .pf-calc-lbl{font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase}
   .pf-modal-actions{display:flex;gap:10px;margin-top:24px;justify-content:flex-end}
-  .pf-save-btn{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+  .pf-save-btn{background:var(--blue);color:#fff;border:none;border-radius:6px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif;transition:all 0.15s}
   .pf-save-btn:hover{background:#5aaeff}
-  .pf-cancel-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:6px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .pf-cancel-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:6px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif}
   .pf-cancel-btn:hover{color:var(--text)}
 
   /* Best deal banner */
@@ -299,13 +299,13 @@ export default function Portfolio() {
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 <span style={{
-                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
+                  fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
                   letterSpacing: "1.2px", color: tierColor,
                   padding: "3px 8px", border: `1px solid ${tierColor}`, borderRadius: 3,
                 }}>
                   {TIER_LABEL[userTier] || "Free"}
                 </span>
-                <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: "var(--text)", fontWeight: 600 }}>
+                <span style={{ fontFamily: "'Geist',sans-serif", fontSize: 14, color: "var(--text)", fontWeight: 600 }}>
                   {isUnlimited ? `${used} deals saved` : `${used} / ${limit} deals used`}
                 </span>
               </div>
@@ -323,11 +323,11 @@ export default function Portfolio() {
                   background: "var(--purple)", color: "#07090f",
                   border: "none", borderRadius: 4, padding: "6px 14px",
                   fontSize: 12, fontWeight: 700, textDecoration: "none",
-                  fontFamily: "'Fira Code',ui-monospace,monospace", letterSpacing: "0.8px",
+                  fontFamily: "'Geist Mono',ui-monospace,monospace", letterSpacing: "0.8px",
                 }}>UPGRADE FOR MORE →</a>
               )}
               {isUnlimited && (
-                <span style={{ fontSize: 12, color: "var(--green)", fontWeight: 600, fontFamily: "'Fira Code',ui-monospace,monospace" }}>
+                <span style={{ fontSize: 12, color: "var(--green)", fontWeight: 600, fontFamily: "'Geist Mono',ui-monospace,monospace" }}>
                   ∞ UNLIMITED
                 </span>
               )}
@@ -479,7 +479,7 @@ export default function Portfolio() {
                   border: `1px solid ${sortBy === val ? "rgba(59,158,255,0.3)" : "var(--borderf)"}`,
                   borderRadius: 99, padding: "4px 12px", fontSize: 11, fontWeight: 600,
                   color: sortBy === val ? "var(--blue)" : "var(--dim)", cursor: "pointer",
-                  fontFamily: "'DM Sans',sans-serif",
+                  fontFamily: "'Geist',sans-serif",
                 }}>
                 {lbl}
               </button>

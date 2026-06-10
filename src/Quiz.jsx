@@ -10,7 +10,7 @@ const CSS = `
   .quiz-root {
     min-height: 100vh;
     background: #07090f;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     color: var(--text);
     display: flex;
     flex-direction: column;
@@ -366,7 +366,7 @@ const CSS = `
     margin-bottom: 12px;
   }
 
-  .quiz-score-label {font-family:'Fira Code',ui-monospace,monospace;
+  .quiz-score-label {font-family:'Geist Mono',ui-monospace,monospace;
     font-size: 13px;
     font-weight: 600;
     color: var(--text);
@@ -388,7 +388,7 @@ const CSS = `
     transition: width 0.6s ease;
   }
 
-  .quiz-score-val {font-family:'Fira Code',ui-monospace,monospace;
+  .quiz-score-val {font-family:'Geist Mono',ui-monospace,monospace;
     font-size: 13px;
     font-weight: 700;
     width: 28px;
@@ -446,7 +446,7 @@ const CSS = `
     .quiz-scores { padding: 20px; }
     .quiz-reasons { padding: 20px; }
     .quiz-cta { padding: 20px; flex-direction: column; }
-    .quiz-score-label {font-family:'Fira Code',ui-monospace,monospace; width: 90px; font-size: 12px; }
+    .quiz-score-label {font-family:'Geist Mono',ui-monospace,monospace; width: 90px; font-size: 12px; }
   }
 
   .quiz-btn-primary {

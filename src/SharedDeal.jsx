@@ -11,12 +11,12 @@ function scoreColor(s) { return s >= 80 ? "var(--green)" : s >= 65 ? "var(--blue
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
+  body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
   .sd-wrap{min-height:100vh;background:var(--bg)}
   .sd-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .sd-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}
   .sd-logo span{color:var(--blue)}
-  .sd-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;display:inline-flex;align-items:center}
+  .sd-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none;display:inline-flex;align-items:center}
   .sd-body{max-width:600px;margin:0 auto;padding:40px 20px 80px}
   .sd-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden}
   .sd-card-header{padding:20px 24px;border-bottom:1px solid var(--borderf);background:#0a0e18;display:flex;align-items:center;justify-content:space-between}
@@ -29,7 +29,7 @@ const CSS = `
   .sd-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
   .sd-metric{background:#0a0e18;border:1px solid var(--borderf);border-radius:6px;padding:14px 16px}
   .sd-metric-val{font-size:18px;font-weight:800;font-family:monospace;line-height:1;margin-bottom:4px}
-  .sd-metric-lbl{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+  .sd-metric-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
   .sd-cta{background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.15);border-radius:6px;padding:18px 20px;text-align:center;margin-top:20px}
   .sd-cta-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
   .sd-cta-sub{font-size:13px;color:var(--sub);margin-bottom:14px}
@@ -206,7 +206,7 @@ function SharedB64Deal({ deal }) {
               borderLeft:`4px solid ${verdictColor}`, borderRadius:6,
               padding:"16px 18px", marginBottom:20,
             }}>
-              <div style={{fontFamily:"'Fira Code',ui-monospace,monospace",fontSize:10.5,fontWeight:700,color:verdictColor,letterSpacing:"1.4px",marginBottom:4}}>
+              <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,color:verdictColor,letterSpacing:"1.4px",marginBottom:4}}>
                 ▸ VERDICT
               </div>
               <div style={{fontSize:20,fontWeight:800,color:verdictColor,letterSpacing:"-0.3px"}}>{verdictText}</div>

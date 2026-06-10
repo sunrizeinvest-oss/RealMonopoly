@@ -63,10 +63,14 @@
   --sp-8:  64px;
 
   /* ── Font families ────────────────────────────────────────────────
-     DM Sans for UI / copy. Fira Code for ALL numeric data so columns
-     line up across rows. */
-  --font-sans: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, 'Liberation Mono', monospace;
+     Geist + Geist Mono — Vercel's open-source pair. Geist Sans for
+     UI / copy, Geist Mono for ALL numeric data so columns line up
+     across rows. Better digit clarity (0/O, 1/l) than the previous
+     DM Sans / Fira Code combo, and a more distinctive tech-product
+     aesthetic suited to the Bloomberg-terminal look. Loaded from
+     Google Fonts via the index.html <link>. */
+  --font-sans: 'Geist', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, 'Liberation Mono', monospace;
 
   /* Form rendering */
   font-synthesis: none;

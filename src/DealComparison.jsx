@@ -74,8 +74,8 @@ function win(a, b, higher=true) {
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
-  input,select{font-family:'DM Sans',sans-serif;font-size:14px!important}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
+  input,select{font-family:'Geist',sans-serif;font-size:14px!important}
 
   .cmp-wrap{min-height:100vh;background:var(--bg)}
 
@@ -84,8 +84,8 @@ const CSS = `
   .cmp-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.cmp-logo span{color:var(--blue)}
   .cmp-nav-right{display:flex;align-items:center;gap:10px}
   .cmp-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 12px;border-radius:7px}.cmp-nav-link:hover{color:var(--text)}.cmp-nav-link.active{color:var(--blue)}
-  .cmp-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none}
-  .cmp-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}.cmp-nav-ghost:hover{color:var(--text)}
+  .cmp-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none}
+  .cmp-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif}.cmp-nav-ghost:hover{color:var(--text)}
 
   /* Hero */
   .cmp-hero{text-align:center;padding:44px 24px 32px;position:relative;overflow:hidden}
@@ -97,7 +97,7 @@ const CSS = `
 
   /* Mode toggle */
   .cmp-mode-bar{display:flex;justify-content:center;gap:0;margin-bottom:28px}
-  .cmp-mode-btn{padding:10px 28px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--borderf);background:var(--card);color:var(--sub);transition:all 0.15s;font-family:'DM Sans',sans-serif}
+  .cmp-mode-btn{padding:10px 28px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid var(--borderf);background:var(--card);color:var(--sub);transition:all 0.15s;font-family:'Geist',sans-serif}
   .cmp-mode-btn:first-child{border-radius:6px 0 0 10px;border-right:none}
   .cmp-mode-btn:last-child{border-radius:0 10px 10px 0;border-left:none}
   .cmp-mode-btn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
@@ -153,14 +153,14 @@ const CSS = `
   .cmp-tlabel.bold{color:var(--text);font-weight:700}
   .cmp-tlabel.section{font-size:11px;font-weight:700;color:var(--text);letter-spacing:0.3px;padding-left:20px}
 
-  .cmp-tval{padding:8px 16px;font-size:13px;font-family:'Fira Code',monospace;font-weight:500;color:var(--text);border-radius: 6px;transition:all 0.15s}
+  .cmp-tval{padding:8px 16px;font-size:13px;font-family:'Geist Mono',monospace;font-weight:500;color:var(--text);border-radius: 6px;transition:all 0.15s}
   .cmp-tval.winner{color:var(--green);background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.15);display:flex;align-items:center;gap:6px}
   .cmp-tval.loser{color:var(--sub)}
   .cmp-tval.bold{font-weight:700;font-size:14px}
   .cmp-tval.pos{color:var(--green)}
   .cmp-tval.neg{color:var(--red)}
   .cmp-tval.neutral{color:var(--text)}
-  .cmp-win-badge{font-size:9px;font-weight:800;letter-spacing:0.5px;background:var(--green);color:#0a1f15;padding:2px 6px;border-radius:3px;font-family:'DM Sans',sans-serif}
+  .cmp-win-badge{font-size:9px;font-weight:800;letter-spacing:0.5px;background:var(--green);color:#0a1f15;padding:2px 6px;border-radius:3px;font-family:'Geist',sans-serif}
 
   /* Winner summary */
   .cmp-verdict{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:20px;border-top:1px solid var(--borderf)}
@@ -499,7 +499,7 @@ export default function DealComparison() {
                       <a href={deal.type==="brrrr"?"/brrrr":deal.type==="flip"?"/app":"/commercial"}
                         style={{background:"var(--card2)",border:"1px solid var(--borderf)",borderRadius: 6,padding:"7px 13px",fontSize:12,fontWeight:600,color:"var(--sub)",textDecoration:"none",flexShrink:0}}>Open →</a>
                       <button onClick={()=>deleteSaved(deal.id)}
-                        style={{background:"rgba(242,92,92,0.08)",border:"1px solid rgba(242,92,92,0.2)",borderRadius: 6,padding:"7px 10px",fontSize:12,color:"var(--red)",cursor:"pointer",flexShrink:0,fontFamily:"'DM Sans',sans-serif"}}>✕</button>
+                        style={{background:"rgba(242,92,92,0.08)",border:"1px solid rgba(242,92,92,0.2)",borderRadius: 6,padding:"7px 10px",fontSize:12,color:"var(--red)",cursor:"pointer",flexShrink:0,fontFamily:"'Geist',sans-serif"}}>✕</button>
                     </div>
                   );
                 })}

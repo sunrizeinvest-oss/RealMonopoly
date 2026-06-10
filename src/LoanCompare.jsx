@@ -32,21 +32,21 @@ function loanBalance(principal, annualRate, amortYears, yearsElapsed) {
 
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
-  input{font-size:16px!important;font-family:'DM Sans',sans-serif}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
+  input{font-size:16px!important;font-family:'Geist',sans-serif}
 
   .lc-wrap{min-height:100vh;background:var(--bg)}
   .lc-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .lc-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.lc-logo span{color:var(--blue)}
   .lc-nav-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .lc-nav-link{font-family:'Fira Code',monospace;font-size:11px;color:var(--sub);text-decoration:none;font-weight:600;padding:6px 11px;border-radius:3px;letter-spacing:0.4px;text-transform:uppercase}
+  .lc-nav-link{font-family:'Geist Mono',monospace;font-size:11px;color:var(--sub);text-decoration:none;font-weight:600;padding:6px 11px;border-radius:3px;letter-spacing:0.4px;text-transform:uppercase}
   .lc-nav-link:hover{color:var(--text);background:rgba(255,255,255,0.05)}
   .lc-nav-link.active{color:var(--blue)}
-  .lc-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:3px;padding:6px 14px;font-family:'Fira Code',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase}.lc-nav-ghost:hover{color:var(--text);border-color:var(--blue)}
+  .lc-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:3px;padding:6px 14px;font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase}.lc-nav-ghost:hover{color:var(--text);border-color:var(--blue)}
 
   .lc-body{max-width:1160px;margin:0 auto;padding:36px 22px 80px}
   .lc-hero{margin-bottom:28px}
-  .lc-hero-tag{font-family:'Fira Code',monospace;font-size:10.5px;font-weight:700;color:var(--blue);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .lc-hero-tag{font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:700;color:var(--blue);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:8px}
   .lc-hero-tag::before{content:"●";color:var(--green);animation:lcblink 2s infinite}
   @keyframes lcblink{0%,100%{opacity:1}50%{opacity:0.3}}
   .lc-title{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-1px;margin-bottom:5px}
@@ -55,13 +55,13 @@ const CSS = `
   /* Deal context card */
   .lc-deal{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 20px;margin-bottom:20px}
   .lc-deal-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-  .lc-deal-badge{width:32px;height:22px;border:1px solid rgba(59,158,255,0.4);border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-size:9.5px;font-weight:700;color:var(--blue);letter-spacing:0.5px}
+  .lc-deal-badge{width:32px;height:22px;border:1px solid rgba(59,158,255,0.4);border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:9.5px;font-weight:700;color:var(--blue);letter-spacing:0.5px}
   .lc-deal-title{font-size:13px;font-weight:700;color:var(--text)}
-  .lc-deal-sub{font-family:'Fira Code',monospace;font-size:10.5px;color:var(--dim);letter-spacing:0.5px}
+  .lc-deal-sub{font-family:'Geist Mono',monospace;font-size:10.5px;color:var(--dim);letter-spacing:0.5px}
   .lc-deal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
   .lc-field{display:flex;flex-direction:column;gap:4px}
-  .lc-label{font-family:'Fira Code',monospace;font-size:9.5px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:0.7px}
-  .lc-input{background:rgba(255,255,255,0.03);border:1px solid var(--borderf);border-radius:4px;padding:9px 11px;font-family:'Fira Code',monospace;font-size:13px;color:var(--text);outline:none;width:100%;font-weight:600;letter-spacing:-0.2px;transition:border 0.15s}
+  .lc-label{font-family:'Geist Mono',monospace;font-size:9.5px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:0.7px}
+  .lc-input{background:rgba(255,255,255,0.03);border:1px solid var(--borderf);border-radius:4px;padding:9px 11px;font-family:'Geist Mono',monospace;font-size:13px;color:var(--text);outline:none;width:100%;font-weight:600;letter-spacing:-0.2px;transition:border 0.15s}
   .lc-input:focus{border-color:rgba(59,158,255,0.45);background:rgba(59,158,255,0.04)}
 
   /* Loan columns */
@@ -70,23 +70,23 @@ const CSS = `
   .lc-col{background:var(--card);border:1px solid var(--borderf);border-radius:6px;overflow:hidden}
   .lc-col.winner{border-color:rgba(52,217,138,0.4);box-shadow:0 0 0 1px rgba(52,217,138,0.2)}
   .lc-col-head{padding:10px 14px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);display:flex;align-items:center;gap:10px}
-  .lc-col-tag{width:24px;height:22px;border:1px solid rgba(59,158,255,0.4);border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'Fira Code',monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:0.5px}
-  .lc-col-name{flex:1;font-family:'DM Sans',sans-serif;background:transparent;border:none;color:var(--text);font-size:13.5px;font-weight:700;outline:none;letter-spacing:-0.2px}
+  .lc-col-tag{width:24px;height:22px;border:1px solid rgba(59,158,255,0.4);border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:0.5px}
+  .lc-col-name{flex:1;font-family:'Geist',sans-serif;background:transparent;border:none;color:var(--text);font-size:13.5px;font-weight:700;outline:none;letter-spacing:-0.2px}
   .lc-col-name:focus{color:var(--blue)}
   .lc-col-body{padding:14px}
   .lc-col-inputs{display:flex;flex-direction:column;gap:10px}
   .lc-col-divider{height:1px;background:var(--borderf);margin:14px 0}
   .lc-result-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,0.04);font-size:12.5px}
   .lc-result-row:last-child{border-bottom:none}
-  .lc-result-lbl{color:var(--sub);font-family:'DM Sans',sans-serif;font-weight:500}
-  .lc-result-val{font-family:'Fira Code',monospace;font-weight:700;letter-spacing:-0.2px;color:var(--text)}
+  .lc-result-lbl{color:var(--sub);font-family:'Geist',sans-serif;font-weight:500}
+  .lc-result-val{font-family:'Geist Mono',monospace;font-weight:700;letter-spacing:-0.2px;color:var(--text)}
   .lc-result-val.win{color:var(--green)}
   .lc-result-val.bad{color:var(--red)}
   .lc-result-val.warn{color:var(--amber)}
-  .lc-win-badge{display:inline-block;margin-left:6px;font-family:'Fira Code',monospace;font-size:9px;font-weight:700;color:var(--green);letter-spacing:0.5px;border:1px solid rgba(52,217,138,0.4);border-radius:2px;padding:1px 5px;background:rgba(52,217,138,0.08)}
+  .lc-win-badge{display:inline-block;margin-left:6px;font-family:'Geist Mono',monospace;font-size:9px;font-weight:700;color:var(--green);letter-spacing:0.5px;border:1px solid rgba(52,217,138,0.4);border-radius:2px;padding:1px 5px;background:rgba(52,217,138,0.08)}
 
   .lc-summary{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 20px}
-  .lc-summary-head{font-family:'Fira Code',monospace;font-size:10.5px;font-weight:700;color:var(--blue);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px}
+  .lc-summary-head{font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:700;color:var(--blue);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:12px}
   .lc-summary-head::before{content:"▸ "}
   .lc-summary-text{font-size:13px;color:var(--text);line-height:1.7}
   .lc-summary-text strong{color:var(--green)}
@@ -238,7 +238,7 @@ export default function LoanCompare() {
                     onChange={e => updateLoan(i, "name", e.target.value)}
                   />
                   {isOverallWinner && (
-                    <span style={{fontFamily:"'Fira Code',monospace",fontSize:9,fontWeight:700,color:"var(--green)",letterSpacing:"0.6px",border:"1px solid rgba(52,217,138,0.4)",borderRadius:2,padding:"2px 6px",background:"rgba(52,217,138,0.1)"}}>
+                    <span style={{fontFamily:"'Geist Mono',monospace",fontSize:9,fontWeight:700,color:"var(--green)",letterSpacing:"0.6px",border:"1px solid rgba(52,217,138,0.4)",borderRadius:2,padding:"2px 6px",background:"rgba(52,217,138,0.1)"}}>
                       ▲ BEST CF
                     </span>
                   )}

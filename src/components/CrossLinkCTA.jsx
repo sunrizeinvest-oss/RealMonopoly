@@ -51,7 +51,7 @@ export default function CrossLinkCTA({ strategy, deal = {} }) {
       marginTop: 18,
     }}>
       <div style={{
-        fontFamily: "'Fira Code',ui-monospace,monospace",
+        fontFamily: "'Geist Mono',ui-monospace,monospace",
         fontSize: 10.5,
         fontWeight: 700,
         color: "var(--blue)",
@@ -92,7 +92,7 @@ export default function CrossLinkCTA({ strategy, deal = {} }) {
                 borderLeft: `3px solid ${isCurrent ? "var(--dim)" : s.color}`,
                 borderRadius: 5,
                 cursor: isCurrent ? "default" : "pointer",
-                fontFamily: "'DM Sans',sans-serif",
+                fontFamily: "'Geist',sans-serif",
                 fontSize: 13,
                 fontWeight: 700,
                 color: isCurrent ? "var(--dim)" : "var(--text)",
@@ -116,7 +116,7 @@ export default function CrossLinkCTA({ strategy, deal = {} }) {
               <span style={{ flex: 1 }}>{s.label}</span>
               {isCurrent ? (
                 <span style={{
-                  fontFamily: "'Fira Code',ui-monospace,monospace",
+                  fontFamily: "'Geist Mono',ui-monospace,monospace",
                   fontSize: 8.5,
                   fontWeight: 700,
                   color: "var(--dim)",
@@ -127,7 +127,7 @@ export default function CrossLinkCTA({ strategy, deal = {} }) {
                 }}>HERE</span>
               ) : (
                 <span style={{
-                  fontFamily: "'Fira Code',ui-monospace,monospace",
+                  fontFamily: "'Geist Mono',ui-monospace,monospace",
                   fontSize: 12,
                   fontWeight: 700,
                   color: s.color,

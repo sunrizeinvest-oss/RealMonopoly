@@ -42,7 +42,7 @@ export function celebrateFirstSave({ kind = "deal", onNext } = {}) {
     border-radius:var(--r-md, 6px);
     padding:14px 16px;
     box-shadow:0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(52,217,138,0.15);
-    font-family:'DM Sans', system-ui, sans-serif;
+    font-family:'Geist', system-ui, sans-serif;
     color:#dde4ef;
     transform:translateY(20px); opacity:0;
     transition:transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.4), opacity 0.25s;
@@ -52,7 +52,7 @@ export function celebrateFirstSave({ kind = "deal", onNext } = {}) {
     <div style="display:flex; align-items:flex-start; gap:10px;">
       <div style="font-size:26px; line-height:1;">🎉</div>
       <div style="flex:1; min-width:0;">
-        <div style="font-family:'Fira Code', ui-monospace, monospace; font-size:9.5px; font-weight:700; color:#34d98a; letter-spacing:0.8px; margin-bottom:4px;">
+        <div style="font-family:'Geist Mono', ui-monospace, monospace; font-size:9.5px; font-weight:700; color:#34d98a; letter-spacing:0.8px; margin-bottom:4px;">
           FIRST DEAL SAVED
         </div>
         <div style="font-size:13.5px; font-weight:700; color:#dde4ef; line-height:1.35; margin-bottom:8px;">
@@ -66,14 +66,14 @@ export function celebrateFirstSave({ kind = "deal", onNext } = {}) {
             background:var(--green, #34d98a); color:#07090f;
             border:none; border-radius:4px;
             padding:7px 12px;
-            font-family:'Fira Code', ui-monospace, monospace; font-size:10.5px; font-weight:700;
+            font-family:'Geist Mono', ui-monospace, monospace; font-size:10.5px; font-weight:700;
             letter-spacing:0.5px; cursor:pointer;
           ">▸ COMPARE DEALS</button>
           <button data-action="dismiss" style="
             background:transparent; color:#6b7d96;
             border:1px solid rgba(255,255,255,0.07); border-radius:4px;
             padding:7px 10px;
-            font-family:'Fira Code', ui-monospace, monospace; font-size:10.5px; font-weight:700;
+            font-family:'Geist Mono', ui-monospace, monospace; font-size:10.5px; font-weight:700;
             letter-spacing:0.5px; cursor:pointer;
           ">DISMISS</button>
         </div>

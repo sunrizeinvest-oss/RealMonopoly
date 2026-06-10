@@ -20,7 +20,7 @@ const PREFILL_KEY = "rde_prefill";
 const CSS = `
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* ── Nav ── */
   .ds-nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -41,7 +41,7 @@ const CSS = `
   /* ── Address strip ── */
   .ds-addr-wrap{margin-bottom:16px}
   .ds-addr-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;display:block}
-  .ds-addr-input{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:12px 16px;font-size:15px;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;outline:none;transition:border-color 0.15s}
+  .ds-addr-input{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:12px 16px;font-size:15px;color:var(--text);font-family:'Geist',sans-serif;width:100%;outline:none;transition:border-color 0.15s}
   .ds-addr-input:focus{border-color:var(--blue)}
   .ds-addr-input::placeholder{color:var(--dim)}
 
@@ -52,18 +52,18 @@ const CSS = `
   .ds-input-hint{font-size:11px;color:var(--dim);margin-top:4px}
   .ds-big-input-wrap{display:flex;align-items:center;gap:8px}
   .ds-big-prefix{font-size:32px;font-weight:800;color:var(--dim);line-height:1;padding-top:2px;flex-shrink:0}
-  .ds-big-input{background:transparent;border:none;outline:none;font-size:32px;font-weight:800;color:var(--text);font-family:'DM Sans',sans-serif;width:100%;letter-spacing:-1px;-moz-appearance:textfield}
+  .ds-big-input{background:transparent;border:none;outline:none;font-size:32px;font-weight:800;color:var(--text);font-family:'Geist',sans-serif;width:100%;letter-spacing:-1px;-moz-appearance:textfield}
   .ds-big-input::-webkit-outer-spin-button,.ds-big-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .ds-big-input::placeholder{color:var(--dim)}
 
   /* ── Details toggle ── */
-  .ds-more-btn{background:transparent;border:1px solid var(--borderf);border-radius:6px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer;width:100%;font-family:'DM Sans',sans-serif;margin-bottom:12px;transition:all 0.15s;text-align:left;display:flex;align-items:center;justify-content:space-between}
+  .ds-more-btn{background:transparent;border:1px solid var(--borderf);border-radius:6px;padding:10px 16px;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer;width:100%;font-family:'Geist',sans-serif;margin-bottom:12px;transition:all 0.15s;text-align:left;display:flex;align-items:center;justify-content:space-between}
   .ds-more-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
   .ds-details-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px;margin-bottom:16px}
   .ds-details-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
   .ds-sm-field{display:flex;flex-direction:column;gap:4px}
   .ds-sm-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.4px}
-  .ds-sm-input{background:var(--card2);border:1px solid var(--borderf);border-radius: 6px;padding:8px 10px;font-size:14px;font-weight:700;color:var(--text);font-family:'DM Sans',sans-serif;outline:none;width:100%;transition:border-color 0.15s;-moz-appearance:textfield}
+  .ds-sm-input{background:var(--card2);border:1px solid var(--borderf);border-radius: 6px;padding:8px 10px;font-size:14px;font-weight:700;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;transition:border-color 0.15s;-moz-appearance:textfield}
   .ds-sm-input::-webkit-outer-spin-button,.ds-sm-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .ds-sm-input:focus{border-color:var(--blue)}
 
@@ -91,13 +91,13 @@ const CSS = `
   /* ── Metrics grid ── */
   .ds-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
   .ds-metric-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:14px 16px}
-  .ds-metric-label{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
-  .ds-metric-value{font-family:'Fira Code',ui-monospace,monospace;font-size:20px;font-weight:800;letter-spacing:-0.5px;line-height:1.1;color:var(--text)}
+  .ds-metric-label{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+  .ds-metric-value{font-family:'Geist Mono',ui-monospace,monospace;font-size:20px;font-weight:800;letter-spacing:-0.5px;line-height:1.1;color:var(--text)}
   .ds-metric-sub{font-size:11px;color:var(--sub);margin-top:2px}
 
   /* ── Action buttons ── */
   .ds-actions{display:flex;flex-direction:column;gap:10px;margin-top:8px}
-  .ds-btn{border:none;border-radius:6px;padding:16px 20px;font-size:16px;font-weight:800;cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;letter-spacing:-0.2px;transition:opacity 0.15s,transform 0.1s;-webkit-tap-highlight-color:transparent}
+  .ds-btn{border:none;border-radius:6px;padding:16px 20px;font-size:16px;font-weight:800;cursor:pointer;font-family:'Geist',sans-serif;width:100%;letter-spacing:-0.2px;transition:opacity 0.15s,transform 0.1s;-webkit-tap-highlight-color:transparent}
   .ds-btn:active{transform:scale(0.98)}
   .ds-btn:hover{opacity:0.88}
   .ds-btn-primary{background:var(--blue);color:#fff}
@@ -119,7 +119,7 @@ const CSS = `
 
   /* ── Tabs (single vs bulk) ── */
   .ds-tabs{display:flex;background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:3px;gap:3px;margin-bottom:18px}
-  .ds-tab{flex:1;padding:9px 12px;border:none;background:transparent;color:var(--sub);font-family:'Fira Code',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.2px;cursor:pointer;border-radius:4px;transition:background 0.15s,color 0.15s;display:flex;align-items:center;justify-content:center;gap:6px}
+  .ds-tab{flex:1;padding:9px 12px;border:none;background:transparent;color:var(--sub);font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.2px;cursor:pointer;border-radius:4px;transition:background 0.15s,color 0.15s;display:flex;align-items:center;justify-content:center;gap:6px}
   .ds-tab:hover{color:var(--text)}
   .ds-tab.active{background:rgba(59,158,255,0.12);color:var(--blue)}
   .ds-tab-count{font-size:9px;color:var(--dim);background:rgba(255,255,255,0.04);border-radius:3px;padding:1px 5px;letter-spacing:0.4px;font-weight:600}
@@ -127,15 +127,15 @@ const CSS = `
 
   /* ── Bulk panel ── */
   .ds-bulk-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px;margin-bottom:14px}
-  .ds-bulk-h{font-family:'Fira Code',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--blue);margin-bottom:6px}
+  .ds-bulk-h{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--blue);margin-bottom:6px}
   .ds-bulk-sub{font-size:12.5px;color:var(--sub);line-height:1.5;margin-bottom:12px}
-  .ds-csv{width:100%;min-height:160px;background:var(--card2);border:1px solid var(--borderf);border-radius:5px;padding:12px 14px;font-family:'Fira Code',ui-monospace,monospace;font-size:11.5px;color:var(--text);outline:none;resize:vertical;line-height:1.6;letter-spacing:0.2px}
+  .ds-csv{width:100%;min-height:160px;background:var(--card2);border:1px solid var(--borderf);border-radius:5px;padding:12px 14px;font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;color:var(--text);outline:none;resize:vertical;line-height:1.6;letter-spacing:0.2px}
   .ds-csv:focus{border-color:var(--blue)}
   .ds-csv::placeholder{color:var(--dim)}
   .ds-csv-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
-  .ds-csv-action{background:transparent;border:1px solid var(--borderf);border-radius:4px;padding:7px 12px;font-family:'Fira Code',ui-monospace,monospace;font-size:10.5px;font-weight:700;color:var(--sub);letterspacing:0.8px;cursor:pointer;transition:border-color 0.15s,color 0.15s}
+  .ds-csv-action{background:transparent;border:1px solid var(--borderf);border-radius:4px;padding:7px 12px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;color:var(--sub);letterspacing:0.8px;cursor:pointer;transition:border-color 0.15s,color 0.15s}
   .ds-csv-action:hover{color:var(--text);border-color:var(--border)}
-  .ds-csv-eval{margin-left:auto;background:var(--blue);color:#fff;border:none;border-radius:4px;padding:9px 18px;font-family:'Fira Code',ui-monospace,monospace;font-size:11.5px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s}
+  .ds-csv-eval{margin-left:auto;background:var(--blue);color:#fff;border:none;border-radius:4px;padding:9px 18px;font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:transform 0.15s,box-shadow 0.15s}
   .ds-csv-eval:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(59,158,255,0.35)}
   .ds-csv-eval:disabled{opacity:0.4;cursor:not-allowed;transform:none;box-shadow:none}
   .ds-csv-error{margin-top:10px;padding:10px 12px;background:rgba(242,92,92,0.08);border:1px solid rgba(242,92,92,0.25);border-left:3px solid var(--red);border-radius:4px;font-size:12px;color:var(--red);line-height:1.5}
@@ -143,14 +143,14 @@ const CSS = `
   /* ── Bulk results table ── */
   .ds-bulk-results{background:var(--card);border:1px solid var(--borderf);border-radius:6px;overflow:hidden;margin-bottom:14px}
   .ds-bulk-results-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);flex-wrap:wrap}
-  .ds-bulk-results-tag{font-family:'Fira Code',ui-monospace,monospace;font-size:11px;font-weight:700;color:var(--green);letter-spacing:1.2px}
-  .ds-bulk-results-count{font-family:'Fira Code',ui-monospace,monospace;font-size:10px;color:var(--dim);letter-spacing:0.5px}
+  .ds-bulk-results-tag{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;color:var(--green);letter-spacing:1.2px}
+  .ds-bulk-results-count{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:var(--dim);letter-spacing:0.5px}
   .ds-bulk-filters{margin-left:auto;display:flex;gap:5px;flex-wrap:wrap}
-  .ds-bulk-filter{background:transparent;border:1px solid var(--borderf);border-radius:3px;padding:3px 8px;font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--sub);letter-spacing:0.6px;cursor:pointer;transition:all 0.15s}
+  .ds-bulk-filter{background:transparent;border:1px solid var(--borderf);border-radius:3px;padding:3px 8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--sub);letter-spacing:0.6px;cursor:pointer;transition:all 0.15s}
   .ds-bulk-filter:hover{color:var(--text);border-color:var(--border)}
   .ds-bulk-filter.active{background:rgba(59,158,255,0.1);border-color:var(--blue);color:var(--blue)}
   .ds-bulk-table-scroll{overflow-x:auto}
-  .ds-bulk-table{width:100%;border-collapse:collapse;min-width:760px;font-family:'Fira Code',ui-monospace,monospace;font-size:11.5px}
+  .ds-bulk-table{width:100%;border-collapse:collapse;min-width:760px;font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px}
   .ds-bulk-table thead th{padding:10px 12px;text-align:left;font-size:9.5px;font-weight:700;color:var(--dim);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--borderf);background:rgba(255,255,255,0.012);user-select:none}
   .ds-bulk-table thead th.num{text-align:right}
   .ds-bulk-table thead th.sortable{cursor:pointer;transition:color 0.15s}
@@ -160,8 +160,8 @@ const CSS = `
   .ds-bulk-table tbody td.num{text-align:right}
   .ds-bulk-table tbody tr:hover{background:rgba(255,255,255,0.025)}
   .ds-bulk-table tbody tr:last-child td{border-bottom:none}
-  .ds-bulk-table .addr{color:var(--text);font-weight:600;font-family:'DM Sans',sans-serif;font-size:12.5px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .ds-bulk-table .ver{font-family:'Fira Code',ui-monospace,monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:3px;border:1px solid currentColor;letter-spacing:0.6px;white-space:nowrap}
+  .ds-bulk-table .addr{color:var(--text);font-weight:600;font-family:'Geist',sans-serif;font-size:12.5px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ds-bulk-table .ver{font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:3px;border:1px solid currentColor;letter-spacing:0.6px;white-space:nowrap}
   .ds-bulk-table .ver.strong{color:var(--green);background:rgba(52,217,138,0.08)}
   .ds-bulk-table .ver.thin{color:var(--amber);background:rgba(240,160,48,0.08)}
   .ds-bulk-table .ver.pass{color:var(--red);background:rgba(242,92,92,0.08)}
@@ -169,7 +169,7 @@ const CSS = `
   .ds-bulk-table .red{color:var(--red);font-weight:700}
   .ds-bulk-table .row-num{color:var(--dim);font-size:10px}
   .ds-bulk-export{padding:10px 16px;background:rgba(255,255,255,0.012);border-top:1px solid var(--borderf);display:flex;justify-content:flex-end}
-  .ds-bulk-export-btn{background:transparent;border:1px solid var(--borderf);border-radius:4px;padding:6px 12px;font-family:'Fira Code',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--green);letter-spacing:0.8px;cursor:pointer;transition:all 0.15s}
+  .ds-bulk-export-btn{background:transparent;border:1px solid var(--borderf);border-radius:4px;padding:6px 12px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--green);letter-spacing:0.8px;cursor:pointer;transition:all 0.15s}
   .ds-bulk-export-btn:hover{background:rgba(52,217,138,0.06);border-color:var(--green)}
 `;
 
@@ -681,7 +681,7 @@ export default function DealScreener() {
               <div style={{ overflowX: "auto" }}>
                 <table style={{
                   width: "100%", borderCollapse: "collapse",
-                  fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 12,
+                  fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 12,
                 }}>
                   <thead>
                     <tr style={{ background: "rgba(255,255,255,0.02)" }}>

@@ -39,7 +39,7 @@ const CSS = `
   .pi-root {
     min-height: 100vh;
     background: var(--bg);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     color: var(--text);
   }
 
@@ -142,7 +142,7 @@ const CSS = `
     background: transparent;
     border: none;
     outline: none;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     font-size: 15px;
     color: var(--text);
     padding: 6px 0;
@@ -154,7 +154,7 @@ const CSS = `
     background: var(--blue);
     color: #fff;
     border: none;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
@@ -322,7 +322,7 @@ const CSS = `
     background: transparent;
     cursor: pointer;
     transition: all 0.15s;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     white-space: nowrap;
   }
   .pi-tab:hover { color: var(--text); background: rgba(255,255,255,0.04); }
@@ -369,7 +369,7 @@ const CSS = `
     border: 1px solid var(--borderf);
     border-radius: 10px;
     padding: 9px 12px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     font-size: 13px;
     font-weight: 600;
     color: var(--text);
@@ -436,7 +436,7 @@ const CSS = `
     background: rgba(59,158,255,0.1);
     border: 1px solid rgba(59,158,255,0.2);
     color: var(--blue);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
@@ -615,7 +615,7 @@ const CSS = `
     border: 1px solid rgba(59,158,255,0.15);
     border-radius: 10px;
     color: var(--text);
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     font-size: 12.5px;
     font-weight: 500;
     cursor: pointer;
@@ -638,7 +638,7 @@ const CSS = `
     border: 1px solid var(--borderf);
     border-radius: 10px;
     padding: 9px 12px;
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Geist', sans-serif;
     font-size: 13px;
     color: var(--text);
     outline: none;
@@ -778,7 +778,7 @@ function TerminalLoader({ query, ca }) {
       borderRadius: "var(--r-md, 6px)",
       padding: "24px 28px",
       maxWidth: 720, margin: "32px auto",
-      fontFamily: "'Fira Code', ui-monospace, monospace"
+      fontFamily: "'Geist Mono', ui-monospace, monospace"
     }}>
       <div style={{
         display: "flex", alignItems: "center", gap: 10,
@@ -1272,7 +1272,7 @@ export default function PropertyIntelligence() {
                       display:"flex",alignItems:"center",gap:10
                     }}>
                       <span style={{width:8,height:8,borderRadius:"50%",background:"var(--green)",boxShadow:"0 0 8px var(--green)"}}/>
-                      <span style={{fontFamily:"'Fira Code',monospace",fontSize:10,fontWeight:700,color:"var(--blue)",letterSpacing:"0.7px"}}>
+                      <span style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,color:"var(--blue)",letterSpacing:"0.7px"}}>
                         [ PROPERTY TERMINAL · IDLE · READY FOR ADDRESS ]
                       </span>
                     </div>
@@ -1287,7 +1287,7 @@ export default function PropertyIntelligence() {
                       {/* Recent searches if any */}
                       {recent.length > 0 && (
                         <div style={{marginBottom:18}}>
-                          <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--dim)",letterSpacing:"0.6px",marginBottom:8}}>
+                          <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--dim)",letterSpacing:"0.6px",marginBottom:8}}>
                             ▸ RECENT SEARCHES
                           </div>
                           <div style={{display:"flex",flexDirection:"column",gap:4}}>
@@ -1297,7 +1297,7 @@ export default function PropertyIntelligence() {
                                   display:"flex",alignItems:"center",justifyContent:"space-between",
                                   padding:"8px 12px",background:"rgba(255,255,255,0.02)",
                                   border:"1px solid var(--borderf)",borderRadius:"var(--r-sm,4px)",
-                                  fontFamily:"'Fira Code',monospace",fontSize:12,color:"var(--text)",
+                                  fontFamily:"'Geist Mono',monospace",fontSize:12,color:"var(--text)",
                                   cursor:"pointer",textAlign:"left",transition:"all 0.15s"
                                 }}
                                 onMouseOver={e => e.currentTarget.style.borderColor = "var(--blue)"}
@@ -1312,7 +1312,7 @@ export default function PropertyIntelligence() {
                       )}
 
                       {/* Try this — examples */}
-                      <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--dim)",letterSpacing:"0.6px",marginBottom:8}}>
+                      <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--dim)",letterSpacing:"0.6px",marginBottom:8}}>
                         ▸ TRY THIS
                       </div>
                       <div style={{display:"flex",flexDirection:"column",gap:4}}>
@@ -1329,12 +1329,12 @@ export default function PropertyIntelligence() {
                           >
                             <div style={{display:"flex",alignItems:"center",flex:1,minWidth:0}}>
                               {dot({color: cls==="green"?"var(--green)":cls==="blue"?"var(--blue)":"var(--purple)"})}
-                              <span style={{fontFamily:"'Fira Code',monospace",fontSize:12,color:"var(--text)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                              <span style={{fontFamily:"'Geist Mono',monospace",fontSize:12,color:"var(--text)",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
                                 {addr}
                               </span>
                             </div>
                             <span style={{
-                              fontFamily:"'Fira Code',monospace",fontSize:10,color:`var(--${cls})`,
+                              fontFamily:"'Geist Mono',monospace",fontSize:10,color:`var(--${cls})`,
                               fontWeight:600,letterSpacing:"0.3px",marginLeft:10,whiteSpace:"nowrap"
                             }}>
                               {tag}
@@ -1351,8 +1351,8 @@ export default function PropertyIntelligence() {
                           {l:"AI MODEL",v:"Sonnet 4.6"},
                         ].map(({l,v}) => (
                           <div key={l}>
-                            <div style={{fontFamily:"'Fira Code',monospace",fontSize:9,fontWeight:700,color:"var(--dim)",letterSpacing:"0.7px"}}>{l}</div>
-                            <div style={{fontFamily:"'Fira Code',monospace",fontSize:12,color:"var(--text)",fontWeight:700,marginTop:3}}>{v}</div>
+                            <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9,fontWeight:700,color:"var(--dim)",letterSpacing:"0.7px"}}>{l}</div>
+                            <div style={{fontFamily:"'Geist Mono',monospace",fontSize:12,color:"var(--text)",fontWeight:700,marginTop:3}}>{v}</div>
                           </div>
                         ))}
                       </div>
@@ -1414,7 +1414,7 @@ export default function PropertyIntelligence() {
                       } catch {}
                     }}
                     style={{
-                      fontFamily:"'Fira Code',monospace",fontSize:10.5,fontWeight:700,letterSpacing:"0.6px",
+                      fontFamily:"'Geist Mono',monospace",fontSize:10.5,fontWeight:700,letterSpacing:"0.6px",
                       padding:"8px 14px",
                       border: savedFlash ? "1px solid var(--green)" : "1px solid rgba(59,158,255,0.4)",
                       borderRadius:"var(--r-sm,4px)",
@@ -1440,7 +1440,7 @@ export default function PropertyIntelligence() {
                   }}>
                     <span style={{fontSize:16,lineHeight:1}}>⚠️</span>
                     <div style={{flex:1}}>
-                      <div style={{fontFamily:"'Fira Code',monospace",fontSize:10,fontWeight:700,color:"var(--amber)",letterSpacing:"0.6px",marginBottom:3}}>
+                      <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,color:"var(--amber)",letterSpacing:"0.6px",marginBottom:3}}>
                         DATA PROVIDER TEMPORARILY UNAVAILABLE
                       </div>
                       <div style={{fontSize:12.5,color:"var(--sub)",lineHeight:1.5}}>
@@ -1548,7 +1548,7 @@ export default function PropertyIntelligence() {
                           <span>🏘️ Rental Estimate</span>
                           {property.rentSource === "predicted" && (
                             <span style={{
-                              fontFamily:"'Fira Code',monospace",fontSize:9,fontWeight:700,
+                              fontFamily:"'Geist Mono',monospace",fontSize:9,fontWeight:700,
                               letterSpacing:"0.7px",padding:"2px 6px",borderRadius:"var(--r-xs,2px)",
                               border:"1px solid rgba(167,130,255,0.4)",color:"var(--purple)",
                               background:"rgba(167,130,255,0.08)"
@@ -1580,7 +1580,7 @@ export default function PropertyIntelligence() {
                                 <button key={b} onClick={()=>repredictRent(b)}
                                   style={{
                                     flex:1,padding:"5px 0",fontSize:11,fontWeight:700,
-                                    fontFamily:"'Fira Code',monospace",
+                                    fontFamily:"'Geist Mono',monospace",
                                     border:`1px solid ${predictBeds===b?"var(--blue)":"var(--borderf)"}`,
                                     borderRadius:"var(--r-sm,4px)",
                                     background:predictBeds===b?"rgba(59,158,255,0.12)":"transparent",
@@ -1609,7 +1609,7 @@ export default function PropertyIntelligence() {
                         {property.rentSource === "predicted" && predictedRent?.breakdown && (
                           <div style={{marginTop:12,paddingTop:10,borderTop:"1px solid var(--borderf)"}}>
                             <div style={{fontSize:10,fontWeight:700,color:"var(--dim)",letterSpacing:"0.5px",textTransform:"uppercase",marginBottom:6}}>How the model got there</div>
-                            <div style={{fontFamily:"'Fira Code',monospace",fontSize:11,color:"var(--sub)",lineHeight:1.7}}>
+                            <div style={{fontFamily:"'Geist Mono',monospace",fontSize:11,color:"var(--sub)",lineHeight:1.7}}>
                               <div style={{display:"flex",justifyContent:"space-between"}}>
                                 <span>{predictedRent.breakdown.base?.source || "CMHC base"}</span>
                                 <span style={{color:"var(--text)"}}>{currency(predictedRent.breakdown.base?.value)}</span>
@@ -1653,10 +1653,10 @@ export default function PropertyIntelligence() {
                         <div style={{
                           width:32,height:22,border:"1px solid rgba(52,217,138,0.4)",
                           borderRadius:"var(--r-xs,2px)",display:"flex",alignItems:"center",justifyContent:"center",
-                          fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.5px"
+                          fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.5px"
                         }}>ZON</div>
                         <div style={{flex:1}}>
-                          <div style={{fontFamily:"'Fira Code',monospace",fontSize:10,color:"var(--green)",fontWeight:700,letterSpacing:"0.6px"}}>
+                          <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,color:"var(--green)",fontWeight:700,letterSpacing:"0.6px"}}>
                             [ LIVE · {zoningData.zoning.city?.toUpperCase()} OPEN DATA ]
                           </div>
                           <div style={{fontSize:13,fontWeight:700,color:"var(--text)",marginTop:2}}>
@@ -1665,7 +1665,7 @@ export default function PropertyIntelligence() {
                         </div>
                         {zoningData.zoning.bylawUrl && (
                           <a href={zoningData.zoning.bylawUrl} target="_blank" rel="noopener" style={{
-                            fontFamily:"'Fira Code',monospace",fontSize:10,fontWeight:600,color:"var(--blue)",
+                            fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:600,color:"var(--blue)",
                             textDecoration:"none",padding:"4px 8px",border:"1px solid rgba(59,158,255,0.3)",borderRadius:"var(--r-xs,2px)"
                           }}>BYLAW ↗</a>
                         )}
@@ -1675,7 +1675,7 @@ export default function PropertyIntelligence() {
                       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:1,background:"var(--borderf)"}}>
                         {/* ── LEFT: Zoning details ───────────────────────── */}
                         <div style={{background:"var(--card)",padding:"14px 16px"}}>
-                          <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.6px",marginBottom:10}}>
+                          <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.6px",marginBottom:10}}>
                             ▸ ZONING
                           </div>
                           <div style={{display:"flex",flexDirection:"column",gap:7,fontSize:12.5}}>
@@ -1691,7 +1691,7 @@ export default function PropertyIntelligence() {
                                 <span style={{
                                   color:"var(--text)",
                                   fontWeight: strong ? 700 : 500,
-                                  fontFamily: mono ? "'Fira Code',monospace" : "inherit",
+                                  fontFamily: mono ? "'Geist Mono',monospace" : "inherit",
                                   textAlign:"right"
                                 }}>{val}</span>
                               </div>
@@ -1701,7 +1701,7 @@ export default function PropertyIntelligence() {
 
                         {/* ── RIGHT: Property Assessment OR empty state ───── */}
                         <div style={{background:"var(--card)",padding:"14px 16px"}}>
-                          <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--amber)",letterSpacing:"0.6px",marginBottom:10}}>
+                          <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--amber)",letterSpacing:"0.6px",marginBottom:10}}>
                             ▸ PROPERTY ASSESSMENT
                           </div>
                           {zoningData.assessment ? (
@@ -1718,7 +1718,7 @@ export default function PropertyIntelligence() {
                                   <span style={{
                                     color:"var(--text)",
                                     fontWeight: strong ? 700 : 500,
-                                    fontFamily: mono ? "'Fira Code',monospace" : "inherit",
+                                    fontFamily: mono ? "'Geist Mono',monospace" : "inherit",
                                     textAlign:"right"
                                   }}>{val}</span>
                                 </div>
@@ -1735,20 +1735,20 @@ export default function PropertyIntelligence() {
                       {/* ── Nearby permits — full width, all rows ─────────────── */}
                       {zoningData.nearbyPermits?.length > 0 && (
                         <div style={{padding:"12px 16px 14px",borderTop:"1px solid var(--borderf)"}}>
-                          <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--dim)",letterSpacing:"0.6px",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
+                          <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--dim)",letterSpacing:"0.6px",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
                             <span>▸ NEARBY DEV PERMITS · {zoningData.nearbyPermits.length} IN 1KM / 2YR</span>
                           </div>
-                          <div style={{display:"grid",gridTemplateColumns:"100px 1fr 1.4fr",gap:8,fontSize:10,fontWeight:700,color:"var(--dim)",letterSpacing:"0.5px",textTransform:"uppercase",paddingBottom:6,borderBottom:"1px solid var(--borderf)",fontFamily:"'Fira Code',monospace"}}>
+                          <div style={{display:"grid",gridTemplateColumns:"100px 1fr 1.4fr",gap:8,fontSize:10,fontWeight:700,color:"var(--dim)",letterSpacing:"0.5px",textTransform:"uppercase",paddingBottom:6,borderBottom:"1px solid var(--borderf)",fontFamily:"'Geist Mono',monospace"}}>
                             <span>Date</span><span>Work</span><span>Address</span>
                           </div>
                           <div style={{maxHeight:240,overflowY:"auto"}}>
                             {zoningData.nearbyPermits.map((p, i) => (
                               <div key={i} style={{display:"grid",gridTemplateColumns:"100px 1fr 1.4fr",gap:8,padding:"6px 0",borderBottom: i < zoningData.nearbyPermits.length - 1 ? "1px dashed rgba(255,255,255,0.04)" : "none",fontSize:11.5,alignItems:"baseline"}}>
-                                <span style={{fontFamily:"'Fira Code',monospace",color:"var(--dim)"}}>
+                                <span style={{fontFamily:"'Geist Mono',monospace",color:"var(--dim)"}}>
                                   {(p.permit_date || p.applieddate || "").slice(0,10) || "—"}
                                 </span>
                                 <span style={{color:"var(--sub)"}}>{p.work_type || p.permit_type || p.work_type_group || "—"}</span>
-                                <span style={{color:"var(--text)",fontFamily:"'Fira Code',monospace",fontSize:11}}>{p.address || p.house_number || "—"}</span>
+                                <span style={{color:"var(--text)",fontFamily:"'Geist Mono',monospace",fontSize:11}}>{p.address || p.house_number || "—"}</span>
                               </div>
                             ))}
                           </div>
@@ -1769,7 +1769,7 @@ export default function PropertyIntelligence() {
                         }}>
                           <span style={{fontSize:14,lineHeight:1.4}}>🤖</span>
                           <div style={{flex:1}}>
-                            <div style={{fontFamily:"'Fira Code',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:4}}>
+                            <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:4}}>
                               AI THESIS HINT {zoningThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:6}}>· {zoningThesis.source}</span>}
                             </div>
                             <div style={{fontSize:12.5,color:"var(--text)",lineHeight:1.55}}>

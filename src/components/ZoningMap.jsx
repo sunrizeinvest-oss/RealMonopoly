@@ -111,13 +111,13 @@ export default function ZoningMap({ center, polygon, permits = [], zone = "", ra
         pointerEvents: "none",
       }}>
         <div style={{
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
           color: "var(--green, #34d98a)", letterSpacing: "1.4px",
         }}>
           ▸ NEIGHBOURHOOD MAP{zone ? ` · ZONE ${zone}` : ""}
         </div>
         <div style={{
-          fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9, fontWeight: 700,
+          fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 700,
           color: "var(--dim, #3a4a60)", letterSpacing: "1.2px",
         }}>
           {(radiusM * 2 / 1000).toFixed(1)}KM × {(radiusM * 2 / 1000).toFixed(1)}KM
@@ -172,7 +172,7 @@ export default function ZoningMap({ center, polygon, permits = [], zone = "", ra
           <polygon points="0,-10 4,2 0,-2 -4,2" fill="#34d98a"/>
           <polygon points="0,10  4,-2 0,2  -4,-2" fill="rgba(255,255,255,0.2)"/>
           <text x="0" y="-19" textAnchor="middle" fill="#34d98a"
-                style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 8, fontWeight: 700, letterSpacing: 1 }}>N</text>
+                style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 8, fontWeight: 700, letterSpacing: 1 }}>N</text>
         </g>
 
         {/* Scale bar — bottom-left */}
@@ -181,14 +181,14 @@ export default function ZoningMap({ center, polygon, permits = [], zone = "", ra
           <line x1={0} y1={-3} x2={0} y2={3} stroke="rgba(255,255,255,0.55)" strokeWidth="1.6"/>
           <line x1={scalePx} y1={-3} x2={scalePx} y2={3} stroke="rgba(255,255,255,0.55)" strokeWidth="1.6"/>
           <text x={scalePx / 2} y={14} textAnchor="middle" fill="rgba(255,255,255,0.55)"
-                style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9, fontWeight: 700, letterSpacing: 0.8 }}>
+                style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 700, letterSpacing: 0.8 }}>
             {scaleM} m
           </text>
         </g>
 
         {/* Coordinate readout — bottom-right */}
         <text x={VW - 12} y={VH - 12} textAnchor="end" fill="rgba(255,255,255,0.35)"
-              style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9, fontWeight: 700, letterSpacing: 0.6 }}>
+              style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 700, letterSpacing: 0.6 }}>
           {center.lat.toFixed(4)}°{center.lat >= 0 ? "N" : "S"} · {Math.abs(center.lng).toFixed(4)}°{center.lng >= 0 ? "E" : "W"}
         </text>
       </svg>
@@ -199,7 +199,7 @@ export default function ZoningMap({ center, polygon, permits = [], zone = "", ra
         background: "rgba(0,0,0,0.45)",
         borderTop: "1px solid var(--borderf, rgba(255,255,255,0.05))",
         display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap",
-        fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
+        fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
         letterSpacing: "0.8px", color: "var(--sub, #6b7d96)",
       }}>
         <LegendDot color="#34d98a" label="NEW BUILD"/>
