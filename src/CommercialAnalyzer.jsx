@@ -1172,6 +1172,7 @@ export default function CommercialAnalyzer() {
           zoning: null,
         }}
         onCompsChange={setMatrixComps}
+        persistKey={propertyAddress}
       />
 
       </TierGate>
@@ -1206,6 +1207,7 @@ export default function CommercialAnalyzer() {
           CoC: c.CoC, capRate: c.actualCap, DSCR: c.DSCR,
         }}
         comps={matrixComps}
+        persistKey={propertyAddress}
       />
       </TierGate>
 

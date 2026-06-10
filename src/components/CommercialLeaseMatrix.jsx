@@ -67,14 +67,49 @@ const numericForRow = (row, comp) => {
   return Number.isFinite(n) ? n : null;
 };
 
-export default function CommercialLeaseMatrix({ target, onCompsChange }) {
-  const [comps, setComps] = useState([]);
+export default function CommercialLeaseMatrix({ target, onCompsChange, persistKey }) {
+  // persistKey (typically the deal address) keys this matrix's comps in
+  // localStorage so coming back to the same deal restores prior comps without
+  // having to re-generate from Claude. Empty / falsy persistKey disables it.
+  const storageKey = persistKey ? `rde_matrix_comps_${persistKey.trim().toLowerCase()}` : null;
+  const [comps, setComps] = useState(() => {
+    if (!storageKey) return [];
+    try {
+      const raw = localStorage.getItem(storageKey);
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  });
+  // True the first render after we re-hydrated comps from localStorage. Used
+  // to flash a "RESTORED" badge so the user knows where the data came from.
+  const [restored, setRestored] = useState(() => {
+    if (!storageKey) return false;
+    try { return !!localStorage.getItem(storageKey); } catch { return false; }
+  });
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
 
   // Mirror the comps array up to the parent so siblings (e.g. RiskSimulator's
   // IC Report PDF) can include them. Parent stays out of comp ownership.
   useEffect(() => { onCompsChange?.(comps); }, [comps]);
+
+  // Persist comps whenever they change for the current persistKey.
+  useEffect(() => {
+    if (!storageKey) return;
+    try {
+      if (comps.length) localStorage.setItem(storageKey, JSON.stringify(comps));
+      else localStorage.removeItem(storageKey);
+    } catch {}
+  }, [comps, storageKey]);
+
+  // When the user switches to a different deal address, swap the comps to
+  // whatever's stored under the new key (or empty if nothing's stored).
+  useEffect(() => {
+    if (!storageKey) return;
+    try {
+      const raw = localStorage.getItem(storageKey);
+      setComps(raw ? JSON.parse(raw) : []);
+    } catch { setComps([]); }
+  }, [storageKey]);
 
   const hasTarget = target && (target.address || target.price);
   const targetAsComp = useMemo(() => target ? { ...target } : null, [target]);
@@ -198,6 +233,20 @@ export default function CommercialLeaseMatrix({ target, onCompsChange }) {
         <div style={{ fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 10, fontWeight: 600, color: "var(--dim)", letterSpacing: "0.7px" }}>
           · {comps.length} COMPS
         </div>
+        {restored && comps.length > 0 && (
+          <span
+            onClick={() => setRestored(false)}
+            title="Restored from your previous session — click to dismiss"
+            style={{
+              fontFamily: "'Fira Code',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+              color: "var(--green)", letterSpacing: "0.8px",
+              border: "1px solid rgba(52,217,138,0.35)", borderRadius: 3,
+              padding: "2px 7px", cursor: "pointer",
+            }}
+          >
+            ✓ RESTORED
+          </span>
+        )}
         <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>
           <button
             onClick={generateAI}

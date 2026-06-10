@@ -68,7 +68,7 @@ const fmtPct = n => n == null ? "—" : `${(n * 100).toFixed(1)}%`;
 const fmtX   = n => n == null ? "—" : `${n.toFixed(2)}x`;
 const fmtProb = p => `${Math.round(p * 100)}%`;
 
-export default function RiskSimulator({ deal, calcSummary, comps }) {
+export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) {
   const [results, setResults] = useState(null);
   const [running, setRunning] = useState(false);
   const [iterations, setIterations] = useState(1000);
@@ -181,9 +181,36 @@ export default function RiskSimulator({ deal, calcSummary, comps }) {
   // AI Deal Memo — Claude reads full underwriting context and writes the
   // executive narrative the IC / LP actually reads first. Stored in state so
   // the user can re-export the IC Report with the memo embedded as page 2.
-  const [memo, setMemo] = useState(null);
+  // persistKey (the deal address) keys the memo in localStorage so a Scale
+  // user reloading the same deal sees the AI memo they generated last time.
+  const memoStorageKey = persistKey ? `rde_memo_${persistKey.trim().toLowerCase()}` : null;
+  const [memo, setMemo] = useState(() => {
+    if (!memoStorageKey) return null;
+    try {
+      const raw = localStorage.getItem(memoStorageKey);
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  });
   const [memoLoading, setMemoLoading] = useState(false);
   const [memoError, setMemoError] = useState(null);
+
+  // Persist on every change. Null memo removes the entry.
+  useEffect(() => {
+    if (!memoStorageKey) return;
+    try {
+      if (memo) localStorage.setItem(memoStorageKey, JSON.stringify(memo));
+      else localStorage.removeItem(memoStorageKey);
+    } catch {}
+  }, [memo, memoStorageKey]);
+
+  // Swap memo when persistKey changes (deal address change).
+  useEffect(() => {
+    if (!memoStorageKey) { setMemo(null); return; }
+    try {
+      const raw = localStorage.getItem(memoStorageKey);
+      setMemo(raw ? JSON.parse(raw) : null);
+    } catch { setMemo(null); }
+  }, [memoStorageKey]);
 
   async function generateMemo() {
     if (!results) {
