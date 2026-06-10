@@ -86,6 +86,9 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
     try { return !!localStorage.getItem(storageKey); } catch { return false; }
   });
   const [generating, setGenerating] = useState(false);
+  // When the AI grounded comps in real MLS listings, surface a tasteful pill
+  // telling the user which provider supplied the anchors and how many.
+  const [mlsSource, setMlsSource] = useState(null);  // null | { provider, anchors }
   const [error, setError] = useState(null);
 
   // Mirror the comps array up to the parent so siblings (e.g. RiskSimulator's
@@ -175,6 +178,12 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
       }
       const j = await r.json();
       setComps(prev => [...prev, ...(j.comps || [])].slice(0, 6));
+      // Surface whether comps were grounded in real MLS data vs pure AI.
+      if (j.groundedByMls) {
+        setMlsSource({ provider: j.mlsProvider, anchors: j.mlsAnchorCount });
+      } else {
+        setMlsSource(null);
+      }
     } catch (e) {
       setError(e.message);
     } finally {
@@ -245,6 +254,19 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
             }}
           >
             ✓ RESTORED
+          </span>
+        )}
+        {mlsSource && (
+          <span
+            title={`${mlsSource.anchors} live listings from ${mlsSource.provider} anchored the AI-generated comps`}
+            style={{
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+              color: "var(--amber)", letterSpacing: "0.8px",
+              border: "1px solid rgba(240,160,48,0.4)", borderRadius: 3,
+              padding: "2px 7px",
+            }}
+          >
+            ⌖ GROUNDED · {mlsSource.provider.toUpperCase()} ({mlsSource.anchors})
           </span>
         )}
         <div style={{ marginLeft: "auto", display: "flex", gap: 6 }}>

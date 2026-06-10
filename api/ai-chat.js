@@ -548,6 +548,39 @@ async function handleFindComps(req, res) {
     return res.status(503).json({ error: "AI comp finder is not configured on this deployment." });
   }
 
+  // ── Step 0: Ground in REAL MLS data when target is Canadian ──────────────
+  // Pulls active listings from whichever MLS provider is configured (CREA
+  // DDF > Repliers > Realtor.ca scraper). The AI is prompted to use these
+  // as anchor points rather than hallucinating addresses + prices.
+  const CA_PROV = /\b(AB|BC|MB|NB|NL|NS|NT|NU|ON|PE|QC|SK|YT)\b/i;
+  const CA_PC = /\b[A-Z]\d[A-Z]\s?\d[A-Z]\d\b/i;
+  const isCanadian = CA_PROV.test(address) || CA_PC.test(address);
+
+  let mlsAnchors = null;
+  let mlsProvider = null;
+  if (isCanadian) {
+    try {
+      const { getMlsProvider, getProviderName } = await import("./_lib/mls/index.js");
+      const provider = getMlsProvider();
+      mlsProvider = getProviderName();
+      const result = await provider.searchByArea({ area: address, limit: 12 });
+      if (result.groundedByMls && result.activeListings?.length) {
+        mlsAnchors = result.activeListings.slice(0, 8);
+      }
+    } catch (e) {
+      console.warn("[find-comps] MLS provider failed, falling back to pure AI:", e.message);
+    }
+  }
+
+  const anchorBlock = mlsAnchors && mlsAnchors.length ? `
+GROUND-TRUTH LISTINGS (from ${mlsProvider}, near the target):
+${mlsAnchors.map((l, i) => `  ${i+1}. ${l.address || "?"}${l.cityProvince ? ", " + l.cityProvince : ""} — ${l.price ? "$" + Math.round(l.price).toLocaleString() : "price n/a"} · ${l.bedrooms ?? "?"} BD / ${l.bathrooms ?? "?"} BA · ${l.sqft ?? "?"} sqft · ${l.propertyType || "?"} · DOM ${l.daysOnMarket ?? "?"}${l.mlsNumber ? " · MLS " + l.mlsNumber : ""}`).join("\n")}
+
+These are REAL active listings from a live MLS feed. Use them as anchor points for cap rate / $/sqft / typical price for the area. For comps that match the target type, you can use these directly (set saleDate to the listing's listed date, mark them as "active comparable"). Add up to 2 additional plausible historical sold comps for context, but the majority of the matrix should be grounded in these real listings.
+` : `
+NOTE: No live MLS data available for this address — using pure AI inference. Make the comps plausible for the geography and property type.
+`;
+
   const prompt = `You are an institutional real estate analyst building a comparable-property matrix.
 
 TARGET PROPERTY:
@@ -555,11 +588,11 @@ TARGET PROPERTY:
 - Type: ${propertyType}
 ${units ? `- Units: ${units}` : ""}
 ${sqft ? `- Sqft: ${sqft}` : ""}
-
-Generate 4 PLAUSIBLE comparable sales/leases for this target. Use realistic numbers anchored to the geography and property type — typical $/sqft and cap rates for the city/submarket. The comps should be a mix of recent activity (last 12-18 months).
+${anchorBlock}
+Generate 4 comparable sales/leases for this target. ${mlsAnchors ? "Use the ground-truth listings above wherever possible." : "Use realistic numbers anchored to the geography and property type — typical $/sqft and cap rates for the city/submarket."}
 
 Each comp returns a JSON object with these fields:
-- address     (street + city, plausible nearby address)
+- address     (street + city)
 - saleDate    (YYYY-MM)
 - price       (integer dollars)
 - sqft        (integer)
@@ -570,11 +603,11 @@ Each comp returns a JSON object with these fields:
 - zoning      (best-guess realistic zone code)
 - distanceKm  (decimal, plausible distance from target, 0.2-3.5)
 - notes       (1 short sentence — what makes this comp relevant or noteworthy)
+${mlsAnchors ? "- mlsNumber  (include for comps you took from the ground-truth list)" : ""}
+${mlsAnchors ? "- isGroundTruth (true when this comp came directly from the MLS feed)" : ""}
 
 Output STRICT JSON only — no preamble, no markdown fences. Format:
-{ "comps": [ {...}, {...}, {...}, {...} ] }
-
-These are directional comps for analyst review. Make them plausible, not perfect.`;
+{ "comps": [ {...}, {...}, {...}, {...} ] }`;
 
   try {
     const r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -607,7 +640,13 @@ These are directional comps for analyst review. Make them plausible, not perfect
       return res.status(502).json({ error: "AI returned non-JSON response" });
     }
 
-    return res.status(200).json({ comps: parsed.comps || [], source: "claude-sonnet-4-6" });
+    return res.status(200).json({
+      comps: parsed.comps || [],
+      source: mlsAnchors ? `claude-sonnet-4-6+${mlsProvider}` : "claude-sonnet-4-6",
+      groundedByMls: !!mlsAnchors,
+      mlsProvider: mlsAnchors ? mlsProvider : null,
+      mlsAnchorCount: mlsAnchors ? mlsAnchors.length : 0,
+    });
   } catch (e) {
     console.error("[find-comps] timeout or fetch error:", e.message);
     return res.status(504).json({ error: `Comp generation failed: ${e.message}` });
