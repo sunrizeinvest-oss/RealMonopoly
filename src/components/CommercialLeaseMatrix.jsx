@@ -201,6 +201,119 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
     setComps(c => c.map((deal, i) => i === idx ? { ...deal, [key]: value } : deal));
   }
 
+  // CSV importer — counterpart to exportCSV. Handles two input shapes:
+  //   1. WIDE  — same layout this component exports (first column "Metric",
+  //              comps are columns). Round-trips cleanly.
+  //   2. LONG  — one comp per row, with header (case-insensitive matched on
+  //              address, price, saleDate, sqft, units, yearBuilt, capRate,
+  //              noi, zoning, distanceKm). What CoStar / MLS exports look
+  //              like; what users paste from their own spreadsheets.
+  // Detection is by header: column 1 = "metric" → wide; "address" → long.
+  function importCSV(text) {
+    if (!text || !text.trim()) { setError("File is empty."); return; }
+    const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+    if (lines.length < 2) { setError("Need at least a header row + one data row."); return; }
+
+    // Minimal CSV parser — handles quoted fields with commas and "" escapes.
+    const parseLine = line => {
+      const out = []; let cur = ""; let inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (inQ) {
+          if (c === '"' && line[i+1] === '"') { cur += '"'; i++; }
+          else if (c === '"') inQ = false;
+          else cur += c;
+        } else {
+          if (c === ',') { out.push(cur); cur = ""; }
+          else if (c === '"') inQ = true;
+          else cur += c;
+        }
+      }
+      out.push(cur);
+      return out.map(s => s.trim());
+    };
+    const headers = parseLine(lines[0]).map(h => h.toLowerCase().replace(/[\s_-]/g, ""));
+    const dataRows = lines.slice(1).map(parseLine);
+
+    const newComps = [];
+
+    if (headers[0] === "metric") {
+      // WIDE format — our own export shape. Columns 2..N are comps (skip Target
+      // and ComAvg). Rebuild each comp by walking the metric rows.
+      // Find which column index is target (skip) vs comps (keep) vs avg (skip).
+      const headerRow = parseLine(lines[0]);  // original-case
+      const colSpec = headerRow.slice(1).map(h => {
+        const u = h.toLowerCase().trim();
+        if (u === "target")          return { kind: "skip" };
+        if (u === "comp avg")        return { kind: "skip" };
+        if (u.startsWith("comp"))    return { kind: "comp", label: h };
+        return { kind: "comp", label: h };
+      });
+      colSpec.forEach(() => newComps.push({}));
+      for (const dataRow of dataRows) {
+        const metricKey = (dataRow[0] || "").toLowerCase();
+        const matchingRow = ROWS.find(r => r.label.toLowerCase() === metricKey);
+        if (!matchingRow) continue;
+        const valuesByCol = dataRow.slice(1);
+        valuesByCol.forEach((val, i) => {
+          if (colSpec[i]?.kind !== "comp") return;
+          if (val === "" || val == null) return;
+          const n = Number(String(val).replace(/[$,%\s]/g, ""));
+          newComps[i][matchingRow.key] = Number.isFinite(n) ? n : val;
+        });
+      }
+    } else {
+      // LONG format — one comp per row. Match flexible headers.
+      const map = {};
+      headers.forEach((h, i) => {
+        if (h.includes("address"))                       map.address = i;
+        else if (h === "saledate" || h === "date")       map.saleDate = i;
+        else if (h === "price" || h === "saleprice")     map.price = i;
+        else if (h === "sqft" || h.includes("squarefeet")|| h.includes("buildingsqft")) map.sqft = i;
+        else if (h === "units")                          map.units = i;
+        else if (h === "yearbuilt" || h === "built")     map.yearBuilt = i;
+        else if (h === "caprate" || h === "cap")         map.capRate = i;
+        else if (h === "noi")                            map.noi = i;
+        else if (h === "zoning" || h === "zone")         map.zoning = i;
+        else if (h.includes("distance"))                 map.distanceKm = i;
+      });
+      if (map.address == null && map.price == null) {
+        setError("Couldn't recognise this CSV. Header row should include either 'Address' or 'Price' as column names.");
+        return;
+      }
+      for (const dataRow of dataRows) {
+        const comp = {};
+        for (const [key, idx] of Object.entries(map)) {
+          const raw = dataRow[idx];
+          if (raw == null || raw === "") continue;
+          if (["price","sqft","units","yearBuilt","noi"].includes(key)) {
+            const n = Number(String(raw).replace(/[$,\s]/g, ""));
+            if (Number.isFinite(n)) comp[key] = n;
+          } else if (key === "capRate" || key === "distanceKm") {
+            // Cap rate: accept 5.5, 5.5%, 0.055 — normalize to decimal.
+            const cleaned = String(raw).replace(/[%\s]/g, "");
+            const n = Number(cleaned);
+            if (Number.isFinite(n)) {
+              comp[key] = (key === "capRate" && n > 1) ? n / 100 : n;
+            }
+          } else {
+            comp[key] = String(raw).trim();
+          }
+        }
+        if (Object.keys(comp).length) newComps.push(comp);
+      }
+    }
+
+    if (!newComps.length) {
+      setError("No comps parsed. Check the column headers match a recognised format.");
+      return;
+    }
+    // Append (don't replace) so users can mix imported + AI-generated comps.
+    // Cap at 6 total to match the AI generator's cap.
+    setComps(prev => [...prev, ...newComps].slice(0, 6));
+    setError(null);
+  }
+
   function exportCSV() {
     if (!columns.length) return;
     const esc = v => {
@@ -301,6 +414,42 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
             }}
           >
             + ADD COMP
+          </button>
+          {/* Hidden file input — wired to the IMPORT CSV button below. Accepts
+              long format (one comp per row, with Address / Price / etc headers)
+              or wide format (our own export shape). */}
+          <input
+            type="file"
+            accept=".csv,text/csv"
+            id="comp-csv-import"
+            style={{ display: "none" }}
+            onChange={async e => {
+              const f = e.target.files?.[0];
+              if (!f) return;
+              try {
+                const text = await f.text();
+                importCSV(text);
+              } catch (err) {
+                setError(`Could not read file: ${err.message}`);
+              }
+              e.target.value = "";
+            }}
+          />
+          <button
+            onClick={() => document.getElementById("comp-csv-import")?.click()}
+            title="Import a CSV of comps from CoStar / MLS / your spreadsheet. Long format (one comp per row) or our own wide-format export both work."
+            style={{
+              background: "transparent",
+              color: "var(--amber)",
+              border: "1px solid rgba(240,160,48,0.5)",
+              borderRadius: 4,
+              padding: "7px 12px",
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, fontWeight: 700,
+              letterSpacing: "1px",
+              cursor: "pointer",
+            }}
+          >
+            📥 IMPORT CSV
           </button>
           {columns.length > 0 && (
             <button
