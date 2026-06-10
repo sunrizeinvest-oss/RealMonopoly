@@ -98,7 +98,7 @@ export default function ZoningMap({ center, polygon, permits = [], zone = "", ra
   return (
     <div style={{
       background: "#040608",
-      border: "1px solid var(--borderf, rgba(255,255,255,0.05))",
+      border: "1px solid var(--borderf, rgba(15,23,42,0.05))",
       borderRadius: 6,
       padding: 0,
       overflow: "hidden",
@@ -128,7 +128,7 @@ export default function ZoningMap({ center, polygon, permits = [], zone = "", ra
         {/* Grid */}
         <defs>
           <pattern id="zm-grid" width={VW / 10} height={VH / 6} patternUnits="userSpaceOnUse">
-            <path d={`M ${VW / 10} 0 L 0 0 0 ${VH / 6}`} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1"/>
+            <path d={`M ${VW / 10} 0 L 0 0 0 ${VH / 6}`} fill="none" stroke="rgba(15,23,42,0.04)" strokeWidth="1"/>
           </pattern>
           <radialGradient id="zm-prop-glow">
             <stop offset="0%"  stopColor="#34d98a" stopOpacity="0.9"/>
@@ -158,7 +158,7 @@ export default function ZoningMap({ center, polygon, permits = [], zone = "", ra
 
         {/* Property — big glowing LED */}
         <circle cx={propX} cy={propY} r={32} fill="url(#zm-prop-glow)"/>
-        <circle cx={propX} cy={propY} r={9}  fill="#34d98a" stroke="#07090f" strokeWidth="2"/>
+        <circle cx={propX} cy={propY} r={9}  fill="#34d98a" stroke="#ffffff" strokeWidth="2"/>
         <circle cx={propX} cy={propY} r={4}  fill="#fff"/>
         {/* Cross-hair */}
         <line x1={propX - 18} y1={propY} x2={propX - 12} y2={propY} stroke="#34d98a" strokeWidth="1.4"/>
@@ -168,7 +168,7 @@ export default function ZoningMap({ center, polygon, permits = [], zone = "", ra
 
         {/* Compass — top-right of map */}
         <g transform={`translate(${VW - 38}, 40)`}>
-          <circle r={16} fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.08)" strokeWidth="1"/>
+          <circle r={16} fill="rgba(0,0,0,0.55)" stroke="rgba(15,23,42,0.08)" strokeWidth="1"/>
           <polygon points="0,-10 4,2 0,-2 -4,2" fill="#34d98a"/>
           <polygon points="0,10  4,-2 0,2  -4,-2" fill="rgba(255,255,255,0.2)"/>
           <text x="0" y="-19" textAnchor="middle" fill="#34d98a"
@@ -197,7 +197,7 @@ export default function ZoningMap({ center, polygon, permits = [], zone = "", ra
       <div style={{
         padding: "8px 14px",
         background: "rgba(0,0,0,0.45)",
-        borderTop: "1px solid var(--borderf, rgba(255,255,255,0.05))",
+        borderTop: "1px solid var(--borderf, rgba(15,23,42,0.05))",
         display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap",
         fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
         letterSpacing: "0.8px", color: "var(--sub, #6b7d96)",

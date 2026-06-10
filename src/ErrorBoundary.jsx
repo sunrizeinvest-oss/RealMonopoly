@@ -41,13 +41,13 @@ export default class ErrorBoundary extends Component {
     if (!this.state.error) return this.props.children;
     return (
       <div style={{
-        minHeight: "100vh", background: "#07090f", color: "var(--text)",
+        minHeight: "100vh", background: "#ffffff", color: "var(--text)",
         fontFamily: "'Geist', system-ui, sans-serif",
         display: "flex", alignItems: "center", justifyContent: "center", padding: 24
       }}>
         <div style={{
           maxWidth: 720, width: "100%",
-          background: "#0d1119", border: "1px solid rgba(242,92,92,0.4)",
+          background: "#f8fafc", border: "1px solid rgba(242,92,92,0.4)",
           borderLeft: "4px solid var(--red)",
           borderRadius: 6, padding: "24px 28px"
         }}>
@@ -66,7 +66,7 @@ export default class ErrorBoundary extends Component {
             the message below pinpoints what went wrong.
           </div>
           <div style={{
-            background: "#07090f", border: "1px solid rgba(255,255,255,0.07)",
+            background: "#ffffff", border: "1px solid rgba(15,23,42,0.07)",
             borderRadius: 4, padding: "12px 14px", marginBottom: 14,
             fontFamily: "'Geist Mono', ui-monospace, monospace",
             fontSize: 12, color: "var(--red)", overflow: "auto", maxHeight: 240
@@ -82,7 +82,7 @@ export default class ErrorBoundary extends Component {
             <button
               onClick={() => window.location.reload()}
               style={{
-                background: "var(--green)", color: "#07090f", border: "none",
+                background: "var(--green)", color: "#ffffff", border: "none",
                 borderRadius: 4, padding: "10px 16px",
                 fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 11.5,
                 fontWeight: 700, letterSpacing: "0.6px", cursor: "pointer"
@@ -93,7 +93,7 @@ export default class ErrorBoundary extends Component {
               href="/"
               style={{
                 background: "transparent", color: "var(--sub)",
-                border: "1px solid rgba(255,255,255,0.07)", borderRadius: 4,
+                border: "1px solid rgba(15,23,42,0.07)", borderRadius: 4,
                 padding: "10px 16px",
                 fontFamily: "'Geist Mono', ui-monospace, monospace", fontSize: 11.5,
                 fontWeight: 700, letterSpacing: "0.6px",

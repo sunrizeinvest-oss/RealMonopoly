@@ -53,7 +53,7 @@ const CSS = `
   .br-wrap{min-height:100vh;background:var(--bg)}
 
   /* Nav */
-  .br-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .br-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .br-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.br-logo span{color:var(--blue)}
   .br-nav-right{display:flex;align-items:center;gap:10px}
   .br-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 12px;border-radius:7px}.br-nav-link:hover{color:var(--text)}.br-nav-link.active{color:var(--blue)}
@@ -90,7 +90,7 @@ const CSS = `
   .br-label{font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:0.4px;display:flex;justify-content:space-between;align-items:center}
   .br-hint{font-size:10.5px;color:var(--green);font-weight:600}
   .br-hint.amber{color:var(--amber)}
-  .br-input{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
+  .br-input{background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
   .br-input:focus{border-color:rgba(167,130,255,0.4);background:rgba(167,130,255,0.03)}
   .br-input::placeholder{color:var(--dim)}
   .br-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -119,7 +119,7 @@ const CSS = `
   /* Waterfall */
   .br-waterfall{background:var(--card2);border-radius: 10px;padding:14px}
   .br-waterfall-title{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
-  .br-wf-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:12.5px}
+  .br-wf-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(15,23,42,0.04);font-size:12.5px}
   .br-wf-row:last-child{border-bottom:none;font-weight:700;font-size:13px;padding-top:9px;margin-top:2px}
   .br-wf-label{color:var(--sub)}.br-wf-val{font-family:'Geist Mono',monospace;font-size:12px;font-weight:500}
   .br-wf-val.pos{color:var(--green)}.br-wf-val.neg{color:var(--red)}.br-wf-val.purple{color:var(--purple)}
@@ -552,7 +552,7 @@ export default function BRRRRCalculator() {
               style={{
                 fontFamily:"'Geist Mono',monospace",fontSize:11,fontWeight:700,letterSpacing:"0.6px",
                 padding:"8px 14px",border:"1px solid var(--green)",borderRadius:"var(--r-sm,4px)",
-                color:"#07090f",background:"var(--green)",cursor:"pointer",whiteSpace:"nowrap",
+                color:"#ffffff",background:"var(--green)",cursor:"pointer",whiteSpace:"nowrap",
                 transition:"all 0.15s"
               }}
               onMouseOver={e => e.currentTarget.style.transform = "translateY(-1px)"}
@@ -1022,7 +1022,7 @@ export default function BRRRRCalculator() {
                       const c = m.good ? "var(--green)" : m.warn ? "var(--amber)" : "var(--red)";
                       return (
                         <div key={m.lbl} style={{
-                          background:"rgba(255,255,255,0.025)", border:"1px solid var(--borderf)",
+                          background:"rgba(15,23,42,0.025)", border:"1px solid var(--borderf)",
                           borderRadius:4, padding:"10px 12px", textAlign:"center",
                         }}>
                           <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:9,fontWeight:700,color:"var(--dim)",letterSpacing:"0.8px",textTransform:"uppercase",marginBottom:3}}>
@@ -1079,7 +1079,7 @@ export default function BRRRRCalculator() {
                     <span style={{fontSize:13,fontWeight:800,color:"var(--red)"}}>Deal Red Flags — {flags.length} issue{flags.length>1?"s":""} detected</span>
                   </div>
                   {flags.map((f,i) => (
-                    <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"9px 18px",borderBottom:i<flags.length-1?"1px solid rgba(255,255,255,0.04)":"none"}}>
+                    <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"9px 18px",borderBottom:i<flags.length-1?"1px solid rgba(15,23,42,0.04)":"none"}}>
                       <span style={{fontSize:14,flexShrink:0,marginTop:1}}>{f.sev==="critical"?"🚨":"⚠️"}</span>
                       <span style={{fontSize:13,color:f.sev==="critical"?"var(--red)":"var(--amber)",lineHeight:1.5}}>{f.msg}</span>
                     </div>
@@ -1223,7 +1223,7 @@ export default function BRRRRCalculator() {
                 <div style={{overflowX:"auto"}}>
                   <table style={{width:"100%",borderCollapse:"collapse",fontSize:11.5,minWidth:Math.max(560, 140 + 80*calc.proj.length),fontFamily:"'Geist Mono',monospace"}}>
                     <thead>
-                      <tr style={{color:"var(--dim)",fontSize:9.5,fontWeight:700,letterSpacing:"0.6px",background:"rgba(255,255,255,0.015)"}}>
+                      <tr style={{color:"var(--dim)",fontSize:9.5,fontWeight:700,letterSpacing:"0.6px",background:"rgba(15,23,42,0.015)"}}>
                         <th style={{textAlign:"left",padding:"8px 14px",borderBottom:"1px solid var(--borderf)"}}>LINE</th>
                         {calc.proj.map(p=><th key={p.yr} style={{textAlign:"right",padding:"8px 10px",borderBottom:"1px solid var(--borderf)"}}>Y{p.yr}</th>)}
                       </tr>
@@ -1360,7 +1360,7 @@ export default function BRRRRCalculator() {
                           verdict: verdict?.title,
                         }}
                       />
-                      <a href="/compare" style={{background:"var(--green)",color:"#07090f",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none"}}>View Saved →</a>
+                      <a href="/compare" style={{background:"var(--green)",color:"#ffffff",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none"}}>View Saved →</a>
                     </div>
                   </div>
                 ) : (

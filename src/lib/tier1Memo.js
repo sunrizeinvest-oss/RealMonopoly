@@ -24,16 +24,16 @@
 import { jsPDF } from "jspdf";
 
 const C = {
-  bg:    "#07090f",
-  card:  "#0d1119",
-  text:  "#dde4ef",
-  sub:   "#6b7d96",
-  dim:   "#3a4a60",
-  blue:  "#3b9eff",
-  green: "#34d98a",
-  red:   "#f25c5c",
-  amber: "#f0a030",
-  purple: "#a782ff",
+  bg:    "#ffffff",
+  card:  "#f8fafc",
+  text:  "#0f172a",
+  sub:   "#475569",
+  dim:   "#94a3b8",
+  blue:  "#1e40af",
+  green: "#16a34a",
+  red:   "#dc2626",
+  amber: "#d97706",
+  purple: "#7c3aed",
 };
 
 const fmtMoney = n => n == null || isNaN(n) ? "—" : `$${Math.round(n).toLocaleString()}`;
@@ -86,7 +86,7 @@ export function generateTier1Memo({ type = "rental", deal = {}, summary = {} }) 
   const pillW = doc.getTextWidth(pillLabel) + 28;
   doc.setFillColor(accent);
   doc.rect(W - M - pillW, 16, pillW, 26, "F");
-  doc.setFont("helvetica", "bold").setFontSize(10).setTextColor("#07090f");
+  doc.setFont("helvetica", "bold").setFontSize(10).setTextColor("#ffffff");
   doc.text(pillLabel, W - M - pillW + 14, 33);
 
   // ── Deal block ───────────────────────────────────────────────────────────

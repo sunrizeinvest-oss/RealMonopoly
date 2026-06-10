@@ -180,7 +180,7 @@ export default function InfoTip({ id, style = {} }) {
         onClick={() => setShow(s => !s)}
         style={{
           cursor: "help", color: "var(--sub)", fontSize: 10, fontWeight: 800,
-          background: "rgba(255,255,255,0.06)", borderRadius: "50%",
+          background: "rgba(15,23,42,0.06)", borderRadius: "50%",
           width: 15, height: 15, display: "inline-flex", alignItems: "center", justifyContent: "center",
           border: "1px solid rgba(255,255,255,0.12)", userSelect: "none", flexShrink: 0,
         }}

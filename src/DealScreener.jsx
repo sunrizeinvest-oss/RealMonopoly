@@ -23,12 +23,12 @@ const CSS = `
   html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* ── Nav ── */
-  .ds-nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .ds-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;gap:10px}
   .ds-logo{font-size:15px;font-weight:800;color:var(--text);text-decoration:none;flex-shrink:0}
   .ds-logo span{color:var(--blue)}
   .ds-nav-links{display:flex;align-items:center;gap:2px}
   .ds-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 9px;border-radius:7px;transition:color 0.15s,background 0.15s}
-  .ds-nav-link:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+  .ds-nav-link:hover{color:var(--text);background:rgba(15,23,42,0.04)}
   .ds-nav-link.active{color:var(--blue);background:rgba(59,158,255,0.08)}
 
   /* ── Page wrap ── */
@@ -102,12 +102,12 @@ const CSS = `
   .ds-btn:hover{opacity:0.88}
   .ds-btn-primary{background:var(--blue);color:#fff}
   .ds-btn-secondary{background:rgba(167,130,255,0.12);color:var(--purple);border:1px solid rgba(167,130,255,0.25) !important}
-  .ds-btn-ghost{background:rgba(255,255,255,0.04);color:var(--sub);border:1px solid var(--borderf) !important}
+  .ds-btn-ghost{background:rgba(15,23,42,0.04);color:var(--sub);border:1px solid var(--borderf) !important}
   .ds-btn-row{display:flex;gap:10px}
   .ds-btn-row .ds-btn{flex:1}
 
   /* ── Toast ── */
-  .ds-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--green);color:#07090f;border-radius:6px;padding:10px 20px;font-size:13px;font-weight:800;z-index:999;pointer-events:none;animation:ds-fade-in 0.2s ease;white-space:nowrap}
+  .ds-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--green);color:#ffffff;border-radius:6px;padding:10px 20px;font-size:13px;font-weight:800;z-index:999;pointer-events:none;animation:ds-fade-in 0.2s ease;white-space:nowrap}
   @keyframes ds-fade-in{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
   /* ── Rule of thumb callout ── */
@@ -122,7 +122,7 @@ const CSS = `
   .ds-tab{flex:1;padding:9px 12px;border:none;background:transparent;color:var(--sub);font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.2px;cursor:pointer;border-radius:4px;transition:background 0.15s,color 0.15s;display:flex;align-items:center;justify-content:center;gap:6px}
   .ds-tab:hover{color:var(--text)}
   .ds-tab.active{background:rgba(59,158,255,0.12);color:var(--blue)}
-  .ds-tab-count{font-size:9px;color:var(--dim);background:rgba(255,255,255,0.04);border-radius:3px;padding:1px 5px;letter-spacing:0.4px;font-weight:600}
+  .ds-tab-count{font-size:9px;color:var(--dim);background:rgba(15,23,42,0.04);border-radius:3px;padding:1px 5px;letter-spacing:0.4px;font-weight:600}
   .ds-tab.active .ds-tab-count{color:var(--blue);background:rgba(59,158,255,0.08)}
 
   /* ── Bulk panel ── */
@@ -142,7 +142,7 @@ const CSS = `
 
   /* ── Bulk results table ── */
   .ds-bulk-results{background:var(--card);border:1px solid var(--borderf);border-radius:6px;overflow:hidden;margin-bottom:14px}
-  .ds-bulk-results-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);flex-wrap:wrap}
+  .ds-bulk-results-head{display:flex;align-items:center;gap:10px;padding:12px 16px;background:rgba(15,23,42,0.025);border-bottom:1px solid var(--borderf);flex-wrap:wrap}
   .ds-bulk-results-tag{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;color:var(--green);letter-spacing:1.2px}
   .ds-bulk-results-count{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:var(--dim);letter-spacing:0.5px}
   .ds-bulk-filters{margin-left:auto;display:flex;gap:5px;flex-wrap:wrap}
@@ -156,9 +156,9 @@ const CSS = `
   .ds-bulk-table thead th.sortable{cursor:pointer;transition:color 0.15s}
   .ds-bulk-table thead th.sortable:hover{color:var(--text)}
   .ds-bulk-table thead th.sortable.active{color:var(--blue)}
-  .ds-bulk-table tbody td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.03);color:var(--text);vertical-align:baseline}
+  .ds-bulk-table tbody td{padding:8px 12px;border-bottom:1px solid rgba(15,23,42,0.03);color:var(--text);vertical-align:baseline}
   .ds-bulk-table tbody td.num{text-align:right}
-  .ds-bulk-table tbody tr:hover{background:rgba(255,255,255,0.025)}
+  .ds-bulk-table tbody tr:hover{background:rgba(15,23,42,0.025)}
   .ds-bulk-table tbody tr:last-child td{border-bottom:none}
   .ds-bulk-table .addr{color:var(--text);font-weight:600;font-family:'Geist',sans-serif;font-size:12.5px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .ds-bulk-table .ver{font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:3px;border:1px solid currentColor;letter-spacing:0.6px;white-space:nowrap}
@@ -658,7 +658,7 @@ export default function DealScreener() {
               </button>
             </div>
             {lookupRunning && (
-              <div style={{ marginTop: 10, height: 6, background: "rgba(255,255,255,0.04)", borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ marginTop: 10, height: 6, background: "rgba(15,23,42,0.04)", borderRadius: 3, overflow: "hidden" }}>
                 <div style={{
                   height: "100%",
                   width: lookupProgress.total ? `${(lookupProgress.done / lookupProgress.total) * 100}%` : "0%",
@@ -719,7 +719,7 @@ export default function DealScreener() {
                         r.verdictClass === "thin"   ? "var(--amber)" :
                         r.verdictClass === "pass"   ? "var(--red)"   : "var(--dim)";
                       return (
-                        <tr key={i} style={{ borderTop: "1px solid rgba(255,255,255,0.03)" }}>
+                        <tr key={i} style={{ borderTop: "1px solid rgba(15,23,42,0.03)" }}>
                           <td style={{ padding: "9px 12px", color: "var(--text)", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={r.address}>
                             {r.address}
                             {r.country && <span style={{ marginLeft: 6, fontSize: 9, color: "var(--dim)" }}>· {r.country}</span>}

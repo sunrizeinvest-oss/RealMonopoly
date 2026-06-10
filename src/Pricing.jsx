@@ -7,7 +7,7 @@ const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
   .pr-wrap{min-height:100vh;background:var(--bg)}
-  .pr-nav{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;border-bottom:1px solid var(--borderf);position:sticky;top:0;background:rgba(7,9,15,0.95);backdrop-filter:blur(20px);z-index:100}
+  .pr-nav{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 32px;border-bottom:1px solid var(--borderf);position:sticky;top:0;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);z-index:100}
   .pr-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none;cursor:pointer}
   .pr-logo span{color:var(--blue)}
   .pr-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif}
@@ -27,7 +27,7 @@ const CSS = `
   .pr-price span{font-size:16px;font-weight:500;color:var(--sub);letter-spacing:0}
   .pr-price-note{font-size:12px;color:var(--dim);margin-bottom:24px}
   .pr-btn{width:100%;border:none;border-radius:6px;padding:13px;font-family:'Geist',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-bottom:28px}
-  .pr-btn.free{background:rgba(255,255,255,0.06);color:var(--text);border:1px solid var(--borderf)}
+  .pr-btn.free{background:rgba(15,23,42,0.06);color:var(--text);border:1px solid var(--borderf)}
   .pr-btn.free:hover{background:rgba(255,255,255,0.1)}
   .pr-btn.pro{background:var(--blue);color:#fff;box-shadow:0 4px 16px rgba(59,158,255,0.3)}
   .pr-btn.pro:hover{background:#5aaeff;transform:translateY(-1px);box-shadow:0 8px 24px rgba(59,158,255,0.4)}
@@ -203,7 +203,7 @@ export default function Pricing() {
                 {tier.highlight && (
                   <div style={{
                     position: "absolute", top: -10, left: 16,
-                    background: tier.color, color: "#07090f",
+                    background: tier.color, color: "#ffffff",
                     fontFamily: "'Geist Mono',ui-monospace,monospace",
                     fontSize: 9.5, fontWeight: 700, letterSpacing: "1.2px",
                     padding: "3px 9px", borderRadius: 3,
@@ -238,7 +238,7 @@ export default function Pricing() {
                   disabled={loading === tier.plan}
                   style={{
                     background: tier.highlight ? tier.color : "transparent",
-                    color: tier.highlight ? "#07090f" : tier.color,
+                    color: tier.highlight ? "#ffffff" : tier.color,
                     border: tier.highlight ? "none" : `1px solid ${tier.color}`,
                     borderRadius: 5,
                     padding: "12px 18px",

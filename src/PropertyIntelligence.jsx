@@ -49,7 +49,7 @@ const CSS = `
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(7,9,15,0.95);
+    background: rgba(255,255,255,0.95);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--borderf);
     display: flex;
@@ -80,7 +80,7 @@ const CSS = `
     text-decoration: none;
     transition: all 0.15s;
   }
-  .pi-nav-link:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+  .pi-nav-link:hover { background: rgba(15,23,42,0.05); color: var(--text); }
   .pi-nav-link.active { background: rgba(59,158,255,0.12); color: var(--blue); }
   .pi-nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
   .pi-nav-user { font-size: 12px; color: var(--sub); }
@@ -89,7 +89,7 @@ const CSS = `
     border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
-    background: rgba(255,255,255,0.05);
+    background: rgba(15,23,42,0.05);
     border: 1px solid var(--borderf);
     color: var(--sub);
     cursor: pointer;
@@ -273,7 +273,7 @@ const CSS = `
   /* Confidence bar */
   .pi-conf-bar-bg {
     height: 5px;
-    background: rgba(255,255,255,0.07);
+    background: rgba(15,23,42,0.07);
     border-radius: 3px;
     margin: 8px 0 4px;
     overflow: hidden;
@@ -326,7 +326,7 @@ const CSS = `
     font-family: 'Geist', sans-serif;
     white-space: nowrap;
   }
-  .pi-tab:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .pi-tab:hover { color: var(--text); background: rgba(15,23,42,0.04); }
   .pi-tab.active { background: var(--card); color: var(--blue); box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
 
   /* Calc Input Row */
@@ -402,7 +402,7 @@ const CSS = `
     grid-template-columns: 1fr 1fr;
     gap: 10px;
   }
-  .pi-result-item { padding: 10px 12px; background: rgba(255,255,255,0.03); border-radius: 6px; }
+  .pi-result-item { padding: 10px 12px; background: rgba(15,23,42,0.03); border-radius: 6px; }
   .pi-result-item-label { font-size: 10px; font-weight: 600; color: var(--sub); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
   .pi-result-item-val { font-size: 14px; font-weight: 700; color: var(--text); }
 
@@ -466,7 +466,7 @@ const CSS = `
   }
   .pi-table td {
     padding: 9px 12px;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
+    border-bottom: 1px solid rgba(15,23,42,0.04);
     color: var(--text);
   }
   .pi-table tr:last-child td { border-bottom: none; }
@@ -1496,7 +1496,7 @@ export default function PropertyIntelligence() {
                       <button
                         onClick={() => goToFullAnalysis(strategy)}
                         style={{
-                          background: color, color: "#07090f",
+                          background: color, color: "#ffffff",
                           border: "none", borderRadius: 5,
                           padding: "10px 18px",
                           fontFamily: "'Geist Mono',monospace", fontSize: 11.5, fontWeight: 700,
@@ -1540,7 +1540,7 @@ export default function PropertyIntelligence() {
                     }}>
                       <div style={{
                         padding: "10px 18px",
-                        background: "rgba(7,9,15,0.4)",
+                        background: "rgba(255,255,255,0.4)",
                         borderBottom: "1px solid var(--borderf)",
                         fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
                         color: "var(--sub)", letterSpacing: "1.6px",
@@ -1615,7 +1615,7 @@ export default function PropertyIntelligence() {
                       </div>
                       <div style={{
                         padding: "9px 18px",
-                        background: "rgba(7,9,15,0.3)",
+                        background: "rgba(255,255,255,0.3)",
                         borderTop: "1px solid var(--borderf)",
                         fontSize: 11, color: "var(--dim)", lineHeight: 1.5,
                       }}>
@@ -1888,7 +1888,7 @@ export default function PropertyIntelligence() {
                               {lbl:"Max FAR",     val: zoningData.zoning.maxFAR ?? "—", mono:true},
                               {lbl:"Max units",   val: zoningData.zoning.maxUnits ? `up to ${zoningData.zoning.maxUnits} dwelling${zoningData.zoning.maxUnits === 1 ? "" : "s"}` : "—", mono:false, strong:true},
                             ].map(({lbl,val,mono,strong}) => (
-                              <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:10,paddingBottom:5,borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
+                              <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:10,paddingBottom:5,borderBottom:"1px solid rgba(15,23,42,0.04)"}}>
                                 <span style={{color:"var(--sub)",fontSize:12}}>{lbl}</span>
                                 <span style={{
                                   color:"var(--text)",
@@ -1915,7 +1915,7 @@ export default function PropertyIntelligence() {
                                 {lbl:"Tax class",      val: zoningData.assessment.taxClass ?? zoningData.assessment.buildingClass ?? "—", mono:false},
                                 {lbl:"Garage",         val: zoningData.assessment.garage ?? "—", mono:false},
                               ].map(({lbl,val,mono,strong}) => (
-                                <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:10,paddingBottom:5,borderBottom:"1px solid rgba(255,255,255,0.04)"}}>
+                                <div key={lbl} style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",gap:10,paddingBottom:5,borderBottom:"1px solid rgba(15,23,42,0.04)"}}>
                                   <span style={{color:"var(--sub)",fontSize:12}}>{lbl}</span>
                                   <span style={{
                                     color:"var(--text)",
@@ -1945,7 +1945,7 @@ export default function PropertyIntelligence() {
                           </div>
                           <div style={{maxHeight:240,overflowY:"auto"}}>
                             {zoningData.nearbyPermits.map((p, i) => (
-                              <div key={i} style={{display:"grid",gridTemplateColumns:"100px 1fr 1.4fr",gap:8,padding:"6px 0",borderBottom: i < zoningData.nearbyPermits.length - 1 ? "1px dashed rgba(255,255,255,0.04)" : "none",fontSize:11.5,alignItems:"baseline"}}>
+                              <div key={i} style={{display:"grid",gridTemplateColumns:"100px 1fr 1.4fr",gap:8,padding:"6px 0",borderBottom: i < zoningData.nearbyPermits.length - 1 ? "1px dashed rgba(15,23,42,0.04)" : "none",fontSize:11.5,alignItems:"baseline"}}>
                                 <span style={{fontFamily:"'Geist Mono',monospace",color:"var(--dim)"}}>
                                   {(p.permit_date || p.applieddate || "").slice(0,10) || "—"}
                                 </span>
@@ -2047,7 +2047,7 @@ export default function PropertyIntelligence() {
                                   if (Number.isFinite(v) && v > 0) setProperty(p => p ? { ...p, lotSize: v } : p);
                                 }}
                                 style={{
-                                  background: "var(--card2,#0a0e18)", color: "var(--text)",
+                                  background: "var(--card2,#f1f5f9)", color: "var(--text)",
                                   border: "1px solid var(--borderf)", borderRadius: 3,
                                   padding: "5px 10px", width: 100,
                                   fontFamily: "'Geist Mono',monospace", fontSize: 12, fontWeight: 700,
@@ -2070,7 +2070,7 @@ export default function PropertyIntelligence() {
                               { label: "$ / unit",          value: pricePerUnit  ? `$${(pricePerUnit/1000).toFixed(0)}K`     : "—", hint: purchase ? "implied at max units" : "Need price",   color: "var(--purple)" },
                             ].map(tile => (
                               <div key={tile.label} style={{
-                                background: "var(--card2,#0a0e18)",
+                                background: "var(--card2,#f1f5f9)",
                                 border: "1px solid var(--borderf)",
                                 borderRadius: 4,
                                 padding: "9px 12px",
@@ -2202,7 +2202,7 @@ export default function PropertyIntelligence() {
                               style={{
                                 marginLeft: "auto",
                                 background: "var(--purple)", border: "none",
-                                color: "#07090f", borderRadius: 3,
+                                color: "#ffffff", borderRadius: 3,
                                 padding: "5px 11px",
                                 fontFamily: "'Geist Mono',monospace", fontSize: 9.5, fontWeight: 700,
                                 letterSpacing: "0.8px", cursor: "pointer",
@@ -2293,7 +2293,7 @@ export default function PropertyIntelligence() {
                           <div style={{ fontSize: 11, color: "var(--sub)" }}>${live.low.toLocaleString()} – ${live.high.toLocaleString()}</div>
                           <span style={{ fontFamily: "'Geist Mono',monospace", fontSize: 8.5, fontWeight: 700, color: confColor, letterSpacing: "0.8px", border: `1px solid ${confColor}`, borderRadius: 2, padding: "1px 6px" }}>{live.confidence.toUpperCase()}</span>
                           {!matched && (
-                            <button onClick={() => setArv(String(live.mid))} style={{ marginLeft: "auto", background: "var(--purple)", border: "none", color: "#07090f", borderRadius: 3, padding: "5px 11px", fontFamily: "'Geist Mono',monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.8px", cursor: "pointer" }}>▶ APPLY TO ARV</button>
+                            <button onClick={() => setArv(String(live.mid))} style={{ marginLeft: "auto", background: "var(--purple)", border: "none", color: "#ffffff", borderRadius: 3, padding: "5px 11px", fontFamily: "'Geist Mono',monospace", fontSize: 9.5, fontWeight: 700, letterSpacing: "0.8px", cursor: "pointer" }}>▶ APPLY TO ARV</button>
                           )}
                           {matched && (
                             <span style={{ marginLeft: "auto", fontFamily: "'Geist Mono',monospace", fontSize: 9.5, fontWeight: 700, color: "var(--green)", letterSpacing: "0.7px" }}>✓ MATCHES</span>

@@ -15,11 +15,11 @@ const CSS = `
   input,select{font-family:'Geist',sans-serif;font-size:14px!important}
 
   /* Nav */
-  .mq-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .mq-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .mq-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.mq-logo span{color:var(--blue)}
   .mq-nav-links{display:flex;align-items:center;gap:4px}
   .mq-nav-links a{color:var(--sub);text-decoration:none;font-size:13px;font-weight:500;padding:6px 12px;border-radius: 6px;transition:all .15s}
-  .mq-nav-links a:hover{color:var(--text);background:rgba(255,255,255,0.06)}
+  .mq-nav-links a:hover{color:var(--text);background:rgba(15,23,42,0.06)}
   .mq-nav-links a.active{color:var(--blue);background:rgba(59,158,255,0.1)}
 
   /* Layout */
@@ -46,8 +46,8 @@ const CSS = `
   .mq-label .opt{color:var(--dim);font-weight:400}
   .mq-field{display:flex;align-items:center;background:var(--card2);border:1px solid var(--borderf);border-radius: 10px;overflow:hidden;transition:border-color .15s}
   .mq-field:focus-within{border-color:rgba(59,158,255,0.4)}
-  .mq-field .prefix{padding:0 10px;color:var(--sub);font-size:13px;font-weight:600;background:rgba(255,255,255,0.03);border-right:1px solid var(--borderf);height:38px;display:flex;align-items:center;white-space:nowrap}
-  .mq-field .suffix{padding:0 10px;color:var(--sub);font-size:12px;font-weight:600;background:rgba(255,255,255,0.03);border-left:1px solid var(--borderf);height:38px;display:flex;align-items:center;white-space:nowrap;min-width:52px;justify-content:center}
+  .mq-field .prefix{padding:0 10px;color:var(--sub);font-size:13px;font-weight:600;background:rgba(15,23,42,0.03);border-right:1px solid var(--borderf);height:38px;display:flex;align-items:center;white-space:nowrap}
+  .mq-field .suffix{padding:0 10px;color:var(--sub);font-size:12px;font-weight:600;background:rgba(15,23,42,0.03);border-left:1px solid var(--borderf);height:38px;display:flex;align-items:center;white-space:nowrap;min-width:52px;justify-content:center}
   .mq-field input{flex:1;background:transparent;border:none;outline:none;color:var(--text);padding:0 12px;height:38px;font-size:14px}
   .mq-field input::placeholder{color:var(--dim)}
   .mq-field select{flex:1;background:transparent;border:none;outline:none;color:var(--text);padding:0 12px;height:38px;font-size:14px;cursor:pointer;-webkit-appearance:none;appearance:none}
@@ -98,7 +98,7 @@ const CSS = `
   .mq-gauge-badge.pass{background:rgba(52,217,138,0.15);color:var(--green)}
   .mq-gauge-badge.warn{background:rgba(240,160,48,0.15);color:var(--amber)}
   .mq-gauge-badge.fail{background:rgba(242,92,92,0.15);color:var(--red)}
-  .mq-gauge-bar{height:8px;border-radius:4px;background:rgba(255,255,255,0.06);position:relative;overflow:visible;margin-bottom:6px}
+  .mq-gauge-bar{height:8px;border-radius:4px;background:rgba(15,23,42,0.06);position:relative;overflow:visible;margin-bottom:6px}
   .mq-gauge-fill{height:100%;border-radius:4px;transition:width .4s ease}
   .mq-gauge-limit{position:absolute;top:-3px;width:2px;height:14px;border-radius:1px}
   .mq-gauge-nums{display:flex;justify-content:space-between;font-size:11px;color:var(--sub)}
@@ -107,9 +107,9 @@ const CSS = `
   .mq-breakdown{background:var(--card);border:1px solid var(--borderf);border-radius:6px;overflow:hidden}
   .mq-breakdown-head{padding:14px 18px;border-bottom:1px solid var(--borderf);font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.05em}
   .mq-breakdown-body{padding:4px 0}
-  .mq-brow{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,0.03)}
+  .mq-brow{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;border-bottom:1px solid rgba(15,23,42,0.03)}
   .mq-brow:last-child{border-bottom:none}
-  .mq-brow.total{background:rgba(255,255,255,0.03);font-weight:700}
+  .mq-brow.total{background:rgba(15,23,42,0.03);font-weight:700}
   .mq-brow-key{font-size:13px;color:var(--sub)}
   .mq-brow-val{font-size:13px;font-weight:600;color:var(--text)}
   .mq-brow-val.green{color:var(--green)}

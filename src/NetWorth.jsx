@@ -41,7 +41,7 @@ const CSS = `
   html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
 
   /* Nav */
-  .nw-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .nw-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .nw-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.nw-logo span{color:var(--blue)}
   .nw-nav-right{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
   .nw-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 10px;border-radius:7px;white-space:nowrap}.nw-nav-link:hover{color:var(--text)}
@@ -101,9 +101,9 @@ const CSS = `
   .nw-table-scroll{overflow-x:auto;border-radius:6px;border:1px solid var(--borderf)}
   .nw-table{width:100%;border-collapse:collapse;background:var(--card);min-width:680px}
   .nw-table th{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;padding:10px 14px;text-align:left;border-bottom:1px solid var(--borderf);background:var(--card2);white-space:nowrap}
-  .nw-table td{padding:12px 14px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle}
+  .nw-table td{padding:12px 14px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(15,23,42,0.03);vertical-align:middle}
   .nw-table tr:last-child td{border-bottom:none}
-  .nw-table tr:hover td{background:rgba(255,255,255,0.015)}
+  .nw-table tr:hover td{background:rgba(15,23,42,0.015)}
   .nw-equity-bar{height:5px;border-radius:3px;background:var(--borderf);overflow:hidden;margin-top:4px}
   .nw-equity-fill{height:100%;border-radius:3px;background:var(--green);transition:width 0.4s}
   .nw-type-pill{font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;white-space:nowrap}
@@ -133,16 +133,16 @@ const CSS = `
 
   /* Modal */
   .nw-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(5px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
-  .nw-modal{background:#0d1119;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:28px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
+  .nw-modal{background:#f8fafc;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:28px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
   .nw-modal-title{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:20px}
   .nw-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   @media(max-width:500px){.nw-form-grid{grid-template-columns:1fr}}
   .nw-field{display:flex;flex-direction:column;gap:5px}
   .nw-field.full{grid-column:1/-1}
   .nw-lbl{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
-  .nw-inp{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
+  .nw-inp{background:#f1f5f9;border:1px solid rgba(15,23,42,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
   .nw-inp:focus{border-color:rgba(59,158,255,0.4)}
-  .nw-sel{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;cursor:pointer}
+  .nw-sel{background:#f1f5f9;border:1px solid rgba(15,23,42,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;cursor:pointer}
   .nw-live-preview{background:rgba(52,217,138,0.05);border:1px solid rgba(52,217,138,0.15);border-radius:6px;padding:12px 16px;margin:12px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .nw-prev-val{font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px}
   .nw-prev-lbl{font-size:10px;color:var(--dim);font-weight:600;text-transform:uppercase}
@@ -425,7 +425,7 @@ export default function NetWorth() {
             <div className="nw-section-title">
               🏠 Properties Owned
               {propsWithCalc.length > 0 && (
-                <span style={{fontSize:11,fontWeight:600,color:"var(--sub)",background:"rgba(255,255,255,0.05)",border:"1px solid var(--borderf)",borderRadius:99,padding:"2px 8px"}}>
+                <span style={{fontSize:11,fontWeight:600,color:"var(--sub)",background:"rgba(15,23,42,0.05)",border:"1px solid var(--borderf)",borderRadius:99,padding:"2px 8px"}}>
                   {propsWithCalc.length}
                 </span>
               )}

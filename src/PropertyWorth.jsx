@@ -46,7 +46,7 @@ const CSS = `
   .pw-wrap{min-height:100vh;background:var(--bg)}
 
   /* Nav */
-  .pw-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .pw-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .pw-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.pw-logo span{color:var(--blue)}
   .pw-nav-right{display:flex;align-items:center;gap:8px}
   .pw-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 11px;border-radius:7px}.pw-nav-link:hover{color:var(--text)}
@@ -76,9 +76,9 @@ const CSS = `
   .pw-field{display:flex;flex-direction:column;gap:5px}
   .pw-label{font-size:11.5px;font-weight:700;color:var(--sub)}
   .pw-label-hint{font-size:10.5px;color:var(--dim);margin-top:1px}
-  .pw-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;color:var(--text);outline:none;transition:border-color 0.15s}
+  .pw-input{width:100%;background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;color:var(--text);outline:none;transition:border-color 0.15s}
   .pw-input:focus{border-color:rgba(59,158,255,0.4);box-shadow:0 0 0 3px rgba(59,158,255,0.07)}
-  .pw-select{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;color:var(--text);outline:none;appearance:none;cursor:pointer;transition:border-color 0.15s}
+  .pw-select{width:100%;background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;color:var(--text);outline:none;appearance:none;cursor:pointer;transition:border-color 0.15s}
   .pw-select:focus{border-color:rgba(59,158,255,0.4)}
   .pw-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .pw-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
@@ -99,7 +99,7 @@ const CSS = `
   .pw-range-psf{font-size:11px;color:var(--dim);margin-top:6px}
 
   /* Metric row */
-  .pw-metric-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+  .pw-metric-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(15,23,42,0.04)}
   .pw-metric-row:last-child{border-bottom:none}
   .pw-metric-name{font-size:13px;color:var(--sub)}
   .pw-metric-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:14px;font-weight:700;color:var(--text)}
@@ -118,7 +118,7 @@ const CSS = `
   /* Strategy buttons */
   .pw-strategy-btns{display:flex;flex-direction:column;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--borderf)}
   .pw-strategy-label{font-size:10.5px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
-  .pw-strat-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:6px;border:1px solid var(--borderf);background:rgba(255,255,255,0.03);cursor:pointer;transition:all 0.15s;font-family:'Geist',sans-serif;text-decoration:none;width:100%}
+  .pw-strat-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:6px;border:1px solid var(--borderf);background:rgba(15,23,42,0.03);cursor:pointer;transition:all 0.15s;font-family:'Geist',sans-serif;text-decoration:none;width:100%}
   .pw-strat-btn:hover{border-color:rgba(59,158,255,0.3);background:rgba(59,158,255,0.06)}
   .pw-strat-icon{font-size:18px;flex-shrink:0}
   .pw-strat-text{text-align:left}

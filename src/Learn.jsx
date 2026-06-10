@@ -7,11 +7,11 @@ const CSS = `
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body { background: #07090f; color: var(--text); font-family: 'Geist', sans-serif; }
+  body { background: #ffffff; color: var(--text); font-family: 'Geist', sans-serif; }
 
   .learn-page {
     min-height: 100vh;
-    background: #07090f;
+    background: #ffffff;
     color: var(--text);
     font-family: 'Geist', sans-serif;
   }
@@ -21,9 +21,9 @@ const CSS = `
     position: sticky;
     top: 0;
     z-index: 200;
-    background: rgba(7,9,15,0.97);
+    background: rgba(255,255,255,0.97);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(15,23,42,0.07);
     padding: 0 24px;
     height: 50px;
     display: flex;
@@ -56,7 +56,7 @@ const CSS = `
     background: transparent;
     font-family: 'Geist', sans-serif;
   }
-  .learn-nav-link:hover { color: var(--text); background: rgba(255,255,255,0.05); }
+  .learn-nav-link:hover { color: var(--text); background: rgba(15,23,42,0.05); }
   .learn-nav-link.active {
     color: var(--blue);
     background: rgba(59,158,255,0.1);
@@ -71,7 +71,7 @@ const CSS = `
     z-index: 100;
     background: rgba(13,17,25,0.97);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(15,23,42,0.07);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -90,7 +90,7 @@ const CSS = `
     text-decoration: none;
     padding: 4px 12px;
     border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(15,23,42,0.08);
     background: transparent;
     transition: all 0.15s;
     white-space: nowrap;
@@ -182,8 +182,8 @@ const CSS = `
     margin-bottom: 28px;
   }
   .strategy-card {
-    background: #0d1119;
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #f8fafc;
+    border: 1px solid rgba(15,23,42,0.07);
     border-radius: 16px;
     padding: 24px;
     position: relative;
@@ -262,7 +262,7 @@ const CSS = `
   }
   .search-bar {
     width: 100%;
-    background: #0d1119;
+    background: #f8fafc;
     border: 1px solid rgba(59,158,255,0.12);
     border-radius: 10px;
     padding: 12px 16px 12px 42px;
@@ -290,8 +290,8 @@ const CSS = `
     gap: 16px;
   }
   .glossary-card {
-    background: #0d1119;
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #f8fafc;
+    border: 1px solid rgba(15,23,42,0.07);
     border-radius: 10px;
     padding: 20px 20px 18px;
     transition: border-color 0.15s;
@@ -342,8 +342,8 @@ const CSS = `
     margin-bottom: 28px;
   }
   .rule-card {
-    background: #0a0e18;
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #f1f5f9;
+    border: 1px solid rgba(15,23,42,0.07);
     border-radius: 10px;
     padding: 20px;
     display: flex;
@@ -353,7 +353,7 @@ const CSS = `
   }
   .rule-card:hover {
     border-color: rgba(59,158,255,0.2);
-    background: #0d1119;
+    background: #f8fafc;
   }
   .rule-name {
     font-size: 15px;
@@ -399,7 +399,7 @@ const CSS = `
     display: flex;
     align-items: flex-start;
     gap: 14px;
-    background: #0d1119;
+    background: #f8fafc;
     border: 1px solid rgba(242,92,92,0.12);
     border-left: 3px solid var(--red);
     border-radius: 0 10px 10px 0;
@@ -440,8 +440,8 @@ const CSS = `
     display: flex;
     align-items: flex-start;
     gap: 16px;
-    background: #0d1119;
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #f8fafc;
+    border: 1px solid rgba(15,23,42,0.07);
     border-radius: 10px;
     padding: 18px 20px;
     transition: border-color 0.15s;
@@ -508,7 +508,7 @@ const CSS = `
     bottom: 28px;
     right: 24px;
     z-index: 300;
-    background: #0d1119;
+    background: #f8fafc;
     border: 1px solid rgba(59,158,255,0.25);
     color: var(--blue);
     font-size: 12px;
@@ -537,7 +537,7 @@ const CSS = `
   /* ── Divider ── */
   .section-divider {
     height: 1px;
-    background: rgba(255,255,255,0.05);
+    background: rgba(15,23,42,0.05);
     margin: 64px 0;
   }
 

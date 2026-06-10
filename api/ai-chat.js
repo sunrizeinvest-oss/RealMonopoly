@@ -908,7 +908,7 @@ async function handleSendDigest(req, res) {
   const fmtDate  = s => { try { return new Date(s).toLocaleDateString("en-CA"); } catch { return s || "—"; } };
 
   // Brand colours mirror the in-app palette.
-  const C = { bg:"#07090f", card:"#0d1119", text:"#dde4ef", sub:"#6b7d96", dim:"#3a4a60", blue:"#3b9eff", green:"#34d98a", red:"#f25c5c", amber:"#f0a030" };
+  const C = { bg:"#ffffff", card:"#f8fafc", text:"#0f172a", sub:"#475569", dim:"#94a3b8", blue:"#1e40af", green:"#16a34a", red:"#dc2626", amber:"#d97706" };
 
   const triggerRowsHtml = triggers.slice(0, 30).map((t, i) => {
     const status = (t.status || "—").toUpperCase();
@@ -961,7 +961,7 @@ async function handleSendDigest(req, res) {
       ${triggers.length > 30 ? `<div style="padding:14px 28px;font-size:12px;color:${C.dim};font-style:italic">…and ${triggers.length - 30} more — open the app to see the full list.</div>` : ""}
       ` : `<div style="padding:36px 28px;text-align:center;color:${C.dim};font-size:14px">Run another scan or widen your area to surface more signals.</div>`}
       <div style="padding:20px 28px;border-top:1px solid #1a2030;background:rgba(255,255,255,0.015)">
-        <a href="https://www.rizeai.co/triggers" style="display:inline-block;background:${C.blue};color:#07090f;text-decoration:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:5px;font-family:'SF Mono',Menlo,monospace;letter-spacing:0.8px">OPEN MARKET TRIGGERS →</a>
+        <a href="https://www.rizeai.co/triggers" style="display:inline-block;background:${C.blue};color:#ffffff;text-decoration:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:5px;font-family:'SF Mono',Menlo,monospace;letter-spacing:0.8px">OPEN MARKET TRIGGERS →</a>
       </div>
     </div>
     <div style="text-align:center;font-size:11px;color:${C.dim};margin-top:18px;line-height:1.6">
@@ -1351,7 +1351,7 @@ async function deliverMarketBrief({ to, market, items }) {
   const from   = process.env.RESEND_FROM_EMAIL || "RizeAI <brief@rizeai.co>";
   if (!apiKey) return { ok: false, error: "Email is not configured (RESEND_API_KEY missing)." };
 
-  const C = { bg:"#07090f", card:"#0d1119", text:"#dde4ef", sub:"#6b7d96", dim:"#3a4a60", blue:"#3b9eff", green:"#34d98a", red:"#f25c5c", amber:"#f0a030" };
+  const C = { bg:"#ffffff", card:"#f8fafc", text:"#0f172a", sub:"#475569", dim:"#94a3b8", blue:"#1e40af", green:"#16a34a", red:"#dc2626", amber:"#d97706" };
   const today = new Date().toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
   const rowsHtml = items.map(it => `
@@ -1382,7 +1382,7 @@ async function deliverMarketBrief({ to, market, items }) {
       <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse">${rowsHtml}</table>
       `}
       <div style="padding:20px 28px;border-top:1px solid #1a2030;background:rgba(255,255,255,0.015);text-align:center">
-        <a href="https://www.rizeai.co/market-brief" style="display:inline-block;background:${C.blue};color:#07090f;text-decoration:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:5px;font-family:'SF Mono',Menlo,monospace;letter-spacing:0.8px">MANAGE SUBSCRIPTIONS →</a>
+        <a href="https://www.rizeai.co/market-brief" style="display:inline-block;background:${C.blue};color:#ffffff;text-decoration:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:5px;font-family:'SF Mono',Menlo,monospace;letter-spacing:0.8px">MANAGE SUBSCRIPTIONS →</a>
       </div>
     </div>
     <div style="text-align:center;font-size:11px;color:${C.dim};margin-top:18px;line-height:1.6">

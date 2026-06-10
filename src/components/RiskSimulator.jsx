@@ -308,7 +308,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
           style={{
             marginLeft: "auto",
             background: running ? "rgba(167,130,255,0.15)" : "var(--purple)",
-            color: running ? "var(--purple)" : "#07090f",
+            color: running ? "var(--purple)" : "#ffffff",
             border: "none", borderRadius: 4,
             padding: "8px 16px",
             fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
@@ -370,7 +370,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
                   onClick={() => applyPreset(key)}
                   style={{
                     background: active ? color : "transparent",
-                    color: active ? "#07090f" : color,
+                    color: active ? "#ffffff" : color,
                     border: `1px solid ${color}`,
                     borderRadius: 3,
                     padding: "5px 10px",
@@ -435,7 +435,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
                     title={`Saved ${new Date(s.savedAt).toLocaleDateString()}`}
                     style={{
                       background: "transparent",
-                      color: active ? "#07090f" : "var(--blue)",
+                      color: active ? "#ffffff" : "var(--blue)",
                       border: "none",
                       padding: "5px 10px",
                       fontFamily: "'Geist Mono',ui-monospace,monospace",
@@ -451,9 +451,9 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
                     title="Delete this scenario"
                     style={{
                       background: "transparent",
-                      color: active ? "#07090f" : "var(--blue)",
+                      color: active ? "#ffffff" : "var(--blue)",
                       border: "none",
-                      borderLeft: `1px solid ${active ? "rgba(7,9,15,0.3)" : "var(--blue)"}`,
+                      borderLeft: `1px solid ${active ? "rgba(255,255,255,0.3)" : "var(--blue)"}`,
                       padding: "5px 8px",
                       fontFamily: "'Geist Mono',ui-monospace,monospace",
                       fontSize: 10, fontWeight: 700,
@@ -470,7 +470,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
               style={{
                 marginLeft: "auto",
                 background: "var(--blue)",
-                color: "#07090f",
+                color: "#ffffff",
                 border: "1px solid var(--blue)",
                 borderRadius: 3,
                 padding: "5px 11px",
@@ -486,7 +486,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8 }}>
             {PRIOR_FIELDS.map(f => (
               <div key={f.key} style={{
-                background: "var(--card2, #0a0e18)",
+                background: "var(--card2, #f1f5f9)",
                 border: "1px solid var(--borderf)",
                 borderRadius: 4,
                 padding: "8px 10px",
@@ -759,7 +759,7 @@ function Bar({ label, p, good }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "200px 1fr 50px", gap: 12, alignItems: "center", marginBottom: 6 }}>
       <div style={{ fontFamily: "'Geist',sans-serif", fontSize: 13, color: "var(--text)" }}>{label}</div>
-      <div style={{ height: 16, background: "rgba(255,255,255,0.04)", border: "1px solid var(--borderf)", borderRadius: 3, overflow: "hidden" }}>
+      <div style={{ height: 16, background: "rgba(15,23,42,0.04)", border: "1px solid var(--borderf)", borderRadius: 3, overflow: "hidden" }}>
         <div style={{ height: "100%", width: `${pct * 100}%`, background: color, transition: "width 0.6s" }} />
       </div>
       <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 13, fontWeight: 700, color, textAlign: "right" }}>

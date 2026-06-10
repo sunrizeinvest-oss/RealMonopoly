@@ -36,11 +36,11 @@ const CSS = `
   input{font-size:16px!important;font-family:'Geist',sans-serif}
 
   .lc-wrap{min-height:100vh;background:var(--bg)}
-  .lc-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .lc-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .lc-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.lc-logo span{color:var(--blue)}
   .lc-nav-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   .lc-nav-link{font-family:'Geist Mono',monospace;font-size:11px;color:var(--sub);text-decoration:none;font-weight:600;padding:6px 11px;border-radius:3px;letter-spacing:0.4px;text-transform:uppercase}
-  .lc-nav-link:hover{color:var(--text);background:rgba(255,255,255,0.05)}
+  .lc-nav-link:hover{color:var(--text);background:rgba(15,23,42,0.05)}
   .lc-nav-link.active{color:var(--blue)}
   .lc-nav-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:3px;padding:6px 14px;font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase}.lc-nav-ghost:hover{color:var(--text);border-color:var(--blue)}
 
@@ -61,7 +61,7 @@ const CSS = `
   .lc-deal-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
   .lc-field{display:flex;flex-direction:column;gap:4px}
   .lc-label{font-family:'Geist Mono',monospace;font-size:9.5px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:0.7px}
-  .lc-input{background:rgba(255,255,255,0.03);border:1px solid var(--borderf);border-radius:4px;padding:9px 11px;font-family:'Geist Mono',monospace;font-size:13px;color:var(--text);outline:none;width:100%;font-weight:600;letter-spacing:-0.2px;transition:border 0.15s}
+  .lc-input{background:rgba(15,23,42,0.03);border:1px solid var(--borderf);border-radius:4px;padding:9px 11px;font-family:'Geist Mono',monospace;font-size:13px;color:var(--text);outline:none;width:100%;font-weight:600;letter-spacing:-0.2px;transition:border 0.15s}
   .lc-input:focus{border-color:rgba(59,158,255,0.45);background:rgba(59,158,255,0.04)}
 
   /* Loan columns */
@@ -69,14 +69,14 @@ const CSS = `
   @media(max-width:840px){.lc-cols{grid-template-columns:1fr}}
   .lc-col{background:var(--card);border:1px solid var(--borderf);border-radius:6px;overflow:hidden}
   .lc-col.winner{border-color:rgba(52,217,138,0.4);box-shadow:0 0 0 1px rgba(52,217,138,0.2)}
-  .lc-col-head{padding:10px 14px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf);display:flex;align-items:center;gap:10px}
+  .lc-col-head{padding:10px 14px;background:rgba(15,23,42,0.025);border-bottom:1px solid var(--borderf);display:flex;align-items:center;gap:10px}
   .lc-col-tag{width:24px;height:22px;border:1px solid rgba(59,158,255,0.4);border-radius:3px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:0.5px}
   .lc-col-name{flex:1;font-family:'Geist',sans-serif;background:transparent;border:none;color:var(--text);font-size:13.5px;font-weight:700;outline:none;letter-spacing:-0.2px}
   .lc-col-name:focus{color:var(--blue)}
   .lc-col-body{padding:14px}
   .lc-col-inputs{display:flex;flex-direction:column;gap:10px}
   .lc-col-divider{height:1px;background:var(--borderf);margin:14px 0}
-  .lc-result-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,0.04);font-size:12.5px}
+  .lc-result-row{display:flex;justify-content:space-between;align-items:baseline;padding:6px 0;border-bottom:1px dashed rgba(15,23,42,0.04);font-size:12.5px}
   .lc-result-row:last-child{border-bottom:none}
   .lc-result-lbl{color:var(--sub);font-family:'Geist',sans-serif;font-weight:500}
   .lc-result-val{font-family:'Geist Mono',monospace;font-weight:700;letter-spacing:-0.2px;color:var(--text)}

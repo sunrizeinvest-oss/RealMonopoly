@@ -72,7 +72,7 @@ const CSS = `
   .ph-wrap{min-height:100vh;background:var(--bg)}
 
   /* Nav */
-  .ph-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .ph-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .ph-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.ph-logo span{color:var(--blue)}
   .ph-nav-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .ph-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 11px;border-radius:7px}.ph-nav-link:hover{color:var(--text)}.ph-nav-link.active{color:var(--blue)}
@@ -143,11 +143,11 @@ const CSS = `
   .ph-comps-section{margin-bottom:28px}
   .ph-comps-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
   .ph-comps-title{font-size:14px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px}
-  .ph-comps-badge{font-size:10px;font-weight:700;color:var(--sub);background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius:3px;padding:2px 9px}
+  .ph-comps-badge{font-size:10px;font-weight:700;color:var(--sub);background:rgba(15,23,42,0.05);border:1px solid var(--borderf);border-radius:3px;padding:2px 9px}
   .ph-comps-wrap{overflow-x:auto;border-radius:6px;border:1px solid var(--borderf)}
   .ph-comps-table{width:100%;border-collapse:collapse;background:var(--card);min-width:600px}
   .ph-comps-table th{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;padding:10px 14px;text-align:left;border-bottom:1px solid var(--borderf);background:var(--card2);white-space:nowrap}
-  .ph-comps-table td{padding:10px 14px;font-size:12.5px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle}
+  .ph-comps-table td{padding:10px 14px;font-size:12.5px;color:var(--text);border-bottom:1px solid rgba(15,23,42,0.03);vertical-align:middle}
   .ph-comps-table tr:last-child td{border-bottom:none}
   .ph-comps-table tr:hover td{background:rgba(255,255,255,0.02)}
   .ph-comp-addr{font-size:12px;color:var(--text);font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -192,7 +192,7 @@ const CSS = `
   .ph-strat.brrrr .ph-strat-cta{color:var(--purple)}
   .ph-strat.mf .ph-strat-cta{color:var(--green)}
   .ph-strat-pills{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
-  .ph-strat-pill{font-size:10px;font-weight:600;padding:3px 9px;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);color:var(--dim)}
+  .ph-strat-pill{font-size:10px;font-weight:600;padding:3px 9px;border-radius:3px;background:rgba(15,23,42,0.04);border:1px solid var(--borderf);color:var(--dim)}
 
   .ph-blank-strategies{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:1060px;margin:0 auto;padding:0 20px 80px}
   @media(max-width:680px){.ph-blank-strategies{grid-template-columns:1fr}}
@@ -482,7 +482,7 @@ export default function PropertyHub() {
                   <div style={{fontSize:13,fontWeight:700,color:"#ffb43c",marginBottom:3}}>Don't have the property value?</div>
                   <div style={{fontSize:12,color:"var(--sub)"}}>Use our free estimator — get value range, rent estimate & cash flow instantly.</div>
                 </div>
-                <button onClick={() => navigate(`/property?address=${encodeURIComponent(query)}`)} style={{background:"linear-gradient(135deg,#ffb43c,var(--amber))",color:"#07090f",border:"none",borderRadius: 10,padding:"9px 18px",fontSize:13,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit"}}>
+                <button onClick={() => navigate(`/property?address=${encodeURIComponent(query)}`)} style={{background:"linear-gradient(135deg,#ffb43c,var(--amber))",color:"#ffffff",border:"none",borderRadius: 10,padding:"9px 18px",fontSize:13,fontWeight:800,cursor:"pointer",whiteSpace:"nowrap",fontFamily:"inherit"}}>
                   Estimate Value →
                 </button>
               </div>

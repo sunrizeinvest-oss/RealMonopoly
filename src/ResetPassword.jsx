@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%;background:#07090f;overflow-x:hidden}
+  html,body{height:100%;background:#ffffff;overflow-x:hidden}
   body{color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
   input{font-size:16px!important;font-family:'Geist',sans-serif}
   .rp-wrap{width:100%;min-height:100vh;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;position:relative;overflow:hidden}
@@ -18,7 +18,7 @@ const CSS = `
   .rp-sub{font-size:13px;color:var(--sub);margin-bottom:24px;text-align:center;line-height:1.6}
   .rp-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
   .rp-label{font-size:11.5px;font-weight:600;color:var(--sub);letter-spacing:0.3px;display:flex;justify-content:space-between}
-  .rp-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:6px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s}
+  .rp-input{width:100%;background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius:6px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s}
   .rp-input:focus{border-color:rgba(59,158,255,0.5);box-shadow:0 0 0 3px rgba(59,158,255,0.1)}
   .rp-hint{font-size:11px;color:var(--dim);margin-top:4px}
   .rp-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:6px;padding:14px;font-family:'Geist',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:8px}

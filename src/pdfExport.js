@@ -4,7 +4,7 @@
 
 import jsPDF from "jspdf";
 
-const DARK = "#07090f";
+const DARK = "#ffffff";
 const BLUE = "#3b9eff";
 const GREEN = "#34d98a";
 const RED = "#f25c5c";
@@ -39,7 +39,7 @@ function drawHeader(doc, title, address, city, verdict, verdictColor) {
   const W = 210, margin = 14;
 
   // Dark background header
-  setFill(doc, "#07090f");
+  setFill(doc, "#ffffff");
   doc.rect(0, 0, W, 38, "F");
 
   // Logo
@@ -96,7 +96,7 @@ function drawSectionTitle(doc, text, y, color = BLUE) {
 }
 
 function drawMetricBox(doc, x, y, w, h, label, value, color, sub) {
-  setFill(doc, "#0d1119");
+  setFill(doc, "#f8fafc");
   setDraw(doc, "#1a2030");
   doc.setLineWidth(0.3);
   doc.roundedRect(x, y, w, h, 2, 2, "FD");
@@ -137,7 +137,7 @@ function drawRow(doc, label, value, y, bold = false, color = null) {
 
 function drawFooter(doc) {
   const W = 210, pageH = 297;
-  setFill(doc, "#07090f");
+  setFill(doc, "#ffffff");
   doc.rect(0, pageH - 12, W, 12, "F");
   doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
@@ -169,7 +169,7 @@ export function exportFlipPDF(v, c) {
   y += 32;
 
   // Deal score bar
-  setFill(doc, "#0d1119");
+  setFill(doc, "#f8fafc");
   doc.roundedRect(margin, y, W - margin * 2, 10, 2, 2, "F");
   const barW = Math.min(c.score / 100, 1) * (W - margin * 2 - 4);
   setFill(doc, verdictColor);

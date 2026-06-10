@@ -56,7 +56,7 @@ const CSS = `
   html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* Nav */
-  .pl-nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .pl-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .pl-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none;flex-shrink:0}.pl-logo span{color:var(--blue)}
   .pl-nav-right{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
   .pl-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 10px;border-radius:7px;white-space:nowrap}.pl-nav-link:hover{color:var(--text)}
@@ -93,30 +93,30 @@ const CSS = `
   .pl-grade{font-size:13px;font-weight:900;flex-shrink:0;width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace}
   .pl-card-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
   .pl-type-pill{font-size:9px;font-weight:700;padding:2px 8px;border-radius:3px;text-transform:uppercase;letter-spacing:0.3px}
-  .pl-source-pill{font-size:9px;font-weight:600;padding:2px 7px;border-radius:3px;background:rgba(255,255,255,0.05);color:var(--dim);border:1px solid var(--borderf)}
+  .pl-source-pill{font-size:9px;font-weight:600;padding:2px 7px;border-radius:3px;background:rgba(15,23,42,0.05);color:var(--dim);border:1px solid var(--borderf)}
   .pl-card-numbers{display:flex;justify-content:space-between;align-items:center}
   .pl-profit{font-size:14px;font-weight:800;letter-spacing:-0.3px}
   .pl-days{font-size:10px;color:var(--dim);font-weight:600}
   .pl-days.stale{color:var(--amber)}
   .pl-days.urgent{color:var(--red)}
-  .pl-card-actions{display:flex;gap:4px;margin-top:8px;border-top:1px solid rgba(255,255,255,0.04);padding-top:8px}
+  .pl-card-actions{display:flex;gap:4px;margin-top:8px;border-top:1px solid rgba(15,23,42,0.04);padding-top:8px}
   .pl-ca-btn{flex:1;background:rgba(59,158,255,0.07);border:1px solid rgba(59,158,255,0.15);border-radius:6px;padding:5px 4px;font-size:10px;font-weight:700;color:var(--blue);cursor:pointer;font-family:'Geist',sans-serif;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:3px;transition:all 0.12s}
   .pl-ca-btn:hover{background:rgba(59,158,255,0.15)}
-  .pl-ca-del{background:transparent;border:1px solid rgba(255,255,255,0.05);border-radius:6px;padding:5px 7px;font-size:10px;font-weight:700;color:var(--dim);cursor:pointer;font-family:'Geist',sans-serif;transition:all 0.12s}
+  .pl-ca-del{background:transparent;border:1px solid rgba(15,23,42,0.05);border-radius:6px;padding:5px 7px;font-size:10px;font-weight:700;color:var(--dim);cursor:pointer;font-family:'Geist',sans-serif;transition:all 0.12s}
   .pl-ca-del:hover{color:var(--red);background:rgba(242,92,92,0.08);border-color:rgba(242,92,92,0.2)}
 
   /* Modal */
   .pl-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(5px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
-  .pl-modal{background:#0d1119;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:28px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto}
+  .pl-modal{background:#f8fafc;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:28px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto}
   .pl-modal-title{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:20px}
   .pl-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   @media(max-width:500px){.pl-form-grid{grid-template-columns:1fr}}
   .pl-field{display:flex;flex-direction:column;gap:5px}
   .pl-field.full{grid-column:1/-1}
   .pl-lbl{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
-  .pl-inp{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
+  .pl-inp{background:#f1f5f9;border:1px solid rgba(15,23,42,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
   .pl-inp:focus{border-color:rgba(59,158,255,0.4)}
-  .pl-sel{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;cursor:pointer}
+  .pl-sel{background:#f1f5f9;border:1px solid rgba(15,23,42,0.08);border-radius: 6px;padding:9px 11px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;cursor:pointer}
   .pl-modal-acts{display:flex;gap:8px;margin-top:20px;justify-content:flex-end;flex-wrap:wrap}
   .pl-save-btn{background:var(--blue);color:#fff;border:none;border-radius: 10px;padding:10px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Geist',sans-serif}
   .pl-save-btn:hover{background:#5aaeff}
@@ -359,7 +359,7 @@ export default function Pipeline() {
                         </div>
 
                         {deal.notes && (
-                          <div style={{ fontSize:10, color:"var(--dim)", marginTop:6, lineHeight:1.4, borderTop:"1px solid rgba(255,255,255,0.04)", paddingTop:6 }}>
+                          <div style={{ fontSize:10, color:"var(--dim)", marginTop:6, lineHeight:1.4, borderTop:"1px solid rgba(15,23,42,0.04)", paddingTop:6 }}>
                             {deal.notes.length > 80 ? deal.notes.slice(0,80) + "…" : deal.notes}
                           </div>
                         )}
@@ -369,7 +369,7 @@ export default function Pipeline() {
                           <button className="pl-ca-btn" onClick={() => analyzeInCalculator(deal)}>
                             📊 Analyze
                           </button>
-                          <button className="pl-ca-btn" style={{ background:"rgba(255,255,255,0.04)", borderColor:"var(--borderf)", color:"var(--sub)" }} onClick={() => openEdit(deal)}>
+                          <button className="pl-ca-btn" style={{ background:"rgba(15,23,42,0.04)", borderColor:"var(--borderf)", color:"var(--sub)" }} onClick={() => openEdit(deal)}>
                             ✏️ Edit
                           </button>
                           <button className="pl-ca-del" onClick={() => deleteDeal(deal.id)}>✕</button>

@@ -235,7 +235,7 @@ export default function AddressAutocomplete({
       {open && suggestions.length > 0 && (
         <div style={{
           position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 9999,
-          background: "#0d1119", border: "1px solid rgba(255,255,255,0.1)",
+          background: "#f8fafc", border: "1px solid rgba(255,255,255,0.1)",
           borderRadius: 10, overflow: "hidden",
           boxShadow: "0 8px 40px rgba(0,0,0,0.6)",
         }}>
@@ -249,7 +249,7 @@ export default function AddressAutocomplete({
                 ...SUGGESTION_STYLE.base,
                 ...(i === hovered ? SUGGESTION_STYLE.hover : {}),
                 borderBottom: i < suggestions.length - 1
-                  ? "1px solid rgba(255,255,255,0.04)"
+                  ? "1px solid rgba(15,23,42,0.04)"
                   : "none",
               }}
             >
@@ -262,7 +262,7 @@ export default function AddressAutocomplete({
               </div>
             </div>
           ))}
-          <div style={{ padding: "5px 14px", borderTop: "1px solid rgba(255,255,255,0.04)", display: "flex", alignItems: "center", gap: 4 }}>
+          <div style={{ padding: "5px 14px", borderTop: "1px solid rgba(15,23,42,0.04)", display: "flex", alignItems: "center", gap: 4 }}>
             <span style={{ fontSize: 9, color: "var(--dim)", letterSpacing: 0.3 }}>Powered by OpenStreetMap · Photon</span>
           </div>
         </div>

@@ -206,7 +206,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
             )}
           </mask>
         </defs>
-        <rect width="100%" height="100%" fill="rgba(7,9,15,0.78)" mask="url(#rde-tour-mask)"/>
+        <rect width="100%" height="100%" fill="rgba(255,255,255,0.78)" mask="url(#rde-tour-mask)"/>
         {/* Glow ring around spotlight */}
         {spotlight && (
           <rect
@@ -225,7 +225,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
       <div style={{
         position: "absolute",
         left: pop.left, top: pop.top, width: POP_W,
-        background: "var(--card, #0d1119)",
+        background: "var(--card, #f8fafc)",
         border: "1px solid var(--border, rgba(59,158,255,0.18))",
         borderLeft: "3px solid var(--green, #34d98a)",
         borderRadius: 6,
@@ -245,7 +245,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
           display: "flex", alignItems: "center", gap: 10,
           padding: "10px 16px",
           background: "rgba(52,217,138,0.05)",
-          borderBottom: "1px solid var(--borderf, rgba(255,255,255,0.07))",
+          borderBottom: "1px solid var(--borderf, rgba(15,23,42,0.07))",
           fontFamily: "'Geist Mono',ui-monospace,monospace",
           fontSize: 10, fontWeight: 700,
           color: "var(--green, #34d98a)", letterSpacing: "1.4px",
@@ -293,7 +293,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
           {Array.from({ length: total }).map((_, i) => (
             <span key={i} style={{
               flex: 1, height: 3, borderRadius: 1.5,
-              background: i <= step ? "var(--green, #34d98a)" : "rgba(255,255,255,0.08)",
+              background: i <= step ? "var(--green, #34d98a)" : "rgba(15,23,42,0.08)",
               transition: "background 0.2s",
             }}/>
           ))}
@@ -302,11 +302,11 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
         {/* Footer buttons */}
         <div style={{
           display: "flex", gap: 8, padding: "10px 16px 14px",
-          borderTop: "1px solid var(--borderf, rgba(255,255,255,0.07))",
+          borderTop: "1px solid var(--borderf, rgba(15,23,42,0.07))",
         }}>
           <button onClick={onBack} disabled={step === 0} style={{
             background: "transparent",
-            border: "1px solid var(--borderf, rgba(255,255,255,0.07))",
+            border: "1px solid var(--borderf, rgba(15,23,42,0.07))",
             borderRadius: 4,
             padding: "8px 14px",
             color: step === 0 ? "var(--dim, #3a4a60)" : "var(--sub, #6b7d96)",
@@ -323,7 +323,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
             border: "none",
             borderRadius: 4,
             padding: "8px 18px",
-            color: "#07090f",
+            color: "#ffffff",
             fontFamily: "'Geist Mono',ui-monospace,monospace",
             fontSize: 11, fontWeight: 700, letterSpacing: "1px",
             cursor: "pointer",

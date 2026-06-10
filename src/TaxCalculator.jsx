@@ -26,12 +26,12 @@ const CSS = `
   input,select,button{font-family:'Geist',sans-serif}
 
   /* Nav */
-  .tc-nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+  .tc-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:52px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
   .tc-logo{font-size:15px;font-weight:800;color:var(--text);text-decoration:none;letter-spacing:-0.5px}
   .tc-logo span{color:var(--blue)}
   .tc-nav-links{display:flex;align-items:center;gap:4px}
   .tc-nav-link{font-size:13px;font-weight:500;color:var(--sub);text-decoration:none;padding:5px 11px;border-radius:7px;border:1px solid transparent;transition:all 0.15s}
-  .tc-nav-link:hover{color:var(--text);background:rgba(255,255,255,0.05)}
+  .tc-nav-link:hover{color:var(--text);background:rgba(15,23,42,0.05)}
   .tc-nav-link.active{color:var(--blue);background:rgba(59,158,255,0.1);border-color:rgba(59,158,255,0.2)}
 
   /* Layout */
@@ -59,7 +59,7 @@ const CSS = `
   /* Fields */
   .tc-field{display:flex;flex-direction:column;gap:4px}
   .tc-label{font-size:11px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:0.4px}
-  .tc-input{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
+  .tc-input{background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:10px 13px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
   .tc-input:focus{border-color:rgba(52,217,138,0.4);background:rgba(52,217,138,0.03)}
   .tc-input::placeholder{color:var(--dim)}
   .tc-input-prefix{position:relative}
@@ -73,9 +73,9 @@ const CSS = `
   .tc-divider{height:1px;background:var(--borderf);margin:4px 0}
 
   /* Toggle */
-  .tc-toggle-wrap{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;overflow:hidden}
+  .tc-toggle-wrap{display:flex;background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius: 10px;overflow:hidden}
   .tc-toggle-btn{flex:1;padding:9px 10px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:all 0.15s;background:transparent;color:var(--sub)}
-  .tc-toggle-btn.active{background:var(--green);color:#07090f}
+  .tc-toggle-btn.active{background:var(--green);color:#ffffff}
   .tc-toggle-btn.active-passive{background:var(--amber)}
   .tc-toggle-btn.active-yes{background:var(--blue)}
 
@@ -111,7 +111,7 @@ const CSS = `
   .tc-table{width:100%;border-collapse:collapse;font-size:12.5px}
   .tc-table thead th{background:var(--card2);color:var(--sub);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:10px 12px;text-align:right;border-bottom:1px solid var(--borderf);white-space:nowrap}
   .tc-table thead th:first-child{text-align:left}
-  .tc-table tbody td{padding:10px 12px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.04);text-align:right}
+  .tc-table tbody td{padding:10px 12px;color:var(--text);border-bottom:1px solid rgba(15,23,42,0.04);text-align:right}
   .tc-table tbody td:first-child{text-align:left;color:var(--sub);font-weight:600}
   .tc-table tbody tr:last-child td{border-bottom:none}
   .tc-table tbody tr:hover td{background:rgba(255,255,255,0.02)}
@@ -519,7 +519,7 @@ export default function TaxCalculator() {
                 />
               </Field>
 
-              <div style={{ fontSize: 11.5, color: "var(--sub)", lineHeight: 1.6, padding: "10px 12px", background: "rgba(255,255,255,0.03)", borderRadius: 6, border: "1px solid var(--borderf)" }}>
+              <div style={{ fontSize: 11.5, color: "var(--sub)", lineHeight: 1.6, padding: "10px 12px", background: "rgba(15,23,42,0.03)", borderRadius: 6, border: "1px solid var(--borderf)" }}>
                 {v.investorType === "active"
                   ? "Active: You actively manage the property. Can deduct up to $25,000/yr in paper losses if your income is below $100K. Phases out $100K–$150K."
                   : "Passive: You do not materially participate. Paper losses can only offset other passive income — they cannot reduce W-2 or active business income."}
@@ -738,7 +738,7 @@ export default function TaxCalculator() {
                           { label: "15-year land improvements (12%)", val: c.costseg15yr, sub: `60% bonus → ${fmt(c.costseg15yr * 0.6)} deducted Year 1` },
                           { label: `Remainder on ${c.schedule}-year schedule`, val: c.costsegStd, sub: `${fmt(c.costsegStd / c.schedule)}/yr standard` },
                         ].map((row) => (
-                          <div key={row.label} style={{ padding: "8px 10px", background: "rgba(255,255,255,0.03)", borderRadius: 6 }}>
+                          <div key={row.label} style={{ padding: "8px 10px", background: "rgba(15,23,42,0.03)", borderRadius: 6 }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                               <span style={{ color: "var(--sub)" }}>{row.label}</span>
                               <span style={{ color: "var(--text)", fontWeight: 600 }}>{fmt(row.val)}</span>

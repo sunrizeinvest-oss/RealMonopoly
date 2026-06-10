@@ -28,10 +28,10 @@ const CSS = `
   .db-wrap{min-height:100vh;background:var(--bg)}
 
   /* Nav */
-  .db-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .db-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .db-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.db-logo span{color:var(--blue)}
   .db-nav-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .db-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 11px;border-radius:7px}.db-nav-link:hover{color:var(--text);background:rgba(255,255,255,0.05)}
+  .db-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 11px;border-radius:7px}.db-nav-link:hover{color:var(--text);background:rgba(15,23,42,0.05)}
   .db-nav-btn{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;transition:all 0.15s}.db-nav-btn:hover{color:var(--text)}
   .db-nav-primary{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none;display:inline-flex;align-items:center}.db-nav-primary:hover{background:#5aaeff}
 
@@ -215,7 +215,7 @@ export default function Dashboard() {
   }
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", background: "#07090f", display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <div style={{ minHeight: "100vh", background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ color: "var(--blue)", fontSize: 14 }}>Loading...</div>
     </div>
   );

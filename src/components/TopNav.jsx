@@ -258,10 +258,10 @@ const css = `
   height:52px;
   display:flex; align-items:center; gap:14px;
   padding:0 20px;
-  background:rgba(7,9,15,0.92);
+  background:rgba(255,255,255,0.92);
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--borderf, rgba(255,255,255,0.07));
+  border-bottom:1px solid var(--borderf, rgba(15,23,42,0.07));
   font-family:'Geist',sans-serif;
 }
 
@@ -318,7 +318,7 @@ const css = `
   padding:7px 10px; cursor:pointer; border-radius:5px;
   transition:color 0.15s, background 0.15s;
 }
-.tn-link:hover{ color:var(--text); background:rgba(255,255,255,0.04); }
+.tn-link:hover{ color:var(--text); background:rgba(15,23,42,0.04); }
 
 .tn-cta{
   background:var(--blue); border:none; color:#fff;
@@ -367,7 +367,7 @@ const css = `
   color:var(--text); font-family:'Geist',sans-serif; font-size:13px;
   border-radius:4px; cursor:pointer;
 }
-.tn-acct-menu-item:hover{ background:rgba(255,255,255,0.04); }
+.tn-acct-menu-item:hover{ background:rgba(15,23,42,0.04); }
 .tn-acct-menu-item.danger{ color:var(--red); }
 .tn-acct-menu-divider{ height:1px; background:var(--borderf); margin:4px 0; }
 
@@ -409,9 +409,9 @@ const css = `
   cursor:pointer; text-align:left;
   transition:color 0.12s, background 0.12s, border-color 0.12s;
 }
-.tn-mega-tool:hover{ background:rgba(255,255,255,0.025); color:var(--text); }
+.tn-mega-tool:hover{ background:rgba(15,23,42,0.025); color:var(--text); }
 .tn-mega-tool.active{
-  background:rgba(255,255,255,0.03);
+  background:rgba(15,23,42,0.03);
   font-weight:700;
 }
 .tn-mega-tool-icon{ font-size:16px; line-height:1; }

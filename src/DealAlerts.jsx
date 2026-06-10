@@ -62,12 +62,12 @@ const CSS = `
   html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* ── Nav ── */
-  .da-nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .da-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .da-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none;flex-shrink:0}
   .da-logo span{color:var(--blue)}
   .da-nav-links{display:flex;align-items:center;gap:4px}
   .da-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 10px;border-radius:7px;transition:color 0.15s,background 0.15s;white-space:nowrap}
-  .da-nav-link:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+  .da-nav-link:hover{color:var(--text);background:rgba(15,23,42,0.04)}
   .da-nav-link.active{color:var(--blue);background:rgba(59,158,255,0.08)}
   .da-nav-right{display:flex;align-items:center;gap:8px}
   .da-signout{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius:7px;padding:6px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;transition:all 0.15s}
@@ -124,7 +124,7 @@ const CSS = `
   .da-create-btn:disabled{opacity:0.45;cursor:not-allowed}
 
   /* ── Toast ── */
-  .da-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--green);color:#07090f;border-radius:6px;padding:12px 24px;font-size:14px;font-weight:800;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:da-fadein 0.2s ease}
+  .da-toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--green);color:#ffffff;border-radius:6px;padding:12px 24px;font-size:14px;font-weight:800;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,0.5);animation:da-fadein 0.2s ease}
   @keyframes da-fadein{from{opacity:0;transform:translateX(-50%) translateY(12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
 
   /* ── Alert cards ── */
@@ -169,7 +169,7 @@ const CSS = `
   .da-listing-city{font-size:11px;color:var(--sub);margin-bottom:8px}
   .da-listing-price{font-size:20px;font-weight:800;letter-spacing:-0.5px;color:var(--green);margin-bottom:6px}
   .da-listing-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
-  .da-listing-pill{font-size:11px;font-weight:600;color:var(--sub);background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:6px;padding:2px 8px}
+  .da-listing-pill{font-size:11px;font-weight:600;color:var(--sub);background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius:6px;padding:2px 8px}
   .da-listing-dom{font-size:11px;color:var(--amber)}
   .da-listing-link{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:12px;font-weight:700;color:var(--blue);text-decoration:none}
   .da-listing-link:hover{text-decoration:underline}

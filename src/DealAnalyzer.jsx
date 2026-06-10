@@ -78,7 +78,7 @@ const CSS = `
   body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
   input,select,textarea{font-size:16px!important;font-family:'Geist',sans-serif}
   .da-wrap{min-height:100vh;background:var(--bg)}
-  .da-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .da-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .da-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}
   .da-logo span{color:var(--blue)}
   .da-nav-right{display:flex;align-items:center;gap:10px}
@@ -118,13 +118,13 @@ const CSS = `
   .da-input-wrap{position:relative}
   .da-input-pre{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:13px;font-weight:600;pointer-events:none;font-family:'Geist Mono',monospace}
   .da-input-suf{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--dim);font-size:12px;pointer-events:none}
-  .da-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:10px;padding:11px 12px;font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s;-webkit-appearance:none}
+  .da-input{width:100%;background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius:10px;padding:11px 12px;font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s;-webkit-appearance:none}
   .da-input:focus{border-color:rgba(59,158,255,0.4);box-shadow:0 0 0 3px rgba(59,158,255,0.08)}
   .da-input.has-pre{padding-left:26px}
   .da-input.has-suf{padding-right:44px}
   .da-input-hint{font-size:11px;color:rgba(59,158,255,0.7);font-weight:500}
   .da-field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .da-type-toggle{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:10px;padding:3px;gap:3px}
+  .da-type-toggle{display:flex;background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius:10px;padding:3px;gap:3px}
   .da-type-btn{flex:1;padding:9px 0;border:none;border-radius: 6px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
   .da-type-btn.active{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(59,158,255,0.3)}
   .da-type-btn.inactive{background:transparent;color:var(--sub)}
@@ -170,7 +170,7 @@ const CSS = `
   .da-modal-sub{font-size:13px;color:var(--sub);margin-bottom:24px;line-height:1.55}
   .da-modal-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
   .da-modal-label{font-size:11.5px;font-weight:600;color:var(--sub)}
-  .da-modal-input{background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius: 10px;padding:12px 14px;font-size:14px;color:var(--text);outline:none;width:100%;font-family:'Geist',sans-serif}
+  .da-modal-input{background:rgba(15,23,42,0.05);border:1px solid var(--borderf);border-radius: 10px;padding:12px 14px;font-size:14px;color:var(--text);outline:none;width:100%;font-family:'Geist',sans-serif}
   .da-modal-input:focus{border-color:rgba(59,158,255,0.4)}
   .da-modal-btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius: 10px;padding:13px;font-family:'Geist',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px}
   .da-modal-btn:hover{background:#5aaeff}
@@ -180,8 +180,8 @@ const CSS = `
   .da-modal-divider{display:flex;align-items:center;gap:12px;margin:18px 0}
   .da-modal-divider::before,.da-modal-divider::after{content:'';flex:1;height:1px;background:var(--borderf)}
   .da-modal-divider span{font-size:11px;color:var(--dim)}
-  .da-modal-google{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius: 10px;padding:12px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
-  .da-modal-google:hover{background:rgba(255,255,255,0.08)}
+  .da-modal-google{width:100%;background:rgba(15,23,42,0.05);border:1px solid var(--borderf);border-radius: 10px;padding:12px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+  .da-modal-google:hover{background:rgba(15,23,42,0.08)}
   .da-saved-banner{background:rgba(52,217,138,0.08);border:1px solid rgba(52,217,138,0.2);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--green);font-weight:500}
   .da-upgrade-success{background:linear-gradient(135deg,rgba(52,217,138,0.1),rgba(59,158,255,0.1));border:1px solid rgba(52,217,138,0.3);border-radius: 10px;padding:16px 20px;display:flex;align-items:center;gap:14px;margin:0 auto 0;max-width:1000px;width:calc(100% - 40px)}
   .da-upgrade-success-icon{font-size:24px;flex-shrink:0}
@@ -401,7 +401,7 @@ export default function DealAnalyzer() {
                 style={{
                   fontFamily:"'Geist Mono',monospace",fontSize:10.5,fontWeight:700,letterSpacing:"0.5px",
                   padding:"6px 12px",border:"1px solid var(--green)",borderRadius:"var(--r-sm,4px)",
-                  color:"#07090f",background:"var(--green)",cursor:"pointer",whiteSpace:"nowrap"
+                  color:"#ffffff",background:"var(--green)",cursor:"pointer",whiteSpace:"nowrap"
                 }}>
                 ▶ LOAD
               </button>

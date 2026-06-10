@@ -12,7 +12,7 @@ const CSS = `
   .hub-wrap{min-height:100vh;background:var(--bg);display:flex;flex-direction:column}
 
   /* Nav */
-  .hub-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .hub-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .hub-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.hub-logo span{color:var(--blue)}
   .hub-nav-right{display:flex;align-items:center;gap:10px}
   .hub-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 12px;border-radius:7px}.hub-nav-link:hover{color:var(--text)}
@@ -44,7 +44,7 @@ const CSS = `
   .hub-card-sub{font-size:13px;color:var(--sub);line-height:1.55}
   .hub-card-divider{height:1px;background:var(--borderf);margin:4px 0}
   .hub-card-pills{display:flex;flex-wrap:wrap;gap:6px}
-  .hub-pill{background:rgba(255,255,255,0.025);border:1px solid var(--borderf);border-radius:3px;padding:2px 8px;font-family:'Geist Mono',monospace;font-size:10px;color:var(--sub);font-weight:600;letter-spacing:0.3px}
+  .hub-pill{background:rgba(15,23,42,0.025);border:1px solid var(--borderf);border-radius:3px;padding:2px 8px;font-family:'Geist Mono',monospace;font-size:10px;color:var(--sub);font-weight:600;letter-spacing:0.3px}
   .hub-card.featured .hub-pill{border-color:rgba(52,217,138,0.18);color:var(--sub)}
   .hub-card-cta{margin-top:auto;padding-top:10px;font-family:'Geist Mono',monospace;font-size:12px;font-weight:700;letter-spacing:0.6px;color:var(--blue);display:flex;align-items:center;gap:6px;text-transform:uppercase}
   .hub-card.featured .hub-card-cta{color:var(--green)}

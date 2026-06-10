@@ -234,7 +234,7 @@ const css = `
 .dc-head{
   display:flex; align-items:center; justify-content:space-between;
   padding:10px 14px;
-  background:rgba(255,255,255,0.025);
+  background:rgba(15,23,42,0.025);
   border-bottom:1px solid var(--borderf);
 }
 .dc-head-left{ display:flex; align-items:center; gap:10px; }
@@ -285,13 +285,13 @@ const css = `
 }
 .dc-suggest{
   text-align:left; padding:10px 12px;
-  background:rgba(255,255,255,0.025);
+  background:rgba(15,23,42,0.025);
   border:1px solid var(--borderf); border-radius:5px;
   color:var(--text); font-family:'Geist',sans-serif; font-size:13px;
   cursor:pointer; transition:background 0.15s, border-color 0.15s;
   display:flex; align-items:center; gap:8px;
 }
-.dc-suggest:hover{ background:rgba(255,255,255,0.05); border-color:var(--border); }
+.dc-suggest:hover{ background:rgba(15,23,42,0.05); border-color:var(--border); }
 .dc-suggest:disabled{ opacity:0.5; cursor:not-allowed; }
 
 .dc-msg{ display:flex; flex-direction:column; gap:4px; }
@@ -317,7 +317,7 @@ const css = `
   border-left:3px solid var(--blue);
 }
 .dc-msg-assistant .dc-msg-body{
-  background:rgba(255,255,255,0.025);
+  background:rgba(15,23,42,0.025);
   border:1px solid var(--borderf);
 }
 
@@ -339,7 +339,7 @@ const css = `
 .dc-input{
   flex:1; min-width:0;
   padding:10px 12px;
-  background:rgba(255,255,255,0.04);
+  background:rgba(15,23,42,0.04);
   border:1px solid var(--borderf); border-radius:5px;
   color:var(--text); font-family:'Geist',sans-serif; font-size:13.5px;
   outline:none; transition:border-color 0.15s;

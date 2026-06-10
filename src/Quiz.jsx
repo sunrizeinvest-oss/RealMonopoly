@@ -9,7 +9,7 @@ const CSS = `
 
   .quiz-root {
     min-height: 100vh;
-    background: #07090f;
+    background: #ffffff;
     font-family: 'Geist', sans-serif;
     color: var(--text);
     display: flex;
@@ -20,9 +20,9 @@ const CSS = `
     position: sticky;
     top: 0;
     z-index: 200;
-    background: rgba(7,9,15,0.97);
+    background: rgba(255,255,255,0.97);
     backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(15,23,42,0.07);
     padding: 0 24px;
     height: 50px;
     display: flex;
@@ -98,7 +98,7 @@ const CSS = `
 
   .quiz-progress-track {
     height: 4px;
-    background: rgba(255,255,255,0.07);
+    background: rgba(15,23,42,0.07);
     border-radius: 9999px;
     overflow: hidden;
   }
@@ -112,8 +112,8 @@ const CSS = `
 
   /* Question Card */
   .quiz-question-card {
-    background: #0d1119;
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #f8fafc;
+    border: 1px solid rgba(15,23,42,0.07);
     border-radius: 16px;
     padding: 36px 32px;
     margin-bottom: 24px;
@@ -151,8 +151,8 @@ const CSS = `
   }
 
   .quiz-option {
-    background: #0a0e18;
-    border: 1.5px solid rgba(255,255,255,0.07);
+    background: #f1f5f9;
+    border: 1.5px solid rgba(15,23,42,0.07);
     border-radius: 10px;
     padding: 16px 18px;
     cursor: pointer;
@@ -268,8 +268,8 @@ const CSS = `
 
   /* ─── Result Page ─── */
   .quiz-result-card {
-    background: #0d1119;
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #f8fafc;
+    border: 1px solid rgba(15,23,42,0.07);
     border-radius: 16px;
     overflow: hidden;
     margin-bottom: 20px;
@@ -277,7 +277,7 @@ const CSS = `
 
   .quiz-result-hero {
     padding: 36px 32px 28px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(15,23,42,0.07);
   }
 
   .quiz-result-badge {
@@ -319,7 +319,7 @@ const CSS = `
     grid-template-columns: 1fr 1fr;
     gap: 14px;
     padding: 28px 32px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(15,23,42,0.07);
   }
 
   @media (max-width: 540px) {
@@ -328,10 +328,10 @@ const CSS = `
   }
 
   .quiz-tie-card {
-    background: #0a0e18;
+    background: #f1f5f9;
     border-radius: 10px;
     padding: 20px;
-    border: 1px solid rgba(255,255,255,0.07);
+    border: 1px solid rgba(15,23,42,0.07);
     text-align: center;
   }
 
@@ -347,7 +347,7 @@ const CSS = `
   /* Score Bars */
   .quiz-scores {
     padding: 24px 32px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(15,23,42,0.07);
   }
 
   .quiz-scores-title {
@@ -377,7 +377,7 @@ const CSS = `
   .quiz-score-track {
     flex: 1;
     height: 10px;
-    background: rgba(255,255,255,0.06);
+    background: rgba(15,23,42,0.06);
     border-radius: 9999px;
     overflow: hidden;
   }
@@ -399,7 +399,7 @@ const CSS = `
   /* Reasons */
   .quiz-reasons {
     padding: 24px 32px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(15,23,42,0.07);
   }
 
   .quiz-reasons-title {
@@ -542,8 +542,8 @@ const CSS = `
   }
 
   .quiz-intro-pill {
-    background: #0d1119;
-    border: 1px solid rgba(255,255,255,0.07);
+    background: #f8fafc;
+    border: 1px solid rgba(15,23,42,0.07);
     border-radius: 9999px;
     padding: 7px 16px;
     font-size: 13px;

@@ -24,11 +24,11 @@ const CSS = `
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body { background: #07090f; color: var(--text); font-family: 'Geist', sans-serif; }
+body { background: #ffffff; color: var(--text); font-family: 'Geist', sans-serif; }
 
 .sd-root {
   min-height: 100vh;
-  background: #07090f;
+  background: #ffffff;
   color: var(--text);
   font-family: 'Geist', sans-serif;
 }
@@ -39,8 +39,8 @@ body { background: #07090f; color: var(--text); font-family: 'Geist', sans-serif
   align-items: center;
   gap: 12px;
   padding: 16px 24px;
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-  background: #0d1119;
+  border-bottom: 1px solid rgba(15,23,42,0.07);
+  background: #f8fafc;
   position: sticky;
   top: 0;
   z-index: 100;
@@ -122,7 +122,7 @@ body { background: #07090f; color: var(--text); font-family: 'Geist', sans-serif
   padding: 8px 16px;
   border-radius: 100px;
   border: 1px solid rgba(255,255,255,0.1);
-  background: #0d1119;
+  background: #f8fafc;
   font-size: 13px;
   font-weight: 500;
   color: var(--text);
@@ -130,8 +130,8 @@ body { background: #07090f; color: var(--text); font-family: 'Geist', sans-serif
 
 /* Card */
 .sd-card {
-  background: #0d1119;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #f8fafc;
+  border: 1px solid rgba(15,23,42,0.07);
   border-radius: 16px;
   padding: 28px 28px 24px;
   margin-bottom: 16px;
@@ -185,8 +185,8 @@ body { background: #07090f; color: var(--text); font-family: 'Geist', sans-serif
 input.sd-input,
 select.sd-input,
 textarea.sd-input {
-  background: #0a0e18;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #f1f5f9;
+  border: 1px solid rgba(15,23,42,0.07);
   border-radius: 10px;
   color: var(--text);
   font-family: 'Geist', sans-serif;
@@ -211,7 +211,7 @@ select.sd-input.error,
 textarea.sd-input.error {
   border-color: rgba(242,92,92,0.5);
 }
-select.sd-input option { background: #0d1119; color: var(--text); }
+select.sd-input option { background: #f8fafc; color: var(--text); }
 textarea.sd-input { resize: vertical; min-height: 88px; }
 
 /* Radio group */
@@ -225,8 +225,8 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
   min-width: 80px;
   padding: 9px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.07);
-  background: #0a0e18;
+  border: 1px solid rgba(15,23,42,0.07);
+  background: #f1f5f9;
   color: var(--sub);
   font-family: 'Geist', sans-serif;
   font-size: 13px;
@@ -244,8 +244,8 @@ textarea.sd-input { resize: vertical; min-height: 88px; }
 
 /* Deal Score */
 .sd-score {
-  background: #0a0e18;
-  border: 1px solid rgba(255,255,255,0.07);
+  background: #f1f5f9;
+  border: 1px solid rgba(15,23,42,0.07);
   border-radius: 10px;
   padding: 16px 20px;
   margin-bottom: 16px;

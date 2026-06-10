@@ -87,7 +87,7 @@ export default function CrossLinkCTA({ strategy, deal = {} }) {
                 alignItems: "center",
                 gap: 10,
                 padding: "10px 14px",
-                background: isCurrent ? "rgba(255,255,255,0.025)" : "var(--card2, #0a0e18)",
+                background: isCurrent ? "rgba(15,23,42,0.025)" : "var(--card2, #f1f5f9)",
                 border: `1px solid ${isCurrent ? "var(--borderf)" : s.color + "55"}`,
                 borderLeft: `3px solid ${isCurrent ? "var(--dim)" : s.color}`,
                 borderRadius: 5,

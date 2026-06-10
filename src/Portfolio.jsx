@@ -38,7 +38,7 @@ const CSS = `
   html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
 
   /* Nav */
-  .pf-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .pf-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .pf-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.pf-logo span{color:var(--blue)}
   .pf-nav-right{display:flex;align-items:center;gap:8px}
   .pf-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 11px;border-radius:7px}.pf-nav-link:hover{color:var(--text)}
@@ -86,9 +86,9 @@ const CSS = `
   .pf-table-wrap{border-radius:6px;border:1px solid var(--borderf);overflow:hidden;margin-bottom:32px}
   .pf-table{width:100%;border-collapse:collapse;background:var(--card);min-width:700px}
   .pf-table th{font-size:10px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;padding:11px 16px;text-align:left;border-bottom:1px solid var(--borderf);background:var(--card2);white-space:nowrap}
-  .pf-table td{padding:13px 16px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle}
+  .pf-table td{padding:13px 16px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(15,23,42,0.03);vertical-align:middle}
   .pf-table tr:last-child td{border-bottom:none}
-  .pf-table tr:hover td{background:rgba(255,255,255,0.015)}
+  .pf-table tr:hover td{background:rgba(15,23,42,0.015)}
   .pf-table-scroll{overflow-x:auto;border-radius:6px;border:1px solid var(--borderf)}
 
   .pf-type-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:3px;text-transform:uppercase;letter-spacing:0.3px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
@@ -109,7 +109,7 @@ const CSS = `
 
   /* Modal overlay */
   .pf-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
-  .pf-modal{background:#0d1119;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
+  .pf-modal{background:#f8fafc;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:32px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto}
   .pf-modal-title{font-size:20px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:6px}
   .pf-modal-sub{font-size:13px;color:var(--sub);margin-bottom:24px}
   .pf-modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -117,9 +117,9 @@ const CSS = `
   .pf-field{display:flex;flex-direction:column;gap:6px}
   .pf-field.full{grid-column:1/-1}
   .pf-label{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px}
-  .pf-input{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 10px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
+  .pf-input{background:#f1f5f9;border:1px solid rgba(15,23,42,0.08);border-radius: 10px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;transition:border-color 0.15s}
   .pf-input:focus{border-color:rgba(59,158,255,0.4)}
-  .pf-select{background:#0a0e18;border:1px solid rgba(255,255,255,0.08);border-radius: 10px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;cursor:pointer}
+  .pf-select{background:#f1f5f9;border:1px solid rgba(15,23,42,0.08);border-radius: 10px;padding:10px 12px;font-size:13px;color:var(--text);font-family:'Geist',sans-serif;outline:none;width:100%;cursor:pointer}
   .pf-modal-calc{background:rgba(52,217,138,0.05);border:1px solid rgba(52,217,138,0.15);border-radius:6px;padding:14px 16px;margin:16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
   .pf-calc-item{text-align:center}
   .pf-calc-val{font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px}
@@ -310,7 +310,7 @@ export default function Portfolio() {
                 </span>
               </div>
               {!isUnlimited && (
-                <div style={{ flex: 1, minWidth: 160, height: 8, background: "rgba(255,255,255,0.05)", borderRadius: 4, overflow: "hidden" }}>
+                <div style={{ flex: 1, minWidth: 160, height: 8, background: "rgba(15,23,42,0.05)", borderRadius: 4, overflow: "hidden" }}>
                   <div style={{
                     height: "100%", width: `${pct}%`,
                     background: nearCap ? "var(--amber)" : tierColor,
@@ -320,7 +320,7 @@ export default function Portfolio() {
               )}
               {!isUnlimited && used >= limit && (
                 <a href="/pricing" style={{
-                  background: "var(--purple)", color: "#07090f",
+                  background: "var(--purple)", color: "#ffffff",
                   border: "none", borderRadius: 4, padding: "6px 14px",
                   fontSize: 12, fontWeight: 700, textDecoration: "none",
                   fontFamily: "'Geist Mono',ui-monospace,monospace", letterSpacing: "0.8px",
@@ -464,7 +464,7 @@ export default function Portfolio() {
           <div className="pf-section-title">
             📋 Closed Deals
             {deals.length > 0 && (
-              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--sub)", background: "rgba(255,255,255,0.05)", border: "1px solid var(--borderf)", borderRadius: 99, padding: "2px 9px" }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--sub)", background: "rgba(15,23,42,0.05)", border: "1px solid var(--borderf)", borderRadius: 99, padding: "2px 9px" }}>
                 {deals.length}
               </span>
             )}

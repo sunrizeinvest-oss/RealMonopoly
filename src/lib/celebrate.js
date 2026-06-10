@@ -36,7 +36,7 @@ export function celebrateFirstSave({ kind = "deal", onNext } = {}) {
   wrap.style.cssText = `
     position:fixed; bottom:24px; right:24px; z-index:10000;
     max-width:340px;
-    background:linear-gradient(135deg, rgba(13,17,25,0.98), rgba(7,9,15,0.98));
+    background:linear-gradient(135deg, rgba(13,17,25,0.98), rgba(255,255,255,0.98));
     border:1px solid rgba(52,217,138,0.45);
     border-left:4px solid var(--green, #34d98a);
     border-radius:var(--r-md, 6px);
@@ -63,7 +63,7 @@ export function celebrateFirstSave({ kind = "deal", onNext } = {}) {
         </div>
         <div style="display:flex; gap:6px;">
           <button data-action="next" style="
-            background:var(--green, #34d98a); color:#07090f;
+            background:var(--green, #34d98a); color:#ffffff;
             border:none; border-radius:4px;
             padding:7px 12px;
             font-family:'Geist Mono', ui-monospace, monospace; font-size:10.5px; font-weight:700;
@@ -71,7 +71,7 @@ export function celebrateFirstSave({ kind = "deal", onNext } = {}) {
           ">▸ COMPARE DEALS</button>
           <button data-action="dismiss" style="
             background:transparent; color:#6b7d96;
-            border:1px solid rgba(255,255,255,0.07); border-radius:4px;
+            border:1px solid rgba(15,23,42,0.07); border-radius:4px;
             padding:7px 10px;
             font-family:'Geist Mono', ui-monospace, monospace; font-size:10.5px; font-weight:700;
             letter-spacing:0.5px; cursor:pointer;

@@ -101,8 +101,8 @@ export default function PropertyIntelCard({ address }) {
 
   return (
     <div style={{
-      background: "var(--card, #0d1119)",
-      border: "1px solid var(--borderf, rgba(255,255,255,0.05))",
+      background: "var(--card, #f8fafc)",
+      border: "1px solid var(--borderf, rgba(15,23,42,0.05))",
       borderRadius: 6,
       overflow: "hidden",
       marginBottom: 20,
@@ -111,7 +111,7 @@ export default function PropertyIntelCard({ address }) {
       <div style={{
         padding: "10px 14px",
         background: "rgba(52,217,138,0.04)",
-        borderBottom: "1px solid var(--borderf, rgba(255,255,255,0.05))",
+        borderBottom: "1px solid var(--borderf, rgba(15,23,42,0.05))",
         display: "flex", alignItems: "center", gap: 10,
       }}>
         <div style={{
@@ -142,7 +142,7 @@ export default function PropertyIntelCard({ address }) {
 
       {/* Neighbourhood activity map — pure SVG, no map lib */}
       {zoningData.geocode?.lat && zoningData.geocode?.lng && (
-        <div style={{ padding: "1px 0 0", borderBottom: "1px solid var(--borderf, rgba(255,255,255,0.05))" }}>
+        <div style={{ padding: "1px 0 0", borderBottom: "1px solid var(--borderf, rgba(15,23,42,0.05))" }}>
           <ZoningMap
             center={{ lat: zoningData.geocode.lat, lng: zoningData.geocode.lng }}
             polygon={z.raw?.geometry_multipolygon}
@@ -158,10 +158,10 @@ export default function PropertyIntelCard({ address }) {
         display: "grid",
         gridTemplateColumns: "1fr 1fr",
         gap: 1,
-        background: "var(--borderf, rgba(255,255,255,0.05))",
+        background: "var(--borderf, rgba(15,23,42,0.05))",
       }}>
         {/* Zoning */}
-        <div style={{ background: "var(--card, #0d1119)", padding: "14px 16px" }}>
+        <div style={{ background: "var(--card, #f8fafc)", padding: "14px 16px" }}>
           <div style={{
             fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
             color: "var(--green, #34d98a)", letterSpacing: "0.6px", marginBottom: 10,
@@ -174,7 +174,7 @@ export default function PropertyIntelCard({ address }) {
         </div>
 
         {/* Assessment */}
-        <div style={{ background: "var(--card, #0d1119)", padding: "14px 16px" }}>
+        <div style={{ background: "var(--card, #f8fafc)", padding: "14px 16px" }}>
           <div style={{
             fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
             color: "var(--amber, #f0a030)", letterSpacing: "0.6px", marginBottom: 10,
@@ -195,7 +195,7 @@ export default function PropertyIntelCard({ address }) {
 
       {/* Permits */}
       {permits.length > 0 && (
-        <div style={{ padding: "12px 16px 14px", borderTop: "1px solid var(--borderf, rgba(255,255,255,0.05))" }}>
+        <div style={{ padding: "12px 16px 14px", borderTop: "1px solid var(--borderf, rgba(15,23,42,0.05))" }}>
           <div style={{
             display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap",
             marginBottom: 10,
@@ -234,7 +234,7 @@ export default function PropertyIntelCard({ address }) {
             display: "grid", gridTemplateColumns: "90px 1.3fr 1.3fr 90px 55px", gap: 8,
             fontSize: 10, fontWeight: 700, color: "var(--dim, #3a4a60)", letterSpacing: "0.5px",
             textTransform: "uppercase", paddingBottom: 6,
-            borderBottom: "1px solid var(--borderf, rgba(255,255,255,0.05))",
+            borderBottom: "1px solid var(--borderf, rgba(15,23,42,0.05))",
             fontFamily: "'Geist Mono',ui-monospace,monospace",
             minWidth: 560,
           }}>
@@ -257,7 +257,7 @@ export default function PropertyIntelCard({ address }) {
                   style={{
                     display: "grid", gridTemplateColumns: "90px 1.3fr 1.3fr 90px 55px", gap: 8,
                     padding: "6px 0",
-                    borderBottom: i < permits.length - 1 ? "1px dashed rgba(255,255,255,0.04)" : "none",
+                    borderBottom: i < permits.length - 1 ? "1px dashed rgba(15,23,42,0.04)" : "none",
                     fontSize: 11.5, alignItems: "baseline",
                     cursor: p.job_description ? "help" : "default",
                   }}
@@ -336,7 +336,7 @@ function Row({ lbl, val, mono, strong }) {
   return (
     <div style={{
       display: "flex", justifyContent: "space-between", alignItems: "baseline",
-      gap: 10, paddingBottom: 5, borderBottom: "1px solid rgba(255,255,255,0.04)",
+      gap: 10, paddingBottom: 5, borderBottom: "1px solid rgba(15,23,42,0.04)",
     }}>
       <span style={{ color: "var(--sub, #6b7d96)", fontSize: 12 }}>{lbl}</span>
       <span style={{

@@ -31,14 +31,14 @@ const CSS = `
 .mb-card-h{font-family:'Geist Mono',monospace;font-size:11px;font-weight:700;letter-spacing:1.4px;color:var(--blue);margin-bottom:10px}
 .mb-card-sub{font-size:13px;color:var(--sub);line-height:1.5;margin-bottom:16px}
 .mb-market-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
-.mb-market{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--card2,#0a0e18);border:1px solid var(--borderf);border-radius:6px;cursor:pointer;transition:border-color 0.15s,background 0.15s}
+.mb-market{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--card2,#f1f5f9);border:1px solid var(--borderf);border-radius:6px;cursor:pointer;transition:border-color 0.15s,background 0.15s}
 .mb-market:hover{border-color:rgba(167,130,255,0.4)}
 .mb-market.active{border-color:var(--amber);background:rgba(240,160,48,0.06)}
 .mb-market input{margin-top:3px;accent-color:var(--amber);flex-shrink:0;cursor:pointer}
 .mb-market-label{font-weight:700;font-size:14px;color:var(--text);margin-bottom:3px;display:block}
 .mb-market-blurb{font-size:12px;color:var(--sub);line-height:1.45}
 .mb-cta-row{display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
-.mb-btn{background:var(--amber);color:#07090f;border:none;border-radius:5px;padding:11px 22px;font-family:'Geist Mono',monospace;font-size:11.5px;font-weight:700;letter-spacing:1.1px;cursor:pointer;transition:transform 0.15s}
+.mb-btn{background:var(--amber);color:#ffffff;border:none;border-radius:5px;padding:11px 22px;font-family:'Geist Mono',monospace;font-size:11.5px;font-weight:700;letter-spacing:1.1px;cursor:pointer;transition:transform 0.15s}
 .mb-btn:hover:not(:disabled){transform:translateY(-1px)}
 .mb-btn:disabled{opacity:0.45;cursor:not-allowed}
 .mb-btn.ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf)}
@@ -46,9 +46,9 @@ const CSS = `
 .mb-status.err{color:var(--red)}
 .mb-status.dim{color:var(--sub)}
 
-.mb-preview{margin-top:18px;background:var(--card2,#0a0e18);border:1px solid var(--borderf);border-radius:6px;padding:14px 18px}
+.mb-preview{margin-top:18px;background:var(--card2,#f1f5f9);border:1px solid var(--borderf);border-radius:6px;padding:14px 18px}
 .mb-preview-h{font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:700;color:var(--dim);letter-spacing:1.2px;margin-bottom:10px}
-.mb-preview-item{padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.mb-preview-item{padding:10px 0;border-bottom:1px solid rgba(15,23,42,0.04)}
 .mb-preview-item:last-child{border-bottom:none}
 .mb-preview-source{font-family:'Geist Mono',monospace;font-size:9.5px;font-weight:700;color:var(--blue);letter-spacing:1.1px;margin-bottom:4px}
 .mb-preview-title{font-size:14px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:4px}
@@ -317,7 +317,7 @@ export default function MarketBrief() {
                     <div key={c.key} style={{
                       display: "grid", gridTemplateColumns: "20px 1fr auto", gap: 10,
                       padding: "8px 12px",
-                      background: "var(--card2,#0a0e18)",
+                      background: "var(--card2,#f1f5f9)",
                       border: "1px solid var(--borderf)",
                       borderLeft: `3px solid ${color}`,
                       borderRadius: 4, alignItems: "start",
@@ -384,7 +384,7 @@ export default function MarketBrief() {
                   value={previewMarket}
                   onChange={e => { setPreviewMarket(e.target.value); setPreviewItems(null) }}
                   style={{
-                    background: "var(--card2,#0a0e18)", color: "var(--text)",
+                    background: "var(--card2,#f1f5f9)", color: "var(--text)",
                     border: "1px solid var(--borderf)", borderRadius: 5,
                     padding: "9px 14px",
                     fontFamily: "'Geist Mono',monospace", fontSize: 12, fontWeight: 700, letterSpacing: "0.8px",

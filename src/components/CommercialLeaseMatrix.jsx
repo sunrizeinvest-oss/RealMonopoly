@@ -457,7 +457,7 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
               title="Download all comps + the target as CSV for Excel / Google Sheets"
               style={{
                 background: "var(--green)",
-                color: "#07090f",
+                color: "#ffffff",
                 border: "1px solid var(--green)",
                 borderRadius: 4,
                 padding: "7px 12px",
@@ -627,7 +627,7 @@ const thStyle = {
 const thStyleLabel = { ...thStyle, color: "var(--dim)", minWidth: 130 };
 const tdStyle = {
   padding: "8px 12px",
-  borderBottom: "1px solid rgba(255,255,255,0.03)",
+  borderBottom: "1px solid rgba(15,23,42,0.03)",
   whiteSpace: "nowrap",
 };
 const tdLabelStyle = {

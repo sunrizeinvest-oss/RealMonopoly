@@ -52,7 +52,7 @@ const CSS = `
   input,select{font-family:'Geist',sans-serif}
 
   .mf-wrap{min-height:100vh;background:var(--bg)}
-  .mf-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .mf-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .mf-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.mf-logo span{color:var(--blue)}
   .mf-nav-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .mf-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 11px;border-radius:7px}.mf-nav-link:hover{color:var(--text)}
@@ -79,27 +79,27 @@ const CSS = `
   .mf-label{font-size:11px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.4px}
   .mf-input{background:rgba(59,158,255,0.05);border:1px solid rgba(59,158,255,0.15);border-radius: 6px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:'Geist Mono',monospace}
   .mf-input:focus{border-color:rgba(59,158,255,0.4)}
-  .mf-input-text{background:rgba(255,255,255,0.03);border:1px solid var(--borderf);border-radius: 6px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:'Geist',sans-serif}
+  .mf-input-text{background:rgba(15,23,42,0.03);border:1px solid var(--borderf);border-radius: 6px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;width:100%;font-family:'Geist',sans-serif}
   .mf-input-text:focus{border-color:rgba(59,158,255,0.3)}
 
   /* Unit mix table */
   .mf-unit-table{width:100%;border-collapse:collapse}
   .mf-unit-table th{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;padding:10px 12px;text-align:right;border-bottom:1px solid var(--borderf);background:rgba(255,255,255,0.02)}
   .mf-unit-table th:first-child{text-align:left}
-  .mf-unit-table td{padding:8px 12px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px;vertical-align:middle}
+  .mf-unit-table td{padding:8px 12px;border-bottom:1px solid rgba(15,23,42,0.03);font-size:13px;vertical-align:middle}
   .mf-unit-table tr:last-child td{border-bottom:none}
   .mf-unit-table .unit-input{background:rgba(59,158,255,0.06);border:1px solid rgba(59,158,255,0.15);border-radius:6px;padding:5px 8px;font-size:12px;color:var(--text);outline:none;width:80px;font-family:'Geist Mono',monospace;text-align:right}
   .mf-unit-table .unit-input:focus{border-color:rgba(59,158,255,0.4)}
   .mf-unit-val{font-family:'Geist Mono',monospace;font-size:13px;text-align:right;display:block}
-  .mf-unit-total{background:rgba(255,255,255,0.03);font-weight:700}
+  .mf-unit-total{background:rgba(15,23,42,0.03);font-weight:700}
   .mf-add-row{background:transparent;border:1px dashed var(--borderf);color:var(--dim);border-radius: 6px;padding:8px;font-size:12px;cursor:pointer;width:100%;margin:8px 0;font-family:'Geist',sans-serif}
   .mf-add-row:hover{border-color:var(--blue);color:var(--blue)}
   .mf-del-btn{background:transparent;border:none;color:var(--dim);cursor:pointer;font-size:14px;padding:2px 6px}.mf-del-btn:hover{color:var(--red)}
 
   /* Metrics rows */
-  .mf-metric-row{display:grid;grid-template-columns:1fr auto auto auto;gap:0;padding:11px 20px;border-bottom:1px solid rgba(255,255,255,0.03);align-items:center}
+  .mf-metric-row{display:grid;grid-template-columns:1fr auto auto auto;gap:0;padding:11px 20px;border-bottom:1px solid rgba(15,23,42,0.03);align-items:center}
   .mf-metric-row:last-child{border-bottom:none}
-  .mf-metric-row.total{background:rgba(255,255,255,0.03)}
+  .mf-metric-row.total{background:rgba(15,23,42,0.03)}
   .mf-metric-row.section{background:rgba(59,158,255,0.04);border-bottom:1px solid var(--borderf)}
   .mf-metric-label{font-size:13px;color:var(--sub)}
   .mf-metric-label.bold{font-weight:700;color:var(--text)}
@@ -121,9 +121,9 @@ const CSS = `
   .mf-proj-table{width:100%;border-collapse:collapse;font-size:12.5px}
   .mf-proj-table th{padding:10px 14px;text-align:right;font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--borderf)}
   .mf-proj-table th:first-child{text-align:left}
-  .mf-proj-table td{padding:9px 14px;border-bottom:1px solid rgba(255,255,255,0.03);font-family:'Geist Mono',monospace;text-align:right}
+  .mf-proj-table td{padding:9px 14px;border-bottom:1px solid rgba(15,23,42,0.03);font-family:'Geist Mono',monospace;text-align:right}
   .mf-proj-table td:first-child{font-family:'Geist',sans-serif;text-align:left;color:var(--sub);font-size:12px}
-  .mf-proj-table tr.proj-total td{background:rgba(255,255,255,0.03);font-weight:700;color:var(--text)}
+  .mf-proj-table tr.proj-total td{background:rgba(15,23,42,0.03);font-weight:700;color:var(--text)}
   .mf-proj-table tr.proj-noi td{color:var(--green)}
   .mf-proj-table tr.proj-noi td:first-child{color:var(--sub)}
   .mf-proj-table tr.proj-btcf td{color:var(--blue)}
@@ -133,7 +133,7 @@ const CSS = `
   /* Sensitivity grid */
   .mf-sens-table{width:100%;border-collapse:collapse;font-size:12px}
   .mf-sens-table th{padding:8px 12px;text-align:center;font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;background:rgba(255,255,255,0.02);border:1px solid var(--borderf)}
-  .mf-sens-table td{padding:8px 12px;text-align:center;border:1px solid rgba(255,255,255,0.04);font-family:'Geist Mono',monospace;font-size:12px}
+  .mf-sens-table td{padding:8px 12px;text-align:center;border:1px solid rgba(15,23,42,0.04);font-family:'Geist Mono',monospace;font-size:12px}
   .mf-sens-table td.sens-label{text-align:left;font-family:'Geist',sans-serif;color:var(--sub);font-size:11px;font-weight:600;background:rgba(255,255,255,0.02)}
   .mf-sens-good{background:rgba(52,217,138,0.08);color:var(--green)}
   .mf-sens-warn{background:rgba(240,160,48,0.08);color:var(--amber)}
@@ -141,7 +141,7 @@ const CSS = `
 
   /* Scorecard */
   .mf-scorecard{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:16px 20px}
-  .mf-score-tile{background:rgba(255,255,255,0.03);border-radius:10px;padding:14px 16px;border:1px solid var(--borderf)}
+  .mf-score-tile{background:rgba(15,23,42,0.03);border-radius:10px;padding:14px 16px;border:1px solid var(--borderf)}
   .mf-score-val{font-size:22px;font-weight:800;font-family:'Geist Mono',monospace;line-height:1;margin-bottom:4px}
   .mf-score-lbl{font-size:10px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px}
   .mf-score-bench{font-size:10px;color:var(--dim);font-style:italic}
@@ -551,7 +551,7 @@ export default function CommercialAnalyzer() {
         <div style={{background:"rgba(52,217,138,0.08)",borderBottom:"1px solid rgba(52,217,138,0.2)",padding:"12px 24px",display:"flex",alignItems:"center",justifyContent:"center",gap:12,flexWrap:"wrap"}}>
           <span style={{fontSize:18}}>🎉</span>
           <span style={{fontSize:13,fontWeight:600,color:"var(--text)"}}>Free during launch — <span style={{color:"var(--green)"}}>sign in to access all tools at no cost.</span></span>
-          <a href="/login" style={{background:"var(--green)",color:"#07090f",borderRadius: 6,padding:"6px 16px",fontSize:13,fontWeight:800,textDecoration:"none"}}>Sign in free →</a>
+          <a href="/login" style={{background:"var(--green)",color:"#ffffff",borderRadius: 6,padding:"6px 16px",fontSize:13,fontWeight:800,textDecoration:"none"}}>Sign in free →</a>
         </div>
       )}
 
@@ -590,7 +590,7 @@ export default function CommercialAnalyzer() {
               style={{
                 fontFamily:"'Geist Mono',monospace",fontSize:11,fontWeight:700,letterSpacing:"0.6px",
                 padding:"6px 14px",border:"1px solid var(--green)",borderRadius:"var(--r-sm,4px)",
-                color:"#07090f",background:"var(--green)",cursor:"pointer"
+                color:"#ffffff",background:"var(--green)",cursor:"pointer"
               }}>
               ▶ LOAD EDMONTON 24-UNIT
             </button>
@@ -622,7 +622,7 @@ export default function CommercialAnalyzer() {
                 <span style={{fontSize:13,fontWeight:800,color:"var(--red)"}}>Deal Red Flags — {flags.length} issue{flags.length>1?"s":""} detected</span>
               </div>
               {flags.map((f,i) => (
-                <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 18px",borderBottom:i<flags.length-1?"1px solid rgba(255,255,255,0.04)":"none"}}>
+                <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 18px",borderBottom:i<flags.length-1?"1px solid rgba(15,23,42,0.04)":"none"}}>
                   <span style={{fontSize:14,flexShrink:0,marginTop:1}}>{f.sev==="critical"?"🚨":"⚠️"}</span>
                   <span style={{fontSize:13,color:f.sev==="critical"?"var(--red)":"var(--amber)",lineHeight:1.5}}>{f.msg}</span>
                 </div>
@@ -838,19 +838,19 @@ export default function CommercialAnalyzer() {
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
             {/* Left col */}
             <div style={{borderRight:"1px solid var(--borderf)"}}>
-              <div style={{padding:"10px 20px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px"}}>Acquisition</div>
+              <div style={{padding:"10px 20px",borderBottom:"1px solid rgba(15,23,42,0.03)",fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px"}}>Acquisition</div>
               <div className="mf-grid" style={{gridTemplateColumns:"1fr 1fr"}}>
                 <Field label="Purchase Price ($)" value={purchasePrice} onChange={setPurchasePrice}/>
                 <Field label="Down Payment (%)"   value={downPct}       onChange={setDownPct}/>
                 <Field label="Reno Budget ($)"    value={renoBudget}    onChange={setRenoBudget}/>
                 <Field label="Closing Costs Buy (%)" value={closingBuyPct} onChange={setClosingBuyPct}/>
               </div>
-              <div style={{padding:"10px 20px",borderTop:"1px solid var(--borderf)",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px"}}>Financing</div>
+              <div style={{padding:"10px 20px",borderTop:"1px solid var(--borderf)",borderBottom:"1px solid rgba(15,23,42,0.03)",fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px"}}>Financing</div>
               <div className="mf-grid" style={{gridTemplateColumns:"1fr 1fr"}}>
                 <Field label="Interest Rate (%)"  value={interestRate}  onChange={setInterestRate}/>
                 <Field label="Amortization (yrs)" value={amortYears}    onChange={setAmortYears}/>
               </div>
-              <div style={{padding:"10px 20px",borderTop:"1px solid var(--borderf)",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px"}}>Income</div>
+              <div style={{padding:"10px 20px",borderTop:"1px solid var(--borderf)",borderBottom:"1px solid rgba(15,23,42,0.03)",fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px"}}>Income</div>
               <div className="mf-grid" style={{gridTemplateColumns:"1fr 1fr"}}>
                 <Field label="Vacancy Rate (%)"      value={vacancyPct}   onChange={setVacancyPct}/>
                 <Field label="Other Income ($/mo)"   value={otherIncome}  onChange={setOtherIncome}/>
@@ -858,7 +858,7 @@ export default function CommercialAnalyzer() {
             </div>
             {/* Right col */}
             <div>
-              <div style={{padding:"10px 20px",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px"}}>Operating Expenses</div>
+              <div style={{padding:"10px 20px",borderBottom:"1px solid rgba(15,23,42,0.03)",fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px"}}>Operating Expenses</div>
               <div className="mf-grid" style={{gridTemplateColumns:"1fr 1fr"}}>
                 <Field label="Property Tax ($/yr)"   value={propTax}      onChange={setPropTax}/>
                 <Field label="Insurance ($/yr)"      value={insurance}    onChange={setInsurance}/>
@@ -870,7 +870,7 @@ export default function CommercialAnalyzer() {
                 <Field label="Admin ($/yr)"          value={admin}        onChange={setAdmin}/>
                 <Field label="Reserves $/unit/yr"    value={resPerUnit}   onChange={setResPerUnit}/>
               </div>
-              <div style={{padding:"10px 20px",borderTop:"1px solid var(--borderf)",borderBottom:"1px solid rgba(255,255,255,0.03)",fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px"}}>Exit</div>
+              <div style={{padding:"10px 20px",borderTop:"1px solid var(--borderf)",borderBottom:"1px solid rgba(15,23,42,0.03)",fontSize:11,fontWeight:700,color:"var(--dim)",textTransform:"uppercase",letterSpacing:"0.5px"}}>Exit</div>
               <div className="mf-grid" style={{gridTemplateColumns:"1fr 1fr 1fr"}}>
                 <Field label="Hold (yrs)"      value={holdYears}    onChange={setHoldYears}/>
                 <Field label="Entry Cap (%)"   value={entryCap}     onChange={setEntryCap}/>
@@ -1258,7 +1258,7 @@ export default function CommercialAnalyzer() {
                   verdict: `Cap ${c?.capRate ? (c.capRate*100).toFixed(2) : "—"}% · DSCR ${c?.DSCR ? c.DSCR.toFixed(2) : "—"}x`,
                 }}
               />
-              <a href="/compare" style={{background:"var(--green)",color:"#07090f",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none"}}>View Saved →</a>
+              <a href="/compare" style={{background:"var(--green)",color:"#ffffff",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none"}}>View Saved →</a>
             </div>
           </div>
         ) : (

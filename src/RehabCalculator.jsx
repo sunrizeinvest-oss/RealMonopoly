@@ -283,7 +283,7 @@ const CSS = `
     position: sticky;
     top: 0;
     z-index: 200;
-    background: rgba(7,9,15,0.97);
+    background: rgba(255,255,255,0.97);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--borderf);
     padding: 0 24px;
@@ -322,7 +322,7 @@ const CSS = `
 
   .rc-nav-link:hover {
     color: var(--text);
-    background: rgba(255,255,255,0.05);
+    background: rgba(15,23,42,0.05);
   }
 
   .rc-nav-link.active {
@@ -390,7 +390,7 @@ const CSS = `
   .rc-input {
     width: 100%;
     background: var(--card2);
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(15,23,42,0.08);
     border-radius: 6px;
     padding: 9px 12px;
     font-size: 14px;
@@ -410,7 +410,7 @@ const CSS = `
   .rc-select {
     width: 100%;
     background: var(--card2);
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(15,23,42,0.08);
     border-radius: 6px;
     padding: 9px 12px;
     font-size: 13px;
@@ -538,7 +538,7 @@ const CSS = `
 
   .rc-estimate-box {
     background: var(--card2);
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 1px solid rgba(15,23,42,0.06);
     border-radius: 6px;
     padding: 8px 12px;
     display: flex;
@@ -573,7 +573,7 @@ const CSS = `
   .rc-input-sm {
     width: 100%;
     background: var(--card2);
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(15,23,42,0.08);
     border-radius: 7px;
     padding: 7px 10px;
     font-size: 13px;
@@ -695,7 +695,7 @@ const CSS = `
   .rc-summary-divider {
     width: 1px;
     height: 36px;
-    background: rgba(255,255,255,0.07);
+    background: rgba(15,23,42,0.07);
     flex-shrink: 0;
   }
 
@@ -725,7 +725,7 @@ const CSS = `
   .rc-btn-primary:active { transform: translateY(0); }
 
   .rc-btn-secondary {
-    background: rgba(255,255,255,0.06);
+    background: rgba(15,23,42,0.06);
     border: 1px solid var(--borderf);
     border-radius: 10px;
     padding: 10px 18px;
@@ -750,7 +750,7 @@ const CSS = `
     bottom: 90px;
     right: 24px;
     background: var(--green);
-    color: #07090f;
+    color: #ffffff;
     font-size: 13px;
     font-weight: 700;
     padding: 10px 18px;

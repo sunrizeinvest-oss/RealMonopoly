@@ -358,7 +358,7 @@ export default function MarketTriggers() {
             disabled={!area.trim() || running}
             style={{
               background: running ? "rgba(242,92,92,0.15)" : "var(--red)",
-              color: running ? "var(--red)" : "#07090f",
+              color: running ? "var(--red)" : "#ffffff",
               border: "none", borderRadius: 5,
               padding: "11px 18px",
               fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 12, fontWeight: 700,
@@ -389,7 +389,7 @@ export default function MarketTriggers() {
               title={!user?.email ? "Sign in to email yourself the digest" : `Send digest to ${user.email}`}
               style={{
                 background: emailSending ? "rgba(59,158,255,0.15)" : "var(--blue)",
-                color: emailSending ? "var(--blue)" : "#07090f",
+                color: emailSending ? "var(--blue)" : "#ffffff",
                 border: "none", borderRadius: 4,
                 padding: "8px 14px",
                 fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11, fontWeight: 700,
@@ -609,7 +609,7 @@ function TriggerCard({ t, compact, saved, onToggle, onOpenBRRRR, onOpenMF }) {
         <span style={{
           position: "absolute", top: -8, right: 10,
           fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 700,
-          color: "#07090f", background: "var(--green)",
+          color: "#ffffff", background: "var(--green)",
           letterSpacing: "0.9px",
           padding: "2px 6px", borderRadius: 3,
           boxShadow: "0 4px 12px rgba(52,217,138,0.4)",
@@ -712,7 +712,7 @@ function TriggerCard({ t, compact, saved, onToggle, onOpenBRRRR, onOpenMF }) {
 
 const inputStyle = {
   width: "100%",
-  background: "var(--card2, #0a0e18)",
+  background: "var(--card2, #f1f5f9)",
   border: "1px solid var(--borderf)",
   borderRadius: 4,
   padding: "10px 12px",

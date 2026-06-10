@@ -4,7 +4,7 @@ const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html,body{overflow-x:hidden}
   body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
-  .lp-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .lp-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .lp-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none;cursor:pointer}
   .lp-logo span{color:var(--blue)}
   .lp-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;text-decoration:none}
@@ -31,7 +31,7 @@ const CSS = `
 export default function PrivacyPolicy() {
   const navigate = useNavigate();
   return (
-    <div style={{minHeight:"100vh",background:"#07090f"}}>
+    <div style={{minHeight:"100vh",background:"#ffffff"}}>
       <style>{CSS}</style>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet" />
 

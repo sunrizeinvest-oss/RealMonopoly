@@ -80,7 +80,7 @@ const CSS = `
   .cmp-wrap{min-height:100vh;background:var(--bg)}
 
   /* Nav */
-  .cmp-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,15,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
+  .cmp-nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between}
   .cmp-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none}.cmp-logo span{color:var(--blue)}
   .cmp-nav-right{display:flex;align-items:center;gap:10px}
   .cmp-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 12px;border-radius:7px}.cmp-nav-link:hover{color:var(--text)}.cmp-nav-link.active{color:var(--blue)}
@@ -121,7 +121,7 @@ const CSS = `
   .cmp-field{display:flex;flex-direction:column;gap:4px}
   .cmp-label{font-size:10.5px;font-weight:600;color:var(--sub);text-transform:uppercase;letter-spacing:0.4px;display:flex;justify-content:space-between;align-items:center}
   .cmp-hint{font-size:10px;color:var(--dim);font-weight:500}
-  .cmp-input{background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:9px 12px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
+  .cmp-input{background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius: 10px;padding:9px 12px;font-size:14px;color:var(--text);outline:none;width:100%;transition:border 0.15s}
   .cmp-input:focus{border-color:rgba(59,158,255,0.35);background:rgba(59,158,255,0.02)}
   .cmp-input::placeholder{color:var(--dim)}
   .deal-b .cmp-input:focus{border-color:rgba(52,217,138,0.35);background:rgba(52,217,138,0.02)}
@@ -139,7 +139,7 @@ const CSS = `
 
   /* Comparison table */
   .cmp-table{width:100%}
-  .cmp-trow{display:grid;grid-template-columns:200px 1fr 1fr;align-items:center;border-bottom:1px solid rgba(255,255,255,0.03);min-height:44px;transition:background 0.1s}
+  .cmp-trow{display:grid;grid-template-columns:200px 1fr 1fr;align-items:center;border-bottom:1px solid rgba(15,23,42,0.03);min-height:44px;transition:background 0.1s}
   .cmp-trow:hover{background:rgba(255,255,255,0.01)}
   .cmp-trow:last-child{border-bottom:none}
   .cmp-trow.section-head{background:var(--card2);border-top:1px solid var(--borderf);min-height:36px}
@@ -170,7 +170,7 @@ const CSS = `
   .cmp-verdict-name{font-size:16px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px}
   .cmp-verdict-badge{font-size:10px;font-weight:800;letter-spacing:0.5px;padding:3px 10px;border-radius:3px}
   .cmp-verdict-badge.win{background:linear-gradient(135deg,var(--green),var(--blue));color:#fff}
-  .cmp-verdict-badge.tie{background:var(--amber);color:#0a0e18}
+  .cmp-verdict-badge.tie{background:var(--amber);color:#f1f5f9}
   .cmp-verdict-sub{font-size:13px;color:var(--sub);line-height:1.5}
   .cmp-verdict-wins{font-size:28px;font-weight:800;color:var(--green);letter-spacing:-1px;line-height:1}
   .cmp-verdict-wins-label{font-size:11px;color:var(--sub)}
@@ -181,7 +181,7 @@ const CSS = `
   .grade-B{background:rgba(59,158,255,0.15);color:var(--blue)}
   .grade-C{background:rgba(240,160,48,0.15);color:var(--amber)}
   .grade-D{background:rgba(242,92,92,0.15);color:var(--red)}
-  .grade-F{background:rgba(255,255,255,0.06);color:var(--dim)}
+  .grade-F{background:rgba(15,23,42,0.06);color:var(--dim)}
 
   @media(max-width:640px){
     .cmp-trow{grid-template-columns:140px 1fr 1fr}

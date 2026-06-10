@@ -11,25 +11,30 @@
  */
 
 :root {
-  /* ── Colors — dark institutional terminal ─────────────────────────── */
-  --bg:       #07090f;                            /* page */
-  --card:     #0d1119;                            /* card surface */
-  --card2:    #0a0e18;                            /* nested surface (e.g. card header) */
-  --text:     #dde4ef;                            /* primary text */
-  --sub:      #6b7d96;                            /* secondary text */
-  --dim:      #3a4a60;                            /* tertiary text / disabled */
+  /* ── Colors — clean professional fintech, white + royal blue ─────────
+     Pivoted from the old dark Bloomberg-terminal palette. Royal blue is
+     the brand primary; slate scale carries text and surfaces. Status
+     accents (green/red/amber) stay semantic but are tuned for legibility
+     on a light background. */
+  --bg:       #ffffff;                            /* page */
+  --card:     #f8fafc;                            /* card surface (slate-50) */
+  --card2:    #f1f5f9;                            /* nested surface (slate-100) */
+  --text:     #0f172a;                            /* primary text (slate-900) */
+  --sub:      #475569;                            /* secondary text (slate-600) */
+  --dim:      #94a3b8;                            /* tertiary text (slate-400) */
 
-  /* Semantic accent palette — same hex in every tool. Status colors stay
-     consistent so users learn "green = good, red = bad" pattern-match. */
-  --blue:     #3b9eff;                            /* informational / primary action */
-  --green:    #34d98a;                            /* positive / GO / above threshold */
-  --red:      #f25c5c;                            /* negative / PASS / below threshold */
-  --amber:    #f0a030;                            /* warning / HOLD / marginal */
-  --purple:   #a782ff;                            /* equity / forced appreciation */
+  /* Semantic accent palette — light-mode tuned. Royal blue is THE primary;
+     status colors retuned for white background contrast. */
+  --blue:     #1e40af;                            /* royal blue · primary action */
+  --blue-2:   #2563eb;                            /* hover / brighter blue */
+  --green:    #16a34a;                            /* positive / GO */
+  --red:      #dc2626;                            /* negative / PASS */
+  --amber:    #d97706;                            /* warning / HOLD */
+  --purple:   #7c3aed;                            /* equity / Tier 2 marker */
 
-  /* Borders — thin and dark by default; brighter on focus/hover */
-  --border:   rgba(59,158,255,0.12);              /* accented border */
-  --borderf:  rgba(255,255,255,0.07);             /* faint divider */
+  /* Borders — slate scale; very subtle on light background */
+  --border:   rgba(30,64,175,0.18);               /* royal-blue tinted, accented */
+  --borderf:  #e2e8f0;                            /* slate-200 · faint divider */
 
   /* ── Border-radius scale ───────────────────────────────────────────
      Locked at 6 values. New components: pick one of these, not a custom px. */

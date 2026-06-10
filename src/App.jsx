@@ -139,10 +139,10 @@ function Tooltip({ text }) {
       <span
         onMouseEnter={() => setShow(true)}
         onMouseLeave={() => setShow(false)}
-        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 15, height: 15, borderRadius: "50%", background: "rgba(255,255,255,0.08)", color: "var(--sub)", fontSize: 9, fontWeight: 800, cursor: "help", flexShrink: 0, marginLeft: 5 }}
+        style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 15, height: 15, borderRadius: "50%", background: "rgba(15,23,42,0.08)", color: "var(--sub)", fontSize: 9, fontWeight: 800, cursor: "help", flexShrink: 0, marginLeft: 5 }}
       >?</span>
       {show && (
-        <span style={{ position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#0d1119", color: "rgba(255,255,255,0.08)", fontSize: 11, padding: "8px 12px", borderRadius: 6, width: 220, lineHeight: 1.55, zIndex: 9999, pointerEvents: "none", boxShadow: "0 4px 16px rgba(0,0,0,0.3)", "nowrap": "normal" }}>
+        <span style={{ position: "absolute", bottom: "calc(100% + 6px)", left: "50%", transform: "translateX(-50%)", background: "#f8fafc", color: "rgba(15,23,42,0.08)", fontSize: 11, padding: "8px 12px", borderRadius: 6, width: 220, lineHeight: 1.55, zIndex: 9999, pointerEvents: "none", boxShadow: "0 4px 16px rgba(0,0,0,0.3)", "nowrap": "normal" }}>
           {text}
           <span style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", width: 0, height: 0, borderLeft: "5px solid transparent", borderRight: "5px solid transparent", borderTop: "5px solid #1e293b" }} />
         </span>
@@ -154,7 +154,7 @@ function Tooltip({ text }) {
 // ─── Field Component ─────────────────────────────────────────────────────────
 function Field({ label, value, onChange, prefix, suffix, type = "number", hint, tooltip, span }) {
   const iStyle = {
-    width: "100%", background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6,
+    width: "100%", background: "#f8fafc", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 6,
     padding: `9px ${suffix ? "36px" : "11px"} 9px ${prefix ? "24px" : "11px"}`,
     fontSize: 13, color: "var(--text)", fontFamily: "'Geist Mono', monospace", outline: "none", boxSizing: "border-box",
     transition: "border-color 0.15s, box-shadow 0.15s",
@@ -180,7 +180,7 @@ function Field({ label, value, onChange, prefix, suffix, type = "number", hint, 
             type={type === "text" ? "text" : "number"} value={value}
             onChange={e => onChange(e.target.value)} style={iStyle}
             onFocus={e => { e.target.style.borderColor = "var(--blue)"; e.target.style.boxShadow = "0 0 0 3px rgba(59,158,255,0.1)"; }}
-            onBlur={e => { e.target.style.borderColor = "rgba(255,255,255,0.08)"; e.target.style.boxShadow = "none"; }}
+            onBlur={e => { e.target.style.borderColor = "rgba(15,23,42,0.08)"; e.target.style.boxShadow = "none"; }}
           />
         )}
         {suffix && <span style={{ position: "absolute", right: 9, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 11, pointerEvents: "none", fontFamily: "'Geist Mono', monospace" }}>{suffix}</span>}
@@ -197,15 +197,15 @@ const Grid = ({ cols = 2, children, gap = "12px 16px" }) => (
 // ─── Section Card ─────────────────────────────────────────────────────────────
 function Card({ step, title, subtitle, accent = "var(--blue)", children }) {
   return (
-    <div style={{ background: "#0d1119", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", overflow: "hidden", marginBottom: 24 }}>
-      <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: 12, background: "#0d1119" }}>
+    <div style={{ background: "#f8fafc", borderRadius: 16, border: "1px solid rgba(15,23,42,0.08)", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", overflow: "hidden", marginBottom: 24 }}>
+      <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(15,23,42,0.07)", display: "flex", alignItems: "center", gap: 12, background: "#f8fafc" }}>
         {step && (
           <span style={{ background: accent, color: "#fff", borderRadius: 6, padding: "3px 9px", fontSize: 10, fontWeight: 800, letterSpacing: 0.8, "nowrap": "nowrap" }}>
             STEP {step}
           </span>
         )}
         <div>
-          <div style={{ fontWeight: 700, fontSize: 14, color: "#0d1119", letterSpacing: -0.2 }}>{title}</div>
+          <div style={{ fontWeight: 700, fontSize: 14, color: "#f8fafc", letterSpacing: -0.2 }}>{title}</div>
           {subtitle && <div style={{ fontSize: 11, color: "var(--sub)", marginTop: 1 }}>{subtitle}</div>}
         </div>
       </div>
@@ -217,7 +217,7 @@ function Card({ step, title, subtitle, accent = "var(--blue)", children }) {
 // ─── Cost Subtotal Bar ────────────────────────────────────────────────────────
 function SubtotalBar({ label, value, accent = "var(--blue)" }) {
   return (
-    <div style={{ marginTop: 14, background: "rgba(255,255,255,0.03)", border: `1px solid ${accent}22`, borderLeft: `3px solid ${accent}`, borderRadius: "0 8px 8px 0", padding: "9px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div style={{ marginTop: 14, background: "rgba(15,23,42,0.03)", border: `1px solid ${accent}22`, borderLeft: `3px solid ${accent}`, borderRadius: "0 8px 8px 0", padding: "9px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
       <span style={{ fontSize: 12, color: "var(--sub)", fontWeight: 600 }}>{label}</span>
       <span style={{ fontSize: 14, fontWeight: 800, color: accent, fontFamily: "'Geist Mono', monospace" }}>{value}</span>
     </div>
@@ -228,7 +228,7 @@ function SubtotalBar({ label, value, accent = "var(--blue)" }) {
 function SRow({ label, value, bold, green, red, indent, divider, sub }) {
   return (
     <>
-      {divider && <div style={{ height: 1, background: "rgba(255,255,255,0.08)", margin: "8px 0" }} />}
+      {divider && <div style={{ height: 1, background: "rgba(15,23,42,0.08)", margin: "8px 0" }} />}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", paddingLeft: indent ? 16 : 0 }}>
         <span style={{ fontSize: 12.5, color: indent ? "var(--sub)" : "var(--sub)", fontWeight: bold ? 700 : 400, fontStyle: sub ? "italic" : "normal" }}>{label}</span>
         <span style={{ fontSize: 12.5, fontWeight: bold ? 800 : 500, color: green ? "var(--green)" : red ? "var(--red)" : "var(--text)", fontFamily: "'Geist Mono', monospace" }}>{value}</span>
@@ -240,7 +240,7 @@ function SRow({ label, value, bold, green, red, indent, divider, sub }) {
 // ─── Metric Card ──────────────────────────────────────────────────────────────
 function MetricCard({ label, value, sub, accent, tooltip }) {
   return (
-    <div style={{ background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderTop: `3px solid ${accent}`, borderRadius: 10, padding: "16px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
+    <div style={{ background: "#f8fafc", border: "1px solid rgba(15,23,42,0.08)", borderTop: `3px solid ${accent}`, borderRadius: 10, padding: "16px 18px", boxShadow: "0 1px 4px rgba(0,0,0,0.04)" }}>
       <div style={{ fontSize: 10, color: "var(--sub)", fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase", marginBottom: 7, display: "flex", alignItems: "center" }}>
         {label}{tooltip && <Tooltip text={tooltip} />}
       </div>
@@ -680,7 +680,7 @@ export default function FlipCalc() {
     let y = margin;
 
     // ── Header bar ────────────────────────────────────────────────────
-    setFill("#07090f");
+    setFill("#ffffff");
     doc.setFillColor(7, 9, 15);
     doc.rect(0, 0, W, 64, "F");
 
@@ -799,7 +799,7 @@ export default function FlipCalc() {
     y = margin;
 
     // Header
-    setFill("#07090f");
+    setFill("#ffffff");
     doc.setFillColor(7, 9, 15);
     doc.rect(0, 0, W, 50, "F");
     doc.setFontSize(16);
@@ -913,7 +913,7 @@ export default function FlipCalc() {
     y = margin;
 
     // Header
-    setFill("#07090f");
+    setFill("#ffffff");
     doc.setFillColor(7, 9, 15);
     doc.rect(0, 0, W, 50, "F");
     doc.setFontSize(16);
@@ -1442,18 +1442,18 @@ export default function FlipCalc() {
     const hasResult = num(v.arv) > 0 && num(v.purchasePrice) > 0 && num(v.repairCosts) > 0;
 
     return (
-      <div style={{ minHeight: "100vh", background: "rgba(255,255,255,0.03)", fontFamily: "'Geist', sans-serif" }}>
+      <div style={{ minHeight: "100vh", background: "rgba(15,23,42,0.03)", fontFamily: "'Geist', sans-serif" }}>
         <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
 
         {/* Header */}
-        <div style={{ background: "#0d1119", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <div style={{ background: "#f8fafc", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(15,23,42,0.06)" }}>
           <div>
             <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: -0.5 }}>
               <span style={{ color: "var(--blue)" }}>Real</span> Deal
             </div>
             <div style={{ fontSize: 10, color: "var(--sub)", letterSpacing: 1, textTransform: "uppercase", marginTop: 1 }}>Property Analyzer</div>
           </div>
-          <button onClick={() => setMode("advanced")} style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, padding: "8px 16px", color: "var(--sub)", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+          <button onClick={() => setMode("advanced")} style={{ background: "rgba(15,23,42,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, padding: "8px 16px", color: "var(--sub)", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
             Advanced Mode →
           </button>
         </div>
@@ -1475,7 +1475,7 @@ export default function FlipCalc() {
             <button onClick={loadExample} style={{ background: "rgba(52,217,138,0.06)", border: "1px solid #99f6e4", borderRadius: 6, padding: "8px 18px", color: "var(--blue)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
               📋 Show me an example deal
             </button>
-            <button onClick={clearAll} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, padding: "8px 16px", color: "var(--sub)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+            <button onClick={clearAll} style={{ background: "rgba(15,23,42,0.03)", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 6, padding: "8px 16px", color: "var(--sub)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
               Clear
             </button>
           </div>
@@ -1483,7 +1483,7 @@ export default function FlipCalc() {
           {/* Steps */}
           <div style={{ display: "flex", flexDirection: "column", gap: 16, marginBottom: 28 }}>
             {bSteps.map((step) => (
-              <div key={step.key} style={{ background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "20px 22px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
+              <div key={step.key} style={{ background: "#f8fafc", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 16, padding: "20px 22px", boxShadow: "0 1px 3px rgba(0,0,0,0.04)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                   <div style={{ width: 30, height: 30, borderRadius: "50%", background: "var(--blue)", color: "#fff", fontSize: 14, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{step.num}</div>
                   <div>
@@ -1498,9 +1498,9 @@ export default function FlipCalc() {
                     value={v[step.key]}
                     onChange={e => set(step.key)(e.target.value)}
                     placeholder={step.placeholder}
-                    style={{ width: "100%", background: "rgba(255,255,255,0.03)", border: "2px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: `14px ${step.suffix ? "70px" : "14px"} 14px ${step.prefix ? "30px" : "14px"}`, fontSize: 18, fontWeight: 700, color: "var(--text)", fontFamily: "'Geist Mono', monospace", outline: "none", boxSizing: "border-box", transition: "border-color 0.15s" }}
+                    style={{ width: "100%", background: "rgba(15,23,42,0.03)", border: "2px solid rgba(15,23,42,0.08)", borderRadius: 10, padding: `14px ${step.suffix ? "70px" : "14px"} 14px ${step.prefix ? "30px" : "14px"}`, fontSize: 18, fontWeight: 700, color: "var(--text)", fontFamily: "'Geist Mono', monospace", outline: "none", boxSizing: "border-box", transition: "border-color 0.15s" }}
                     onFocus={e => e.target.style.borderColor = "var(--blue)"}
-                    onBlur={e => e.target.style.borderColor = "rgba(255,255,255,0.08)"}
+                    onBlur={e => e.target.style.borderColor = "rgba(15,23,42,0.08)"}
                   />
                   {step.suffix && <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 13, pointerEvents: "none" }}>{step.suffix}</span>}
                 </div>
@@ -1535,7 +1535,7 @@ export default function FlipCalc() {
           )}
 
           {/* What these numbers mean */}
-          <div style={{ background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "20px 22px", marginBottom: 20 }}>
+          <div style={{ background: "#f8fafc", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 16, padding: "20px 22px", marginBottom: 20 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text)", marginBottom: 14 }}>What do these numbers mean?</div>
             {[
               { term: "ARV (After Repair Value)", def: "The price you expect to sell the property for after all renovations are done. This is the most important number — get comparable sales from your area to estimate it." },
@@ -1543,7 +1543,7 @@ export default function FlipCalc() {
               { term: "Purchase Price", def: "What you're paying to buy the property. The lower the better. Our calculator tells you the maximum you should pay (MAO) to still make a profit." },
               { term: "Hold Time", def: "How long you'll own the property — from purchase to when the sale closes. Every month costs money in taxes, insurance, and loan interest." },
             ].map((item, i, arr) => (
-              <div key={item.term} style={{ paddingBottom: i < arr.length - 1 ? 12 : 0, marginBottom: i < arr.length - 1 ? 12 : 0, borderBottom: i < arr.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none" }}>
+              <div key={item.term} style={{ paddingBottom: i < arr.length - 1 ? 12 : 0, marginBottom: i < arr.length - 1 ? 12 : 0, borderBottom: i < arr.length - 1 ? "1px solid rgba(15,23,42,0.07)" : "none" }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: "var(--blue)", marginBottom: 3 }}>{item.term}</div>
                 <div style={{ fontSize: 13, color: "var(--sub)", lineHeight: 1.6 }}>{item.def}</div>
               </div>
@@ -1551,7 +1551,7 @@ export default function FlipCalc() {
           </div>
 
           {/* Upgrade prompt */}
-          <div style={{ background: "#0d1119", borderRadius: 16, padding: "20px 22px", textAlign: "center" }}>
+          <div style={{ background: "#f8fafc", borderRadius: 16, padding: "20px 22px", textAlign: "center" }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 6 }}>Want the full picture?</div>
             <div style={{ fontSize: 13, color: "var(--sub)", marginBottom: 16, lineHeight: 1.6 }}>Advanced Mode adds your exact loan terms, all closing costs, holding costs, and gives you a full deal grade with detailed breakdown.</div>
             <button onClick={() => setMode("advanced")} style={{ background: "var(--blue)", border: "none", borderRadius: 10, padding: "12px 28px", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
@@ -1565,7 +1565,7 @@ export default function FlipCalc() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#07090f", fontFamily: "'Geist', sans-serif", display: "flex", flexDirection: "column" }}>
+    <div style={{ minHeight: "100vh", background: "#ffffff", fontFamily: "'Geist', sans-serif", display: "flex", flexDirection: "column" }}>
       <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
       <style>{`
         @media (max-width: 768px) {
@@ -1589,15 +1589,15 @@ export default function FlipCalc() {
       <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
 
       {/* ── Sidebar ── */}
-      <div className="flip-sidebar" style={{ width: 230, background: "#0d1119", flexShrink: 0, display: "flex", flexDirection: "column", position: "sticky", top: 50, height: "calc(100vh - 50px)", overflowY: "auto" }}>
+      <div className="flip-sidebar" style={{ width: 230, background: "#f8fafc", flexShrink: 0, display: "flex", flexDirection: "column", position: "sticky", top: 50, height: "calc(100vh - 50px)", overflowY: "auto" }}>
         {/* Logo */}
-        <div style={{ padding: "24px 20px 20px", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+        <div style={{ padding: "24px 20px 20px", borderBottom: "1px solid rgba(15,23,42,0.07)" }}>
           <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: -0.5 }}>
             <span style={{ color: "var(--blue)" }}>Flip</span>Analyzer
           </div>
           <div style={{ fontSize: 10, color: "var(--dim)", letterSpacing: 1.2, marginTop: 3, textTransform: "uppercase" }}>Real Estate Deal Calculator</div>
           {/* Country Toggle */}
-          <div style={{ display: "flex", marginTop: 12, background: "rgba(255,255,255,0.05)", borderRadius: 6, padding: 3, gap: 2 }}>
+          <div style={{ display: "flex", marginTop: 12, background: "rgba(15,23,42,0.05)", borderRadius: 6, padding: 3, gap: 2 }}>
             {["US", "CA"].map(c => (
               <button key={c} onClick={() => switchCountry(c)} style={{
                 flex: 1, padding: "5px 0", borderRadius: 6, border: "none", cursor: "pointer", fontSize: 11, fontWeight: 700, letterSpacing: 0.5, transition: "all 0.15s",
@@ -1610,7 +1610,7 @@ export default function FlipCalc() {
 
         {/* Property Quick ID */}
         {v.address && (
-          <div style={{ padding: "12px 16px", background: "rgba(59,158,255,0.08)", borderBottom: "1px solid rgba(255,255,255,0.05)", margin: "0" }}>
+          <div style={{ padding: "12px 16px", background: "rgba(59,158,255,0.08)", borderBottom: "1px solid rgba(15,23,42,0.05)", margin: "0" }}>
             <div style={{ fontSize: 11, color: "var(--blue)", fontWeight: 600, marginBottom: 2 }}>Current Deal</div>
             <div style={{ fontSize: 12, color: "var(--text)", fontWeight: 500, lineHeight: 1.4 }}>{v.address}</div>
             {v.city && <div style={{ fontSize: 10, color: "var(--sub)" }}>{v.city}</div>}
@@ -1644,13 +1644,13 @@ export default function FlipCalc() {
             onMouseLeave={e => e.currentTarget.style.background = "rgba(242,92,92,0.1)"}>
             <span>📄</span> Export PDF
           </button>
-          <label style={{ width: "100%", background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, padding: "8px 13px", color: "var(--sub)", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxSizing: "border-box", transition: "all 0.15s" }}
-            onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
-            onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}>
+          <label style={{ width: "100%", background: "rgba(15,23,42,0.04)", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 6, padding: "8px 13px", color: "var(--sub)", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxSizing: "border-box", transition: "all 0.15s" }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(15,23,42,0.08)"}
+            onMouseLeave={e => e.currentTarget.style.background = "rgba(15,23,42,0.04)"}>
             <span>⬆</span> Import Deal
             <input type="file" accept=".xlsx" onChange={importDeal} style={{ display: "none" }} />
           </label>
-          <button onClick={reset} style={{ width: "100%", background: "transparent", border: "1px solid rgba(255,255,255,0.06)", borderRadius: 6, padding: "8px 13px", color: "var(--dim)", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 8 }}>
+          <button onClick={reset} style={{ width: "100%", background: "transparent", border: "1px solid rgba(15,23,42,0.06)", borderRadius: 6, padding: "8px 13px", color: "var(--dim)", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 8 }}>
             <span>↺</span> Reset to Defaults
           </button>
           <button onClick={() => setMode("beginner")} style={{ width: "100%", background: "rgba(59,158,255,0.07)", border: "1px solid rgba(59,158,255,0.2)", borderRadius: 6, padding: "8px 13px", color: "var(--blue)", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 8 }}>
@@ -1659,7 +1659,7 @@ export default function FlipCalc() {
         </div>
 
         {/* Other Tools */}
-        <div style={{ padding: "12px 10px 0", borderTop: "1px solid rgba(255,255,255,0.07)", marginTop: 12 }}>
+        <div style={{ padding: "12px 10px 0", borderTop: "1px solid rgba(15,23,42,0.07)", marginTop: 12 }}>
           <div style={{ fontSize: 10, color: "var(--dim)", letterSpacing: 1, textTransform: "uppercase", marginBottom: 8, paddingLeft: 6 }}>Other Tools</div>
           {[
             { href: "/commercial", icon: "🏢", label: "Multifamily Underwriter" },
@@ -1668,7 +1668,7 @@ export default function FlipCalc() {
             { href: "/analyze",   icon: "🏠", label: "All Tools" },
           ].map(t => (
             <a key={t.href} href={t.href} style={{ display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", borderRadius: 6, fontSize: 12, fontWeight: 600, color: "var(--sub)", textDecoration: "none", marginBottom: 2, transition: "all 0.15s" }}
-              onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "var(--sub)"; }}
+              onMouseEnter={e => { e.currentTarget.style.background = "rgba(15,23,42,0.06)"; e.currentTarget.style.color = "var(--sub)"; }}
               onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--sub)"; }}>
               <span>{t.icon}</span>{t.label}
             </a>
@@ -1676,7 +1676,7 @@ export default function FlipCalc() {
         </div>
 
         {/* Deal Snapshot */}
-        <div style={{ marginTop: "auto", padding: "16px 16px 22px", borderTop: "1px solid rgba(255,255,255,0.07)" }}>
+        <div style={{ marginTop: "auto", padding: "16px 16px 22px", borderTop: "1px solid rgba(15,23,42,0.07)" }}>
           {/* Deal Grade */}
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, padding: "10px 12px", background: c.gradeBg, border: `1px solid ${c.gradeColor}33`, borderRadius: 10 }}>
             <div style={{ fontSize: 28, fontWeight: 900, color: c.gradeColor, fontFamily: "'Geist Mono', monospace", lineHeight: 1 }}>{c.grade}</div>
@@ -1772,7 +1772,7 @@ export default function FlipCalc() {
                     <div style={{ position: "relative" }}>
                       {f.prefix && <span style={{ position: "absolute", left: 9, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 12, fontFamily: "'Geist Mono', monospace", pointerEvents: "none" }}>{f.prefix}</span>}
                       <input type="number" value={v[f.key]} onChange={e => set(f.key)(e.target.value)}
-                        style={{ width: "100%", background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, padding: `9px ${f.suffix ? "52px" : "10px"} 9px ${f.prefix ? "22px" : "10px"}`, fontSize: 14, color: "rgba(255,255,255,0.04)", fontFamily: "'Geist Mono', monospace", outline: "none", boxSizing: "border-box" }} />
+                        style={{ width: "100%", background: "rgba(15,23,42,0.07)", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 6, padding: `9px ${f.suffix ? "52px" : "10px"} 9px ${f.prefix ? "22px" : "10px"}`, fontSize: 14, color: "rgba(15,23,42,0.04)", fontFamily: "'Geist Mono', monospace", outline: "none", boxSizing: "border-box" }} />
                       {f.suffix && <span style={{ position: "absolute", right: 9, top: "50%", transform: "translateY(-50%)", color: "var(--sub)", fontSize: 11, pointerEvents: "none" }}>{f.suffix}</span>}
                     </div>
                   </div>
@@ -1787,7 +1787,7 @@ export default function FlipCalc() {
                   { label: "Purchase vs MAO", val: num(v.purchasePrice) <= c.mao ? "✅ Within MAO" : "⚠️ Above MAO", color: num(v.purchasePrice) <= c.mao ? "#34d399" : "#f87171" },
                   { label: "Deal Grade", val: c.grade, color: c.gradeColor },
                 ].map(item => (
-                  <div key={item.label} style={{ background: "rgba(255,255,255,0.05)", borderRadius: 10, padding: "10px 12px", textAlign: "center" }}>
+                  <div key={item.label} style={{ background: "rgba(15,23,42,0.05)", borderRadius: 10, padding: "10px 12px", textAlign: "center" }}>
                     <div style={{ fontSize: 9, color: "var(--sub)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 5 }}>{item.label}</div>
                     <div style={{ fontSize: 15, fontWeight: 800, color: item.color, fontFamily: "'Geist Mono', monospace", lineHeight: 1 }}>{item.val}</div>
                   </div>
@@ -1809,7 +1809,7 @@ export default function FlipCalc() {
                 <Field label="Currently Occupied?" value={v.occupied} onChange={set("occupied")} type="select"
                   tooltip="Whether the property is currently occupied by tenants or the owner. Affects insurance type." />
               </Grid>
-              <div style={{ marginTop: 18, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 16 }}>
+              <div style={{ marginTop: 18, borderTop: "1px solid rgba(15,23,42,0.07)", paddingTop: 16 }}>
                 <Grid cols={2} gap="14px 18px">
                   <Field label="Evaluator Name" value={v.evaluator} onChange={set("evaluator")} type="text"
                     tooltip="Name of the person analyzing this deal." />
@@ -1817,29 +1817,29 @@ export default function FlipCalc() {
                     tooltip="Key details: property type, layout, condition highlights, # of beds/baths, garage, etc." />
                 </Grid>
               </div>
-              <div style={{ marginTop: 14, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 14 }}>
+              <div style={{ marginTop: 14, borderTop: "1px solid rgba(15,23,42,0.07)", paddingTop: 14 }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "var(--sub)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 }}>Buyer Info (for Offer Letter)</div>
                 <Grid cols={3} gap="14px 18px">
                   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                     <label style={{ fontSize: 11, color: "var(--sub)", fontWeight: 600, letterSpacing: 0.3 }}>Buyer Name</label>
                     <input type="text" value={buyerName} onChange={e => setBuyerName(e.target.value)} placeholder="Your full name"
-                      style={{ width: "100%", background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, padding: "9px 11px", fontSize: 13, color: "var(--text)", fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                      style={{ width: "100%", background: "#f8fafc", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 6, padding: "9px 11px", fontSize: 13, color: "var(--text)", fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
                       onFocus={e => { e.target.style.borderColor = "var(--blue)"; e.target.style.boxShadow = "0 0 0 3px rgba(59,158,255,0.1)"; }}
-                      onBlur={e => { e.target.style.borderColor = "rgba(255,255,255,0.08)"; e.target.style.boxShadow = "none"; }} />
+                      onBlur={e => { e.target.style.borderColor = "rgba(15,23,42,0.08)"; e.target.style.boxShadow = "none"; }} />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                     <label style={{ fontSize: 11, color: "var(--sub)", fontWeight: 600, letterSpacing: 0.3 }}>Buyer Phone</label>
                     <input type="text" value={buyerPhone} onChange={e => setBuyerPhone(e.target.value)} placeholder="(555) 555-5555"
-                      style={{ width: "100%", background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, padding: "9px 11px", fontSize: 13, color: "var(--text)", fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                      style={{ width: "100%", background: "#f8fafc", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 6, padding: "9px 11px", fontSize: 13, color: "var(--text)", fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
                       onFocus={e => { e.target.style.borderColor = "var(--blue)"; e.target.style.boxShadow = "0 0 0 3px rgba(59,158,255,0.1)"; }}
-                      onBlur={e => { e.target.style.borderColor = "rgba(255,255,255,0.08)"; e.target.style.boxShadow = "none"; }} />
+                      onBlur={e => { e.target.style.borderColor = "rgba(15,23,42,0.08)"; e.target.style.boxShadow = "none"; }} />
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                     <label style={{ fontSize: 11, color: "var(--sub)", fontWeight: 600, letterSpacing: 0.3 }}>Company Name</label>
                     <input type="text" value={buyerCompany} onChange={e => setBuyerCompany(e.target.value)} placeholder="Your company"
-                      style={{ width: "100%", background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 6, padding: "9px 11px", fontSize: 13, color: "var(--text)", fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                      style={{ width: "100%", background: "#f8fafc", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 6, padding: "9px 11px", fontSize: 13, color: "var(--text)", fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
                       onFocus={e => { e.target.style.borderColor = "var(--blue)"; e.target.style.boxShadow = "0 0 0 3px rgba(59,158,255,0.1)"; }}
-                      onBlur={e => { e.target.style.borderColor = "rgba(255,255,255,0.08)"; e.target.style.boxShadow = "none"; }} />
+                      onBlur={e => { e.target.style.borderColor = "rgba(15,23,42,0.08)"; e.target.style.boxShadow = "none"; }} />
                   </div>
                 </Grid>
               </div>
@@ -1854,7 +1854,7 @@ export default function FlipCalc() {
               return (
                 <Card step="" title="📍 Property Map & Lookup" subtitle="Satellite view + auto-fill property data from public records">
                   {/* Map embed */}
-                  <div style={{borderRadius: 10,overflow:"hidden",border:"1px solid rgba(255,255,255,0.07)",marginBottom:14,position:"relative"}}>
+                  <div style={{borderRadius: 10,overflow:"hidden",border:"1px solid rgba(15,23,42,0.07)",marginBottom:14,position:"relative"}}>
                     <iframe
                       title="property-map"
                       src={mapsUrl}
@@ -1894,7 +1894,7 @@ export default function FlipCalc() {
                   </div>
 
                   {/* Rentcast Lookup */}
-                  <div style={{borderTop:"1px solid rgba(255,255,255,0.07)",paddingTop:14}}>
+                  <div style={{borderTop:"1px solid rgba(15,23,42,0.07)",paddingTop:14}}>
                     <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:10,marginBottom:10}}>
                       <div>
                         <div style={{fontSize:13,fontWeight:700,color:"var(--text)"}}>Auto-fill from property records</div>
@@ -1928,7 +1928,7 @@ export default function FlipCalc() {
                             {label:"Last Sale Price",  val: lookupData.lastSalePrice ? fmt(lookupData.lastSalePrice) : "—"},
                             {label:"Last Sale Date",   val: lookupData.lastSaleDate  ? new Date(lookupData.lastSaleDate).toLocaleDateString('en-US',{year:'numeric',month:'short'}) : "—"},
                           ].map(item => (
-                            <div key={item.label} style={{background:"rgba(255,255,255,0.04)",borderRadius: 6,padding:"8px 10px"}}>
+                            <div key={item.label} style={{background:"rgba(15,23,42,0.04)",borderRadius: 6,padding:"8px 10px"}}>
                               <div style={{fontSize:9.5,color:"var(--sub)",fontWeight:600,marginBottom:3,textTransform:"uppercase"}}>{item.label}</div>
                               <div style={{fontSize:13,fontWeight:700,color:"var(--text)"}}>{item.val}</div>
                             </div>
@@ -1994,7 +1994,7 @@ export default function FlipCalc() {
                   { label: "Max Allowable Offer", val: fmt(c.mao), icon: "🎯" },
                   { label: "Purchase vs MAO", val: num(v.purchasePrice) <= c.mao ? "✅ Within MAO" : "⚠️ Above MAO", color: num(v.purchasePrice) <= c.mao ? "var(--green)" : "var(--red)" },
                 ].map(item => (
-                  <div key={item.label} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "10px 14px" }}>
+                  <div key={item.label} style={{ background: "rgba(15,23,42,0.03)", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 10, padding: "10px 14px" }}>
                     <div style={{ fontSize: 10, color: "var(--sub)", fontWeight: 600, marginBottom: 4 }}>{item.icon && item.icon + " "}{item.label}</div>
                     <div style={{ fontSize: 14, fontWeight: 800, color: item.color || "var(--blue)", fontFamily: "'Geist Mono', monospace" }}>{item.val}</div>
                   </div>
@@ -2010,7 +2010,7 @@ export default function FlipCalc() {
                   { label: "2nd Mortgage / Lien", ak: "loan2Amount", pk: "loan2Points", rk: "loan2Rate", intAmt: c.loan2Interest, ptsAmt: c.loan2PointsAmt },
                   { label: "Misc. Mortgage / Lien", ak: "loanMiscAmount", pk: "loanMiscPoints", rk: "loanMiscRate", intAmt: c.loanMiscInterest, ptsAmt: c.loanMiscPointsAmt },
                 ].map((l, i) => (
-                  <div key={l.label} style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "14px 16px" }}>
+                  <div key={l.label} style={{ background: "rgba(15,23,42,0.03)", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 10, padding: "14px 16px" }}>
                     <div style={{ fontSize: 11, fontWeight: 700, color: "var(--sub)", marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.5 }}>{l.label}</div>
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px 14px" }}>
                       <Field label="Loan Amount" value={v[l.ak]} onChange={set(l.ak)} prefix="$"
@@ -2057,7 +2057,7 @@ export default function FlipCalc() {
                 <Field label="Misc. Holding Costs" value={v.miscHoldingMonthly} onChange={set("miscHoldingMonthly")} prefix="$" suffix="/mo"
                   tooltip="Any other recurring monthly costs not listed above." />
               </Grid>
-              <div style={{ marginTop: 14, background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "14px 16px" }}>
+              <div style={{ marginTop: 14, background: "rgba(15,23,42,0.03)", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 10, padding: "14px 16px" }}>
                 <div style={{ fontSize: 11, fontWeight: 700, color: "var(--sub)", marginBottom: 12, textTransform: "uppercase", letterSpacing: 0.5 }}>Utility Costs (Monthly)</div>
                 <Grid cols={4} gap="10px 14px">
                   <Field label="Gas" value={v.utilGas} onChange={set("utilGas")} prefix="$" suffix="/mo" tooltip="Monthly gas utility." />
@@ -2084,15 +2084,15 @@ export default function FlipCalc() {
                 <Field label="Recording Fees" value={v.sellRecordingFees} onChange={set("sellRecordingFees")} prefix="$"
                   tooltip="County recorder fees for documenting the transfer of ownership." />
                 {/* ── Tiered Realtor Commission ── */}
-                <div style={{ gridColumn: "span 4", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "16px 18px" }}>
+                <div style={{ gridColumn: "span 4", background: "rgba(15,23,42,0.03)", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 10, padding: "16px 18px" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
                     <div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: "#0d1119" }}>Realtor Commission</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: "#f8fafc" }}>Realtor Commission</div>
                       <div style={{ fontSize: 11, color: "var(--sub)", marginTop: 2 }}>
                         {v.realtorTiered ? `Tiered: ${v.realtorTier1Pct}% on first ${fmt(v.realtorTier1Cap)}, ${v.realtorTier2Pct}% on remainder` : "Flat percentage of sale price"}
                       </div>
                     </div>
-                    <div style={{ display: "flex", gap: 0, background: "rgba(255,255,255,0.08)", borderRadius: 6, padding: 3 }}>
+                    <div style={{ display: "flex", gap: 0, background: "rgba(15,23,42,0.08)", borderRadius: 6, padding: 3 }}>
                       {[{ label: "Flat %", val: false }, { label: "Tiered", val: true }].map(opt => (
                         <button key={String(opt.val)} onClick={() => set("realtorTiered")(opt.val)}
                           style={{ padding: "6px 14px", borderRadius: 6, border: "none", cursor: "pointer", fontSize: 12, fontWeight: 600, transition: "all 0.15s",
@@ -2108,7 +2108,7 @@ export default function FlipCalc() {
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px 14px", alignItems: "end" }}>
                       <Field label="Commission Rate" value={v.realtorPct} onChange={set("realtorPct")} suffix="%"
                         tooltip="Total commission paid to both agents. Typically 5–6% in the US, 3–5% in Canada." hint={`= ${fmt(c.realtorFees)}`} />
-                      <div style={{ background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "10px 14px" }}>
+                      <div style={{ background: "#f8fafc", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 10, padding: "10px 14px" }}>
                         <div style={{ fontSize: 10, color: "var(--sub)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 4 }}>Total Commission</div>
                         <div style={{ fontSize: 16, fontWeight: 800, color: "var(--blue)", fontFamily: "'Geist Mono', monospace" }}>{fmt(c.realtorFees)}</div>
                       </div>
@@ -2124,7 +2124,7 @@ export default function FlipCalc() {
                           tooltip="Commission rate applied to everything above the Tier 1 threshold." />
                       </div>
                       {/* Live breakdown */}
-                      <div style={{ background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "12px 14px" }}>
+                      <div style={{ background: "#f8fafc", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 10, padding: "12px 14px" }}>
                         <div style={{ fontSize: 10, color: "var(--sub)", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 }}>Commission Breakdown</div>
                         <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
                           <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: "var(--sub)" }}>
@@ -2137,7 +2137,7 @@ export default function FlipCalc() {
                               <span style={{ fontFamily: "'Geist Mono', monospace", fontWeight: 600 }}>{fmt((num(v.arv) - num(v.realtorTier1Cap)) * (num(v.realtorTier2Pct)/100))}</span>
                             </div>
                           )}
-                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "var(--blue)", fontWeight: 800, borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 6, marginTop: 2 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "var(--blue)", fontWeight: 800, borderTop: "1px solid rgba(15,23,42,0.07)", paddingTop: 6, marginTop: 2 }}>
                             <span>Total Commission</span>
                             <span style={{ fontFamily: "'Geist Mono', monospace" }}>{fmt(c.realtorFees)}</span>
                           </div>
@@ -2185,34 +2185,34 @@ export default function FlipCalc() {
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
                 <div style={{display:"flex",flexDirection:"column",gap:4}}>
                   <div style={{fontSize:11,fontWeight:600,color:"var(--sub)",textTransform:"uppercase",letterSpacing:"0.4px"}}>Refinance LTV %</div>
-                  <input style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.07)",borderRadius: 10,padding:"10px 13px",fontSize:14,color:"var(--text)",outline:"none",width:"100%"}}
+                  <input style={{background:"rgba(15,23,42,0.04)",border:"1px solid rgba(15,23,42,0.07)",borderRadius: 10,padding:"10px 13px",fontSize:14,color:"var(--text)",outline:"none",width:"100%"}}
                     type="number" placeholder="80" value={brrrrForm.ltv} onChange={e=>setB("ltv",e.target.value)} />
                   {calcBRRRR && <span style={{fontSize:11,color:"var(--purple)",fontWeight:600}}>→ {fmt(calcBRRRR.loanAmt)} loan</span>}
                 </div>
                 <div style={{display:"flex",flexDirection:"column",gap:4}}>
                   <div style={{fontSize:11,fontWeight:600,color:"var(--sub)",textTransform:"uppercase",letterSpacing:"0.4px"}}>Refi Rate %</div>
-                  <input style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.07)",borderRadius: 10,padding:"10px 13px",fontSize:14,color:"var(--text)",outline:"none",width:"100%"}}
+                  <input style={{background:"rgba(15,23,42,0.04)",border:"1px solid rgba(15,23,42,0.07)",borderRadius: 10,padding:"10px 13px",fontSize:14,color:"var(--text)",outline:"none",width:"100%"}}
                     type="number" placeholder="5.5" value={brrrrForm.rate} onChange={e=>setB("rate",e.target.value)} />
                 </div>
                 <div style={{display:"flex",flexDirection:"column",gap:4}}>
                   <div style={{fontSize:11,fontWeight:600,color:"var(--sub)",textTransform:"uppercase",letterSpacing:"0.4px"}}>Amortization (yrs)</div>
-                  <input style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.07)",borderRadius: 10,padding:"10px 13px",fontSize:14,color:"var(--text)",outline:"none",width:"100%"}}
+                  <input style={{background:"rgba(15,23,42,0.04)",border:"1px solid rgba(15,23,42,0.07)",borderRadius: 10,padding:"10px 13px",fontSize:14,color:"var(--text)",outline:"none",width:"100%"}}
                     type="number" placeholder="25" value={brrrrForm.amort} onChange={e=>setB("amort",e.target.value)} />
                 </div>
                 <div style={{display:"flex",flexDirection:"column",gap:4}}>
                   <div style={{fontSize:11,fontWeight:600,color:"var(--sub)",textTransform:"uppercase",letterSpacing:"0.4px"}}>Refi Closing Costs %</div>
-                  <input style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.07)",borderRadius: 10,padding:"10px 13px",fontSize:14,color:"var(--text)",outline:"none",width:"100%"}}
+                  <input style={{background:"rgba(15,23,42,0.04)",border:"1px solid rgba(15,23,42,0.07)",borderRadius: 10,padding:"10px 13px",fontSize:14,color:"var(--text)",outline:"none",width:"100%"}}
                     type="number" placeholder="1.5" value={brrrrForm.closingPct} onChange={e=>setB("closingPct",e.target.value)} />
                   {calcBRRRR && <span style={{fontSize:11,color:"var(--amber)",fontWeight:600}}>→ {fmt(calcBRRRR.closingCosts)} cost</span>}
                 </div>
               </div>
               {calcBRRRR && (
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginTop:4}}>
-                  <div style={{background:"rgba(255,255,255,0.03)",borderRadius:10,padding:"12px 14px",textAlign:"center"}}>
+                  <div style={{background:"rgba(15,23,42,0.03)",borderRadius:10,padding:"12px 14px",textAlign:"center"}}>
                     <div style={{fontSize:11,color:"var(--sub)",fontWeight:600,marginBottom:4}}>TOTAL CASH IN</div>
                     <div style={{fontSize:17,fontWeight:800,color:"var(--text)"}}>{fmt(calcBRRRR.totalCashIn)}</div>
                   </div>
-                  <div style={{background:"rgba(255,255,255,0.03)",borderRadius:10,padding:"12px 14px",textAlign:"center"}}>
+                  <div style={{background:"rgba(15,23,42,0.03)",borderRadius:10,padding:"12px 14px",textAlign:"center"}}>
                     <div style={{fontSize:11,color:"var(--sub)",fontWeight:600,marginBottom:4}}>NET REFI PROCEEDS</div>
                     <div style={{fontSize:17,fontWeight:800,color:"var(--purple)"}}>{fmt(calcBRRRR.netProceeds)}</div>
                   </div>
@@ -2224,7 +2224,7 @@ export default function FlipCalc() {
                 </div>
               )}
               {calcBRRRR && calcBRRRR.monthlyPmt > 0 && (
-                <div style={{marginTop:10,background:"rgba(255,255,255,0.03)",borderRadius: 10,padding:"9px 14px",display:"flex",justifyContent:"space-between",fontSize:12.5,color:"var(--sub)"}}>
+                <div style={{marginTop:10,background:"rgba(15,23,42,0.03)",borderRadius: 10,padding:"9px 14px",display:"flex",justifyContent:"space-between",fontSize:12.5,color:"var(--sub)"}}>
                   <span>New monthly mortgage payment</span>
                   <span style={{fontWeight:700,color:"var(--text)"}}>{fmt(calcBRRRR.monthlyPmt)}/mo</span>
                 </div>
@@ -2242,7 +2242,7 @@ export default function FlipCalc() {
                       <div style={{fontSize:11.5,color:"var(--sub)",marginTop:1}}>{v.address || "Flip Deal"}</div>
                     </div>
                   </div>
-                  <a href="/compare" style={{background:"var(--green)",color:"#07090f",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none",flexShrink:0}}>View Saved Deals →</a>
+                  <a href="/compare" style={{background:"var(--green)",color:"#ffffff",borderRadius: 6,padding:"8px 16px",fontSize:12,fontWeight:800,textDecoration:"none",flexShrink:0}}>View Saved Deals →</a>
                 </div>
               ) : (
                 <button onClick={saveFlipDeal} style={{width:"100%",background:"rgba(59,158,255,0.1)",border:"1px solid rgba(59,158,255,0.25)",borderRadius: 10,padding:"14px 18px",color:"var(--text)",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
@@ -2400,7 +2400,7 @@ export default function FlipCalc() {
                     <span style={{fontSize:13,fontWeight:800,color:"var(--red)"}}>Deal Red Flags — {flags.length} issue{flags.length > 1 ? "s" : ""} detected</span>
                   </div>
                   {flags.map((f, i) => (
-                    <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 18px",borderBottom:i<flags.length-1?"1px solid rgba(255,255,255,0.04)":"none"}}>
+                    <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 18px",borderBottom:i<flags.length-1?"1px solid rgba(15,23,42,0.04)":"none"}}>
                       <span style={{fontSize:14,flexShrink:0,marginTop:1}}>{f.sev === "critical" ? "🚨" : "⚠️"}</span>
                       <span style={{fontSize:13,color:f.sev === "critical" ? "var(--red)" : "var(--amber)",lineHeight:1.5}}>{f.msg}</span>
                     </div>
@@ -2539,8 +2539,8 @@ export default function FlipCalc() {
 
             {/* ── 5-YEAR PROJECTION ── */}
             <div style={{ marginTop: 24 }}>
-              <div style={{ background: "#0d1119", border: "1px solid rgba(59,158,255,0.12)", borderRadius: 16, overflow: "hidden" }}>
-                <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "#0a0e18", display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ background: "#f8fafc", border: "1px solid rgba(59,158,255,0.12)", borderRadius: 16, overflow: "hidden" }}>
+                <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(15,23,42,0.07)", background: "#f1f5f9", display: "flex", alignItems: "center", gap: 12 }}>
                   <span style={{ fontSize: 18 }}>📈</span>
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 800, color: "var(--text)" }}>5-Year Appreciation Projection</div>
@@ -2550,7 +2550,7 @@ export default function FlipCalc() {
                 <div style={{ padding: "20px 22px", overflowX: "auto" }}>
                   <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
                     <thead>
-                      <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                      <tr style={{ borderBottom: "1px solid rgba(15,23,42,0.07)" }}>
                         {["Year", "Property Value", "Equity (20% down)", "Cumulative Appreciation", "vs. Flip Profit"].map(h => (
                           <th key={h} style={{ padding: "8px 12px", textAlign: h === "Year" ? "left" : "right", color: "var(--sub)", fontWeight: 700, fontSize: 11, textTransform: "uppercase", letterSpacing: 0.5 }}>{h}</th>
                         ))}
@@ -2564,7 +2564,7 @@ export default function FlipCalc() {
                         const cumAppreciation = propVal - num(v.arv);
                         const vsFlip = cumAppreciation - c.netProfit;
                         return (
-                          <tr key={yr} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                          <tr key={yr} style={{ borderBottom: "1px solid rgba(15,23,42,0.04)" }}>
                             <td style={{ padding: "10px 12px", color: "var(--text)", fontWeight: 700 }}>Year {yr}</td>
                             <td style={{ padding: "10px 12px", textAlign: "right", color: "var(--text)", fontFamily: "monospace" }}>{fmt(propVal)}</td>
                             <td style={{ padding: "10px 12px", textAlign: "right", color: "var(--blue)", fontFamily: "monospace" }}>{fmt(equity)}</td>
@@ -2591,10 +2591,10 @@ export default function FlipCalc() {
         {tab === "definitions" && (
           <div>
             {/* How to Use This Calculator */}
-            <div style={{ background: "#0d1119", borderRadius: 16, border: "1px solid rgba(255,255,255,0.08)", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", overflow: "hidden", marginBottom: 22 }}>
-              <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "#0d1119", display: "flex", alignItems: "center", gap: 12 }}>
+            <div style={{ background: "#f8fafc", borderRadius: 16, border: "1px solid rgba(15,23,42,0.08)", boxShadow: "0 1px 4px rgba(0,0,0,0.04)", overflow: "hidden", marginBottom: 22 }}>
+              <div style={{ padding: "16px 22px", borderBottom: "1px solid rgba(15,23,42,0.07)", background: "#f8fafc", display: "flex", alignItems: "center", gap: 12 }}>
                 <span style={{ background: "var(--blue)", color: "#fff", borderRadius: 6, padding: "3px 9px", fontSize: 10, fontWeight: 800, letterSpacing: 0.8 }}>METHODOLOGY</span>
-                <span style={{ fontWeight: 700, fontSize: 14, color: "#0d1119" }}>How to Use This Calculator</span>
+                <span style={{ fontWeight: 700, fontSize: 14, color: "#f8fafc" }}>How to Use This Calculator</span>
               </div>
               <div style={{ padding: "22px 24px" }}>
                 <p style={{ fontSize: 13, color: "var(--sub)", lineHeight: 1.75, margin: "0 0 20px" }}>
@@ -2624,10 +2624,10 @@ export default function FlipCalc() {
                       note: "A deal grading B or higher with a purchase price within MAO is generally worth pursuing. Always verify local transfer and conveyance rates as they vary significantly by county."
                     },
                   ].map((phase, pi) => (
-                    <div key={phase.phase} style={{ padding: "18px 0", borderBottom: pi < 2 ? "1px solid rgba(255,255,255,0.07)" : "none" }}>
+                    <div key={phase.phase} style={{ padding: "18px 0", borderBottom: pi < 2 ? "1px solid rgba(15,23,42,0.07)" : "none" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
                         <div style={{ width: 22, height: 22, borderRadius: "50%", background: phase.badgeColor, color: "#fff", fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{pi + 1}</div>
-                        <span style={{ fontSize: 13, fontWeight: 700, color: "#0d1119" }}>{phase.phase}</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: "#f8fafc" }}>{phase.phase}</span>
                         <span style={{ background: phase.badgeColor + "18", color: phase.badgeColor, fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 16, letterSpacing: 0.3 }}>{phase.badge}</span>
                       </div>
                       <div style={{ paddingLeft: 32 }}>
@@ -2639,7 +2639,7 @@ export default function FlipCalc() {
                             </div>
                           ))}
                         </div>
-                        <div style={{ background: "rgba(255,255,255,0.03)", border: `1px solid ${phase.badgeColor}22`, borderLeft: `3px solid ${phase.badgeColor}`, borderRadius: "0 8px 8px 0", padding: "8px 12px" }}>
+                        <div style={{ background: "rgba(15,23,42,0.03)", border: `1px solid ${phase.badgeColor}22`, borderLeft: `3px solid ${phase.badgeColor}`, borderRadius: "0 8px 8px 0", padding: "8px 12px" }}>
                           <span style={{ fontSize: 12, color: "var(--sub)", lineHeight: 1.55 }}>💡 {phase.note}</span>
                         </div>
                       </div>
@@ -2648,8 +2648,8 @@ export default function FlipCalc() {
                 </div>
 
                 {/* What drives the Deal Grade */}
-                <div style={{ marginTop: 22, padding: "16px 18px", background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: "#0d1119", marginBottom: 10 }}>How the Deal Grade (A–F) is Calculated</div>
+                <div style={{ marginTop: 22, padding: "16px 18px", background: "rgba(15,23,42,0.03)", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 10 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: "#f8fafc", marginBottom: 10 }}>How the Deal Grade (A–F) is Calculated</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 24px" }}>
                     {[
                       { factor: "Total Cost ROI", weight: "30 pts", detail: ">15% = full points, >10% = partial" },
@@ -2685,7 +2685,7 @@ export default function FlipCalc() {
               <input
                 type="text" placeholder="Search terms..." value={defSearch}
                 onChange={e => setDefSearch(e.target.value)}
-                style={{ width: "100%", background: "#0d1119", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 10, padding: "12px 16px 12px 40px", fontSize: 14, color: "var(--text)", outline: "none", boxSizing: "border-box", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}
+                style={{ width: "100%", background: "#f8fafc", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 10, padding: "12px 16px 12px 40px", fontSize: 14, color: "var(--text)", outline: "none", boxSizing: "border-box", boxShadow: "0 1px 3px rgba(0,0,0,0.05)" }}
               />
             </div>
 
@@ -2693,7 +2693,7 @@ export default function FlipCalc() {
               <Card key={section.section} title={section.section}>
                 <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
                   {section.items.map((item, i) => (
-                    <div key={item.term} style={{ padding: "14px 0", borderBottom: i < section.items.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none", display: "grid", gridTemplateColumns: "220px 1fr", gap: 20 }}>
+                    <div key={item.term} style={{ padding: "14px 0", borderBottom: i < section.items.length - 1 ? "1px solid rgba(15,23,42,0.07)" : "none", display: "grid", gridTemplateColumns: "220px 1fr", gap: 20 }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: "var(--blue)" }}>{item.term}</div>
                       <div style={{ fontSize: 13, color: "var(--sub)", lineHeight: 1.65 }}>{item.def}</div>
                     </div>
@@ -2720,7 +2720,7 @@ export default function FlipCalc() {
           onClick={e => e.target === e.currentTarget && setAiOpen(false)}
           style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.8)",backdropFilter:"blur(6px)",zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}
         >
-          <div style={{background:"#0d1119",border:"1px solid rgba(167,130,255,0.25)",borderRadius: 16,padding:32,width:"100%",maxWidth:580,maxHeight:"88vh",overflowY:"auto",position:"relative"}}>
+          <div style={{background:"#f8fafc",border:"1px solid rgba(167,130,255,0.25)",borderRadius: 16,padding:32,width:"100%",maxWidth:580,maxHeight:"88vh",overflowY:"auto",position:"relative"}}>
 
             {/* Header */}
             <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:20}}>
@@ -2771,7 +2771,7 @@ export default function FlipCalc() {
                       <div style={{fontSize:11,fontWeight:700,color:s.color,textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:6,display:"flex",alignItems:"center",gap:6}}>
                         <span>{s.icon}</span>{s.label}
                       </div>
-                      <div style={{fontSize:13,color:"var(--text)",lineHeight:1.7,background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.06)",borderRadius:10,padding:"12px 14px",whiteSpace:"pre-line"}}>
+                      <div style={{fontSize:13,color:"var(--text)",lineHeight:1.7,background:"rgba(255,255,255,0.02)",border:"1px solid rgba(15,23,42,0.06)",borderRadius:10,padding:"12px 14px",whiteSpace:"pre-line"}}>
                         {s.text}
                       </div>
                     </div>

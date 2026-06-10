@@ -198,12 +198,12 @@ const CSS = `
   html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* Nav */
-  .dc-nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .dc-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .dc-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none;letter-spacing:-0.4px;flex-shrink:0}
   .dc-logo span{color:var(--blue)}
   .dc-nav-links{display:flex;align-items:center;gap:2px}
   .dc-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 11px;border-radius:7px;white-space:nowrap;border:1px solid transparent;transition:all 0.15s}
-  .dc-nav-link:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+  .dc-nav-link:hover{color:var(--text);background:rgba(15,23,42,0.04)}
   .dc-nav-link.active{color:var(--blue);background:rgba(59,158,255,0.1);border-color:rgba(59,158,255,0.2);font-weight:700}
 
   /* Page */
@@ -235,7 +235,7 @@ const CSS = `
   .dc-sum-stat:last-child{border-right:none}
   .dc-sum-val{font-size:20px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-0.5px}
   .dc-sum-lbl{font-size:10px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:0.5px;margin-top:3px}
-  .dc-save-btn{margin-left:auto;margin-right:14px;background:var(--green);color:#07090f;border:none;border-radius: 10px;padding:9px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Geist',sans-serif;flex-shrink:0;transition:all 0.15s;white-space:nowrap}
+  .dc-save-btn{margin-left:auto;margin-right:14px;background:var(--green);color:#ffffff;border:none;border-radius: 10px;padding:9px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:'Geist',sans-serif;flex-shrink:0;transition:all 0.15s;white-space:nowrap}
   .dc-save-btn:hover{background:#4febb0}
   .dc-save-btn.saved{background:#1a4a35;color:var(--green);cursor:default}
 
@@ -257,10 +257,10 @@ const CSS = `
   .dc-status-badge{font-size:10px;font-weight:700;border-radius:3px;padding:3px 10px;white-space:nowrap;border:1px solid;cursor:default}
   .dc-research-btn{font-size:11px;font-weight:700;color:var(--blue);background:rgba(59,158,255,0.08);border:1px solid rgba(59,158,255,0.2);border-radius:7px;padding:6px 11px;text-decoration:none;white-space:nowrap;transition:all 0.15s;display:inline-flex;align-items:center;gap:4px;cursor:pointer}
   .dc-research-btn:hover{background:rgba(59,158,255,0.18);border-color:rgba(59,158,255,0.4)}
-  .dc-row-bottom{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.04)}
-  .dc-status-sel{background:var(--card2);border:1px solid rgba(255,255,255,0.08);border-radius:7px;padding:5px 8px;font-size:11px;font-weight:600;color:var(--text);font-family:'Geist',sans-serif;outline:none;cursor:pointer;flex-shrink:0;transition:border-color 0.15s}
+  .dc-row-bottom{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(15,23,42,0.04)}
+  .dc-status-sel{background:var(--card2);border:1px solid rgba(15,23,42,0.08);border-radius:7px;padding:5px 8px;font-size:11px;font-weight:600;color:var(--text);font-family:'Geist',sans-serif;outline:none;cursor:pointer;flex-shrink:0;transition:border-color 0.15s}
   .dc-status-sel:focus{border-color:rgba(59,158,255,0.4)}
-  .dc-notes-inp{flex:1;background:var(--card2);border:1px solid rgba(255,255,255,0.07);border-radius:7px;padding:5px 10px;font-size:12px;color:var(--text);font-family:'Geist',sans-serif;outline:none;transition:border-color 0.15s;min-width:0}
+  .dc-notes-inp{flex:1;background:var(--card2);border:1px solid rgba(15,23,42,0.07);border-radius:7px;padding:5px 10px;font-size:12px;color:var(--text);font-family:'Geist',sans-serif;outline:none;transition:border-color 0.15s;min-width:0}
   .dc-notes-inp:focus{border-color:rgba(59,158,255,0.35)}
   .dc-notes-inp::placeholder{color:var(--dim)}
 

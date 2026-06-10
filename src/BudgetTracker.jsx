@@ -43,12 +43,12 @@ const CSS = `
   html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 
   /* ── Nav ── */
-  .bt-nav{position:sticky;top:0;z-index:200;background:rgba(7,9,15,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .bt-nav{position:sticky;top:0;z-index:200;background:rgba(255,255,255,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf);padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .bt-logo{font-size:16px;font-weight:800;color:var(--text);text-decoration:none;flex-shrink:0}
   .bt-logo span{color:var(--blue)}
   .bt-nav-links{display:flex;align-items:center;gap:4px}
   .bt-nav-link{font-size:13px;color:var(--sub);text-decoration:none;font-weight:500;padding:6px 10px;border-radius:7px;transition:color 0.15s,background 0.15s}
-  .bt-nav-link:hover{color:var(--text);background:rgba(255,255,255,0.04)}
+  .bt-nav-link:hover{color:var(--text);background:rgba(15,23,42,0.04)}
   .bt-nav-link.active{color:var(--blue);background:rgba(59,158,255,0.08)}
 
   /* ── Layout ── */
@@ -70,7 +70,7 @@ const CSS = `
   .bt-btn:hover{opacity:0.85}
   .bt-btn-ghost{background:transparent;color:var(--sub);border:1px solid var(--borderf);border-radius: 10px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;white-space:nowrap;transition:all 0.15s}
   .bt-btn-ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.18)}
-  .bt-btn-green{background:var(--green);color:#07090f}
+  .bt-btn-green{background:var(--green);color:#ffffff}
   .bt-btn-green:hover{opacity:0.85}
   .bt-btn-red{background:var(--red);color:#fff}
   .bt-btn-sm{padding:6px 12px;font-size:12px;border-radius:7px}
@@ -113,7 +113,7 @@ const CSS = `
   /* ── Category breakdown table ── */
   .bt-cat-table{width:100%;border-collapse:collapse}
   .bt-cat-table th{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--borderf)}
-  .bt-cat-table td{padding:9px 12px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.03)}
+  .bt-cat-table td{padding:9px 12px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(15,23,42,0.03)}
   .bt-cat-table tr:last-child td{border-bottom:none}
   .bt-cat-table tr:hover td{background:rgba(255,255,255,0.02)}
   .bt-cat-name{font-weight:600}
@@ -127,7 +127,7 @@ const CSS = `
   .bt-exp-table{width:100%;border-collapse:collapse}
   .bt-exp-table th{font-size:11px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:0.5px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--borderf);cursor:pointer;user-select:none;white-space:nowrap}
   .bt-exp-table th:hover{color:var(--text)}
-  .bt-exp-table td{padding:9px 12px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.03);vertical-align:middle}
+  .bt-exp-table td{padding:9px 12px;font-size:13px;color:var(--text);border-bottom:1px solid rgba(15,23,42,0.03);vertical-align:middle}
   .bt-exp-table tr:last-child td{border-bottom:none}
   .bt-exp-table tr:hover td{background:rgba(255,255,255,0.02)}
   .bt-exp-actions{display:flex;gap:6px}

@@ -26,7 +26,7 @@ const CSS = `
   .lg-sub{font-size:15px;color:var(--sub);line-height:1.65;max-width:380px;margin-bottom:40px}
 
   .lg-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:44px}
-  .lg-metric-tile{background:rgba(255,255,255,0.03);border:1px solid var(--borderf);border-radius: 10px;padding:16px 18px}
+  .lg-metric-tile{background:rgba(15,23,42,0.03);border:1px solid var(--borderf);border-radius: 10px;padding:16px 18px}
   .lg-metric-val{font-size:22px;font-weight:800;color:var(--green);letter-spacing:-0.5px;margin-bottom:3px;font-variant-numeric:tabular-nums}
   .lg-metric-label{font-size:11px;color:var(--sub);font-weight:500}
 
@@ -35,7 +35,7 @@ const CSS = `
   .lg-bullet-icon{width:20px;height:20px;border-radius:50%;background:rgba(52,217,138,0.12);border:1px solid rgba(52,217,138,0.25);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
 
   .lg-left-bottom{position:relative;z-index:1}
-  .lg-testimonial{background:rgba(255,255,255,0.03);border:1px solid var(--borderf);border-radius: 10px;padding:18px 20px}
+  .lg-testimonial{background:rgba(15,23,42,0.03);border:1px solid var(--borderf);border-radius: 10px;padding:18px 20px}
   .lg-testimonial-text{font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:12px;font-style:italic}
   .lg-testimonial-author{font-size:12px;color:var(--dim);font-weight:600}
 
@@ -48,12 +48,12 @@ const CSS = `
   .lg-form-title{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-0.5px;margin-bottom:6px}
   .lg-form-sub{font-size:14px;color:var(--sub);margin-bottom:28px}
 
-  .lg-tabs{display:flex;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:10px;padding:3px;gap:3px;margin-bottom:22px}
+  .lg-tabs{display:flex;background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius:10px;padding:3px;gap:3px;margin-bottom:22px}
   .lg-tab{flex:1;padding:9px 0;border:none;border-radius: 6px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;text-align:center}
   .lg-tab.active{background:var(--blue);color:#fff;box-shadow:0 2px 8px rgba(59,158,255,0.3)}
   .lg-tab.inactive{background:transparent;color:var(--sub)}
 
-  .lg-google{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--borderf);border-radius:10px;padding:13px;font-family:'Geist',sans-serif;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.15s;margin-bottom:4px}
+  .lg-google{width:100%;background:rgba(15,23,42,0.05);border:1px solid var(--borderf);border-radius:10px;padding:13px;font-family:'Geist',sans-serif;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all 0.15s;margin-bottom:4px}
   .lg-google:hover{background:rgba(255,255,255,0.09);border-color:var(--border)}
 
   .lg-divider{display:flex;align-items:center;gap:12px;margin:16px 0}
@@ -62,7 +62,7 @@ const CSS = `
 
   .lg-field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
   .lg-label{font-size:11.5px;font-weight:600;color:var(--sub);letter-spacing:0.3px;display:flex;justify-content:space-between;align-items:center}
-  .lg-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--borderf);border-radius:10px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s}
+  .lg-input{width:100%;background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius:10px;padding:13px 14px;font-size:14px;color:var(--text);outline:none;transition:border-color 0.15s,box-shadow 0.15s}
   .lg-input:focus{border-color:rgba(59,158,255,0.5);box-shadow:0 0 0 3px rgba(59,158,255,0.1)}
 
   .lg-btn{width:100%;background:linear-gradient(135deg,var(--blue),#2980e8);color:#fff;border:none;border-radius:10px;padding:14px;font-family:'Geist',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all 0.15s;margin-top:4px;letter-spacing:-0.2px}

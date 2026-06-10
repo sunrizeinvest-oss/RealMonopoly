@@ -394,14 +394,14 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
             color: "var(--green)", letterSpacing: "1.2px",
           }}>▸ BATCH ACTIONS · {doneCount} DOCS PARSED</span>
           <button onClick={applyAllFromAllRows} style={{
-            background: "var(--green)", border: "none", color: "#07090f",
+            background: "var(--green)", border: "none", color: "#ffffff",
             borderRadius: 4, padding: "6px 12px", cursor: "pointer",
             fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
             letterSpacing: "0.9px",
           }}>▶ APPLY ALL FROM ALL DOCS</button>
           {rowsWithUnits.length >= 2 && (
             <button onClick={combineRentRolls} title="Aggregates units from every rent roll into one unit mix; same-type rows combine counts and use count-weighted average rent." style={{
-              background: "var(--amber)", border: "none", color: "#07090f",
+              background: "var(--amber)", border: "none", color: "#ffffff",
               borderRadius: 4, padding: "6px 12px", cursor: "pointer",
               fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
               letterSpacing: "0.9px",
@@ -580,7 +580,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
                             style={{
                               marginLeft: "auto",
                               background: row.applied.units ? "transparent" : "var(--green)",
-                              color: row.applied.units ? "var(--green)" : "#07090f",
+                              color: row.applied.units ? "var(--green)" : "#ffffff",
                               border: `1px solid var(--green)`, borderRadius: 3,
                               padding: "4px 10px",
                               fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
@@ -608,7 +608,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
                             </thead>
                             <tbody>
                               {row.extracted.units.map((u, i) => (
-                                <tr key={i} style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+                                <tr key={i} style={{ borderTop: "1px solid rgba(15,23,42,0.04)" }}>
                                   <td style={{ padding: "4px 7px", color: "var(--text)", fontWeight: 600 }}>{u.type || "—"}</td>
                                   <td style={{ padding: "4px 7px", textAlign: "right", color: "var(--text)" }}>{u.count != null ? u.count : "—"}</td>
                                   <td style={{ padding: "4px 7px", textAlign: "right", color: "var(--sub)" }}>{u.sqft != null ? u.sqft : "—"}</td>

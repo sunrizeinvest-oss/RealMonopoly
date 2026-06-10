@@ -83,7 +83,7 @@ export default function TierGate({
         <button
           onClick={() => navigate("/pricing")}
           style={{
-            background: color, color: "#07090f",
+            background: color, color: "#ffffff",
             border: "none", borderRadius: 5,
             padding: "11px 18px",
             fontFamily: "'Geist Mono',ui-monospace,monospace",
