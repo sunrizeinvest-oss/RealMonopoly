@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { generateFlipPDF } from "./generatePDF";
+import { generateTier1Memo } from "./lib/tier1Memo";
 import DealCoach from "./components/DealCoach";
 import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
@@ -272,7 +273,52 @@ export default function DealAnalyzer() {
     const { data: sub } = await getSubscription();
     const isPro = sub?.status === 'active' && sub?.plan === 'pro';
     if (!isPro) { setPdfLoading(false); setUpgradeReason('pdf'); setShowUpgrade(true); return; }
-    generateFlipPDF({ form, arv, rent, deal });
+    // Unified Tier 1 Investor Memo — same branded 1-pager BRRRR uses.
+    const fmtM = n => n == null ? "—" : `$${Math.round(n).toLocaleString()}`;
+    const fmtP = n => n == null || !isFinite(n) ? "—" : `${(n*100).toFixed(1)}%`;
+    const pp = num(form.purchasePrice), rc = num(form.repairCost);
+    const allInCost = pp + rc;
+    const profit = deal?.profit ?? (arv.mid - allInCost);
+    const marginPct = arv.mid > 0 ? profit / arv.mid : 0;
+    const doc = generateTier1Memo({
+      type: "flip",
+      deal: {
+        address: form.address || "Flip Deal",
+        purchasePrice: pp,
+        yearBuilt: form.yearBuilt ? Number(form.yearBuilt) : null,
+        beds: form.beds ? Number(form.beds) : null,
+        baths: form.baths ? Number(form.baths) : null,
+        sqft: form.sqft ? Number(form.sqft) : null,
+      },
+      summary: {
+        tiles: [
+          { label: "ARV (mid)",    value: fmtM(arv.mid) },
+          { label: "All-in cost",  value: fmtM(allInCost) },
+          { label: "Est. profit",  value: fmtM(profit),     color: profit >= 0 ? "#34d98a" : "#f25c5c" },
+          { label: "Margin",       value: fmtP(marginPct),  color: marginPct >= 0.15 ? "#34d98a" : marginPct >= 0.08 ? "#f0a030" : "#f25c5c" },
+        ],
+        rows: [
+          { label: "Purchase price",        value: fmtM(pp) },
+          { label: "Repair budget",         value: fmtM(rc) },
+          { label: "All-in cost",           value: fmtM(allInCost), emphasis: true },
+          { break: true },
+          { label: "ARV — low",             value: fmtM(arv.low) },
+          { label: "ARV — mid",             value: fmtM(arv.mid) },
+          { label: "ARV — high",            value: fmtM(arv.high) },
+          { break: true },
+          { label: "Est. profit",           value: fmtM(profit), emphasis: true, color: profit >= 0 ? "#34d98a" : "#f25c5c" },
+          { label: "Margin",                value: fmtP(marginPct), color: marginPct >= 0.15 ? "#34d98a" : "#f0a030" },
+          { label: "Deal score",            value: deal?.score != null ? `${deal.score} / 100` : "—" },
+        ],
+        verdict: deal?.verdict || (
+          marginPct >= 0.15 ? "Strong margin — pursue at asking." :
+          marginPct >= 0.08 ? "Marginal — verify repair budget + ARV comps before bidding." :
+          "Pass at this price — margin too thin."
+        ),
+        notes: "ARV estimated from price-per-sqft model. Verify with live comps from /property. Repair budget assumes general renovation — itemise before financing.",
+      },
+    });
+    doc.save(`investor-memo-flip-${new Date().toISOString().slice(0,10)}.pdf`);
     setPdfLoading(false);
   }
 

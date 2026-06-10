@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, lazy, Suspense } from "react";
 import { useAuth } from "./AuthContext";
 import { exportBRRRRPDF } from "./pdfExport";
+import { generateTier1Memo } from "./lib/tier1Memo";
 import { irr as solveIRR, withCumulative } from "./lib/finance";
 import { useDocMeta } from "./lib/seo";
 import { celebrateFirstSave } from "./lib/celebrate";
@@ -1276,13 +1277,59 @@ export default function BRRRRCalculator() {
             <div className="br-card" style={{marginTop:4}}>
               <div className="br-card-body">
                 <button
-                  onClick={() => exportBRRRRPDF(form, calc)}
+                  onClick={() => {
+                    if (!calc) return;
+                    const fmtM = n => n == null ? "—" : `$${Math.round(n).toLocaleString()}`;
+                    const fmtK = n => n == null ? "—" : `$${Math.round(n/1000)}K`;
+                    const fmtP = n => n == null || !isFinite(n) ? "—" : `${(n*100).toFixed(1)}%`;
+                    const doc = generateTier1Memo({
+                      type: "brrrr",
+                      deal: {
+                        address: form.address || form.dealName || "BRRRR Deal",
+                        purchasePrice: Number(form.purchasePrice),
+                        yearBuilt: form.yearBuilt ? Number(form.yearBuilt) : null,
+                        beds: form.beds ? Number(form.beds) : null,
+                        baths: form.baths ? Number(form.baths) : null,
+                        sqft: form.sqft ? Number(form.sqft) : null,
+                      },
+                      summary: {
+                        tiles: [
+                          { label: "ARV", value: fmtK(calc.arv) },
+                          { label: "Cash Left In", value: fmtK(calc.cashLeftInDeal), color: calc.isTrueBRRRR ? "#34d98a" : "#f0a030", sub: calc.isTrueBRRRR ? "True BRRRR ✓" : "Partial cash-out" },
+                          { label: "Cash Flow / mo", value: fmtM(calc.monthlyCF), color: calc.monthlyCF >= 0 ? "#34d98a" : "#f25c5c" },
+                          { label: "DSCR", value: calc.dscr ? `${calc.dscr.toFixed(2)}x` : "—", color: calc.dscr >= 1.25 ? "#34d98a" : calc.dscr >= 1.0 ? "#f0a030" : "#f25c5c" },
+                        ],
+                        rows: [
+                          { label: "Purchase price",                  value: fmtM(Number(form.purchasePrice)) },
+                          { label: "Rehab budget",                    value: fmtM(Number(form.rehabCosts)) },
+                          { label: "Closing + holding (acquisition)", value: fmtM(calc.totalCashIn - Number(form.purchasePrice) - Number(form.rehabCosts)) },
+                          { label: "Total cash in",                   value: fmtM(calc.totalCashIn), emphasis: true },
+                          { break: true },
+                          { label: "Stabilised NOI",                  value: fmtM(calc.noi) },
+                          { label: "Refi loan amount",                value: fmtM(calc.arv * (Number(form.refinanceLTV)/100)) },
+                          { label: "Refi cash returned",              value: fmtM(calc.refiNetProceeds), color: "#34d98a" },
+                          { label: "Cash left in deal",               value: fmtM(calc.cashLeftInDeal), emphasis: true, color: calc.isTrueBRRRR ? "#34d98a" : "#f0a030" },
+                          { break: true },
+                          { label: "Annual cash flow",                value: fmtM(calc.annualCF), color: calc.annualCF >= 0 ? "#34d98a" : "#f25c5c" },
+                          { label: "Cash-on-cash return",             value: !isFinite(calc.coc) ? "∞ (true BRRRR)" : fmtP(calc.coc), color: "#34d98a" },
+                          { label: "Equity created",                  value: fmtM(calc.equityCreated), color: "#34d98a" },
+                        ],
+                        verdict: calc.isTrueBRRRR
+                          ? `True BRRRR — refi pulls ${fmtM(calc.cashPulledOut)} out of pocket while leaving $0 in.`
+                          : calc.monthlyCF >= 200 && calc.dscr >= 1.25
+                            ? `Cash-flowing rental with ${fmtM(calc.cashLeftInDeal)} left in. DSCR ${calc.dscr.toFixed(2)}x.`
+                            : `Marginal deal — ${fmtM(calc.cashLeftInDeal)} stays in, ${calc.dscr.toFixed(2)}x DSCR. Re-verify rent + reno budget.`,
+                        notes: form.notes || "Rates assumed flat through refi. Verify lender terms and post-refi rent before committing capital.",
+                      },
+                    });
+                    doc.save(`investor-memo-brrrr-${new Date().toISOString().slice(0,10)}.pdf`);
+                  }}
                   disabled={!calc}
-                  style={{width:"100%",background:"rgba(242,92,92,0.1)",border:"1px solid rgba(242,92,92,0.25)",borderRadius: 10,padding:"12px 18px",color:"var(--red)",fontSize:13,fontWeight:700,cursor:calc?"pointer":"not-allowed",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s",opacity:calc?1:0.5}}
-                  onMouseOver={e=>{if(calc)e.currentTarget.style.background="rgba(242,92,92,0.18)"}}
-                  onMouseOut={e=>{e.currentTarget.style.background="rgba(242,92,92,0.1)"}}
+                  style={{width:"100%",background:"rgba(52,217,138,0.1)",border:"1px solid rgba(52,217,138,0.25)",borderRadius: 10,padding:"12px 18px",color:"var(--green)",fontSize:13,fontWeight:700,cursor:calc?"pointer":"not-allowed",fontFamily:"'DM Sans',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s",opacity:calc?1:0.5}}
+                  onMouseOver={e=>{if(calc)e.currentTarget.style.background="rgba(52,217,138,0.18)"}}
+                  onMouseOut={e=>{e.currentTarget.style.background="rgba(52,217,138,0.1)"}}
                 >
-                  <span>📄</span> Export PDF Summary
+                  <span>📄</span> Export Investor Memo
                 </button>
               </div>
             </div>
