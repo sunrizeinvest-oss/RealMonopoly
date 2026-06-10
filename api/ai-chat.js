@@ -29,9 +29,15 @@ function extractJSON(text) {
 
 export default async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   if (req.method === "OPTIONS") return res.status(200).end();
+
+  // The Vercel cron path hits us as a GET with ?mode=cron-digest and an
+  // Authorization: Bearer <CRON_SECRET> header. Everything else stays POST.
+  if (req.method === "GET" && req.query?.mode === "cron-digest") {
+    return handleCronDigest(req, res);
+  }
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
   // Multi-mode: this endpoint handles both the conversational chat AND the
@@ -912,4 +918,158 @@ function escapeHtml(s) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   cron-digest — weekly auto-digest invoked by Vercel Cron
+//
+//   GET /api/ai-chat?mode=cron-digest
+//   Authorization: Bearer <CRON_SECRET>
+//
+//   Reads every email_enabled saved search across all users, runs
+//   find-triggers for each, and emails the digest to the search owner.
+//   Updates last_digest_at on each row it processed.
+//
+//   Env vars required:
+//     CRON_SECRET                (Vercel auto-fills if you set up cron via UI)
+//     SUPABASE_URL               (your Supabase project URL)
+//     SUPABASE_SERVICE_ROLE_KEY  (Supabase → Settings → API → service_role)
+//     RESEND_API_KEY             (same as send-digest)
+//     ANTHROPIC_API_KEY          (same as find-triggers)
+// ──────────────────────────────────────────────────────────────────────
+async function handleCronDigest(req, res) {
+  // 1. Auth: Vercel cron sends Authorization: Bearer <CRON_SECRET>.
+  const expected = process.env.CRON_SECRET;
+  const auth = req.headers.authorization || "";
+  if (!expected || auth !== `Bearer ${expected}`) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) {
+    return res.status(503).json({ error: "Supabase service config missing — set SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY." });
+  }
+
+  const sbHeaders = {
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+    "Content-Type": "application/json",
+  };
+
+  // 2. Pull every email_enabled saved search + the owner's email (via PostgREST
+  //    inner join to auth.users). Service role bypasses RLS.
+  let searches = [];
+  try {
+    const r = await fetch(
+      `${supabaseUrl}/rest/v1/saved_searches?select=id,user_id,name,area,property_type,max_price&email_enabled=eq.true`,
+      { headers: sbHeaders }
+    );
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      console.error("[cron-digest] Supabase search read failed:", r.status, errBody.slice(0, 200));
+      return res.status(502).json({ error: "Could not read saved searches" });
+    }
+    searches = await r.json();
+  } catch (e) {
+    return res.status(504).json({ error: `Supabase fetch failed: ${e.message}` });
+  }
+
+  if (!searches.length) {
+    return res.status(200).json({ ok: true, processed: 0, note: "No email-enabled saved searches." });
+  }
+
+  // 3. For each search: look up the owner's email, run find-triggers, send the
+  //    digest. Cap parallelism at 5 to avoid Anthropic/Resend rate-limit storms.
+  const results = [];
+  const concurrency = 5;
+
+  async function processOne(s) {
+    const out = { searchId: s.id, area: s.area, sentTo: null, count: 0, error: null };
+    try {
+      // Owner email — service role can read auth.users
+      const uRes = await fetch(
+        `${supabaseUrl}/auth/v1/admin/users/${s.user_id}`,
+        { headers: sbHeaders }
+      );
+      if (!uRes.ok) throw new Error(`auth.users lookup ${uRes.status}`);
+      const u = await uRes.json();
+      const email = u?.email;
+      if (!email) throw new Error("user has no email");
+
+      // Run find-triggers internally — same prompt the in-app scan uses.
+      const findRes = await fetch(`${baseUrlFromReq(req)}/api/ai-chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "find-triggers",
+          area: s.area,
+          propertyType: s.property_type || "any",
+          maxPrice: s.max_price || undefined,
+        }),
+      });
+      const findJson = await findRes.json().catch(() => ({}));
+      const triggers = Array.isArray(findJson.triggers) ? findJson.triggers : [];
+      out.count = triggers.length;
+
+      // Skip the send when nothing matched — no point cluttering inboxes.
+      if (!triggers.length) {
+        out.sentTo = email;
+        out.skipped = "no signals matched";
+      } else {
+        const sendRes = await fetch(`${baseUrlFromReq(req)}/api/ai-chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "send-digest",
+            to: email,
+            area: s.area,
+            propertyType: s.property_type,
+            triggers,
+          }),
+        });
+        if (!sendRes.ok) {
+          const errJ = await sendRes.json().catch(() => ({}));
+          throw new Error(errJ.error || `send-digest ${sendRes.status}`);
+        }
+        out.sentTo = email;
+      }
+
+      // Stamp last_digest_at so we know we ran this one.
+      await fetch(`${supabaseUrl}/rest/v1/saved_searches?id=eq.${s.id}`, {
+        method: "PATCH",
+        headers: { ...sbHeaders, Prefer: "return=minimal" },
+        body: JSON.stringify({ last_digest_at: new Date().toISOString() }),
+      });
+    } catch (e) {
+      out.error = e.message;
+    }
+    return out;
+  }
+
+  for (let i = 0; i < searches.length; i += concurrency) {
+    const batch = searches.slice(i, i + concurrency);
+    const batchResults = await Promise.all(batch.map(processOne));
+    results.push(...batchResults);
+  }
+
+  const summary = {
+    ok: true,
+    processed: results.length,
+    sent: results.filter(r => r.sentTo && !r.skipped && !r.error).length,
+    skipped: results.filter(r => r.skipped).length,
+    errors: results.filter(r => r.error).length,
+    results,
+  };
+  console.log("[cron-digest] complete:", JSON.stringify(summary).slice(0, 800));
+  return res.status(200).json(summary);
+}
+
+// Derive the absolute base URL from a request so internal fetches resolve.
+// Vercel exposes the deploy URL via the Host header; falls back to env.
+function baseUrlFromReq(req) {
+  const host = req.headers.host || process.env.VERCEL_URL;
+  if (!host) return "";
+  const proto = (req.headers["x-forwarded-proto"] || "https");
+  return `${proto}://${host}`;
 }

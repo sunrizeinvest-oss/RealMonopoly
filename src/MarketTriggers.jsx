@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
 import TierGate from "./components/TierGate";
 import { useAuth } from "./AuthContext";
+import { supabase } from "./supabase";
 
 /**
  * MarketTriggers — distressed-listing radar.
@@ -146,6 +147,32 @@ export default function MarketTriggers() {
     }
   }
 
+  // Pull Supabase saved searches on auth so the weekly cron auto-digest can
+  // find them. Local-only when offline / unauthed. Supabase wins on conflict.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    (async () => {
+      const { data, error } = await supabase
+        .from("saved_searches")
+        .select("id, name, area, property_type, max_price, last_scan_at, last_scan_keys")
+        .order("created_at", { ascending: false });
+      if (cancelled || error || !data) return;
+      const mapped = data.map(r => ({
+        id: r.id,
+        name: r.name,
+        area: r.area,
+        propertyType: r.property_type || "any",
+        maxPrice: r.max_price || "",
+        lastScanAt: r.last_scan_at ? new Date(r.last_scan_at).getTime() : null,
+        lastScanKeys: r.last_scan_keys || [],
+        remote: true,
+      }));
+      if (mapped.length) setSavedSearches(mapped);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
   function saveCurrentSearch() {
     if (!area.trim()) return;
     const id = `s_${Date.now().toString(36)}`;
@@ -155,6 +182,21 @@ export default function MarketTriggers() {
       ...s.filter(x => x.area.toLowerCase() !== area.trim().toLowerCase())
     ]);
     setActiveSearchId(id);
+    // Mirror to Supabase when signed in — cron reads from there.
+    if (user) {
+      supabase.from("saved_searches").insert({
+        user_id: user.id,
+        name: area.trim(),
+        area: area.trim(),
+        property_type: propertyType,
+        max_price: maxPrice ? Number(maxPrice) : null,
+        email_enabled: true,
+        last_scan_at: new Date().toISOString(),
+        last_scan_keys: keys,
+      }).then(({ error }) => {
+        if (error) console.warn("[saved_searches] insert failed:", error.message);
+      });
+    }
   }
   function loadSavedSearch(s) {
     setArea(s.area);
@@ -173,6 +215,12 @@ export default function MarketTriggers() {
   function deleteSavedSearch(id) {
     setSavedSearches(s => s.filter(x => x.id !== id));
     if (activeSearchId === id) { setActiveSearchId(null); setPreviousKeys(new Set()); }
+    // Mirror delete to Supabase when the id looks like a UUID (remote row).
+    if (user && /^[0-9a-f-]{36}$/i.test(id)) {
+      supabase.from("saved_searches").delete().eq("id", id).then(({ error }) => {
+        if (error) console.warn("[saved_searches] delete failed:", error.message);
+      });
+    }
   }
 
   async function runWithArea(a, pType, maxP) {

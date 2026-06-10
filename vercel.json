@@ -1,5 +1,11 @@
 {
   "rewrites": [
     { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
+  "crons": [
+    {
+      "path": "/api/ai-chat?mode=cron-digest",
+      "schedule": "0 16 * * 1"
+    }
   ]
 }
