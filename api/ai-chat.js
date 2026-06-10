@@ -667,13 +667,47 @@ async function handleFindTriggers(req, res) {
     return res.status(503).json({ error: "AI trigger finder is not configured." });
   }
 
-  const prompt = `You are a real-estate market analyst. Generate 8 PLAUSIBLE distressed-listing signals for the search area below — properties that recently failed to sell, were withdrawn, suspended, expired, or terminated. Use realistic addresses, property types, and pricing for the area.
+  // Ground in REAL listings — pulls active listings near the search area
+  // and identifies STALE ones (DOM > 60 days) as distress candidates. The
+  // AI is then asked to interpret each (reason it's stale, redev potential)
+  // rather than hallucinating addresses + pricing wholesale.
+  // True terminated/expired data needs MLS member access (CREA DDF);
+  // until then high-DOM active listings are the best proxy.
+  let mlsAnchors = null;
+  let mlsProvider = null;
+  try {
+    const { getMlsProvider, getProviderName } = await import("./_lib/mls/index.js");
+    const provider = getMlsProvider();
+    mlsProvider = getProviderName();
+    const result = await provider.searchByArea({ area, limit: 25 });
+    if (result.groundedByMls && result.activeListings?.length) {
+      // Stale = high days-on-market. 60+ DOM in most CA markets is a real signal.
+      const stale = result.activeListings
+        .filter(l => l.daysOnMarket != null && l.daysOnMarket >= 60)
+        .sort((a, b) => (b.daysOnMarket || 0) - (a.daysOnMarket || 0))
+        .slice(0, 8);
+      if (stale.length) mlsAnchors = stale;
+    }
+  } catch (e) {
+    console.warn("[find-triggers] MLS provider failed, falling back to pure AI:", e.message);
+  }
+
+  const anchorBlock = mlsAnchors && mlsAnchors.length ? `
+GROUND-TRUTH STALE LISTINGS (live from ${mlsProvider}, DOM ≥ 60 days):
+${mlsAnchors.map((l, i) => `  ${i+1}. ${l.address || "?"}${l.cityProvince ? ", " + l.cityProvince : ""} — $${l.price ? Math.round(l.price).toLocaleString() : "?"} · ${l.bedrooms ?? "?"} BD / ${l.bathrooms ?? "?"} BA · ${l.sqft ?? "?"} sqft · ${l.propertyType || "?"} · DOM ${l.daysOnMarket} · listed ${l.listedDate || "?"}${l.mlsNumber ? " · MLS " + l.mlsNumber : ""}`).join("\n")}
+
+These are REAL active listings stuck on the market. For each, infer a plausible distress signal and assess off-market redev potential. Use the actual address + price + property type + DOM directly — don't invent alternatives. Mark them with status "Stale" (not "Terminated/Expired" — we don't have MLS member access to confirm those).
+` : `
+NOTE: No live MLS data available — using pure AI inference. Make the signals plausible for the geography. Mark these "AI Inferred" so the user knows they're directional.
+`;
+
+  const prompt = `You are a real-estate market analyst. ${mlsAnchors ? "Interpret the ground-truth stale listings below — for each, write the distress thesis." : "Generate 8 PLAUSIBLE distressed-listing signals for the search area below — properties that recently failed to sell, were withdrawn, suspended, expired, or terminated. Use realistic addresses, property types, and pricing for the area."}
 
 SEARCH AREA: ${area}
 PROPERTY TYPE: ${propertyType}
 ${minPrice ? `MIN PRICE: $${Number(minPrice).toLocaleString()}` : ""}
 ${maxPrice ? `MAX PRICE: $${Number(maxPrice).toLocaleString()}` : ""}
-
+${anchorBlock}
 Each trigger is a JSON object with these fields:
 - address       — plausible street + city
 - status        — one of: "Terminated", "Withdrawn", "Suspended", "Expired", "Cancelled"
@@ -727,7 +761,13 @@ These are directional signals for analyst review. Make them plausible, not perfe
       return res.status(502).json({ error: "AI returned non-JSON response" });
     }
 
-    return res.status(200).json({ triggers: parsed.triggers || [], source: "claude-sonnet-4-6" });
+    return res.status(200).json({
+      triggers: parsed.triggers || [],
+      source: mlsAnchors ? `claude-sonnet-4-6+${mlsProvider}` : "claude-sonnet-4-6",
+      groundedByMls: !!mlsAnchors,
+      mlsProvider: mlsAnchors ? mlsProvider : null,
+      mlsAnchorCount: mlsAnchors ? mlsAnchors.length : 0,
+    });
   } catch (e) {
     console.error("[find-triggers] timeout or fetch error:", e.message);
     return res.status(504).json({ error: `Trigger generation failed: ${e.message}` });

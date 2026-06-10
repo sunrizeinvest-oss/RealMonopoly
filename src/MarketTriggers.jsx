@@ -51,6 +51,8 @@ export default function MarketTriggers() {
   // Email digest state — kept tight so it doesn't pollute the scan flow.
   const [emailSending, setEmailSending] = useState(false);
   const [emailStatus, setEmailStatus]   = useState(null); // null | {kind:'ok',msg} | {kind:'err',msg}
+  // MLS grounding provenance for the current trigger list (when present).
+  const [mlsSource, setMlsSource]       = useState(null); // null | {provider, anchors}
 
   async function sendEmailDigest() {
     if (!user?.email) {
@@ -131,6 +133,9 @@ export default function MarketTriggers() {
       const j = await r.json();
       const newTriggers = j.triggers || [];
       setTriggers(newTriggers);
+      // Surface MLS grounding so the user knows these are real listings
+      // (stale active, DOM ≥ 60d) and not pure AI speculation.
+      setMlsSource(j.groundedByMls ? { provider: j.mlsProvider, anchors: j.mlsAnchorCount } : null);
       // If this run was launched from a saved search, update its last-scan record
       if (activeSearchId) {
         const keys = newTriggers.map(triggerKey);
@@ -406,6 +411,22 @@ export default function MarketTriggers() {
                 {emailStatus.kind === "ok" ? "✓ " : "⚠ "}{emailStatus.msg}
               </span>
             )}
+          </div>
+        )}
+
+        {/* MLS grounding badge — tells the user these triggers are real
+            stale active listings (DOM ≥ 60d), not pure AI guesses. */}
+        {mlsSource && triggers.length > 0 && (
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: 8,
+            padding: "6px 12px", marginBottom: 14,
+            background: "rgba(240,160,48,0.06)",
+            border: "1px solid rgba(240,160,48,0.3)",
+            borderRadius: 3,
+            fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+            color: "var(--amber)", letterSpacing: "1px",
+          }}>
+            ⌖ GROUNDED · {mlsSource.provider.toUpperCase()} · {mlsSource.anchors} STALE LISTING{mlsSource.anchors === 1 ? "" : "S"} ANCHORED
           </div>
         )}
 

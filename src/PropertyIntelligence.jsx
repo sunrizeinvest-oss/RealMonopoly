@@ -1427,6 +1427,79 @@ export default function PropertyIntelligence() {
                   </button>
                 </div>
 
+                {/* ── Smart Strategy CTA ─────────────────────────────────
+                    Detects multifamily / SFH from propertyType + bedrooms +
+                    zoning code, and surfaces the right calculator with a
+                    one-click deep-link instead of making the user pick. */}
+                {(() => {
+                  const pType = (property.propertyType || "").toLowerCase();
+                  const beds  = Number(property.bedrooms || 0);
+                  const zone  = (zoningData?.zoning?.zone || "").toUpperCase();
+                  const zoneMaxUnits = Number(zoningData?.zoning?.maxUnits || 0);
+                  // Multifamily signals: 5+ beds (likely converted/built MF),
+                  // explicit MF keywords, or zoning that permits 5+ units.
+                  const mfKeywords = /multi|apartment|duplex|triplex|fourplex|quadplex|multiplex|multi-?family|multi-?unit|condo apartment|condo building/i;
+                  const sfhKeywords = /single family|detached|townhouse|row house|semi-?detached|condo apartment unit/i;
+                  const zoneIsMf = /^M[-\s]|^RM\b|^MUR|^RT-/.test(zone) || zoneMaxUnits >= 5;
+                  const isMultifamily = mfKeywords.test(pType) || beds >= 5 || zoneIsMf;
+                  const isSfh = sfhKeywords.test(pType) || (beds > 0 && beds <= 4 && !zoneIsMf);
+                  // Recommendation: commercial > brrrr (if rent estimate exists) > flip
+                  let strategy = null, label = null, blurb = null, color = null;
+                  if (isMultifamily) {
+                    strategy = "commercial"; label = "Multifamily Underwriter";
+                    color = "var(--purple)";
+                    blurb = `${zoneIsMf ? `Zoning ${zone || "permits multi-residential"} → ` : ""}${beds >= 5 ? `${beds} BD signals multi-unit → ` : ""}run the Tier 2 commercial model with NOI / cap / IRR.`;
+                  } else if (isSfh && property.rentEstimate) {
+                    strategy = "brrrr"; label = "BRRRR Calculator";
+                    color = "var(--green)";
+                    blurb = `Single-family with rent estimate ${property.rentEstimate ? `~$${Math.round(property.rentEstimate).toLocaleString()}/mo ` : ""}→ buy-rehab-rent-refinance flow.`;
+                  } else if (isSfh) {
+                    strategy = "flip"; label = "Fix & Flip Analyzer";
+                    color = "var(--amber)";
+                    blurb = `Single-family / residential → ARV-driven flip model with profit + margin.`;
+                  }
+                  if (!strategy) return null;
+                  return (
+                    <div style={{
+                      margin: "14px 0",
+                      padding: "16px 18px",
+                      background: `rgba(${color === "var(--purple)" ? "167,130,255" : color === "var(--green)" ? "52,217,138" : "240,160,48"},0.06)`,
+                      border: `1px solid rgba(${color === "var(--purple)" ? "167,130,255" : color === "var(--green)" ? "52,217,138" : "240,160,48"},0.3)`,
+                      borderLeft: `3px solid ${color}`,
+                      borderRadius: 6,
+                      display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap",
+                    }}>
+                      <div style={{ flex: 1, minWidth: 240 }}>
+                        <div style={{
+                          fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                          color, letterSpacing: "1.3px", marginBottom: 5,
+                        }}>
+                          ▸ RECOMMENDED NEXT STEP
+                        </div>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", marginBottom: 3 }}>
+                          {label}
+                        </div>
+                        <div style={{ fontSize: 12.5, color: "var(--sub)", lineHeight: 1.45 }}>
+                          {blurb}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => goToFullAnalysis(strategy)}
+                        style={{
+                          background: color, color: "#07090f",
+                          border: "none", borderRadius: 5,
+                          padding: "10px 18px",
+                          fontFamily: "'Geist Mono',monospace", fontSize: 11.5, fontWeight: 700,
+                          letterSpacing: "1px", cursor: "pointer",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        OPEN →
+                      </button>
+                    </div>
+                  );
+                })()}
+
                 {/* Data provider down notice — surface only when there's no
                     alternate data path that recovered for this address. */}
                 {lookupStatus === "down" && !property.rentEstimate && !zoningData?.zoning?.found && (
