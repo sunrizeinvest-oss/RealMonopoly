@@ -14,8 +14,8 @@
  */
 import { useEffect } from "react";
 
-const SUFFIX = " · Real Deal";
-const DEFAULT_DESC = "Real Deal — institutional real estate underwriting for US + Canadian investors. BRRRR, multifamily, flip calculators with IRR, DSCR, and AI deal thesis.";
+const SUFFIX = " · RizeAI";
+const DEFAULT_DESC = "RizeAI — institutional real estate underwriting for US + Canadian investors. BRRRR, multifamily, flip calculators with IRR, DSCR, and AI deal thesis.";
 
 function setOrCreateMeta(name, content, attr = "name") {
   let el = document.querySelector(`meta[${attr}="${name}"]`);
@@ -40,7 +40,7 @@ export function useDocMeta({ title, description = DEFAULT_DESC, og = true } = {}
       if (title) document.title = `${title}${SUFFIX}`;
       setOrCreateMeta("description", description);
       if (og) {
-        setOrCreateMeta("og:title", title ? `${title}${SUFFIX}` : "Real Deal", "property");
+        setOrCreateMeta("og:title", title ? `${title}${SUFFIX}` : "RizeAI", "property");
         setOrCreateMeta("og:description", description, "property");
         setOrCreateMeta("og:url", window.location.href, "property");
       }

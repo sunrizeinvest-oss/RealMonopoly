@@ -28,7 +28,7 @@ export const TOUR_KEYS = {
 const STEPS = [
   {
     target: null,                                          // centred — no element
-    title:  "Welcome to Real Deal",
+    title:  "Welcome to RizeAI",
     body:   "60 seconds. Five stops. After this you'll know where everything is — and you can come back to a tool any time from the menu at the top.",
   },
   {

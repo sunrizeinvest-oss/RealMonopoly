@@ -15,7 +15,7 @@
   window.__realDealScraperReady = true;
 
   if (!window.__realDealScrape) {
-    console.warn("[Real Deal] content script loaded before site-specific scraper. Bailing.");
+    console.warn("[RizeAI] content script loaded before site-specific scraper. Bailing.");
     return;
   }
 
@@ -25,7 +25,7 @@
       const data = window.__realDealScrape();
       sendResponse(data);
     } catch (e) {
-      console.error("[Real Deal] scrape failed:", e);
+      console.error("[RizeAI] scrape failed:", e);
       sendResponse(null);
     }
     return true; // keep channel open for async sendResponse

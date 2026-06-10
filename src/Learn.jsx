@@ -1106,7 +1106,7 @@ export default function Learn() {
           </div>
 
           <button className="section-cta" onClick={() => navigate("/app")}>
-            Apply the 70% Rule to a Real Deal →
+            Apply the 70% Rule to a RizeAI →
           </button>
         </section>
 

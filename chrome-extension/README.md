@@ -1,13 +1,13 @@
-# Real Deal — Chrome Extension
+# RizeAI — Chrome Extension
 
 One-click underwriting for any **Realtor.ca**, **Zillow**, or **Redfin** listing.
 
 ## What it does
 
 1. You're browsing a property on Realtor.ca / Zillow / Redfin.
-2. Click the **Real Deal** icon in your Chrome toolbar.
+2. Click the **RizeAI** icon in your Chrome toolbar.
 3. The popup shows the listing's price, beds, baths, sqft — scraped from the page.
-4. Click **▶ UNDERWRITE AS FLIP** or **▶ MODEL AS BRRRR** — opens [realdealestate.app](https://www.realdealestate.app) with the listing pre-populated. No retyping.
+4. Click **▶ UNDERWRITE AS FLIP** or **▶ MODEL AS BRRRR** — opens [rizeai.co](https://www.rizeai.co) with the listing pre-populated. No retyping.
 
 ## Install (unpacked / developer mode)
 
@@ -17,7 +17,7 @@ The extension isn't on the Chrome Web Store yet. To install locally:
 2. Toggle **Developer mode** on (top-right).
 3. Click **Load unpacked**.
 4. Select this folder: `flip-analyzer/chrome-extension/`.
-5. Done. The Real Deal icon should appear in your toolbar. Pin it for one-click access.
+5. Done. The RizeAI icon should appear in your toolbar. Pin it for one-click access.
 
 ## Files
 
@@ -60,7 +60,7 @@ Sites change DOM regularly. If a scraper stops working:
 2. DevTools → Console: `__realDealScrape()` — see what comes back.
 3. DevTools → Elements: find the new selector for the broken field.
 4. Update the relevant `scrapers/*.js` file.
-5. In `chrome://extensions/`, hit the reload button on the Real Deal card.
+5. In `chrome://extensions/`, hit the reload button on the RizeAI card.
 
 ## Publishing (later)
 

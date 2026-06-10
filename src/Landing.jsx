@@ -539,7 +539,7 @@ export default function Landing() {
     .ld-browser-listing-stats{display:flex;gap:14px;margin-top:4px;font-family:'Geist',sans-serif;font-size:12px;color:#666;font-weight:600}
     .ld-browser-listing-stats span strong{color:#1a1a1a}
 
-    /* The Real Deal popup, floating top-right inside the browser frame */
+    /* The RizeAI popup, floating top-right inside the browser frame */
     .ld-rd-popup{position:absolute;top:50px;right:14px;width:228px;background:var(--card);border:1px solid var(--border);border-radius: 6px;overflow:hidden;box-shadow:0 24px 56px rgba(0,0,0,0.55),0 0 0 1px rgba(167,130,255,0.12) inset;font-family:'Geist',sans-serif;color:var(--text);animation:popup-bob 4s ease-in-out infinite}
     @keyframes popup-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
     .ld-rd-popup-bar{display:flex;align-items:center;gap:6px;padding:8px 11px;background:rgba(255,255,255,0.025);border-bottom:1px solid var(--borderf)}
@@ -643,7 +643,7 @@ export default function Landing() {
           <div className="ld-hero-head">
             <div className="ld-eyebrow">
               <div className="ld-eyebrow-dot" />
-              ● LIVE — REAL DEAL TERMINAL · US &amp; CANADA
+              ● LIVE — RIZE AI TERMINAL · US &amp; CANADA
             </div>
             <h1 className="ld-h1">Know if it's a <span>real deal.</span><br />In minutes.</h1>
             <p className="ld-hero-p">Stop wasting hours on spreadsheets. Get instant property evaluation — ARV estimate, full cost breakdown, and a plain-English <strong style={{color:"var(--green)"}}>Go</strong> / <strong style={{color:"var(--red)"}}>No-Go</strong> verdict. Clarity before you commit.</p>
@@ -653,7 +653,7 @@ export default function Landing() {
           <div className="ld-herovid">
             <div className="ld-herovid-bar">
               <span className="ld-herovid-dot" />
-              <span className="ld-herovid-bar-label">REAL DEAL TERMINAL · FULL WALKTHROUGH</span>
+              <span className="ld-herovid-bar-label">RIZE AI TERMINAL · FULL WALKTHROUGH</span>
               <span className="ld-herovid-bar-status">▸ LIVE</span>
             </div>
             <video
@@ -736,7 +736,7 @@ export default function Landing() {
         <div className="ld-hcalc" style={{maxWidth:560}}>
           <div className="ld-hcalc-bar">
             <span className="ld-hcalc-dot" />
-            <span className="ld-hcalc-bar-label">REAL DEAL TERMINAL · v2.0</span>
+            <span className="ld-hcalc-bar-label">RIZE AI TERMINAL · v2.0</span>
             <span className="ld-hcalc-bar-status">▸ LIVE</span>
           </div>
           <div className="ld-hcalc-sub">Try it instantly. Edit any number — verdict updates in real time.</div>
@@ -886,9 +886,9 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* ── WHY REAL DEAL ── */}
+      {/* ── WHY RIZE AI ── */}
       <div className="ld-section fade">
-        <div className="ld-section-tag">Why Real Deal</div>
+        <div className="ld-section-tag">Why RizeAI</div>
         <h2 className="ld-section-title">Three things that matter.<br /><span>Nothing that doesn't.</span></h2>
         <div className="ld-feat-grid">
           <div className="ld-feat-cell">
@@ -1226,7 +1226,7 @@ export default function Landing() {
                   <div className="ld-pro-doc-para"><em>Pursue with 6-week diligence window. Primary risks: construction cost overruns, rent absorption &gt; $2,100/2BR...</em></div>
                 </div>
                 <div className="ld-pro-doc-footer">
-                  <span>REAL DEAL · GENERATED 2026-06-07</span>
+                  <span>RIZE AI · GENERATED 2026-06-07</span>
                   <span>p. 1 / 9</span>
                 </div>
               </div>
@@ -1266,7 +1266,7 @@ export default function Landing() {
                   <div className="ld-pro-doc-para"><em>5 deals closed · personal NW &amp; pipeline attached as Appendix A / B...</em></div>
                 </div>
                 <div className="ld-pro-doc-footer">
-                  <span>REAL DEAL · GENERATED 2026-06-07</span>
+                  <span>RIZE AI · GENERATED 2026-06-07</span>
                   <span>p. 1 / 6</span>
                 </div>
               </div>
@@ -1306,7 +1306,7 @@ export default function Landing() {
                   <div className="ld-pro-doc-para"><em>6×6 grid of IRR across rent growth × exit cap. Base case bordered in green...</em></div>
                 </div>
                 <div className="ld-pro-doc-footer">
-                  <span>REAL DEAL · GENERATED 2026-06-07</span>
+                  <span>RIZE AI · GENERATED 2026-06-07</span>
                   <span>p. 1 / 4</span>
                 </div>
               </div>
@@ -1328,7 +1328,7 @@ export default function Landing() {
           <div className="ld-chrome-head">
             <div className="ld-section-tag">Browser extension</div>
             <h2>Underwrite without<br /><span>leaving the listing.</span></h2>
-            <p>One click on any Realtor.ca, Zillow, or Redfin listing — Real Deal scrapes the price, beds, baths, sqft straight off the page and opens the full analyzer pre-populated. No retyping.</p>
+            <p>One click on any Realtor.ca, Zillow, or Redfin listing — RizeAI scrapes the price, beds, baths, sqft straight off the page and opens the full analyzer pre-populated. No retyping.</p>
 
             <div className="ld-chrome-chips">
               <div className="ld-chrome-chip"><span className="glyph">●</span><span><strong style={{color:"var(--text)"}}>Realtor.ca · Zillow · Redfin</strong> <span style={{color:"var(--dim)"}}>— covered out of the box</span></span></div>
@@ -1377,7 +1377,7 @@ export default function Landing() {
                 </div>
                 <div className="ld-browser-tools">
                   <span className="tool">⊞</span>
-                  <span className="tool active" title="Real Deal extension">●</span>
+                  <span className="tool active" title="RizeAI extension">●</span>
                 </div>
               </div>
               <div className="ld-browser-body">
@@ -1395,11 +1395,11 @@ export default function Landing() {
                   </div>
                 </div>
 
-                {/* Real Deal extension popup overlay */}
+                {/* RizeAI extension popup overlay */}
                 <div className="ld-rd-popup">
                   <div className="ld-rd-popup-bar">
                     <span className="ld-rd-popup-dot" />
-                    <span className="ld-rd-popup-title">REAL DEAL</span>
+                    <span className="ld-rd-popup-title">RIZE AI</span>
                     <span className="ld-rd-popup-tag">▸ REALTOR.CA</span>
                   </div>
                   <div className="ld-rd-popup-body">
@@ -1594,7 +1594,7 @@ export default function Landing() {
           <span style={{ fontSize: 12, color: "var(--dim)", cursor: "pointer" }} onClick={() => navigate('/privacy')}>Privacy</span>
           <span style={{ fontSize: 12, color: "var(--dim)", cursor: "pointer" }} onClick={() => navigate('/terms')}>Terms</span>
         </div>
-        <div className="f-note">© 2026 realdealestate.app</div>
+        <div className="f-note">© 2026 rizeai.co</div>
       </footer>
     </>
   );

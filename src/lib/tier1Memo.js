@@ -68,12 +68,12 @@ export function generateTier1Memo({ type = "rental", deal = {}, summary = {} }) 
   const accent = TYPE_ACCENT[type] || C.blue;
 
   // ── Header bar ───────────────────────────────────────────────────────────
-  // Sharp 4px-cornered top band: "REAL DEAL · INVESTOR MEMO" on the left,
+  // Sharp 4px-cornered top band: "RIZE AI · INVESTOR MEMO" on the left,
   // deal type pill on the right.
   doc.setFillColor(7, 9, 15);
   doc.rect(0, 0, W, 56, "F");
   doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(C.blue);
-  doc.text("REAL DEAL", M, 26);
+  doc.text("RIZE AI", M, 26);
   doc.setFont("helvetica", "normal").setFontSize(11).setTextColor(C.dim);
   doc.text("·", M + 64, 26);
   doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(C.text);
@@ -203,7 +203,7 @@ export function generateTier1Memo({ type = "rental", deal = {}, summary = {} }) 
 
   // ── Footer ───────────────────────────────────────────────────────────────
   doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(C.dim);
-  doc.text(`Generated ${today} · realdealestate.app · Report ID ${reportId}`, W/2, H - 32, { align: "center" });
+  doc.text(`Generated ${today} · rizeai.co · Report ID ${reportId}`, W/2, H - 32, { align: "center" });
   doc.text("Estimates only. Not financial advice. Verify all assumptions before committing capital.", W/2, H - 20, { align: "center" });
 
   return doc;

@@ -51,7 +51,7 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
     doc.setFillColor(7, 9, 15);
     doc.rect(0, 0, W, 32, "F");
     doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(C.blue);
-    doc.text("REAL DEAL · IC REPORT", M, 20);
+    doc.text("RIZE AI · IC REPORT", M, 20);
     doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(C.dim);
     doc.text(deal.address || "Multifamily Deal", W/2, 20, { align: "center" });
     doc.text(`p. ${pageNum} / ${totalPages}`, W - M, 20, { align: "right" });
@@ -59,7 +59,7 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   }
   function pageFooter() {
     doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(C.dim);
-    doc.text(`Generated ${today} · realdealestate.app · Confidential — do not distribute without authorisation`, W/2, H - 24, { align: "center" });
+    doc.text(`Generated ${today} · rizeai.co · Confidential — do not distribute without authorisation`, W/2, H - 24, { align: "center" });
   }
   // Subtle terminal-style grid in background
   function pageGrid() {
@@ -80,7 +80,7 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   doc.text("Investment", M, 120);
   doc.text("Committee Memo", M, 168);
   doc.setFont("helvetica", "normal").setFontSize(13).setTextColor(C.sub);
-  doc.text("Institutional underwriting · Real Deal Tier 2", M, 196);
+  doc.text("Institutional underwriting · RizeAI Tier 2", M, 196);
 
   // Deal name + address card — middle third
   const cardTop = 260;
@@ -120,7 +120,7 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   // Cover footer — date + URL + report ID
   doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(C.dim);
   doc.text(`Generated ${today}`, M, H - 80);
-  doc.text(`realdealestate.app`, M, H - 64);
+  doc.text(`rizeai.co`, M, H - 64);
   const reportId = `RD-${today.replace(/-/g, "")}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
   doc.text(`Report ID · ${reportId}`, W - M, H - 80, { align: "right" });
   doc.text(`CONFIDENTIAL — do not distribute without authorisation`, W - M, H - 64, { align: "right" });
@@ -559,7 +559,7 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
     "are estimates based on the listed assumptions and a simplified cash-flow model; actual",
     "performance depends on operations, financing, market conditions, tax treatment, and other",
     "factors not captured here. Verify all inputs and consult licensed advisors before",
-    "committing capital. Real Deal does not guarantee accuracy or completeness; users are",
+    "committing capital. RizeAI does not guarantee accuracy or completeness; users are",
     "solely responsible for their underwriting decisions. CONFIDENTIAL — do not distribute",
     "without authorisation.",
   ].join("\n"), M, y, { lineHeightFactor: 1.55 });

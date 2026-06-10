@@ -6,7 +6,7 @@
  */
 
 const NOMINATIM = "https://nominatim.openstreetmap.org/search";
-const USER_AGENT = "RealDealEstate.app/1.0 (sunni@realdealestate.app)";
+const USER_AGENT = "RealDealEstate.app/1.0 (sunni@rizeai.co)";
 
 // Map normalized city slugs to our adapter file names
 export const CITY_ADAPTERS = {

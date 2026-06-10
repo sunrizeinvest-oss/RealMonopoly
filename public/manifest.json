@@ -1,6 +1,6 @@
 {
-  "name": "Real Deal — Real Estate Analyzer",
-  "short_name": "Real Deal",
+  "name": "RizeAI — Real Estate Analyzer",
+  "short_name": "RizeAI",
   "description": "Analyze fix & flip, BRRRR, and multifamily deals in minutes.",
   "start_url": "/analyze",
   "display": "standalone",

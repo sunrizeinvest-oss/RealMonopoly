@@ -12,7 +12,7 @@
 
 | Metric | Week 0 (now) | Week 4 (target) |
 |---|---|---|
-| Paying users on realdealestate.app | ? — check Stripe | 10-50 |
+| Paying users on rizeai.co | ? — check Stripe | 10-50 |
 | MRR | ? | $1K-$5K |
 | Free → Paid conversion rate | ? | >5% |
 | AI thesis output quality (1-10) | 6 | 9 |
@@ -78,7 +78,7 @@ Same Edmonton property as Week 1, now with 3x more data points feeding the analy
 
 ## 📅 WEEK 3 — Marketplace seed (the syndication play)
 
-**Why third:** Most real estate platforms have data + analysis but no community. The marketplace turns realdealestate.app from a tool into a network — and that's defensible.
+**Why third:** Most real estate platforms have data + analysis but no community. The marketplace turns rizeai.co from a tool into a network — and that's defensible.
 
 ### Deliverables (5 days)
 - **D1-D2: "List a Deal" flow** — extend `SubmitDeal.jsx`:
@@ -93,7 +93,7 @@ Same Edmonton property as Week 1, now with 3x more data points feeding the analy
 - **D5: Seed with 3 deals** — your Allendale 5-plex, 6-plex, and Verum. You're the first sponsor.
 
 ### Friday demo
-You can see your own deals listed on `realdealestate.app/marketplace`. So can your warm contacts when you launch Week 4.
+You can see your own deals listed on `rizeai.co/marketplace`. So can your warm contacts when you launch Week 4.
 
 ---
 
@@ -146,7 +146,7 @@ You can see your own deals listed on `realdealestate.app/marketplace`. So can yo
 
 **Tomorrow morning (Week 1 Day 1):**
 1. Open Stripe dashboard → tell me current user count + MRR
-2. Open `realdealestate.app` → use the AI thesis on a real property → show me the current output
+2. Open `rizeai.co` → use the AI thesis on a real property → show me the current output
 3. We rewrite the AI prompt together (30 min)
 4. Deploy
 5. Re-run the thesis on the same property → see the upgrade

@@ -17,7 +17,7 @@
  *   }
  *
  * URL form:
- *   https://realdealestate.app/deal/b64:<urlSafeBase64(JSON.stringify(payload))>
+ *   https://rizeai.co/deal/b64:<urlSafeBase64(JSON.stringify(payload))>
  */
 
 const PREFIX = "b64:";
@@ -59,7 +59,7 @@ export function isB64ShareId(shareId) {
 }
 
 export function buildShareUrl(payload, origin) {
-  const base = origin || (typeof window !== "undefined" ? window.location.origin : "https://realdealestate.app");
+  const base = origin || (typeof window !== "undefined" ? window.location.origin : "https://rizeai.co");
   return `${base}/deal/${encodeDeal(payload)}`;
 }
 

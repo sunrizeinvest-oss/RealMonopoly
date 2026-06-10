@@ -521,7 +521,7 @@ export default function SubmitDeal() {
             </p>
             <div className="sd-success-cta">
               <a className="sd-success-link" href="/analyze">
-                Want to analyze deals yourself? Try Real Deal free →
+                Want to analyze deals yourself? Try RizeAI free →
               </a>
               <button
                 className="sd-success-again"
@@ -893,7 +893,7 @@ export default function SubmitDeal() {
           </button>
 
           <p style={{ textAlign: "center", fontSize: 12, color: "var(--dim)", marginTop: 16, lineHeight: 1.5 }}>
-            By submitting, you agree that Real Deal Estate may contact you about this property. We respect your privacy and never share your info.
+            By submitting, you agree that RizeAI Estate may contact you about this property. We respect your privacy and never share your info.
           </p>
         </form>
       </div>

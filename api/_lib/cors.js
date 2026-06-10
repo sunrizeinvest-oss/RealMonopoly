@@ -14,8 +14,8 @@
  */
 
 const DEFAULT_ORIGINS = [
-  "https://realdealestate.app",
-  "https://www.realdealestate.app",
+  "https://rizeai.co",
+  "https://www.rizeai.co",
   "http://localhost:5173", // vite dev
   "http://localhost:3000", // vercel dev
 ];

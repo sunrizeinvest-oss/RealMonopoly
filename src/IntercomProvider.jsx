@@ -58,7 +58,7 @@ export default function IntercomProvider({ children }) {
       crisp("set", "session:data", [[
         ["user_id",  user.id],
         ["plan",     user.user_metadata?.plan || "free"],
-        ["app",      "Real Deal"],
+        ["app",      "RizeAI"],
       ]]);
     } else {
       // Visitor logged out — reset so their session isn't mixed with the next user

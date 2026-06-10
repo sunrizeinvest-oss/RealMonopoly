@@ -201,7 +201,7 @@ export default function Login() {
           <div className="lg-form-sub">
             {mode === "signup"
               ? "No credit card required. Upgrade to Pro anytime."
-              : "Sign in to your Real Deal account."}
+              : "Sign in to your RizeAI account."}
           </div>
 
           <div className="lg-tabs">

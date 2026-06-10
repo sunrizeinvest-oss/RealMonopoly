@@ -25,7 +25,7 @@ async function checkRealtorCA({ city, maxPrice, minBeds }) {
   // Step 1: geocode the city via Nominatim
   const geoUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1`;
   const geoRes = await fetch(geoUrl, {
-    headers: { 'User-Agent': 'RealDealApp/1.0 (realdealestate.app)' },
+    headers: { 'User-Agent': 'RealDealApp/1.0 (rizeai.co)' },
   });
 
   if (!geoRes.ok) {

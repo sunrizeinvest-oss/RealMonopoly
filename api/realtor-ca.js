@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     const geoUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1&countrycodes=ca`;
     const geoRes = await fetch(geoUrl, {
       headers: {
-        'User-Agent': 'RealDeal/1.0 (realdealestate.app; contact: info@realdealestate.app)',
+        'User-Agent': 'RealDeal/1.0 (rizeai.co; contact: info@rizeai.co)',
         'Accept-Language': 'en',
       },
     });

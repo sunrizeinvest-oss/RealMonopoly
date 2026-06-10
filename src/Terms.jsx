@@ -46,21 +46,21 @@ export default function Terms() {
         <div className="lp-date">Last updated: April 5, 2026 · Effective immediately</div>
 
         <div className="lp-highlight">
-          <p>The short version: Real Deal is a deal analysis tool for informational purposes only — it is not financial or investment advice. Use the numbers as a starting point, not a guarantee. You're responsible for doing your own due diligence before making any real estate decision.</p>
+          <p>The short version: RizeAI is a deal analysis tool for informational purposes only — it is not financial or investment advice. Use the numbers as a starting point, not a guarantee. You're responsible for doing your own due diligence before making any real estate decision.</p>
         </div>
 
         <div className="lp-h2">1. Acceptance of terms</div>
-        <div className="lp-p">By creating an account or using realdealestate.app ("Real Deal", "the Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service. We may update these terms from time to time — continued use of the Service after changes constitutes acceptance.</div>
+        <div className="lp-p">By creating an account or using rizeai.co ("RizeAI", "the Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service. We may update these terms from time to time — continued use of the Service after changes constitutes acceptance.</div>
 
         <div className="lp-h2">2. Description of service</div>
-        <div className="lp-p">Real Deal provides real estate deal analysis tools including single-family flip analysis, multi-family commercial analysis, deal scoring, PDF exports, and deal saving features. The Service is provided on a freemium basis — certain features require a paid Pro subscription.</div>
+        <div className="lp-p">RizeAI provides real estate deal analysis tools including single-family flip analysis, multi-family commercial analysis, deal scoring, PDF exports, and deal saving features. The Service is provided on a freemium basis — certain features require a paid Pro subscription.</div>
 
         <div className="lp-h2">3. No financial or investment advice</div>
-        <div className="lp-p">All outputs produced by Real Deal — including deal scores, profit estimates, ROI figures, cap rates, cash flow projections, and any other metrics — are for <strong>informational and educational purposes only</strong>. They do not constitute financial, investment, legal, or tax advice.</div>
-        <div className="lp-p">Real estate investment involves significant risk, including the potential loss of capital. You should consult a qualified financial advisor, real estate professional, accountant, or lawyer before making any investment decision. Real Deal and its operators assume no liability for decisions made based on the Service's outputs.</div>
+        <div className="lp-p">All outputs produced by RizeAI — including deal scores, profit estimates, ROI figures, cap rates, cash flow projections, and any other metrics — are for <strong>informational and educational purposes only</strong>. They do not constitute financial, investment, legal, or tax advice.</div>
+        <div className="lp-p">Real estate investment involves significant risk, including the potential loss of capital. You should consult a qualified financial advisor, real estate professional, accountant, or lawyer before making any investment decision. RizeAI and its operators assume no liability for decisions made based on the Service's outputs.</div>
 
         <div className="lp-h2">4. Accuracy of information</div>
-        <div className="lp-p">Deal analysis results are only as accurate as the information you input. Real Deal does not verify property values, rental rates, construction costs, or any other data you provide. Market conditions change — projections made today may not reflect future reality. Always verify figures independently with licensed professionals.</div>
+        <div className="lp-p">Deal analysis results are only as accurate as the information you input. RizeAI does not verify property values, rental rates, construction costs, or any other data you provide. Market conditions change — projections made today may not reflect future reality. Always verify figures independently with licensed professionals.</div>
 
         <div className="lp-h2">5. User accounts</div>
         <ul className="lp-ul">
@@ -92,11 +92,11 @@ export default function Terms() {
         </ul>
 
         <div className="lp-h2">8. Intellectual property</div>
-        <div className="lp-p">All content, design, algorithms, scoring models, and code comprising the Real Deal Service are the intellectual property of Real Deal Estate App and its operators. You may not copy, reproduce, or distribute any part of the Service without written permission.</div>
+        <div className="lp-p">All content, design, algorithms, scoring models, and code comprising the RizeAI Service are the intellectual property of RizeAI Estate App and its operators. You may not copy, reproduce, or distribute any part of the Service without written permission.</div>
         <div className="lp-p">You retain ownership of all deal data you input. By saving deals to the Service, you grant us a limited license to store and display that data to you within the application.</div>
 
         <div className="lp-h2">9. Limitation of liability</div>
-        <div className="lp-p">To the maximum extent permitted by applicable law, Real Deal and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to lost profits, lost data, or financial losses arising from your use of or inability to use the Service.</div>
+        <div className="lp-p">To the maximum extent permitted by applicable law, RizeAI and its operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to lost profits, lost data, or financial losses arising from your use of or inability to use the Service.</div>
         <div className="lp-p">Our total liability to you for any claim arising from these terms or your use of the Service shall not exceed the amount you paid us in the 12 months preceding the claim, or $100 CAD, whichever is greater.</div>
 
         <div className="lp-h2">10. Disclaimer of warranties</div>
@@ -110,7 +110,7 @@ export default function Terms() {
       </div>
 
       <footer>
-        <span className="f-logo"><span>Real</span> Deal — realdealestate.app</span>
+        <span className="f-logo"><span>Real</span> Deal — rizeai.co</span>
         <div className="f-links">
           <a href="/privacy" className="f-link">Privacy</a>
           <a href="/terms" className="f-link">Terms</a>

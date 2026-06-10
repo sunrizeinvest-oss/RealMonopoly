@@ -144,7 +144,7 @@ const PERSONAS = {
 function buildPersonaIntro(persona) {
   const p = PERSONAS[persona];
   if (!p) return null;
-  return `You are ${p.role}, integrated into the Real Deal platform.
+  return `You are ${p.role}, integrated into the RizeAI platform.
 
 ${p.focus}
 
@@ -157,7 +157,7 @@ function buildSystemPrompt(p, c, persona = null) {
   const pct = n => n != null ? `${(n * 100).toFixed(1)}%` : "not available";
 
   const intro = buildPersonaIntro(persona) ||
-    `You are an expert real estate investment advisor integrated into the Real Deal platform. You have deep knowledge of Canadian and US real estate markets, investment strategies (fix & flip, BRRRR, multifamily, commercial), financing, and market analysis.`;
+    `You are an expert real estate investment advisor integrated into the RizeAI platform. You have deep knowledge of Canadian and US real estate markets, investment strategies (fix & flip, BRRRR, multifamily, commercial), financing, and market analysis.`;
 
   return `${intro}
 
@@ -898,7 +898,7 @@ async function handleSendDigest(req, res) {
   }
 
   const apiKey = process.env.RESEND_API_KEY;
-  const from   = process.env.RESEND_FROM_EMAIL || "Real Deal <triggers@realdealestate.app>";
+  const from   = process.env.RESEND_FROM_EMAIL || "RizeAI <triggers@rizeai.co>";
   if (!apiKey) {
     return res.status(503).json({ error: "Email digest is not configured. Set RESEND_API_KEY in Vercel." });
   }
@@ -942,12 +942,12 @@ async function handleSendDigest(req, res) {
     : `${triggers.length} distress signal${triggers.length === 1 ? "" : "s"} matched your scan.`;
 
   const html = `<!doctype html>
-<html><head><meta charset="utf-8"><title>Real Deal · Trigger Digest</title></head>
+<html><head><meta charset="utf-8"><title>RizeAI · Trigger Digest</title></head>
 <body style="margin:0;padding:0;background:${C.bg};font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;color:${C.text}">
   <div style="max-width:680px;margin:0 auto;padding:32px 16px">
     <div style="background:${C.card};border:1px solid #1a2030;border-radius:8px;overflow:hidden">
       <div style="padding:24px 28px;border-bottom:1px solid #1a2030">
-        <div style="font-family:'SF Mono',Menlo,monospace;font-size:11px;font-weight:700;color:${C.blue};letter-spacing:1.6px;margin-bottom:6px">▸ REAL DEAL · TRIGGER DIGEST</div>
+        <div style="font-family:'SF Mono',Menlo,monospace;font-size:11px;font-weight:700;color:${C.blue};letter-spacing:1.6px;margin-bottom:6px">▸ RIZE AI · TRIGGER DIGEST</div>
         <div style="font-size:22px;font-weight:800;color:${C.text};letter-spacing:-0.5px">${escapeHtml(area || "All areas")}</div>
         <div style="font-size:13px;color:${C.sub};margin-top:5px">${propertyType ? escapeHtml(propertyType) + " · " : ""}Generated ${today}</div>
       </div>
@@ -961,11 +961,11 @@ async function handleSendDigest(req, res) {
       ${triggers.length > 30 ? `<div style="padding:14px 28px;font-size:12px;color:${C.dim};font-style:italic">…and ${triggers.length - 30} more — open the app to see the full list.</div>` : ""}
       ` : `<div style="padding:36px 28px;text-align:center;color:${C.dim};font-size:14px">Run another scan or widen your area to surface more signals.</div>`}
       <div style="padding:20px 28px;border-top:1px solid #1a2030;background:rgba(255,255,255,0.015)">
-        <a href="https://www.realdealestate.app/triggers" style="display:inline-block;background:${C.blue};color:#07090f;text-decoration:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:5px;font-family:'SF Mono',Menlo,monospace;letter-spacing:0.8px">OPEN MARKET TRIGGERS →</a>
+        <a href="https://www.rizeai.co/triggers" style="display:inline-block;background:${C.blue};color:#07090f;text-decoration:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:5px;font-family:'SF Mono',Menlo,monospace;letter-spacing:0.8px">OPEN MARKET TRIGGERS →</a>
       </div>
     </div>
     <div style="text-align:center;font-size:11px;color:${C.dim};margin-top:18px;line-height:1.6">
-      Real Deal · realdealestate.app<br>
+      RizeAI · rizeai.co<br>
       Triggers are AI-generated directional signals for analyst review. Verify before acting.
     </div>
   </div>
@@ -978,7 +978,7 @@ async function handleSendDigest(req, res) {
       body: JSON.stringify({
         from,
         to: [to],
-        subject: `Real Deal Triggers · ${area || "All areas"} · ${triggers.length} signal${triggers.length === 1 ? "" : "s"}`,
+        subject: `RizeAI Triggers · ${area || "All areas"} · ${triggers.length} signal${triggers.length === 1 ? "" : "s"}`,
         html,
       }),
       signal: AbortSignal.timeout(20_000),
@@ -1272,7 +1272,7 @@ async function aggregateMarketNews({ market = "all", limit = 8 }) {
       try {
         const r = await fetch(f.url, {
           signal: AbortSignal.timeout(12_000),
-          headers: { "User-Agent": "RealDealEstate/1.0 (+https://realdealestate.app)" },
+          headers: { "User-Agent": "RealDealEstate/1.0 (+https://rizeai.co)" },
         });
         if (!r.ok) return [];
         const xml = await r.text();
@@ -1348,7 +1348,7 @@ async function handleSendMarketBrief(req, res) {
 // HTML template + Resend send. Returns { ok, id?, error? }.
 async function deliverMarketBrief({ to, market, items }) {
   const apiKey = process.env.RESEND_API_KEY;
-  const from   = process.env.RESEND_FROM_EMAIL || "Real Deal <brief@realdealestate.app>";
+  const from   = process.env.RESEND_FROM_EMAIL || "RizeAI <brief@rizeai.co>";
   if (!apiKey) return { ok: false, error: "Email is not configured (RESEND_API_KEY missing)." };
 
   const C = { bg:"#07090f", card:"#0d1119", text:"#dde4ef", sub:"#6b7d96", dim:"#3a4a60", blue:"#3b9eff", green:"#34d98a", red:"#f25c5c", amber:"#f0a030" };
@@ -1365,12 +1365,12 @@ async function deliverMarketBrief({ to, market, items }) {
   `).join("");
 
   const html = `<!doctype html>
-<html><head><meta charset="utf-8"><title>Real Deal · Daily Market Brief</title></head>
+<html><head><meta charset="utf-8"><title>RizeAI · Daily Market Brief</title></head>
 <body style="margin:0;padding:0;background:${C.bg};font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;color:${C.text}">
   <div style="max-width:680px;margin:0 auto;padding:32px 16px">
     <div style="background:${C.card};border:1px solid #1a2030;border-radius:8px;overflow:hidden">
       <div style="padding:24px 28px;border-bottom:1px solid #1a2030">
-        <div style="font-family:'SF Mono',Menlo,monospace;font-size:11px;font-weight:700;color:${C.amber};letter-spacing:1.6px;margin-bottom:6px">▸ REAL DEAL · DAILY MARKET BRIEF</div>
+        <div style="font-family:'SF Mono',Menlo,monospace;font-size:11px;font-weight:700;color:${C.amber};letter-spacing:1.6px;margin-bottom:6px">▸ RIZE AI · DAILY MARKET BRIEF</div>
         <div style="font-size:22px;font-weight:800;color:${C.text};letter-spacing:-0.5px">${escapeHtml(MARKET_LABEL[market])}</div>
         <div style="font-size:13px;color:${C.sub};margin-top:5px">${today}</div>
       </div>
@@ -1382,13 +1382,13 @@ async function deliverMarketBrief({ to, market, items }) {
       <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse">${rowsHtml}</table>
       `}
       <div style="padding:20px 28px;border-top:1px solid #1a2030;background:rgba(255,255,255,0.015);text-align:center">
-        <a href="https://www.realdealestate.app/market-brief" style="display:inline-block;background:${C.blue};color:#07090f;text-decoration:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:5px;font-family:'SF Mono',Menlo,monospace;letter-spacing:0.8px">MANAGE SUBSCRIPTIONS →</a>
+        <a href="https://www.rizeai.co/market-brief" style="display:inline-block;background:${C.blue};color:#07090f;text-decoration:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:5px;font-family:'SF Mono',Menlo,monospace;letter-spacing:0.8px">MANAGE SUBSCRIPTIONS →</a>
       </div>
     </div>
     <div style="text-align:center;font-size:11px;color:${C.dim};margin-top:18px;line-height:1.6">
-      Real Deal · realdealestate.app<br>
+      RizeAI · rizeai.co<br>
       Aggregated from public RSS feeds. Verify sources before acting on any item.<br>
-      <a href="https://www.realdealestate.app/market-brief" style="color:${C.dim}">Manage your subscriptions →</a>
+      <a href="https://www.rizeai.co/market-brief" style="color:${C.dim}">Manage your subscriptions →</a>
     </div>
   </div>
 </body></html>`;
@@ -1400,7 +1400,7 @@ async function deliverMarketBrief({ to, market, items }) {
       body: JSON.stringify({
         from,
         to: [to],
-        subject: `Real Deal Brief · ${MARKET_LABEL[market]} · ${today}`,
+        subject: `RizeAI Brief · ${MARKET_LABEL[market]} · ${today}`,
         html,
       }),
       signal: AbortSignal.timeout(20_000),

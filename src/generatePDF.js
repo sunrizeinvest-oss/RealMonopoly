@@ -29,11 +29,11 @@ function watermark(doc, PW, PH) {
   doc.setFontSize(46);
   doc.setTextColor(...WMK);
   // angle is counterclockwise; 45° gives bottom-left → top-right diagonal
-  doc.text('realdealestate.app', PW / 2, PH / 2, { align: 'center', angle: 45 });
+  doc.text('rizeai.co', PW / 2, PH / 2, { align: 'center', angle: 45 });
   // second pass offset for denser feel
   doc.setFontSize(30);
-  doc.text('realdealestate.app', PW / 2 - 28, PH / 2 + 55, { align: 'center', angle: 45 });
-  doc.text('realdealestate.app', PW / 2 + 28, PH / 2 - 55, { align: 'center', angle: 45 });
+  doc.text('rizeai.co', PW / 2 - 28, PH / 2 + 55, { align: 'center', angle: 45 });
+  doc.text('rizeai.co', PW / 2 + 28, PH / 2 - 55, { align: 'center', angle: 45 });
 }
 
 // ─── Page header (blue bar) ───────────────────────────────────────────────────
@@ -43,13 +43,13 @@ function pageHeader(doc, PW, MR, ML, dateStr, subtitle) {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
   doc.setTextColor(...WHT);
-  doc.text('REAL DEAL', ML, 11);
+  doc.text('RIZE AI', ML, 11);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(...WHT);
   doc.text(subtitle, ML + 34, 11);
   doc.text(dateStr, PW - MR, 8, { align: 'right' });
-  doc.text('realdealestate.app', PW - MR, 13.5, { align: 'right' });
+  doc.text('rizeai.co', PW - MR, 13.5, { align: 'right' });
 }
 
 // ─── Page footer ─────────────────────────────────────────────────────────────
@@ -60,7 +60,7 @@ function pageFooter(doc, PH, ML, PW, MR, dateStr) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(6.5);
   doc.setTextColor(...GRAY);
-  doc.text('© realdealestate.app — Confidential Deal Analysis', ML, PH - 6);
+  doc.text('© rizeai.co — Confidential Deal Analysis', ML, PH - 6);
   doc.text(`Generated ${dateStr}`, PW - MR, PH - 6, { align: 'right' });
 }
 

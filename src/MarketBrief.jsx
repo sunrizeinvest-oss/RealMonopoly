@@ -4,7 +4,7 @@ import { supabase } from "./supabase"
 import TopNav from "./components/TopNav"
 
 /**
- * MarketBrief — opt-in management for the daily 8am Pacific Real Deal
+ * MarketBrief — opt-in management for the daily 8am Pacific RizeAI
  * Market Brief. Each user picks which Canadian markets they want emailed
  * headlines for. The Vercel cron walks market_subscriptions and fires one
  * email per (user, market).
@@ -276,7 +276,7 @@ export default function MarketBrief() {
       <style>{CSS}</style>
       <div className="mb-wrap">
         <div className="mb-hero-tag">▸ DAILY · 8AM PACIFIC</div>
-        <h1 className="mb-h1">The <span>Real Deal</span> Brief.</h1>
+        <h1 className="mb-h1">The <span>RizeAI</span> Brief.</h1>
         <p className="mb-sub">
           Each morning at 8am Pacific we pull the latest Bank of Canada announcements, Storeys, and Better
           Dwelling — filter to the markets you care about — and email a tight digest you can read with your
@@ -419,7 +419,7 @@ export default function MarketBrief() {
             </div>
 
             <div style={{ fontSize: 12, color: "var(--dim)", lineHeight: 1.6, marginTop: 18 }}>
-              Sources: Bank of Canada · Storeys · Better Dwelling. All public RSS feeds — Real Deal aggregates and filters but does not modify content. Verify each item before acting.
+              Sources: Bank of Canada · Storeys · Better Dwelling. All public RSS feeds — RizeAI aggregates and filters but does not modify content. Verify each item before acting.
             </div>
           </>
         )}

@@ -1,4 +1,4 @@
-# Real Deal — Setup Guide
+# RizeAI — Setup Guide
 
 What you need to get a clean production deploy working end-to-end.
 Each section is self-contained; do them in order or skip ahead to what's
@@ -48,7 +48,7 @@ code issue. Fix it like so:
    ```
 4. Webhook (for subscription state sync):
    - Stripe → **Developers → Webhooks → Add endpoint**
-   - URL: `https://www.realdealestate.app/api/stripe-webhook`
+   - URL: `https://www.rizeai.co/api/stripe-webhook`
    - Listen to `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`
    - Reveal the signing secret, add to Vercel as `STRIPE_WEBHOOK_SECRET`
 
@@ -63,10 +63,10 @@ Re-deploy. The Setup Diagnostic at `/market-brief` won't probe Stripe directly, 
 2. **Get an API key** from the dashboard → API Keys → Create. Add to Vercel as `RESEND_API_KEY`.
 3. **Decide your sender:**
    - **Fast path (no DNS):** use `onboarding@resend.dev` as the from address. Emails work today, just look generic.
-   - **Branded path:** Resend → Domains → add `realdealestate.app` → add the 3 DNS records (SPF, DKIM, MX-style return-path) to your domain registrar → wait for verification (5–30 min).
+   - **Branded path:** Resend → Domains → add `rizeai.co` → add the 3 DNS records (SPF, DKIM, MX-style return-path) to your domain registrar → wait for verification (5–30 min).
 4. Set `RESEND_FROM_EMAIL` in Vercel:
-   - Fast path: `Real Deal <onboarding@resend.dev>`
-   - Branded: `Real Deal <brief@realdealestate.app>` (after verification)
+   - Fast path: `RizeAI <onboarding@resend.dev>`
+   - Branded: `RizeAI <brief@rizeai.co>` (after verification)
 
 ### Verifying it works
 1. Sign in → open `/market-brief`.
@@ -117,11 +117,11 @@ Once env vars are set + crons enabled, you can manually fire either cron to veri
 
 ```bash
 # Weekly trigger digest (Monday morning)
-curl https://www.realdealestate.app/api/ai-chat?mode=cron-digest \
+curl https://www.rizeai.co/api/ai-chat?mode=cron-digest \
   -H "Authorization: Bearer $CRON_SECRET"
 
 # Daily market brief (8am Pacific)
-curl https://www.realdealestate.app/api/ai-chat?mode=cron-market-brief \
+curl https://www.rizeai.co/api/ai-chat?mode=cron-market-brief \
   -H "Authorization: Bearer $CRON_SECRET"
 ```
 

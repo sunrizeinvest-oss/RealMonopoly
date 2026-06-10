@@ -50,7 +50,7 @@ export default function PrivacyPolicy() {
         </div>
 
         <div className="lp-h2">1. Who we are</div>
-        <div className="lp-p">Real Deal Estate App ("Real Deal", "we", "us", "our") operates the website realdealestate.app and the deal analysis tools available on it. Our primary contact is <a href="mailto:kaelan@chmic.ca">kaelan@chmic.ca</a>.</div>
+        <div className="lp-p">RizeAI Estate App ("RizeAI", "we", "us", "our") operates the website rizeai.co and the deal analysis tools available on it. Our primary contact is <a href="mailto:kaelan@chmic.ca">kaelan@chmic.ca</a>.</div>
 
         <div className="lp-h2">2. Information we collect</div>
         <div className="lp-p">We collect information you provide directly and information generated as you use the service:</div>
@@ -63,7 +63,7 @@ export default function PrivacyPolicy() {
 
         <div className="lp-h2">3. How we use your information</div>
         <ul className="lp-ul">
-          <li>To provide and operate the Real Deal service</li>
+          <li>To provide and operate the RizeAI service</li>
           <li>To process your subscription and manage billing</li>
           <li>To send transactional emails (password resets, receipts)</li>
           <li>To respond to support requests</li>
@@ -85,7 +85,7 @@ export default function PrivacyPolicy() {
         <div className="lp-p">We retain your account and deal data for as long as your account is active. If you cancel your subscription, your account and saved deals remain accessible on the free tier. If you request account deletion, we will permanently delete your data within 30 days.</div>
 
         <div className="lp-h2">8. Children</div>
-        <div className="lp-p">Real Deal is not directed at children under 13. We do not knowingly collect personal information from children. If you believe a child has provided us with their data, contact us and we will delete it.</div>
+        <div className="lp-p">RizeAI is not directed at children under 13. We do not knowingly collect personal information from children. If you believe a child has provided us with their data, contact us and we will delete it.</div>
 
         <div className="lp-h2">9. Changes to this policy</div>
         <div className="lp-p">We may update this policy from time to time. We will notify you of material changes by email or by posting a notice on the app. Continued use of the service after changes take effect constitutes acceptance of the updated policy.</div>
@@ -95,7 +95,7 @@ export default function PrivacyPolicy() {
       </div>
 
       <footer>
-        <span className="f-logo"><span>Real</span> Deal — realdealestate.app</span>
+        <span className="f-logo"><span>Real</span> Deal — rizeai.co</span>
         <div className="f-links">
           <a href="/privacy" className="f-link">Privacy</a>
           <a href="/terms" className="f-link">Terms</a>

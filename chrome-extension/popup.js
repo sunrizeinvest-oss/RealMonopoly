@@ -4,11 +4,11 @@
  * Flow:
  *   1. Query the active tab.
  *   2. If on a supported site, send a 'getListing' message to the content script.
- *   3. Render the detected fields + "Analyze in Real Deal" button.
+ *   3. Render the detected fields + "Analyze in RizeAI" button.
  *   4. If not on a supported site, show the supported-sites onboarding.
  */
 
-const APP_BASE = "https://www.realdealestate.app";
+const APP_BASE = "https://www.rizeai.co";
 
 const SUPPORTED_HOSTS = [
   { match: /(?:^|\.)realtor\.ca$/i, label: "Realtor.ca" },
@@ -36,7 +36,7 @@ function renderEmpty(currentHost) {
     <div class="empty">
       <div class="empty-icon">🏠</div>
       <div class="empty-h">Open a listing first.</div>
-      <div class="empty-p">Real Deal underwrites listings on the sites below. Open a property page, then click the extension icon again.</div>
+      <div class="empty-p">RizeAI underwrites listings on the sites below. Open a property page, then click the extension icon again.</div>
       <div class="empty-sites">
         <div><span>●</span>Realtor.ca</div>
         <div><span>●</span>Zillow.com</div>
