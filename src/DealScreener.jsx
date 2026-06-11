@@ -294,6 +294,11 @@ export default function DealScreener() {
   const [lookupProgress, setLookupProgress] = useState({ done: 0, total: 0 });
   const [lookupError, setLookupError] = useState(null);
   const [lookupSort, setLookupSort] = useState({ key: "cap", dir: -1 });
+  // AI Read on the BATCH — fires when all rows finish loading. Debounced
+  // 500ms so re-running the same list doesn't churn Claude. Same deal-thesis
+  // mode used elsewhere; aggregate stats packed in as metrics.
+  const [batchThesis, setBatchThesis] = useState(null);
+  const [batchThesisLoading, setBatchThesisLoading] = useState(false);
   const LOOKUP_MAX = 30;
   const LOOKUP_CONCURRENCY = 5;
 
@@ -384,6 +389,59 @@ export default function DealScreener() {
     await Promise.all(Array.from({ length: LOOKUP_CONCURRENCY }, worker));
     setLookupRunning(false);
   }
+
+  // Auto-fire AI Read on batch completion. Watches for the transition from
+  // "running" → "not running" with rows present. 500ms debounce so flipping
+  // back and forth (e.g., user re-runs immediately) doesn't churn Claude.
+  useEffect(() => {
+    if (lookupRunning) return;
+    const okRows = lookupRows.filter(r => r.status === "ok");
+    if (okRows.length < 2) return;  // single-row reads aren't a "batch"
+    let cancelled = false;
+    setBatchThesisLoading(true);
+    setBatchThesis(null);
+    const timeoutId = setTimeout(() => {
+      const caps   = okRows.map(r => r.cap).filter(v => v != null).sort((a, b) => a - b);
+      const values = okRows.map(r => r.value).filter(v => v != null);
+      const rents  = okRows.map(r => r.rent).filter(v => v != null);
+      const median = arr => arr.length ? (arr.length % 2 ? arr[(arr.length-1)/2] : (arr[arr.length/2-1] + arr[arr.length/2])/2) : null;
+      const sum = arr => arr.reduce((s, x) => s + x, 0);
+
+      const strongCount = lookupRows.filter(r => r.verdictClass === "strong").length;
+      const okCount     = lookupRows.filter(r => r.verdictClass === "thin").length;
+      const thinCount   = lookupRows.filter(r => r.verdictClass === "pass").length;
+      const errCount    = lookupRows.filter(r => r.status === "error").length;
+
+      fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "deal-thesis",
+          strategy: `Bulk address screen · ${okRows.length} properties`,
+          verdict: `${strongCount} STRONG · ${okCount} OK · ${thinCount} THIN${errCount ? ` · ${errCount} failed lookup` : ""}`,
+          metrics: {
+            totalAddresses:    lookupRows.length,
+            successfulLookups: okRows.length,
+            failedLookups:     errCount,
+            medianCap:         median(caps),
+            minCap:            caps[0] || null,
+            maxCap:            caps[caps.length - 1] || null,
+            medianValue:       median(values),
+            avgRent:           rents.length ? Math.round(sum(rents) / rents.length) : null,
+            strongCount, okCount, thinCount,
+          },
+        }),
+      })
+        .then(r => r.json())
+        .then(j => { if (!cancelled && j?.thesis) setBatchThesis(j); })
+        .catch(() => {})
+        .finally(() => { if (!cancelled) setBatchThesisLoading(false); });
+    }, 500);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [lookupRunning, lookupRows.length]);
 
   const sortedLookupRows = useMemo(() => {
     const { key, dir } = lookupSort;
@@ -683,6 +741,41 @@ export default function DealScreener() {
             )}
             {lookupError && <div className="ds-csv-error">{lookupError}</div>}
           </div>
+
+          {/* ── AI Read on the batch — auto-fires when all rows finish.
+              Sweeping 1-2 sentence Claude summary of the 30-address list:
+              "median cap 4.2%, only 3 hit the 6% bar, geographic clustering
+              in YYC NE — your strong candidates are rows X, Y, Z." */}
+          {(batchThesisLoading || batchThesis?.thesis) && (
+            <div style={{
+              marginBottom: 14,
+              padding: "13px 16px",
+              background: "rgba(0,102,204,0.05)",
+              border: "1px solid rgba(0,102,204,0.22)",
+              borderLeft: "3px solid var(--blue)",
+              borderRadius: 6,
+            }}>
+              <div style={{
+                fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                color: "var(--blue)", letterSpacing: "1.3px", marginBottom: 7,
+              }}>
+                ▸ AI READ · BATCH SUMMARY {batchThesis?.source && batchThesis.source !== "template" && (
+                  <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4 }}>
+                    · {batchThesis.source}
+                  </span>
+                )}
+              </div>
+              {batchThesisLoading && !batchThesis ? (
+                <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>
+                  Claude is reading the list…
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>
+                  {batchThesis.thesis}
+                </div>
+              )}
+            </div>
+          )}
 
           {lookupRows.length > 0 && (
             <div className="ds-bulk-results">
