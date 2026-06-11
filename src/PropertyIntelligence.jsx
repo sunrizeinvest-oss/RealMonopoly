@@ -2095,6 +2095,31 @@ export default function PropertyIntelligence() {
                             ))}
                           </div>
 
+                          {/* AI take — reuses the zoning-thesis that was
+                              already fetched for the zoning panel above.
+                              Frames the math card with a 1-2 sentence
+                              "strongest play" narrative. Falls back silently
+                              if Claude didn't respond. */}
+                          {zoningThesis?.thesis && (
+                            <div style={{
+                              marginTop: 14, padding: "12px 14px",
+                              background: "rgba(0,102,204,0.05)",
+                              border: "1px solid rgba(0,102,204,0.2)",
+                              borderLeft: "3px solid var(--blue)",
+                              borderRadius: 4,
+                            }}>
+                              <div style={{
+                                fontFamily: "'Geist Mono',monospace", fontSize: 9.5, fontWeight: 700,
+                                color: "var(--blue)", letterSpacing: "1.1px", marginBottom: 6,
+                              }}>
+                                ▸ AI READ {zoningThesis.source !== "template" && <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4 }}>· {zoningThesis.source}</span>}
+                              </div>
+                              <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.55 }}>
+                                {zoningThesis.thesis}
+                              </div>
+                            </div>
+                          )}
+
                           <div style={{
                             fontSize: 11, color: "var(--dim)", lineHeight: 1.5,
                             marginTop: 10, fontStyle: "italic",
