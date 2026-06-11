@@ -29,10 +29,11 @@ const C = {
   text:  "#0f172a",
   sub:   "#475569",
   dim:   "#94a3b8",
-  blue:  "#1e40af",
+  blue:  "#0066cc",
   green: "#16a34a",
   red:   "#dc2626",
-  amber: "#d97706",
+  gold:  "#ffcc00",
+  amber: "#ffcc00",  // alias — kept so existing call sites still resolve
   purple: "#7c3aed",
 };
 
@@ -53,7 +54,7 @@ const TYPE_LABEL = {
 };
 
 const TYPE_ACCENT = {
-  flip:   C.amber,
+  flip:   C.gold,
   brrrr:  C.green,
   rental: C.blue,
 };

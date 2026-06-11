@@ -17,10 +17,11 @@ const C = {
   text:  "#0f172a",
   sub:   "#475569",
   dim:   "#94a3b8",
-  blue:  "#1e40af",
+  blue:  "#0066cc",
   green: "#16a34a",
   red:   "#dc2626",
-  amber: "#d97706",
+  gold:  "#ffcc00",
+  amber: "#ffcc00",  // alias for legacy refs
   purple: "#7c3aed",
 };
 

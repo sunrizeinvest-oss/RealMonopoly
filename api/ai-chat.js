@@ -911,7 +911,7 @@ async function handleSendDigest(req, res) {
   const fmtDate  = s => { try { return new Date(s).toLocaleDateString("en-CA"); } catch { return s || "—"; } };
 
   // Brand colours mirror the in-app palette.
-  const C = { bg:"#ffffff", card:"#f8fafc", text:"#0f172a", sub:"#475569", dim:"#94a3b8", blue:"#1e40af", green:"#16a34a", red:"#dc2626", amber:"#d97706" };
+  const C = { bg:"#ffffff", card:"#f8fafc", text:"#0f172a", sub:"#475569", dim:"#94a3b8", blue:"#0066cc", green:"#16a34a", red:"#dc2626", amber:"#d97706" };
 
   const triggerRowsHtml = triggers.slice(0, 30).map((t, i) => {
     const status = (t.status || "—").toUpperCase();
@@ -1358,7 +1358,7 @@ async function deliverMarketBrief({ to, market, items, userId }) {
   const unsubToken = userId ? signUnsubscribeToken(userId, market) : null;
   const unsubUrl   = unsubToken ? `https://www.rizeai.co/unsubscribe?token=${encodeURIComponent(unsubToken)}` : null;
 
-  const C = { bg:"#ffffff", card:"#f8fafc", text:"#0f172a", sub:"#475569", dim:"#94a3b8", blue:"#1e40af", green:"#16a34a", red:"#dc2626", amber:"#d97706" };
+  const C = { bg:"#ffffff", card:"#f8fafc", text:"#0f172a", sub:"#475569", dim:"#94a3b8", blue:"#0066cc", green:"#16a34a", red:"#dc2626", amber:"#d97706" };
   const today = new Date().toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
   const rowsHtml = items.map(it => `

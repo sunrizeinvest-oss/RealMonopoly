@@ -490,7 +490,7 @@ export default function PropertyHub() {
             return (
               <div style={{
                 margin: "0 0 20px",
-                background: "linear-gradient(135deg, rgba(22,163,74,0.06) 0%, rgba(30,64,175,0.05) 100%)",
+                background: "linear-gradient(135deg, rgba(22,163,74,0.06) 0%, rgba(0,102,204,0.05) 100%)",
                 border: "1px solid var(--borderf)",
                 borderRadius: 10,
                 overflow: "hidden",

@@ -1797,7 +1797,7 @@ export default function FlipCalc() {
         {tab === "inputs" && (
           <div>
             {/* Quick Analyze */}
-            <div style={{ background: "linear-gradient(135deg, rgba(30,64,175,0.08) 0%, rgba(30,64,175,0.02) 100%)", border: "1px solid rgba(30,64,175,0.15)", borderRadius: 16, padding: "22px 24px", marginBottom: 24, boxShadow: "0 1px 3px rgba(15,23,42,0.05)" }}>
+            <div style={{ background: "linear-gradient(135deg, rgba(0,102,204,0.08) 0%, rgba(0,102,204,0.02) 100%)", border: "1px solid rgba(0,102,204,0.15)", borderRadius: 16, padding: "22px 24px", marginBottom: 24, boxShadow: "0 1px 3px rgba(15,23,42,0.05)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                 <span style={{ background: "var(--blue)", color: "#fff", borderRadius: 6, padding: "3px 9px", fontSize: 10, fontWeight: 800, letterSpacing: 0.8 }}>QUICK ANALYZE</span>
                 <span style={{ fontSize: 12, color: "var(--sub)" }}>Enter just 4 numbers for an instant deal snapshot — fill in the full steps below for a precise analysis</span>

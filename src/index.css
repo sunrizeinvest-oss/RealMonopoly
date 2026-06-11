@@ -23,17 +23,20 @@
   --sub:      #475569;                            /* secondary text (slate-600) */
   --dim:      #94a3b8;                            /* tertiary text (slate-400) */
 
-  /* Semantic accent palette — light-mode tuned. Royal blue is THE primary;
-     status colors retuned for white background contrast. */
-  --blue:     #1e40af;                            /* royal blue · primary action */
-  --blue-2:   #2563eb;                            /* hover / brighter blue */
+  /* Semantic accent palette — Bluebird brand: vibrant blue + golden yellow.
+     Blue is the primary action color; gold is the warm-positive accent
+     replacing the old amber. Status colors retuned for white background. */
+  --blue:     #0066cc;                            /* vibrant brand blue · primary */
+  --blue-2:   #0077cc;                            /* hover / brighter variant */
+  --gold:     #ffcc00;                            /* golden yellow · warm accent */
+  --gold-2:   #ffd700;                            /* brighter gold for highlights */
   --green:    #16a34a;                            /* positive / GO */
   --red:      #dc2626;                            /* negative / PASS */
-  --amber:    #d97706;                            /* warning / HOLD */
+  --amber:    #ffcc00;                            /* alias — kept for legacy uses */
   --purple:   #7c3aed;                            /* equity / Tier 2 marker */
 
   /* Borders — slate scale; very subtle on light background */
-  --border:   rgba(30,64,175,0.18);               /* royal-blue tinted, accented */
+  --border:   rgba(0,102,204,0.18);               /* brand-blue tinted, accented */
   --borderf:  #e2e8f0;                            /* slate-200 · faint divider */
 
   /* ── Border-radius scale ───────────────────────────────────────────
