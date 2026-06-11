@@ -910,6 +910,11 @@ async function handleSendDigest(req, res) {
   const fmtMoney = n => n == null ? "—" : `$${Math.round(Number(n)).toLocaleString()}`;
   const fmtDate  = s => { try { return new Date(s).toLocaleDateString("en-CA"); } catch { return s || "—"; } };
 
+  // ── AI Read for the email — same Claude haiku call MarketTriggers fires
+  // in-app. Wrapped in try/catch + timeout so the email NEVER blocks on a
+  // Claude failure: missing AI key, slow API, anything — email still sends.
+  const aiThesis = await maybeGenerateScanThesis({ triggers, area, propertyType });
+
   // Brand colours mirror the in-app palette.
   const C = { bg:"#ffffff", card:"#f8fafc", text:"#0f172a", sub:"#475569", dim:"#94a3b8", blue:"#0066cc", green:"#16a34a", red:"#dc2626", amber:"#d97706" };
 
@@ -954,6 +959,12 @@ async function handleSendDigest(req, res) {
         <div style="font-size:22px;font-weight:800;color:${C.text};letter-spacing:-0.5px">${escapeHtml(area || "All areas")}</div>
         <div style="font-size:13px;color:${C.sub};margin-top:5px">${propertyType ? escapeHtml(propertyType) + " · " : ""}Generated ${today}</div>
       </div>
+      ${aiThesis ? `
+      <div style="padding:18px 28px;background:rgba(0,102,204,0.04);border-bottom:1px solid #1a2030">
+        <div style="font-family:'SF Mono',Menlo,monospace;font-size:10.5px;font-weight:700;color:${C.blue};letter-spacing:1.3px;margin-bottom:6px">▸ AI READ · SCAN SUMMARY</div>
+        <div style="font-size:13.5px;color:${C.text};line-height:1.55">${escapeHtml(aiThesis)}</div>
+      </div>
+      ` : ""}
       <div style="padding:18px 28px;background:rgba(59,158,255,0.04);border-bottom:1px solid #1a2030;font-size:13px;color:${C.sub}">
         ${summary}
       </div>
@@ -1616,5 +1627,77 @@ async function handleUnsubscribe(req, res) {
   } catch (e) {
     console.error("[unsubscribe] fetch error:", e.message);
     return res.status(504).json({ ok: false, error: e.message });
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   maybeGenerateScanThesis — best-effort AI Read for the digest email
+//
+//   Mirrors the MarketTriggers in-app AI Read (same metrics, same Claude
+//   haiku call) but adds two email-friendly guarantees:
+//     1. Returns null on ANY failure — missing key, slow API, parse
+//        error — so the email render path always proceeds.
+//     2. Aggressive 6-second timeout so a flaky Anthropic API can't
+//        delay the email send.
+// ──────────────────────────────────────────────────────────────────────
+async function maybeGenerateScanThesis({ triggers, area, propertyType }) {
+  if (!Array.isArray(triggers) || triggers.length < 3) return null;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") return null;
+
+  const statusCounts = triggers.reduce((acc, t) => {
+    const s = (t.status || "Other").toUpperCase();
+    acc[s] = (acc[s] || 0) + 1;
+    return acc;
+  }, {});
+  const doms = triggers.map(t => Number(t.daysOnMarket)).filter(v => Number.isFinite(v));
+  const drops = triggers.map(t => Number(t.priceDrops)).filter(v => Number.isFinite(v));
+  const scores = triggers.map(t => Number(t.redevScore)).filter(v => Number.isFinite(v)).sort((a, b) => b - a);
+  const avg = arr => arr.length ? Math.round(arr.reduce((s, x) => s + x, 0) / arr.length) : null;
+  const top3 = [...triggers]
+    .sort((a, b) => (Number(b.redevScore) || 0) - (Number(a.redevScore) || 0))
+    .slice(0, 3)
+    .map(t => `${t.address || "?"} (score ${t.redevScore ?? "?"}, ${t.status || "?"})`)
+    .join(" | ");
+
+  const prompt = `You are a real-estate analyst writing the TOP-OF-EMAIL summary for a weekly distress-signal scan. In 1-2 SENTENCES TOTAL (under 40 words), interpret what this scan tells the investor and which 1-2 listings stand out. No fluff, no hedging.
+
+SCAN: ${propertyType || "any"} in ${area || "all areas"}
+VERDICT: ${Object.entries(statusCounts).map(([s, n]) => `${n} ${s}`).join(" · ")}
+
+METRICS:
+  trigger count: ${triggers.length}
+  avg days on market: ${avg(doms) ?? "n/a"}
+  max days on market: ${doms.length ? Math.max(...doms) : "n/a"}
+  avg price drops per listing: ${avg(drops) ?? "n/a"}
+  top redev score: ${scores[0] ?? "n/a"}
+  avg redev score: ${avg(scores) ?? "n/a"}
+
+TOP 3 BY REDEV SCORE:
+  ${top3 || "n/a"}
+
+Write 1-2 sentences. Start with the headline takeaway. No greetings. No sign-off.`;
+
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 140,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: AbortSignal.timeout(6_000),
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim();
+    return text || null;
+  } catch {
+    return null;
   }
 }
