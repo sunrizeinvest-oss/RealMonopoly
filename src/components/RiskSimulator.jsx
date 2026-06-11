@@ -564,7 +564,9 @@ function Results({ results, target }) {
 
   return (
     <div style={{ padding: 18 }}>
-      {/* Percentile table */}
+      {/* Percentile table — horizontally scrollable on narrow viewports so the
+          4-col layout stays readable on mobile instead of cramming. */}
+      <div style={{ overflowX: "auto", marginBottom: 16, WebkitOverflowScrolling: "touch" }}>
       <div style={{
         display: "grid",
         gridTemplateColumns: "1.4fr 1fr 1fr 1fr",
@@ -573,7 +575,7 @@ function Results({ results, target }) {
         border: "1px solid var(--borderf)",
         borderRadius: 5,
         overflow: "hidden",
-        marginBottom: 16,
+        minWidth: 520,  // ensures columns stay legible — viewport scrolls instead
       }}>
         <Cell head>METRIC</Cell>
         <Cell head right>P10 · DOWNSIDE</Cell>
@@ -594,6 +596,7 @@ function Results({ results, target }) {
         <Cell right value={fmtX(minDSCR.p10)} color={pickColorDSCR(minDSCR.p10)}/>
         <Cell right value={fmtX(minDSCR.p50)} color={pickColorDSCR(minDSCR.p50)} bold/>
         <Cell right value={fmtX(minDSCR.p90)} color={pickColorDSCR(minDSCR.p90)}/>
+      </div>
       </div>
 
       {/* Probability bars */}
@@ -757,7 +760,7 @@ function Bar({ label, p, good }) {
   const pct = Math.max(0, Math.min(1, p));
   const color = pct >= good ? "var(--green)" : pct >= good * 0.7 ? "var(--amber)" : "var(--red)";
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "200px 1fr 50px", gap: 12, alignItems: "center", marginBottom: 6 }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(120px, 1.5fr) minmax(80px, 3fr) 50px", gap: 12, alignItems: "center", marginBottom: 6 }}>
       <div style={{ fontFamily: "'Geist',sans-serif", fontSize: 13, color: "var(--text)" }}>{label}</div>
       <div style={{ height: 16, background: "rgba(15,23,42,0.04)", border: "1px solid var(--borderf)", borderRadius: 3, overflow: "hidden" }}>
         <div style={{ height: "100%", width: `${pct * 100}%`, background: color, transition: "width 0.6s" }} />

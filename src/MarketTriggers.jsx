@@ -319,7 +319,10 @@ export default function MarketTriggers() {
           background: "var(--card)", border: "1px solid var(--borderf)",
           borderLeft: "3px solid var(--red)", borderRadius: 6,
           padding: 16, marginBottom: 20,
-          display: "grid", gridTemplateColumns: "1.6fr 0.8fr 0.8fr auto", gap: 10, alignItems: "end",
+          // Auto-fit lets the 4 controls reflow gracefully on narrow viewports
+          // — 1 column on phones, 2 on small tablets, 4 on desktop.
+          display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+          gap: 10, alignItems: "end",
         }}>
           <div>
             <div style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700, color: "var(--dim)", letterSpacing: "1px", marginBottom: 5 }}>SEARCH AREA</div>
