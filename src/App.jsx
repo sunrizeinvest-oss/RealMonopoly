@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
 import { useAuth } from "./AuthContext";
-import { exportFlipPDF } from "./pdfExport";
+import { generateTier1Memo } from "./lib/tier1Memo";
 import { useIntercom } from "./IntercomProvider";
 import TopNav from "./components/TopNav";
 
@@ -1639,10 +1639,54 @@ export default function FlipCalc() {
             onMouseLeave={e => e.currentTarget.style.background = "rgba(59,158,255,0.12)"}>
             <span>📊</span> Export Excel
           </button>
-          <button onClick={() => exportFlipPDF(v, c)} style={{ width: "100%", background: "rgba(242,92,92,0.1)", border: "1px solid rgba(242,92,92,0.25)", borderRadius: 6, padding: "8px 13px", color: "var(--red)", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 8, transition: "all 0.15s" }}
-            onMouseEnter={e => e.currentTarget.style.background = "rgba(242,92,92,0.2)"}
-            onMouseLeave={e => e.currentTarget.style.background = "rgba(242,92,92,0.1)"}>
-            <span>📄</span> Export PDF
+          <button onClick={() => {
+            // Unified Investor Memo — same branded 1-pager BRRRR + DealAnalyzer use.
+            const fmtM = n => n == null ? "—" : `$${Math.round(n).toLocaleString()}`;
+            const fmtP = n => n == null || !isFinite(n) ? "—" : `${(n*100).toFixed(1)}%`;
+            const pp = Number(v.purchasePrice) || 0, rc = Number(v.repairCosts) || 0, arv = Number(v.arv) || 0;
+            const doc = generateTier1Memo({
+              type: "flip",
+              deal: {
+                address: v.address || "Fix & Flip Deal",
+                purchasePrice: pp,
+                yearBuilt: v.yearBuilt ? Number(v.yearBuilt) : null,
+                beds: v.beds ? Number(v.beds) : null,
+                baths: v.baths ? Number(v.baths) : null,
+                sqft: v.sqft ? Number(v.sqft) : null,
+              },
+              summary: {
+                tiles: [
+                  { label: "ARV",          value: fmtM(arv) },
+                  { label: "All-in cost",  value: fmtM(c.totalCosts) },
+                  { label: "Net profit",   value: fmtM(c.netProfit), color: c.netProfit >= 0 ? "#16a34a" : "#dc2626" },
+                  { label: "Margin",       value: fmtP(c.profitMargin), color: c.profitMargin >= 0.15 ? "#16a34a" : c.profitMargin >= 0.08 ? "#d97706" : "#dc2626" },
+                ],
+                rows: [
+                  { label: "Purchase price",        value: fmtM(pp) },
+                  { label: "Repair budget",         value: fmtM(rc) },
+                  { label: "All-in cost",           value: fmtM(c.totalCosts), emphasis: true },
+                  { break: true },
+                  { label: "ARV",                   value: fmtM(arv) },
+                  { label: "Max Allowable Offer (MAO)", value: fmtM(c.mao) },
+                  { label: "Profit margin",         value: fmtP(c.profitMargin), emphasis: true, color: c.profitMargin >= 0.15 ? "#16a34a" : "#d97706" },
+                  { break: true },
+                  { label: "Total ROI",             value: fmtP(c.roiTotal) },
+                  { label: "Annualized CoC",        value: fmtP(c.annualizedCoC) },
+                  { label: "Deal grade",            value: c.grade || "—" },
+                ],
+                verdict: c.profitMargin >= 0.15
+                  ? `Strong margin (${fmtP(c.profitMargin)}) — pursue at asking.`
+                  : c.profitMargin >= 0.08
+                    ? `Margin ${fmtP(c.profitMargin)} — verify repair budget + ARV comps before bidding.`
+                    : `Margin ${fmtP(c.profitMargin)} — pass at this price.`,
+                notes: "ARV from your model. Verify with live comps from /property. Repair budget should be itemised before financing.",
+              },
+            });
+            doc.save(`investor-memo-flip-${new Date().toISOString().slice(0,10)}.pdf`);
+          }} style={{ width: "100%", background: "rgba(22,163,74,0.1)", border: "1px solid rgba(22,163,74,0.3)", borderRadius: 6, padding: "8px 13px", color: "var(--green)", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "left", display: "flex", alignItems: "center", gap: 8, transition: "all 0.15s" }}
+            onMouseEnter={e => e.currentTarget.style.background = "rgba(22,163,74,0.18)"}
+            onMouseLeave={e => e.currentTarget.style.background = "rgba(22,163,74,0.1)"}>
+            <span>📄</span> Export Investor Memo
           </button>
           <label style={{ width: "100%", background: "rgba(15,23,42,0.04)", border: "1px solid rgba(15,23,42,0.08)", borderRadius: 6, padding: "8px 13px", color: "var(--sub)", fontSize: 12, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8, boxSizing: "border-box", transition: "all 0.15s" }}
             onMouseEnter={e => e.currentTarget.style.background = "rgba(15,23,42,0.08)"}

@@ -473,6 +473,97 @@ export default function PropertyHub() {
             )}
           </div>
 
+          {/* ── SELL · LEASE hero card — same headline answer the /property
+              page surfaces. Auto-pulls the strongest available signals; no
+              user input required. Stays consistent across both lookup pages. */}
+          {hasData && (property.estimatedValue || property.rentEstimate) && (() => {
+            const sellMid  = property.estimatedValue;
+            const sellLow  = property.estimatedValueLow;
+            const sellHigh = property.estimatedValueHigh;
+            const rentMid  = property.rentEstimate;
+            const rentLow  = property.rentEstimateLow;
+            const rentHigh = property.rentEstimateHigh;
+            const sellPpsf = sellMid && property.squareFootage ? Math.round(sellMid / property.squareFootage) : null;
+            const grossYield = sellMid && rentMid ? (rentMid * 12) / sellMid : null;
+            const fmtBig = n => n ? `$${Math.round(n).toLocaleString()}` : "—";
+            const fmtK   = n => n ? `$${Math.round(n/1000)}K` : "—";
+            return (
+              <div style={{
+                margin: "0 0 20px",
+                background: "linear-gradient(135deg, rgba(22,163,74,0.06) 0%, rgba(30,64,175,0.05) 100%)",
+                border: "1px solid var(--borderf)",
+                borderRadius: 10,
+                overflow: "hidden",
+              }}>
+                <div style={{
+                  padding: "10px 18px",
+                  background: "rgba(15,23,42,0.04)",
+                  borderBottom: "1px solid var(--borderf)",
+                  fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                  color: "var(--sub)", letterSpacing: "1.6px",
+                }}>
+                  ▸ MARKET VALUATION · LIVE FROM PUBLIC RECORDS
+                </div>
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: sellMid && rentMid ? "1fr 1fr" : "1fr",
+                  gap: 1,
+                  background: "var(--borderf)",
+                }}>
+                  {sellMid && (
+                    <div style={{ background: "var(--card)", padding: "22px 24px" }}>
+                      <div style={{ fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700, color: "var(--green)", letterSpacing: "1.4px", marginBottom: 8 }}>
+                        💰 WHAT IT SELLS FOR
+                      </div>
+                      <div style={{ fontFamily: "'Geist',sans-serif", fontSize: 38, fontWeight: 800, color: "var(--text)", letterSpacing: "-1.5px", lineHeight: 1 }}>
+                        {fmtBig(sellMid)}
+                      </div>
+                      {sellLow && sellHigh && (
+                        <div style={{ fontFamily: "'Geist Mono',monospace", fontSize: 12, fontWeight: 600, color: "var(--sub)", marginTop: 6 }}>
+                          Range  {fmtK(sellLow)} — {fmtK(sellHigh)}
+                        </div>
+                      )}
+                      {sellPpsf && (
+                        <div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 6, fontFamily: "'Geist Mono',monospace" }}>
+                          ${sellPpsf}/sqft · {property.squareFootage.toLocaleString()} sqft
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {rentMid && (
+                    <div style={{ background: "var(--card)", padding: "22px 24px" }}>
+                      <div style={{ fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700, color: "var(--blue)", letterSpacing: "1.4px", marginBottom: 8 }}>
+                        🏘️ WHAT IT LEASES FOR
+                      </div>
+                      <div style={{ fontFamily: "'Geist',sans-serif", fontSize: 38, fontWeight: 800, color: "var(--text)", letterSpacing: "-1.5px", lineHeight: 1 }}>
+                        {fmtBig(rentMid)}
+                        <span style={{ fontSize: 16, fontWeight: 600, color: "var(--sub)", marginLeft: 6 }}>/ mo</span>
+                      </div>
+                      {rentLow && rentHigh && (
+                        <div style={{ fontFamily: "'Geist Mono',monospace", fontSize: 12, fontWeight: 600, color: "var(--sub)", marginTop: 6 }}>
+                          Range  ${Math.round(rentLow).toLocaleString()} — ${Math.round(rentHigh).toLocaleString()}
+                        </div>
+                      )}
+                      {grossYield && (
+                        <div style={{ fontSize: 11.5, color: "var(--dim)", marginTop: 6, fontFamily: "'Geist Mono',monospace" }}>
+                          Gross yield {(grossYield * 100).toFixed(1)}% · ${Math.round(rentMid * 12).toLocaleString()}/yr
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div style={{
+                  padding: "9px 18px",
+                  background: "rgba(15,23,42,0.03)",
+                  borderTop: "1px solid var(--borderf)",
+                  fontSize: 11, color: "var(--dim)", lineHeight: 1.5,
+                }}>
+                  Auto-sourced from public records. Verify with active comps before listing.
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Error + fallback */}
           {error && (
             <div>

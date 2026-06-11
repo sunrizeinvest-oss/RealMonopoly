@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, lazy, Suspense } from "react";
-import { exportMFPDF } from "./pdfExport";
+import { generateTier1Memo } from "./lib/tier1Memo";
 import { useAuth } from "./AuthContext";
 import { irr as solveIRR, withCumulative } from "./lib/finance";
 import { useDocMeta } from "./lib/seo";
@@ -1215,20 +1215,54 @@ export default function CommercialAnalyzer() {
       <div style={{padding:"0 20px 12px"}}>
         <button
           onClick={() => {
-            const inputs = { purchasePrice, downPct, address: propertyAddress };
-            const calcData = {
-              noi: c.NOI, capRate: c.actualCap, coc: c.CoC, dscr: c.DSCR,
-              cashFlow: c.BTCF, egi: c.EGI, gprCurrent: c.GPR, vacancyLoss: c.vacancyLoss,
-              otherAnnual: c.other, totalOpex: c.totalOpex, annualDebtService: c.ADS,
-              grm: c.GRM, equity: c.totalCashIn, verdict: `Cap ${(c.actualCap*100).toFixed(2)}% · DSCR ${c.DSCR?.toFixed(2)}x · CoC ${(c.CoC*100).toFixed(2)}%`
-            };
-            exportMFPDF(inputs, calcData);
+            const fmtM = n => n == null ? "—" : `$${Math.round(n).toLocaleString()}`;
+            const fmtP = n => n == null || !isFinite(n) ? "—" : `${(n*100).toFixed(1)}%`;
+            const doc = generateTier1Memo({
+              type: "rental",
+              deal: {
+                address: propertyAddress || "Multifamily Deal",
+                purchasePrice: Number(purchasePrice) || 0,
+              },
+              summary: {
+                tiles: [
+                  { label: "NOI",          value: fmtM(c.NOI) },
+                  { label: "Cap rate",     value: fmtP(c.actualCap), color: c.actualCap >= 0.06 ? "#16a34a" : "#d97706" },
+                  { label: "DSCR",         value: c.DSCR ? `${c.DSCR.toFixed(2)}x` : "—", color: c.DSCR >= 1.25 ? "#16a34a" : c.DSCR >= 1.0 ? "#d97706" : "#dc2626" },
+                  { label: "Cash flow",    value: fmtM(c.BTCF), color: c.BTCF >= 0 ? "#16a34a" : "#dc2626" },
+                ],
+                rows: [
+                  { label: "Purchase price",       value: fmtM(Number(purchasePrice)) },
+                  { label: "Down payment",         value: fmtM((Number(purchasePrice)||0) * (Number(downPct)||0)/100) },
+                  { label: "Total cash in",        value: fmtM(c.totalCashIn), emphasis: true },
+                  { break: true },
+                  { label: "Gross potential rent", value: fmtM(c.GPR) },
+                  { label: "Vacancy loss",         value: fmtM(c.vacancyLoss) },
+                  { label: "Effective gross income", value: fmtM(c.EGI) },
+                  { label: "Total OpEx",           value: fmtM(c.totalOpex) },
+                  { label: "Net operating income", value: fmtM(c.NOI), emphasis: true, color: "#16a34a" },
+                  { break: true },
+                  { label: "Annual debt service",  value: fmtM(c.ADS) },
+                  { label: "Before-tax cash flow", value: fmtM(c.BTCF), color: c.BTCF >= 0 ? "#16a34a" : "#dc2626" },
+                  { label: "Cash-on-cash return",  value: fmtP(c.CoC) },
+                  { label: "Cap rate (actual)",    value: fmtP(c.actualCap) },
+                  { label: "DSCR",                 value: c.DSCR ? `${c.DSCR.toFixed(2)}x` : "—" },
+                  { label: "GRM",                  value: c.GRM ? c.GRM.toFixed(2) : "—" },
+                ],
+                verdict: c.DSCR >= 1.25 && c.actualCap >= 0.06
+                  ? `Lender-financable (DSCR ${c.DSCR.toFixed(2)}x) at cap ${(c.actualCap*100).toFixed(1)}%.`
+                  : c.DSCR >= 1.0
+                    ? `Marginal coverage (DSCR ${c.DSCR.toFixed(2)}x) — tighten OpEx or push rent before bidding.`
+                    : `Sub-coverage (DSCR ${c.DSCR.toFixed(2)}x) — pass at this price.`,
+                notes: "For the institutional 4-page IC Report with Monte Carlo + comps, use Run Simulation → Export IC Report on the Risk Simulator below.",
+              },
+            });
+            doc.save(`investor-memo-multifamily-${new Date().toISOString().slice(0,10)}.pdf`);
           }}
-          style={{width:"100%",background:"rgba(242,92,92,0.1)",border:"1px solid rgba(242,92,92,0.25)",borderRadius: 10,padding:"12px 18px",color:"var(--red)",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'Geist',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s"}}
-          onMouseOver={e=>e.currentTarget.style.background="rgba(242,92,92,0.18)"}
-          onMouseOut={e=>e.currentTarget.style.background="rgba(242,92,92,0.1)"}
+          style={{width:"100%",background:"rgba(22,163,74,0.1)",border:"1px solid rgba(22,163,74,0.3)",borderRadius: 10,padding:"12px 18px",color:"var(--green)",fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:"'Geist',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all 0.18s"}}
+          onMouseOver={e=>e.currentTarget.style.background="rgba(22,163,74,0.18)"}
+          onMouseOut={e=>e.currentTarget.style.background="rgba(22,163,74,0.1)"}
         >
-          <span>📄</span> Export PDF Summary
+          <span>📄</span> Export Investor Memo
         </button>
       </div>
 

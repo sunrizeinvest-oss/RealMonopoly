@@ -4,9 +4,9 @@
  * (purple/green/blue palette, terminal-style typography, sharp 4px corners)
  * at a much tighter 1-page scope.
  *
- * Replaces three earlier ad-hoc generators (pdfExport.js exportFlipPDF /
- * exportBRRRRPDF, generatePDF.js generateFlipPDF) that all had different
- * fonts, colors, and information density.
+ * Replaced three earlier ad-hoc generators (pdfExport.js + generatePDF.js)
+ * that all had different fonts, colors, and information density. Those
+ * files were deleted once every call site migrated to this one.
  *
  * Usage:
  *   generateTier1Memo({ type, deal, summary }).save('investor-memo.pdf')
