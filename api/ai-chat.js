@@ -1369,6 +1369,11 @@ async function deliverMarketBrief({ to, market, items, userId }) {
   const unsubToken = userId ? signUnsubscribeToken(userId, market) : null;
   const unsubUrl   = unsubToken ? `https://www.rizeai.co/unsubscribe?token=${encodeURIComponent(unsubToken)}` : null;
 
+  // AI Read for the email — same best-effort pattern as the trigger digest
+  // (maybeGenerateScanThesis). Returns null on any failure; email still
+  // sends. 6-sec timeout caps the worst-case delay.
+  const aiThesis = await maybeGenerateBriefThesis({ items, market });
+
   const C = { bg:"#ffffff", card:"#f8fafc", text:"#0f172a", sub:"#475569", dim:"#94a3b8", blue:"#0066cc", green:"#16a34a", red:"#dc2626", amber:"#d97706" };
   const today = new Date().toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
 
@@ -1392,6 +1397,12 @@ async function deliverMarketBrief({ to, market, items, userId }) {
         <div style="font-size:22px;font-weight:800;color:${C.text};letter-spacing:-0.5px">${escapeHtml(MARKET_LABEL[market])}</div>
         <div style="font-size:13px;color:${C.sub};margin-top:5px">${today}</div>
       </div>
+      ${aiThesis ? `
+      <div style="padding:18px 28px;background:rgba(0,102,204,0.04);border-bottom:1px solid #1a2030">
+        <div style="font-family:'SF Mono',Menlo,monospace;font-size:10.5px;font-weight:700;color:${C.blue};letter-spacing:1.3px;margin-bottom:6px">▸ AI READ · TODAY'S TAKE</div>
+        <div style="font-size:13.5px;color:${C.text};line-height:1.55">${escapeHtml(aiThesis)}</div>
+      </div>
+      ` : ""}
       ${items.length === 0 ? `
       <div style="padding:36px 28px;text-align:center;color:${C.dim};font-size:14px">
         No matching items today. Markets are quiet — or the feeds are slow. We'll keep watching.
@@ -1689,6 +1700,64 @@ Write 1-2 sentences. Start with the headline takeaway. No greetings. No sign-off
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
         max_tokens: 140,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: AbortSignal.timeout(6_000),
+    });
+    if (!r.ok) return null;
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim();
+    return text || null;
+  } catch {
+    return null;
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   maybeGenerateBriefThesis — best-effort AI Read for the daily market
+//   brief email. Same guarantees as maybeGenerateScanThesis (null on any
+//   failure, 6-sec timeout, email never blocks).
+//
+//   Looks across the day's RSS items (Bank of Canada / Storeys / Better
+//   Dwelling) and condenses into "what does the investor need to know
+//   about this market right now."
+// ──────────────────────────────────────────────────────────────────────
+async function maybeGenerateBriefThesis({ items, market }) {
+  if (!Array.isArray(items) || items.length < 2) return null;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") return null;
+
+  // Compact headline list — keep prompt under 1k tokens
+  const headlines = items.slice(0, 8).map((it, i) =>
+    `  ${i+1}. [${it.source}] ${it.title}${it.description ? ` — ${it.description.slice(0, 140)}` : ""}`
+  ).join("\n");
+
+  const sourceCounts = items.reduce((acc, it) => {
+    acc[it.source] = (acc[it.source] || 0) + 1;
+    return acc;
+  }, {});
+
+  const prompt = `You are a real-estate analyst writing the TOP-OF-EMAIL summary for a daily market brief. In 1-2 SENTENCES TOTAL (under 45 words), interpret what these news items mean for a real estate investor in ${MARKET_LABEL[market] || "the market"}. No fluff, no hedging. Lead with the most actionable signal.
+
+MARKET: ${MARKET_LABEL[market] || market}
+SOURCES: ${Object.entries(sourceCounts).map(([s, n]) => `${n} ${s}`).join(", ")}
+
+HEADLINES:
+${headlines}
+
+Write 1-2 sentences. Start with the headline takeaway. If one item dominates (e.g., a Bank of Canada rate decision, a major policy change), lead with that. No greetings. No sign-off.`;
+
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 160,
         messages: [{ role: "user", content: prompt }],
       }),
       signal: AbortSignal.timeout(6_000),
