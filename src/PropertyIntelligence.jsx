@@ -855,6 +855,12 @@ export default function PropertyIntelligence() {
   // AI thesis hint — one-sentence institutional insight over the zoning data.
   // Lazy-fetched after zoning lands; doesn't block initial render.
   const [zoningThesis, setZoningThesis] = useState(null)
+  // Top-level "AI Read" — fires once when property data + rent lands. Gives a
+  // sweeping 2-3 sentence summary of what the property IS (sell + lease +
+  // zoning + size) so the user sees an instant institutional read before
+  // scrolling to detail cards.
+  const [propertyThesis, setPropertyThesis] = useState(null)
+  const [propertyThesisLoading, setPropertyThesisLoading] = useState(false)
 
   // Tracks why property-lookup returned what it did, so we can show a helpful
   // notice instead of the silent empty state on 403 (RentCast subscription down).
@@ -913,6 +919,50 @@ export default function PropertyIntelligence() {
     }
   }, [chatMessages, chatLoading])
 
+  // ─── AI Property Read — auto-fires when property data lands ───────────────
+  // Sweeping 2-3 sentence Claude interpretation: "what is this property,
+  // what does the market say it's worth, what's the strongest play." Uses
+  // deal-thesis mode for a fast Haiku call. Cached per-address; doesn't
+  // refire on re-renders unless the user searches a new property.
+  useEffect(() => {
+    if (!property || property.error) return
+    // Wait until at least one of sell or lease value is known — without
+    // either, there's nothing meaningful to read.
+    if (!property.estimatedValue && !property.rentEstimate) return
+    let cancelled = false
+    setPropertyThesisLoading(true)
+    fetch("/api/ai-chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode: "deal-thesis",
+        strategy: "Property snapshot · sell + lease + zoning",
+        address: property.address || query,
+        verdict: property.estimatedValue && property.rentEstimate
+          ? `Sells for ~$${Math.round(property.estimatedValue).toLocaleString()}, leases for ~$${Math.round(property.rentEstimate).toLocaleString()}/mo`
+          : null,
+        metrics: {
+          estimatedValue: property.estimatedValue,
+          rentEstimate:   property.rentEstimate,
+          grossYield:     (property.estimatedValue && property.rentEstimate) ? (property.rentEstimate * 12) / property.estimatedValue : null,
+          bedrooms:       property.bedrooms,
+          bathrooms:      property.bathrooms,
+          sqft:           property.squareFootage,
+          yearBuilt:      property.yearBuilt,
+          propertyType:   property.propertyType,
+          zone:           zoningData?.zoning?.zone,
+          maxUnits:       zoningData?.zoning?.maxUnits,
+          maxStoreys:     zoningData?.zoning?.maxStoreys,
+        },
+      }),
+    })
+      .then(r => r.json())
+      .then(j => { if (!cancelled && j?.thesis) setPropertyThesis(j) })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setPropertyThesisLoading(false) })
+    return () => { cancelled = true }
+  }, [property?.address, property?.estimatedValue, property?.rentEstimate, zoningData?.zoning?.zone])
+
   // ─── Property Search ───────────────────────────────────────────────────────
   async function handleSearch(overrideAddr) {
     const addr = overrideAddr || query
@@ -932,6 +982,7 @@ export default function PropertyIntelligence() {
     setPredictedRent(null)
     setZoningData(null)
     setZoningThesis(null)
+    setPropertyThesis(null)
     setLookupStatus(null)
 
     const ca = isCanadian(addr)
@@ -1628,6 +1679,43 @@ export default function PropertyIntelligence() {
                     </div>
                   );
                 })()}
+
+                {/* ── Top-level AI Read — auto-fires on property load ──
+                    Sweeping 2-3 sentence Claude take on what the property
+                    IS and what the strongest play might be. Renders below
+                    the SELL/LEASE hero so users get an institutional read
+                    before scrolling to the detail cards. Hides silently if
+                    AI is unavailable. */}
+                {(propertyThesisLoading || propertyThesis?.thesis) && (
+                  <div style={{
+                    margin: "0 0 20px",
+                    padding: "14px 18px",
+                    background: "rgba(0,102,204,0.05)",
+                    border: "1px solid rgba(0,102,204,0.22)",
+                    borderLeft: "3px solid var(--blue)",
+                    borderRadius: 6,
+                  }}>
+                    <div style={{
+                      fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                      color: "var(--blue)", letterSpacing: "1.3px", marginBottom: 8,
+                    }}>
+                      ▸ AI READ {propertyThesis?.source && propertyThesis.source !== "template" && (
+                        <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4 }}>
+                          · {propertyThesis.source}
+                        </span>
+                      )}
+                    </div>
+                    {propertyThesisLoading && !propertyThesis ? (
+                      <div style={{ fontSize: 13, color: "var(--sub)", fontStyle: "italic" }}>
+                        Claude is reading the property…
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: 13.5, color: "var(--text)", lineHeight: 1.6 }}>
+                        {propertyThesis.thesis}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Data provider down notice — surface only when there's no
                     alternate data path that recovered for this address. */}
