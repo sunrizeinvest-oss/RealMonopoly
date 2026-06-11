@@ -53,6 +53,65 @@ export default function MarketTriggers() {
   const [emailStatus, setEmailStatus]   = useState(null); // null | {kind:'ok',msg} | {kind:'err',msg}
   // MLS grounding provenance for the current trigger list (when present).
   const [mlsSource, setMlsSource]       = useState(null); // null | {provider, anchors}
+  // AI Read on the scan — debounced 600ms after triggers land. Same
+  // deal-thesis pattern used on /property and /screen bulk lookup.
+  const [scanThesis, setScanThesis]     = useState(null);
+  const [scanThesisLoading, setScanThesisLoading] = useState(false);
+
+  // Auto-fire when triggers land (≥3 needed to make a "scan" meaningful).
+  // Aggregate distress signal: status mix, DOM range, price-drop count,
+  // top redev scores → Claude condenses into 1-2 sentences.
+  useEffect(() => {
+    if (!triggers || triggers.length < 3) return;
+    let cancelled = false;
+    setScanThesisLoading(true);
+    setScanThesis(null);
+    const timeoutId = setTimeout(() => {
+      const statusCounts = triggers.reduce((acc, t) => {
+        const s = (t.status || "Other").toUpperCase();
+        acc[s] = (acc[s] || 0) + 1;
+        return acc;
+      }, {});
+      const doms = triggers.map(t => Number(t.daysOnMarket)).filter(v => Number.isFinite(v));
+      const drops = triggers.map(t => Number(t.priceDrops)).filter(v => Number.isFinite(v));
+      const scores = triggers.map(t => Number(t.redevScore)).filter(v => Number.isFinite(v)).sort((a, b) => b - a);
+      const topScore = scores[0] || null;
+      const avg = arr => arr.length ? Math.round(arr.reduce((s, x) => s + x, 0) / arr.length) : null;
+      // Top 3 by redev score, by address only — keep prompt tight.
+      const top3 = [...triggers]
+        .sort((a, b) => (Number(b.redevScore) || 0) - (Number(a.redevScore) || 0))
+        .slice(0, 3)
+        .map(t => `${t.address || "?"} (score ${t.redevScore ?? "?"}, ${t.status || "?"})`);
+
+      fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "deal-thesis",
+          strategy: `Market Triggers scan · ${area || "area"}`,
+          verdict: Object.entries(statusCounts).map(([s, n]) => `${n} ${s}`).join(" · "),
+          metrics: {
+            triggerCount:  triggers.length,
+            avgDOM:        avg(doms),
+            maxDOM:        doms.length ? Math.max(...doms) : null,
+            avgPriceDrops: avg(drops),
+            topRedevScore: topScore,
+            avgRedevScore: avg(scores),
+            topCandidates: top3.join(" | "),
+            groundedByMls: !!mlsSource,
+          },
+        }),
+      })
+        .then(r => r.json())
+        .then(j => { if (!cancelled && j?.thesis) setScanThesis(j); })
+        .catch(() => {})
+        .finally(() => { if (!cancelled) setScanThesisLoading(false); });
+    }, 600);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [triggers.length, mlsSource?.anchors, area]);
 
   async function sendEmailDigest() {
     if (!user?.email) {
@@ -430,6 +489,42 @@ export default function MarketTriggers() {
             color: "#0f172a", letterSpacing: "1px",
           }}>
             ⌖ GROUNDED · {mlsSource.provider.toUpperCase()} · {mlsSource.anchors} STALE LISTING{mlsSource.anchors === 1 ? "" : "S"} ANCHORED
+          </div>
+        )}
+
+        {/* ── AI Read on the scan — auto-fires after triggers land.
+            Sweeping 1-2 sentence interpretation of the distress signal
+            distribution: "12 stale Calgary listings, mostly Terminated
+            with avg 95 DOM; top redev candidate is 425 Centre Ave at
+            score 88." */}
+        {(scanThesisLoading || scanThesis?.thesis) && (
+          <div style={{
+            marginBottom: 16,
+            padding: "13px 16px",
+            background: "rgba(0,102,204,0.05)",
+            border: "1px solid rgba(0,102,204,0.22)",
+            borderLeft: "3px solid var(--blue)",
+            borderRadius: 6,
+          }}>
+            <div style={{
+              fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+              color: "var(--blue)", letterSpacing: "1.3px", marginBottom: 7,
+            }}>
+              ▸ AI READ · SCAN SUMMARY {scanThesis?.source && scanThesis.source !== "template" && (
+                <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4 }}>
+                  · {scanThesis.source}
+                </span>
+              )}
+            </div>
+            {scanThesisLoading && !scanThesis ? (
+              <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>
+                Claude is reading the distress signals…
+              </div>
+            ) : (
+              <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>
+                {scanThesis.thesis}
+              </div>
+            )}
           </div>
         )}
 
