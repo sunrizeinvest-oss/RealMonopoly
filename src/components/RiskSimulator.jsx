@@ -562,6 +562,45 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
 function Results({ results, target }) {
   const { irr, eqMult, minDSCR, probabilities, distributions } = results;
 
+  // AI Read — 1-2 sentence Claude interpretation of P10/P50/P90.
+  // Fires once when results land; cached per-result so it doesn't refire
+  // on re-renders. Falls back silently if AI is unavailable.
+  const [thesis, setThesis] = useState(null);
+  const [thesisLoading, setThesisLoading] = useState(false);
+  useEffect(() => {
+    if (!results) return;
+    let cancelled = false;
+    setThesisLoading(true);
+    setThesis(null);
+    fetch("/api/ai-chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode: "deal-thesis",
+        strategy: "Monte Carlo · 5-year hold",
+        verdict: `IRR P10/P50/P90: ${fmtPct(irr.p10)} / ${fmtPct(irr.p50)} / ${fmtPct(irr.p90)}`,
+        metrics: {
+          irrP10:        irr.p10,
+          irrP50:        irr.p50,
+          irrP90:        irr.p90,
+          eqMultP10:     eqMult.p10,
+          eqMultP50:     eqMult.p50,
+          minDscrP10:    minDSCR.p10,
+          minDscrP50:    minDSCR.p50,
+          probPositiveIRR:    probabilities.positiveIRR,
+          probMeetsDSCR125:   probabilities.meetsDSCR125,
+          probMeetsIRRTarget: probabilities.meetsIRRTarget,
+          targetIRR:     target,
+        },
+      }),
+    })
+      .then(r => r.json())
+      .then(j => { if (!cancelled && j?.thesis) setThesis(j); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setThesisLoading(false); });
+    return () => { cancelled = true; };
+  }, [results]);
+
   return (
     <div style={{ padding: 18 }}>
       {/* Percentile table — horizontally scrollable on narrow viewports so the
@@ -598,6 +637,39 @@ function Results({ results, target }) {
         <Cell right value={fmtX(minDSCR.p90)} color={pickColorDSCR(minDSCR.p90)}/>
       </div>
       </div>
+
+      {/* AI Read — 1-2 sentence Claude interpretation of the percentile
+          table above. Frames P10/P50/P90 in plain English so the user
+          doesn't have to translate the stats themselves. */}
+      {(thesisLoading || thesis?.thesis) && (
+        <div style={{
+          marginBottom: 16, padding: "12px 14px",
+          background: "rgba(0,102,204,0.05)",
+          border: "1px solid rgba(0,102,204,0.2)",
+          borderLeft: "3px solid var(--blue)",
+          borderRadius: 4,
+        }}>
+          <div style={{
+            fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
+            color: "var(--blue)", letterSpacing: "1.1px", marginBottom: 6,
+          }}>
+            ▸ AI READ {thesis?.source && thesis.source !== "template" && (
+              <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4 }}>
+                · {thesis.source}
+              </span>
+            )}
+          </div>
+          {thesisLoading ? (
+            <div style={{ fontSize: 12, color: "var(--sub)", fontStyle: "italic" }}>
+              Claude is reading the distribution…
+            </div>
+          ) : (
+            <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.55 }}>
+              {thesis.thesis}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Probability bars */}
       <div style={{ marginBottom: 16 }}>
