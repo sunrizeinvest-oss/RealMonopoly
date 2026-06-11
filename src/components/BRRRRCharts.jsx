@@ -42,10 +42,10 @@ export default function BRRRRCharts({ calc }) {
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={calc.proj} margin={{top:8,right:16,left:8,bottom:8}}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.05)"/>
-              <XAxis dataKey="yr" stroke="#6b7d96" tickFormatter={(v)=>`Y${v}`}/>
-              <YAxis stroke="#6b7d96" tickFormatter={(v)=>v>=1000?`$${Math.round(v/1000)}k`:`$${v}`}/>
+              <XAxis dataKey="yr" stroke="#475569" tickFormatter={(v)=>`Y${v}`}/>
+              <YAxis stroke="#475569" tickFormatter={(v)=>v>=1000?`$${Math.round(v/1000)}k`:`$${v}`}/>
               <Tooltip contentStyle={{background:"#f8fafc",border:"1px solid rgba(15,23,42,0.07)",borderRadius: 6}} labelFormatter={(v)=>`Year ${v}`} formatter={(v)=>fmt(v)}/>
-              <Legend wrapperStyle={{fontSize:11,color:"#6b7d96"}}/>
+              <Legend wrapperStyle={{fontSize:11,color:"#475569"}}/>
               <Bar dataKey="noiYr"  name="NOI"  fill="#3b9eff" radius={[4,4,0,0]}/>
               <Bar dataKey="btcfYr" name="BTCF" fill="#34d98a" radius={[4,4,0,0]}/>
             </BarChart>
@@ -60,8 +60,8 @@ export default function BRRRRCharts({ calc }) {
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={calc.proj} margin={{top:8,right:16,left:8,bottom:8}}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.05)"/>
-              <XAxis dataKey="yr" stroke="#6b7d96" tickFormatter={(v)=>`Y${v}`}/>
-              <YAxis stroke="#6b7d96" tickFormatter={(v)=>v.toFixed(2)+"x"} domain={[0.8,"auto"]}/>
+              <XAxis dataKey="yr" stroke="#475569" tickFormatter={(v)=>`Y${v}`}/>
+              <YAxis stroke="#475569" tickFormatter={(v)=>v.toFixed(2)+"x"} domain={[0.8,"auto"]}/>
               <Tooltip contentStyle={{background:"#f8fafc",border:"1px solid rgba(15,23,42,0.07)",borderRadius: 6}} labelFormatter={(v)=>`Year ${v}`} formatter={(v)=>fmtX(v)}/>
               <ReferenceLine y={1.25} stroke="#f0a030" strokeDasharray="4 4" label={{value:"Lender min 1.25x", fill:"#f0a030", fontSize:10, position:"insideTopLeft"}}/>
               <ReferenceLine y={1.0}  stroke="#f25c5c" strokeDasharray="4 4" label={{value:"Breakeven 1.0x",   fill:"#f25c5c", fontSize:10, position:"insideTopLeft"}}/>
@@ -84,10 +84,10 @@ export default function BRRRRCharts({ calc }) {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,23,42,0.05)"/>
-              <XAxis dataKey="yr" stroke="#6b7d96" tickFormatter={(v)=>`Y${v}`}/>
-              <YAxis stroke="#6b7d96" tickFormatter={(v)=>(v>=1000||v<=-1000)?`$${Math.round(v/1000)}k`:`$${v}`}/>
+              <XAxis dataKey="yr" stroke="#475569" tickFormatter={(v)=>`Y${v}`}/>
+              <YAxis stroke="#475569" tickFormatter={(v)=>(v>=1000||v<=-1000)?`$${Math.round(v/1000)}k`:`$${v}`}/>
               <Tooltip contentStyle={{background:"#f8fafc",border:"1px solid rgba(15,23,42,0.07)",borderRadius: 6}} labelFormatter={(v)=>`Year ${v}`} formatter={(v)=>fmt(v)}/>
-              <ReferenceLine y={0} stroke="#6b7d96" strokeDasharray="2 2"/>
+              <ReferenceLine y={0} stroke="#475569" strokeDasharray="2 2"/>
               <Area type="monotone" dataKey="cum" name="Cumulative position" stroke="#34d98a" strokeWidth={2} fill="url(#brrrrEqGrad)"/>
             </AreaChart>
           </ResponsiveContainer>

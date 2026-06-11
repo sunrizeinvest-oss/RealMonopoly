@@ -1443,8 +1443,7 @@ export default function FlipCalc() {
 
     return (
       <div style={{ minHeight: "100vh", background: "rgba(15,23,42,0.03)", fontFamily: "'Geist', sans-serif" }}>
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
-
+        <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
         {/* Header */}
         <div style={{ background: "#f8fafc", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(15,23,42,0.06)" }}>
           <div>
@@ -1566,8 +1565,7 @@ export default function FlipCalc() {
 
   return (
     <div style={{ minHeight: "100vh", background: "#ffffff", fontFamily: "'Geist', sans-serif", display: "flex", flexDirection: "column" }}>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
-      <style>{`
+      <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />      <style>{`
         @media (max-width: 768px) {
           .flip-sidebar { display: none !important; }
           .flip-content { padding: 16px !important; }
@@ -1659,7 +1657,7 @@ export default function FlipCalc() {
                   { label: "ARV",          value: fmtM(arv) },
                   { label: "All-in cost",  value: fmtM(c.totalCosts) },
                   { label: "Net profit",   value: fmtM(c.netProfit), color: c.netProfit >= 0 ? "#16a34a" : "#dc2626" },
-                  { label: "Margin",       value: fmtP(c.profitMargin), color: c.profitMargin >= 0.15 ? "#16a34a" : c.profitMargin >= 0.08 ? "#d97706" : "#dc2626" },
+                  { label: "Margin",       value: fmtP(c.profitMargin), color: c.profitMargin >= 0.15 ? "#16a34a" : c.profitMargin >= 0.08 ? "#ffcc00" : "#dc2626" },
                 ],
                 rows: [
                   { label: "Purchase price",        value: fmtM(pp) },
@@ -1668,7 +1666,7 @@ export default function FlipCalc() {
                   { break: true },
                   { label: "ARV",                   value: fmtM(arv) },
                   { label: "Max Allowable Offer (MAO)", value: fmtM(c.mao) },
-                  { label: "Profit margin",         value: fmtP(c.profitMargin), emphasis: true, color: c.profitMargin >= 0.15 ? "#16a34a" : "#d97706" },
+                  { label: "Profit margin",         value: fmtP(c.profitMargin), emphasis: true, color: c.profitMargin >= 0.15 ? "#16a34a" : "#ffcc00" },
                   { break: true },
                   { label: "Total ROI",             value: fmtP(c.roiTotal) },
                   { label: "Annualized CoC",        value: fmtP(c.annualizedCoC) },

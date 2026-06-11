@@ -118,7 +118,7 @@ export default function ZoningMap({ center, polygon, permits = [], zone = "", ra
         </div>
         <div style={{
           fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9, fontWeight: 700,
-          color: "var(--dim, #3a4a60)", letterSpacing: "1.2px",
+          color: "var(--dim, #94a3b8)", letterSpacing: "1.2px",
         }}>
           {(radiusM * 2 / 1000).toFixed(1)}KM × {(radiusM * 2 / 1000).toFixed(1)}KM
         </div>
@@ -200,12 +200,12 @@ export default function ZoningMap({ center, polygon, permits = [], zone = "", ra
         borderTop: "1px solid var(--borderf, rgba(15,23,42,0.05))",
         display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap",
         fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10, fontWeight: 700,
-        letterSpacing: "0.8px", color: "var(--sub, #6b7d96)",
+        letterSpacing: "0.8px", color: "var(--sub, #475569)",
       }}>
         <LegendDot color="#34d98a" label="NEW BUILD"/>
         <LegendDot color="#f0a030" label="RENO"/>
         <LegendDot color="#3b9eff" label="OTHER"/>
-        <span style={{ marginLeft: "auto", color: "var(--dim, #3a4a60)" }}>
+        <span style={{ marginLeft: "auto", color: "var(--dim, #94a3b8)" }}>
           DOT SIZE = UNITS ADDED · {visiblePermits.length} PERMITS VISIBLE
         </span>
       </div>

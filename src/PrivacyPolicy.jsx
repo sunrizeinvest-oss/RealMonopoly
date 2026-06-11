@@ -33,7 +33,7 @@ export default function PrivacyPolicy() {
   return (
     <div style={{minHeight:"100vh",background:"#ffffff"}}>
       <style>{CSS}</style>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap" rel="stylesheet" />
+      <link href="https://fonts.googleapis.com/css2?family=Geist:wght;500;600;700;800&family=Geist+Mono:wght;500;600;700&display=swap" rel="stylesheet" />
 
       <nav className="lp-nav">
         <span className="lp-logo" onClick={() => navigate("/")}><span>Real</span> Deal</span>

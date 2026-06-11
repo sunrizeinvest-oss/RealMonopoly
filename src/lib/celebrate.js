@@ -43,7 +43,7 @@ export function celebrateFirstSave({ kind = "deal", onNext } = {}) {
     padding:14px 16px;
     box-shadow:0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(52,217,138,0.15);
     font-family:'Geist', system-ui, sans-serif;
-    color:#dde4ef;
+    color:#0f172a;
     transform:translateY(20px); opacity:0;
     transition:transform 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.4), opacity 0.25s;
   `;
@@ -55,10 +55,10 @@ export function celebrateFirstSave({ kind = "deal", onNext } = {}) {
         <div style="font-family:'Geist Mono', ui-monospace, monospace; font-size:9.5px; font-weight:700; color:#34d98a; letter-spacing:0.8px; margin-bottom:4px;">
           FIRST DEAL SAVED
         </div>
-        <div style="font-size:13.5px; font-weight:700; color:#dde4ef; line-height:1.35; margin-bottom:8px;">
+        <div style="font-size:13.5px; font-weight:700; color:#0f172a; line-height:1.35; margin-bottom:8px;">
           Nice — your ${kind.toUpperCase()} deal is saved.
         </div>
-        <div style="font-size:12px; color:#6b7d96; line-height:1.5; margin-bottom:10px;">
+        <div style="font-size:12px; color:#475569; line-height:1.5; margin-bottom:10px;">
           Compare it side-by-side with another deal to see which one actually pencils.
         </div>
         <div style="display:flex; gap:6px;">
@@ -70,7 +70,7 @@ export function celebrateFirstSave({ kind = "deal", onNext } = {}) {
             letter-spacing:0.5px; cursor:pointer;
           ">▸ COMPARE DEALS</button>
           <button data-action="dismiss" style="
-            background:transparent; color:#6b7d96;
+            background:transparent; color:#475569;
             border:1px solid rgba(15,23,42,0.07); border-radius:4px;
             padding:7px 10px;
             font-family:'Geist Mono', ui-monospace, monospace; font-size:10.5px; font-weight:700;

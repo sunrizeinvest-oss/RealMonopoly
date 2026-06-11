@@ -127,7 +127,7 @@ export default function PropertyIntelCard({ address }) {
           }}>
             [ LIVE · {z.city?.toUpperCase()} OPEN DATA ]
           </div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text, #dde4ef)", marginTop: 2 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text, #0f172a)", marginTop: 2 }}>
             {z.zone}{z.zoneDescription ? ` — ${z.zoneDescription}` : ""}
           </div>
         </div>
@@ -186,7 +186,7 @@ export default function PropertyIntelCard({ address }) {
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: 12.5, color: "var(--dim, #3a4a60)", fontStyle: "italic", lineHeight: 1.6, padding: "8px 0" }}>
+            <div style={{ fontSize: 12.5, color: "var(--dim, #94a3b8)", fontStyle: "italic", lineHeight: 1.6, padding: "8px 0" }}>
               Not in residential assessment dataset (likely commercial parcel or address-match failed in city records).
             </div>
           )}
@@ -202,7 +202,7 @@ export default function PropertyIntelCard({ address }) {
           }}>
             <div style={{
               fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
-              color: "var(--dim, #3a4a60)", letterSpacing: "0.6px",
+              color: "var(--dim, #94a3b8)", letterSpacing: "0.6px",
             }}>
               ▸ NEARBY DEV PERMITS · {permits.length} IN 1KM / 2YR
             </div>
@@ -232,7 +232,7 @@ export default function PropertyIntelCard({ address }) {
           <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
           <div style={{
             display: "grid", gridTemplateColumns: "90px 1.3fr 1.3fr 90px 55px", gap: 8,
-            fontSize: 10, fontWeight: 700, color: "var(--dim, #3a4a60)", letterSpacing: "0.5px",
+            fontSize: 10, fontWeight: 700, color: "var(--dim, #94a3b8)", letterSpacing: "0.5px",
             textTransform: "uppercase", paddingBottom: 6,
             borderBottom: "1px solid var(--borderf, rgba(15,23,42,0.05))",
             fontFamily: "'Geist Mono',ui-monospace,monospace",
@@ -262,24 +262,24 @@ export default function PropertyIntelCard({ address }) {
                     cursor: p.job_description ? "help" : "default",
                   }}
                 >
-                  <span style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", color: "var(--dim, #3a4a60)", fontSize: 10.5 }}>
+                  <span style={{ fontFamily: "'Geist Mono',ui-monospace,monospace", color: "var(--dim, #94a3b8)", fontSize: 10.5 }}>
                     {(p.permit_date || p.applieddate || p.issue_date || "").slice(0, 10) || "—"}
                   </span>
-                  <span style={{ color: "var(--sub, #6b7d96)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ color: "var(--sub, #475569)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {work}{bldg}
                   </span>
-                  <span style={{ color: "var(--text, #dde4ef)", fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span style={{ color: "var(--text, #0f172a)", fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {p.address || p.house_number || "—"}
                   </span>
                   <span style={{
                     textAlign: "right", fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 10.5,
-                    color: !isNaN(value) && value > 0 ? "var(--blue, #3b9eff)" : "var(--dim, #3a4a60)",
+                    color: !isNaN(value) && value > 0 ? "var(--blue, #3b9eff)" : "var(--dim, #94a3b8)",
                   }}>
                     {!isNaN(value) && value > 0 ? `$${Math.round(value / 1000)}K` : "—"}
                   </span>
                   <span style={{
                     textAlign: "right", fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 11,
-                    color: !isNaN(units) && units > 0 ? "var(--green, #34d98a)" : "var(--dim, #3a4a60)",
+                    color: !isNaN(units) && units > 0 ? "var(--green, #34d98a)" : "var(--dim, #94a3b8)",
                     fontWeight: !isNaN(units) && units > 0 ? 700 : 400,
                   }}>
                     {!isNaN(units) && units > 0 ? `+${units}` : "—"}
@@ -292,7 +292,7 @@ export default function PropertyIntelCard({ address }) {
           <div style={{
             marginTop: 6,
             fontFamily: "'Geist Mono',ui-monospace,monospace",
-            fontSize: 9.5, color: "var(--dim, #3a4a60)", letterSpacing: "0.4px",
+            fontSize: 9.5, color: "var(--dim, #94a3b8)", letterSpacing: "0.4px",
           }}>
             ▸ Hover any row for the full job description
           </div>
@@ -317,12 +317,12 @@ export default function PropertyIntelCard({ address }) {
             }}>
               AI THESIS HINT
               {zoningThesis.source && zoningThesis.source !== "template" && (
-                <span style={{ color: "var(--dim, #3a4a60)", fontWeight: 500, marginLeft: 6 }}>
+                <span style={{ color: "var(--dim, #94a3b8)", fontWeight: 500, marginLeft: 6 }}>
                   · {zoningThesis.source}
                 </span>
               )}
             </div>
-            <div style={{ fontSize: 12.5, color: "var(--text, #dde4ef)", lineHeight: 1.55 }}>
+            <div style={{ fontSize: 12.5, color: "var(--text, #0f172a)", lineHeight: 1.55 }}>
               {zoningThesis.thesis}
             </div>
           </div>
@@ -338,9 +338,9 @@ function Row({ lbl, val, mono, strong }) {
       display: "flex", justifyContent: "space-between", alignItems: "baseline",
       gap: 10, paddingBottom: 5, borderBottom: "1px solid rgba(15,23,42,0.04)",
     }}>
-      <span style={{ color: "var(--sub, #6b7d96)", fontSize: 12 }}>{lbl}</span>
+      <span style={{ color: "var(--sub, #475569)", fontSize: 12 }}>{lbl}</span>
       <span style={{
-        color: "var(--text, #dde4ef)",
+        color: "var(--text, #0f172a)",
         fontWeight: strong ? 700 : 500,
         fontFamily: mono ? "'Geist Mono',ui-monospace,monospace" : "inherit",
         textAlign: "right",

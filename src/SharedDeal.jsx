@@ -9,7 +9,7 @@ const fmtX   = n => isNaN(n) || !isFinite(n) ? "—" : `${Number(n).toFixed(2)}x
 function scoreColor(s) { return s >= 80 ? "var(--green)" : s >= 65 ? "var(--blue)" : s >= 48 ? "var(--amber)" : "var(--red)"; }
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
   .sd-wrap{min-height:100vh;background:var(--bg)}

@@ -259,7 +259,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
           <button onClick={onSkip} style={{
             marginLeft: "auto",
             background: "transparent", border: "none",
-            color: "var(--dim, #3a4a60)",
+            color: "var(--dim, #94a3b8)",
             fontFamily: "'Geist Mono',ui-monospace,monospace",
             fontSize: 10, fontWeight: 700, letterSpacing: "1px",
             cursor: "pointer", padding: 0,
@@ -271,7 +271,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
           <div style={{
             fontFamily: "'Geist',sans-serif",
             fontSize: 19, fontWeight: 800,
-            color: "var(--text, #dde4ef)",
+            color: "var(--text, #0f172a)",
             letterSpacing: "-0.4px", lineHeight: 1.2,
             marginBottom: 10,
           }}>
@@ -279,7 +279,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
           </div>
           <div style={{
             fontFamily: "'Geist',sans-serif",
-            fontSize: 14, color: "var(--sub, #6b7d96)",
+            fontSize: 14, color: "var(--sub, #475569)",
             lineHeight: 1.55, letterSpacing: "-0.1px",
           }}>
             {data.body}
@@ -309,7 +309,7 @@ function TourLayer({ step, total, data, onNext, onBack, onSkip, onComplete }) {
             border: "1px solid var(--borderf, rgba(15,23,42,0.07))",
             borderRadius: 4,
             padding: "8px 14px",
-            color: step === 0 ? "var(--dim, #3a4a60)" : "var(--sub, #6b7d96)",
+            color: step === 0 ? "var(--dim, #94a3b8)" : "var(--sub, #475569)",
             fontFamily: "'Geist Mono',ui-monospace,monospace",
             fontSize: 11, fontWeight: 700, letterSpacing: "1px",
             cursor: step === 0 ? "default" : "pointer",

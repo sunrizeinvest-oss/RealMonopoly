@@ -46,7 +46,7 @@ const DEFAULT_UNITS = [
 ];
 
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Fira+Code:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght;500;600;700;800&family=Geist+Mono:wght;500;600;700&display=swap');
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html,body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;-webkit-font-smoothing:antialiased}
   input,select{font-family:'Geist',sans-serif}
@@ -1226,8 +1226,8 @@ export default function CommercialAnalyzer() {
               summary: {
                 tiles: [
                   { label: "NOI",          value: fmtM(c.NOI) },
-                  { label: "Cap rate",     value: fmtP(c.actualCap), color: c.actualCap >= 0.06 ? "#16a34a" : "#d97706" },
-                  { label: "DSCR",         value: c.DSCR ? `${c.DSCR.toFixed(2)}x` : "—", color: c.DSCR >= 1.25 ? "#16a34a" : c.DSCR >= 1.0 ? "#d97706" : "#dc2626" },
+                  { label: "Cap rate",     value: fmtP(c.actualCap), color: c.actualCap >= 0.06 ? "#16a34a" : "#ffcc00" },
+                  { label: "DSCR",         value: c.DSCR ? `${c.DSCR.toFixed(2)}x` : "—", color: c.DSCR >= 1.25 ? "#16a34a" : c.DSCR >= 1.0 ? "#ffcc00" : "#dc2626" },
                   { label: "Cash flow",    value: fmtM(c.BTCF), color: c.BTCF >= 0 ? "#16a34a" : "#dc2626" },
                 ],
                 rows: [

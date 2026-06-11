@@ -35,7 +35,7 @@ function getDealGrade(roi, margin, aboveMAO, annualCoc) {
 
 // ─── CSS ──────────────────────────────────────────────────────────────────────
 const CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Geist:wght;500;600;700;800&family=Geist+Mono:wght;500;600;700&display=swap');
 
   .pi-root {
     min-height: 100vh;
