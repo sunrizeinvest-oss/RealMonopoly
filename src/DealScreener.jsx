@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
+import { estimateARV } from "./lib/arv";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const fmt = (n) =>
@@ -344,6 +345,16 @@ export default function DealScreener() {
           if (!r.ok) {
             results[i] = scoreLookup({ address: addr, status: "error", error: j.error || `HTTP ${r.status}` });
           } else {
+            // Compute an indicative ARV from the lookup payload using the
+            // shared shared estimator. Repair budget defaults to 0 (no rehab
+            // signal in bulk lookup); the result is "what's it worth as-is,
+            // post-cosmetic-clean" — useful for an at-a-glance flip filter.
+            const arv = estimateARV({
+              estimatedValue: j.estimatedValue,
+              repairCost: 0,
+              sqft: j.squareFootage,
+              beds: j.bedrooms,
+            });
             results[i] = scoreLookup({
               address:   j.address || addr,
               status:    "ok",
@@ -354,6 +365,8 @@ export default function DealScreener() {
               sqft:      j.squareFootage,
               zone:      j.zoning?.code || null,
               source:    j.source,
+              arv:       arv.mid || null,
+              arvConfidence: arv.confidence,
             });
           }
         } catch (e) {
@@ -390,12 +403,14 @@ export default function DealScreener() {
       const s = String(v);
       return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
-    const headers = ["Address", "Status", "Country", "Est. Value", "Rent Est.", "Implied Cap", "GRM", "Year Built", "Sqft", "Zoning", "Verdict"];
+    const headers = ["Address", "Status", "Country", "Est. Value", "ARV", "ARV Confidence", "Rent Est.", "Implied Cap", "GRM", "Year Built", "Sqft", "Zoning", "Verdict"];
     const lines = [headers.join(",")];
     for (const r of lookupRows) {
       lines.push([
         r.address, r.status, r.country || "",
-        r.value || "", r.rent || "",
+        r.value || "",
+        r.arv || "", r.arvConfidence || "",
+        r.rent || "",
         r.cap != null ? (r.cap * 100).toFixed(2) + "%" : "",
         r.grm != null ? r.grm.toFixed(2) : "",
         r.yearBuilt || "", r.sqft || "", r.zone || "",
@@ -688,6 +703,7 @@ export default function DealScreener() {
                       {[
                         { k: "address", l: "Address",    align: "left" },
                         { k: "value",   l: "Est. Value", align: "right" },
+                        { k: "arv",     l: "ARV",        align: "right" },
                         { k: "rent",    l: "Rent",       align: "right" },
                         { k: "cap",     l: "Cap Rate",   align: "right" },
                         { k: "grm",     l: "GRM",        align: "right" },
@@ -728,6 +744,12 @@ export default function DealScreener() {
                             {r.status === "pending" ? <span style={{ color: "var(--dim)" }}>…</span>
                              : r.status === "error" ? <span style={{ color: "var(--red)" }} title={r.error}>—</span>
                              : r.value ? `$${Math.round(r.value/1000)}K` : "—"}
+                          </td>
+                          <td
+                            title={r.arvConfidence ? `${r.arvConfidence.toUpperCase()} confidence — derived from estimated value` : ""}
+                            style={{ padding: "9px 12px", textAlign: "right", color: "var(--gold)", fontWeight: 700 }}
+                          >
+                            {r.arv ? `$${Math.round(r.arv/1000)}K` : "—"}
                           </td>
                           <td style={{ padding: "9px 12px", textAlign: "right", color: "var(--text)" }}>
                             {r.rent ? `$${Math.round(r.rent).toLocaleString()}` : "—"}
