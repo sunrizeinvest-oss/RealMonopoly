@@ -4,6 +4,7 @@ import { useAuth } from "./AuthContext"
 import { useDocMeta } from "./lib/seo"
 import { celebrateFirstSave } from "./lib/celebrate"
 import { estimateARV } from "./lib/arv"
+import { cachedThesisFetch } from "./lib/aiReadCache"
 import TopNav from "./components/TopNav"
 
 // ─── Formatters ──────────────────────────────────────────────────────────────
@@ -931,36 +932,45 @@ export default function PropertyIntelligence() {
 
     let cancelled = false
     setPropertyThesisLoading(true)
-    const timeoutId = setTimeout(() => {
-      fetch("/api/ai-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "deal-thesis",
-          strategy: "Property snapshot · sell + lease + zoning",
-          address: property.address || query,
-          verdict: property.estimatedValue && property.rentEstimate
-            ? `Sells for ~$${Math.round(property.estimatedValue).toLocaleString()}, leases for ~$${Math.round(property.rentEstimate).toLocaleString()}/mo`
-            : null,
-          metrics: {
-            estimatedValue: property.estimatedValue,
-            rentEstimate:   property.rentEstimate,
-            grossYield:     (property.estimatedValue && property.rentEstimate) ? (property.rentEstimate * 12) / property.estimatedValue : null,
-            bedrooms:       property.bedrooms,
-            bathrooms:      property.bathrooms,
-            sqft:           property.squareFootage,
-            yearBuilt:      property.yearBuilt,
-            propertyType:   property.propertyType,
-            zone:           zoningData?.zoning?.zone,
-            maxUnits:       zoningData?.zoning?.maxUnits,
-            maxStoreys:     zoningData?.zoning?.maxStoreys,
-          },
-        }),
-      })
-        .then(r => r.json())
-        .then(j => { if (!cancelled && j?.thesis) setPropertyThesis(j) })
-        .catch(() => {})
-        .finally(() => { if (!cancelled) setPropertyThesisLoading(false) })
+    const timeoutId = setTimeout(async () => {
+      const fingerprintInput = {
+        address: property.address || query,
+        estimatedValue: property.estimatedValue,
+        rentEstimate:   property.rentEstimate,
+        zone:           zoningData?.zoning?.zone,
+        maxUnits:       zoningData?.zoning?.maxUnits,
+      }
+      const result = await cachedThesisFetch("property", fingerprintInput, () =>
+        fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "deal-thesis",
+            strategy: "Property snapshot · sell + lease + zoning",
+            address: property.address || query,
+            verdict: property.estimatedValue && property.rentEstimate
+              ? `Sells for ~$${Math.round(property.estimatedValue).toLocaleString()}, leases for ~$${Math.round(property.rentEstimate).toLocaleString()}/mo`
+              : null,
+            metrics: {
+              estimatedValue: property.estimatedValue,
+              rentEstimate:   property.rentEstimate,
+              grossYield:     (property.estimatedValue && property.rentEstimate) ? (property.rentEstimate * 12) / property.estimatedValue : null,
+              bedrooms:       property.bedrooms,
+              bathrooms:      property.bathrooms,
+              sqft:           property.squareFootage,
+              yearBuilt:      property.yearBuilt,
+              propertyType:   property.propertyType,
+              zone:           zoningData?.zoning?.zone,
+              maxUnits:       zoningData?.zoning?.maxUnits,
+              maxStoreys:     zoningData?.zoning?.maxStoreys,
+            },
+          }),
+        }).then(r => r.json())
+      )
+      if (!cancelled) {
+        if (result) setPropertyThesis(result)
+        setPropertyThesisLoading(false)
+      }
     }, 800)
 
     return () => {

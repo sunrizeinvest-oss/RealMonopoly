@@ -107,6 +107,9 @@ const CSS = `
 
 export default function Dashboard() {
   const { user, signOut, getDeals, deleteDeal, loading } = useAuth();
+  // localStorage-backed AI Read cache (24h TTL, see src/lib/aiReadCache.js)
+  // Same util that powers the other 6 AI Read surfaces.
+  // Inline import is fine — it's a JS module, tree-shaken if unused.
   const navigate = useNavigate();
   const [supaDeals, setSupaDeals] = useState([]);
   const [localDeals, setLocalDeals] = useState([]);
@@ -199,30 +202,39 @@ export default function Dashboard() {
       }).length;
       const totalProfit = allDeals.reduce((s, d) => s + (Number(d.results?.netProfit) || 0), 0);
 
-      fetch("/api/ai-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "deal-thesis",
-          strategy: `Portfolio · ${totalDeals} saved deals`,
-          verdict: `${flipCount} flips · ${brrrrCount} BRRRRs · ${mfCount} multifamily · ${goDeals} verdict GO`,
-          metrics: {
-            totalDeals,
-            flipCount, brrrrCount, mfCount,
-            goVerdictCount: goDeals,
-            avgNetProfit:   Math.round(avgProfit) || null,
-            totalNetProfit: Math.round(totalProfit) || null,
-            recent30Days:   recent30,
-            strongestDealName:    strongest?.name || null,
-            strongestDealProfit:  Math.round(Number(strongest?.results?.netProfit) || 0) || null,
-            strongestDealVerdict: strongest?.verdict || null,
-          },
-        }),
-      })
-        .then(r => r.json())
-        .then(j => { if (!cancelled && j?.thesis) setPortfolioThesis(j); })
-        .catch(() => {})
-        .finally(() => { if (!cancelled) setPortfolioThesisLoading(false); });
+      import("./lib/aiReadCache").then(({ cachedThesisFetch }) => {
+        const fingerprintInput = {
+          totalDeals, flipCount, brrrrCount, mfCount,
+          strongestName: strongest?.name,
+          totalProfit: Math.round(totalProfit),
+        };
+        return cachedThesisFetch("portfolio", fingerprintInput, () =>
+          fetch("/api/ai-chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mode: "deal-thesis",
+              strategy: `Portfolio · ${totalDeals} saved deals`,
+              verdict: `${flipCount} flips · ${brrrrCount} BRRRRs · ${mfCount} multifamily · ${goDeals} verdict GO`,
+              metrics: {
+                totalDeals,
+                flipCount, brrrrCount, mfCount,
+                goVerdictCount: goDeals,
+                avgNetProfit:   Math.round(avgProfit) || null,
+                totalNetProfit: Math.round(totalProfit) || null,
+                recent30Days:   recent30,
+                strongestDealName:    strongest?.name || null,
+                strongestDealProfit:  Math.round(Number(strongest?.results?.netProfit) || 0) || null,
+                strongestDealVerdict: strongest?.verdict || null,
+              },
+            }),
+          }).then(r => r.json())
+        );
+      }).then(result => {
+        if (cancelled) return;
+        if (result) setPortfolioThesis(result);
+        setPortfolioThesisLoading(false);
+      });
     }, 700);
     return () => {
       cancelled = true;

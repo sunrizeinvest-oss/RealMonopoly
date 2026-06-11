@@ -4,6 +4,7 @@ import TopNav from "./components/TopNav";
 import TierGate from "./components/TierGate";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./supabase";
+import { cachedThesisFetch } from "./lib/aiReadCache";
 
 /**
  * MarketTriggers — distressed-listing radar.
@@ -83,29 +84,36 @@ export default function MarketTriggers() {
         .slice(0, 3)
         .map(t => `${t.address || "?"} (score ${t.redevScore ?? "?"}, ${t.status || "?"})`);
 
-      fetch("/api/ai-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "deal-thesis",
-          strategy: `Market Triggers scan · ${area || "area"}`,
-          verdict: Object.entries(statusCounts).map(([s, n]) => `${n} ${s}`).join(" · "),
-          metrics: {
-            triggerCount:  triggers.length,
-            avgDOM:        avg(doms),
-            maxDOM:        doms.length ? Math.max(...doms) : null,
-            avgPriceDrops: avg(drops),
-            topRedevScore: topScore,
-            avgRedevScore: avg(scores),
-            topCandidates: top3.join(" | "),
-            groundedByMls: !!mlsSource,
-          },
-        }),
-      })
-        .then(r => r.json())
-        .then(j => { if (!cancelled && j?.thesis) setScanThesis(j); })
-        .catch(() => {})
-        .finally(() => { if (!cancelled) setScanThesisLoading(false); });
+      const fingerprintInput = {
+        area, triggerCount: triggers.length,
+        statusCounts, topScore, avgDOM: avg(doms),
+        groundedByMls: !!mlsSource,
+      };
+      cachedThesisFetch("scan", fingerprintInput, () =>
+        fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "deal-thesis",
+            strategy: `Market Triggers scan · ${area || "area"}`,
+            verdict: Object.entries(statusCounts).map(([s, n]) => `${n} ${s}`).join(" · "),
+            metrics: {
+              triggerCount:  triggers.length,
+              avgDOM:        avg(doms),
+              maxDOM:        doms.length ? Math.max(...doms) : null,
+              avgPriceDrops: avg(drops),
+              topRedevScore: topScore,
+              avgRedevScore: avg(scores),
+              topCandidates: top3.join(" | "),
+              groundedByMls: !!mlsSource,
+            },
+          }),
+        }).then(r => r.json())
+      ).then(result => {
+        if (cancelled) return;
+        if (result) setScanThesis(result);
+        setScanThesisLoading(false);
+      });
     }, 600);
     return () => {
       cancelled = true;

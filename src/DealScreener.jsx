@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
 import { estimateARV } from "./lib/arv";
+import { cachedThesisFetch } from "./lib/aiReadCache";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const fmt = (n) =>
@@ -400,7 +401,7 @@ export default function DealScreener() {
     let cancelled = false;
     setBatchThesisLoading(true);
     setBatchThesis(null);
-    const timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(async () => {
       const caps   = okRows.map(r => r.cap).filter(v => v != null).sort((a, b) => a - b);
       const values = okRows.map(r => r.value).filter(v => v != null);
       const rents  = okRows.map(r => r.rent).filter(v => v != null);
@@ -411,31 +412,39 @@ export default function DealScreener() {
       const okCount     = lookupRows.filter(r => r.verdictClass === "thin").length;
       const thinCount   = lookupRows.filter(r => r.verdictClass === "pass").length;
       const errCount    = lookupRows.filter(r => r.status === "error").length;
+      const medianCap   = median(caps);
+      const medianValue = median(values);
 
-      fetch("/api/ai-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "deal-thesis",
-          strategy: `Bulk address screen · ${okRows.length} properties`,
-          verdict: `${strongCount} STRONG · ${okCount} OK · ${thinCount} THIN${errCount ? ` · ${errCount} failed lookup` : ""}`,
-          metrics: {
-            totalAddresses:    lookupRows.length,
-            successfulLookups: okRows.length,
-            failedLookups:     errCount,
-            medianCap:         median(caps),
-            minCap:            caps[0] || null,
-            maxCap:            caps[caps.length - 1] || null,
-            medianValue:       median(values),
-            avgRent:           rents.length ? Math.round(sum(rents) / rents.length) : null,
-            strongCount, okCount, thinCount,
-          },
-        }),
-      })
-        .then(r => r.json())
-        .then(j => { if (!cancelled && j?.thesis) setBatchThesis(j); })
-        .catch(() => {})
-        .finally(() => { if (!cancelled) setBatchThesisLoading(false); });
+      const fingerprintInput = {
+        totalAddresses: lookupRows.length,
+        successfulLookups: okRows.length,
+        medianCap, medianValue,
+        strongCount, okCount, thinCount,
+      };
+      const result = await cachedThesisFetch("batch", fingerprintInput, () =>
+        fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "deal-thesis",
+            strategy: `Bulk address screen · ${okRows.length} properties`,
+            verdict: `${strongCount} STRONG · ${okCount} OK · ${thinCount} THIN${errCount ? ` · ${errCount} failed lookup` : ""}`,
+            metrics: {
+              totalAddresses:    lookupRows.length,
+              successfulLookups: okRows.length,
+              failedLookups:     errCount,
+              medianCap, minCap: caps[0] || null, maxCap: caps[caps.length - 1] || null,
+              medianValue,
+              avgRent:           rents.length ? Math.round(sum(rents) / rents.length) : null,
+              strongCount, okCount, thinCount,
+            },
+          }),
+        }).then(r => r.json())
+      );
+      if (!cancelled) {
+        if (result) setBatchThesis(result);
+        setBatchThesisLoading(false);
+      }
     }, 500);
     return () => {
       cancelled = true;

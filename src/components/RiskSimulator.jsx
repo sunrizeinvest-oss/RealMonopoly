@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from "react";
 import { runMonteCarlo, DEFAULT_DISTRIBUTIONS } from "../lib/monteCarlo";
 import { generateTier2Report } from "../lib/tier2Report";
+import { cachedThesisFetch } from "../lib/aiReadCache";
 
 // Institutional-style preset scenarios. Each maps to a delta from DEFAULT_DISTRIBUTIONS.
 // Bull = optimistic priors, Bear = stressed priors. Base = the defaults.
@@ -573,33 +574,41 @@ function Results({ results, target }) {
     let cancelled = false;
     setThesisLoading(true);
     setThesis(null);
-    const timeoutId = setTimeout(() => {
-      fetch("/api/ai-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "deal-thesis",
-          strategy: "Monte Carlo · 5-year hold",
-          verdict: `IRR P10/P50/P90: ${fmtPct(irr.p10)} / ${fmtPct(irr.p50)} / ${fmtPct(irr.p90)}`,
-          metrics: {
-            irrP10:        irr.p10,
-            irrP50:        irr.p50,
-            irrP90:        irr.p90,
-            eqMultP10:     eqMult.p10,
-            eqMultP50:     eqMult.p50,
-            minDscrP10:    minDSCR.p10,
-            minDscrP50:    minDSCR.p50,
-            probPositiveIRR:    probabilities.positiveIRR,
-            probMeetsDSCR125:   probabilities.meetsDSCR125,
-            probMeetsIRRTarget: probabilities.meetsIRRTarget,
-            targetIRR:     target,
-          },
-        }),
-      })
-        .then(r => r.json())
-        .then(j => { if (!cancelled && j?.thesis) setThesis(j); })
-        .catch(() => {})
-        .finally(() => { if (!cancelled) setThesisLoading(false); });
+    const timeoutId = setTimeout(async () => {
+      const fingerprintInput = {
+        irrP10: irr.p10, irrP50: irr.p50, irrP90: irr.p90,
+        eqMultP50: eqMult.p50, minDscrP50: minDSCR.p50,
+        probMeetsIRRTarget: probabilities.meetsIRRTarget,
+        targetIRR: target,
+      };
+      const result = await cachedThesisFetch("risk", fingerprintInput, () =>
+        fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "deal-thesis",
+            strategy: "Monte Carlo · 5-year hold",
+            verdict: `IRR P10/P50/P90: ${fmtPct(irr.p10)} / ${fmtPct(irr.p50)} / ${fmtPct(irr.p90)}`,
+            metrics: {
+              irrP10:        irr.p10,
+              irrP50:        irr.p50,
+              irrP90:        irr.p90,
+              eqMultP10:     eqMult.p10,
+              eqMultP50:     eqMult.p50,
+              minDscrP10:    minDSCR.p10,
+              minDscrP50:    minDSCR.p50,
+              probPositiveIRR:    probabilities.positiveIRR,
+              probMeetsDSCR125:   probabilities.meetsDSCR125,
+              probMeetsIRRTarget: probabilities.meetsIRRTarget,
+              targetIRR:     target,
+            },
+          }),
+        }).then(r => r.json())
+      );
+      if (!cancelled) {
+        if (result) setThesis(result);
+        setThesisLoading(false);
+      }
     }, 400);
     return () => {
       cancelled = true;

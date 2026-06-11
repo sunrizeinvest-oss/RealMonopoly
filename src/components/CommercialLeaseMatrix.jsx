@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { cachedThesisFetch } from "../lib/aiReadCache";
 
 /**
  * CommercialLeaseMatrix — side-by-side comparable-property table.
@@ -165,7 +166,7 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
     let cancelled = false;
     setCompsThesisLoading(true);
     setCompsThesis(null);
-    const timeoutId = setTimeout(() => {
+    const timeoutId = setTimeout(async () => {
       const tgtPrice = Number(target.price);
       const tgtSqft  = Number(target.sqft);
       const tgtUnits = Number(target.units);
@@ -176,34 +177,40 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
       const avgPpu   = avgRow.ppu != null ? Math.round(avgRow.ppu) : null;
       const avgCap   = avgRow.capRate != null ? avgRow.capRate : null;
 
-      fetch("/api/ai-chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mode: "deal-thesis",
-          strategy: "Comp matrix · target vs comps",
-          address: target.address,
-          verdict: `${comps.length} comp${comps.length === 1 ? "" : "s"} · target cap ${tgtCap ? (tgtCap*100).toFixed(1)+"%" : "n/a"}, comp avg ${avgCap ? (avgCap*100).toFixed(1)+"%" : "n/a"}`,
-          metrics: {
-            targetPrice: tgtPrice || null,
-            targetSqft:  tgtSqft  || null,
-            targetUnits: tgtUnits || null,
-            targetPsf:   tgtPsf,
-            targetPpu:   tgtPpu,
-            targetCap:   tgtCap || null,
-            avgPsf, avgPpu, avgCap,
-            compCount: comps.length,
-            // Spread of comp caps lets Claude judge "is this market tight or loose"
-            minCap: Math.min(...comps.map(c => Number(c.capRate) || Infinity).filter(Number.isFinite)) || null,
-            maxCap: Math.max(...comps.map(c => Number(c.capRate) || -Infinity).filter(Number.isFinite)) || null,
-            mlsGrounded: !!mlsSource,
-          },
-        }),
-      })
-        .then(r => r.json())
-        .then(j => { if (!cancelled && j?.thesis) setCompsThesis(j); })
-        .catch(() => {})
-        .finally(() => { if (!cancelled) setCompsThesisLoading(false); });
+      const fingerprintInput = {
+        address: target.address,
+        tgtPrice, tgtCap, tgtPsf, tgtPpu,
+        avgPsf, avgPpu, avgCap, compCount: comps.length,
+      };
+      const result = await cachedThesisFetch("comps", fingerprintInput, () =>
+        fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "deal-thesis",
+            strategy: "Comp matrix · target vs comps",
+            address: target.address,
+            verdict: `${comps.length} comp${comps.length === 1 ? "" : "s"} · target cap ${tgtCap ? (tgtCap*100).toFixed(1)+"%" : "n/a"}, comp avg ${avgCap ? (avgCap*100).toFixed(1)+"%" : "n/a"}`,
+            metrics: {
+              targetPrice: tgtPrice || null,
+              targetSqft:  tgtSqft  || null,
+              targetUnits: tgtUnits || null,
+              targetPsf:   tgtPsf,
+              targetPpu:   tgtPpu,
+              targetCap:   tgtCap || null,
+              avgPsf, avgPpu, avgCap,
+              compCount: comps.length,
+              minCap: Math.min(...comps.map(c => Number(c.capRate) || Infinity).filter(Number.isFinite)) || null,
+              maxCap: Math.max(...comps.map(c => Number(c.capRate) || -Infinity).filter(Number.isFinite)) || null,
+              mlsGrounded: !!mlsSource,
+            },
+          }),
+        }).then(r => r.json())
+      );
+      if (!cancelled) {
+        if (result) setCompsThesis(result);
+        setCompsThesisLoading(false);
+      }
     }, 600);
     return () => {
       cancelled = true;
