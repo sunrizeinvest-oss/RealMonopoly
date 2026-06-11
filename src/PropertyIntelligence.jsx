@@ -920,47 +920,53 @@ export default function PropertyIntelligence() {
   }, [chatMessages, chatLoading])
 
   // ─── AI Property Read — auto-fires when property data lands ───────────────
-  // Sweeping 2-3 sentence Claude interpretation: "what is this property,
-  // what does the market say it's worth, what's the strongest play." Uses
-  // deal-thesis mode for a fast Haiku call. Cached per-address; doesn't
-  // refire on re-renders unless the user searches a new property.
+  // Sweeping 2-3 sentence Claude interpretation. Debounced 800ms so when
+  // property data + zoning data land back-to-back (typical Canadian flow:
+  // RentCast/CMHC at T+800ms, zoning at T+1200ms), we don't fire two Claude
+  // calls — the latest land wins. Effect cleanup cancels any in-flight
+  // timer + flags any in-flight fetch as cancelled.
   useEffect(() => {
     if (!property || property.error) return
-    // Wait until at least one of sell or lease value is known — without
-    // either, there's nothing meaningful to read.
     if (!property.estimatedValue && !property.rentEstimate) return
+
     let cancelled = false
     setPropertyThesisLoading(true)
-    fetch("/api/ai-chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        mode: "deal-thesis",
-        strategy: "Property snapshot · sell + lease + zoning",
-        address: property.address || query,
-        verdict: property.estimatedValue && property.rentEstimate
-          ? `Sells for ~$${Math.round(property.estimatedValue).toLocaleString()}, leases for ~$${Math.round(property.rentEstimate).toLocaleString()}/mo`
-          : null,
-        metrics: {
-          estimatedValue: property.estimatedValue,
-          rentEstimate:   property.rentEstimate,
-          grossYield:     (property.estimatedValue && property.rentEstimate) ? (property.rentEstimate * 12) / property.estimatedValue : null,
-          bedrooms:       property.bedrooms,
-          bathrooms:      property.bathrooms,
-          sqft:           property.squareFootage,
-          yearBuilt:      property.yearBuilt,
-          propertyType:   property.propertyType,
-          zone:           zoningData?.zoning?.zone,
-          maxUnits:       zoningData?.zoning?.maxUnits,
-          maxStoreys:     zoningData?.zoning?.maxStoreys,
-        },
-      }),
-    })
-      .then(r => r.json())
-      .then(j => { if (!cancelled && j?.thesis) setPropertyThesis(j) })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setPropertyThesisLoading(false) })
-    return () => { cancelled = true }
+    const timeoutId = setTimeout(() => {
+      fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "deal-thesis",
+          strategy: "Property snapshot · sell + lease + zoning",
+          address: property.address || query,
+          verdict: property.estimatedValue && property.rentEstimate
+            ? `Sells for ~$${Math.round(property.estimatedValue).toLocaleString()}, leases for ~$${Math.round(property.rentEstimate).toLocaleString()}/mo`
+            : null,
+          metrics: {
+            estimatedValue: property.estimatedValue,
+            rentEstimate:   property.rentEstimate,
+            grossYield:     (property.estimatedValue && property.rentEstimate) ? (property.rentEstimate * 12) / property.estimatedValue : null,
+            bedrooms:       property.bedrooms,
+            bathrooms:      property.bathrooms,
+            sqft:           property.squareFootage,
+            yearBuilt:      property.yearBuilt,
+            propertyType:   property.propertyType,
+            zone:           zoningData?.zoning?.zone,
+            maxUnits:       zoningData?.zoning?.maxUnits,
+            maxStoreys:     zoningData?.zoning?.maxStoreys,
+          },
+        }),
+      })
+        .then(r => r.json())
+        .then(j => { if (!cancelled && j?.thesis) setPropertyThesis(j) })
+        .catch(() => {})
+        .finally(() => { if (!cancelled) setPropertyThesisLoading(false) })
+    }, 800)
+
+    return () => {
+      cancelled = true
+      clearTimeout(timeoutId)
+    }
   }, [property?.address, property?.estimatedValue, property?.rentEstimate, zoningData?.zoning?.zone])
 
   // ─── Property Search ───────────────────────────────────────────────────────

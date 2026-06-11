@@ -562,9 +562,10 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
 function Results({ results, target }) {
   const { irr, eqMult, minDSCR, probabilities, distributions } = results;
 
-  // AI Read — 1-2 sentence Claude interpretation of P10/P50/P90.
-  // Fires once when results land; cached per-result so it doesn't refire
-  // on re-renders. Falls back silently if AI is unavailable.
+  // AI Read — 1-2 sentence Claude interpretation of P10/P50/P90. Debounced
+  // 400ms so rapid re-runs (user adjusts priors + re-clicks RUN twice in a
+  // row) only fire one Claude call for the latest result. Cleanup cancels
+  // the timer + flags any in-flight fetch as stale.
   const [thesis, setThesis] = useState(null);
   const [thesisLoading, setThesisLoading] = useState(false);
   useEffect(() => {
@@ -572,33 +573,38 @@ function Results({ results, target }) {
     let cancelled = false;
     setThesisLoading(true);
     setThesis(null);
-    fetch("/api/ai-chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        mode: "deal-thesis",
-        strategy: "Monte Carlo · 5-year hold",
-        verdict: `IRR P10/P50/P90: ${fmtPct(irr.p10)} / ${fmtPct(irr.p50)} / ${fmtPct(irr.p90)}`,
-        metrics: {
-          irrP10:        irr.p10,
-          irrP50:        irr.p50,
-          irrP90:        irr.p90,
-          eqMultP10:     eqMult.p10,
-          eqMultP50:     eqMult.p50,
-          minDscrP10:    minDSCR.p10,
-          minDscrP50:    minDSCR.p50,
-          probPositiveIRR:    probabilities.positiveIRR,
-          probMeetsDSCR125:   probabilities.meetsDSCR125,
-          probMeetsIRRTarget: probabilities.meetsIRRTarget,
-          targetIRR:     target,
-        },
-      }),
-    })
-      .then(r => r.json())
-      .then(j => { if (!cancelled && j?.thesis) setThesis(j); })
-      .catch(() => {})
-      .finally(() => { if (!cancelled) setThesisLoading(false); });
-    return () => { cancelled = true; };
+    const timeoutId = setTimeout(() => {
+      fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "deal-thesis",
+          strategy: "Monte Carlo · 5-year hold",
+          verdict: `IRR P10/P50/P90: ${fmtPct(irr.p10)} / ${fmtPct(irr.p50)} / ${fmtPct(irr.p90)}`,
+          metrics: {
+            irrP10:        irr.p10,
+            irrP50:        irr.p50,
+            irrP90:        irr.p90,
+            eqMultP10:     eqMult.p10,
+            eqMultP50:     eqMult.p50,
+            minDscrP10:    minDSCR.p10,
+            minDscrP50:    minDSCR.p50,
+            probPositiveIRR:    probabilities.positiveIRR,
+            probMeetsDSCR125:   probabilities.meetsDSCR125,
+            probMeetsIRRTarget: probabilities.meetsIRRTarget,
+            targetIRR:     target,
+          },
+        }),
+      })
+        .then(r => r.json())
+        .then(j => { if (!cancelled && j?.thesis) setThesis(j); })
+        .catch(() => {})
+        .finally(() => { if (!cancelled) setThesisLoading(false); });
+    }, 400);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
   }, [results]);
 
   return (
