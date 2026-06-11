@@ -1448,8 +1448,8 @@ export default function FlipCalc() {
         {/* Header */}
         <div style={{ background: "#f8fafc", padding: "16px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid rgba(15,23,42,0.06)" }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: -0.5 }}>
-              <span style={{ color: "var(--blue)" }}>Real</span> Deal
+            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--text)", letterSpacing: -0.5 }}>
+              <span style={{ color: "var(--blue)" }}>Rize</span>AI
             </div>
             <div style={{ fontSize: 10, color: "var(--sub)", letterSpacing: 1, textTransform: "uppercase", marginTop: 1 }}>Property Analyzer</div>
           </div>
@@ -1552,7 +1552,7 @@ export default function FlipCalc() {
 
           {/* Upgrade prompt */}
           <div style={{ background: "#f8fafc", borderRadius: 16, padding: "20px 22px", textAlign: "center" }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "#fff", marginBottom: 6 }}>Want the full picture?</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>Want the full picture?</div>
             <div style={{ fontSize: 13, color: "var(--sub)", marginBottom: 16, lineHeight: 1.6 }}>Advanced Mode adds your exact loan terms, all closing costs, holding costs, and gives you a full deal grade with detailed breakdown.</div>
             <button onClick={() => setMode("advanced")} style={{ background: "var(--blue)", border: "none", borderRadius: 10, padding: "12px 28px", color: "#fff", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
               Open Full Analysis →
@@ -1592,8 +1592,8 @@ export default function FlipCalc() {
       <div className="flip-sidebar" style={{ width: 230, background: "#f8fafc", flexShrink: 0, display: "flex", flexDirection: "column", position: "sticky", top: 50, height: "calc(100vh - 50px)", overflowY: "auto" }}>
         {/* Logo */}
         <div style={{ padding: "24px 20px 20px", borderBottom: "1px solid rgba(15,23,42,0.07)" }}>
-          <div style={{ fontSize: 18, fontWeight: 800, color: "#fff", letterSpacing: -0.5 }}>
-            <span style={{ color: "var(--blue)" }}>Flip</span>Analyzer
+          <div style={{ fontSize: 18, fontWeight: 800, color: "var(--text)", letterSpacing: -0.5 }}>
+            <span style={{ color: "var(--blue)" }}>Rize</span>AI
           </div>
           <div style={{ fontSize: 10, color: "var(--dim)", letterSpacing: 1.2, marginTop: 3, textTransform: "uppercase" }}>Real Estate Deal Calculator</div>
           {/* Country Toggle */}
@@ -1797,7 +1797,7 @@ export default function FlipCalc() {
         {tab === "inputs" && (
           <div>
             {/* Quick Analyze */}
-            <div style={{ background: "linear-gradient(135deg, #0f172a 0%, #134e4a 100%)", borderRadius: 16, padding: "22px 24px", marginBottom: 24, boxShadow: "0 4px 16px rgba(0,0,0,0.12)" }}>
+            <div style={{ background: "linear-gradient(135deg, rgba(30,64,175,0.08) 0%, rgba(30,64,175,0.02) 100%)", border: "1px solid rgba(30,64,175,0.15)", borderRadius: 16, padding: "22px 24px", marginBottom: 24, boxShadow: "0 1px 3px rgba(15,23,42,0.05)" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
                 <span style={{ background: "var(--blue)", color: "#fff", borderRadius: 6, padding: "3px 9px", fontSize: 10, fontWeight: 800, letterSpacing: 0.8 }}>QUICK ANALYZE</span>
                 <span style={{ fontSize: 12, color: "var(--sub)" }}>Enter just 4 numbers for an instant deal snapshot — fill in the full steps below for a precise analysis</span>
