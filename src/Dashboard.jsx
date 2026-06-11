@@ -114,6 +114,10 @@ export default function Dashboard() {
   const [filter, setFilter] = useState("all");
   const [deletingId, setDeletingId] = useState(null);
   const [copied, setCopied] = useState(null);
+  // AI Read on the portfolio — fires once after deals load. Debounced 700ms
+  // so re-renders don't churn Claude. Same deal-thesis mode used elsewhere.
+  const [portfolioThesis, setPortfolioThesis] = useState(null);
+  const [portfolioThesisLoading, setPortfolioThesisLoading] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) { navigate("/analyze"); return; }
@@ -177,6 +181,55 @@ export default function Dashboard() {
   const brrrrCount = allDeals.filter(d => d.type === "brrrr").length;
   const mfCount = allDeals.filter(d => d.type === "multifamily").length;
 
+  // Auto-fire portfolio AI Read when deals are loaded. ≥3 needed so a
+  // single saved deal doesn't generate a weird "your portfolio is 1 deal"
+  // summary. Debounced 700ms so re-renders / refreshes don't churn Claude.
+  useEffect(() => {
+    if (dealsLoading || allDeals.length < 3) return;
+    let cancelled = false;
+    setPortfolioThesisLoading(true);
+    setPortfolioThesis(null);
+    const timeoutId = setTimeout(() => {
+      const strongest = [...allDeals].sort((a, b) =>
+        (Number(b.results?.netProfit) || 0) - (Number(a.results?.netProfit) || 0)
+      )[0];
+      const recent30 = allDeals.filter(d => {
+        const t = new Date(d.savedAt).getTime();
+        return t && Date.now() - t < 30 * 24 * 60 * 60 * 1000;
+      }).length;
+      const totalProfit = allDeals.reduce((s, d) => s + (Number(d.results?.netProfit) || 0), 0);
+
+      fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "deal-thesis",
+          strategy: `Portfolio · ${totalDeals} saved deals`,
+          verdict: `${flipCount} flips · ${brrrrCount} BRRRRs · ${mfCount} multifamily · ${goDeals} verdict GO`,
+          metrics: {
+            totalDeals,
+            flipCount, brrrrCount, mfCount,
+            goVerdictCount: goDeals,
+            avgNetProfit:   Math.round(avgProfit) || null,
+            totalNetProfit: Math.round(totalProfit) || null,
+            recent30Days:   recent30,
+            strongestDealName:    strongest?.name || null,
+            strongestDealProfit:  Math.round(Number(strongest?.results?.netProfit) || 0) || null,
+            strongestDealVerdict: strongest?.verdict || null,
+          },
+        }),
+      })
+        .then(r => r.json())
+        .then(j => { if (!cancelled && j?.thesis) setPortfolioThesis(j); })
+        .catch(() => {})
+        .finally(() => { if (!cancelled) setPortfolioThesisLoading(false); });
+    }, 700);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [dealsLoading, allDeals.length, flipCount, brrrrCount, mfCount]);
+
   function deleteLocal(id) {
     const updated = localDeals.filter(d => d.id !== id);
     setLocalDeals(updated);
@@ -233,6 +286,41 @@ export default function Dashboard() {
             {totalDeals} deal{totalDeals !== 1 ? "s" : ""} tracked across {[flipCount && "Flip", brrrrCount && "BRRRR", mfCount && "Multifamily"].filter(Boolean).join(", ") || "all tools"}
           </div>
         </div>
+
+        {/* ── AI Read on the portfolio — auto-fires once deals load.
+            Sweeping 2-3 sentence read on the mix, strongest deal, and
+            recent activity. Only shows when ≥3 saved deals exist so a
+            single deal doesn't get a weird summary. */}
+        {(portfolioThesisLoading || portfolioThesis?.thesis) && (
+          <div style={{
+            marginBottom: 28,
+            padding: "14px 18px",
+            background: "rgba(0,102,204,0.05)",
+            border: "1px solid rgba(0,102,204,0.22)",
+            borderLeft: "3px solid var(--blue)",
+            borderRadius: 8,
+          }}>
+            <div style={{
+              fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+              color: "var(--blue)", letterSpacing: "1.3px", marginBottom: 7,
+            }}>
+              ▸ AI READ · PORTFOLIO {portfolioThesis?.source && portfolioThesis.source !== "template" && (
+                <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4 }}>
+                  · {portfolioThesis.source}
+                </span>
+              )}
+            </div>
+            {portfolioThesisLoading && !portfolioThesis ? (
+              <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>
+                Claude is reading your pipeline…
+              </div>
+            ) : (
+              <div style={{ fontSize: 13.5, color: "var(--text)", lineHeight: 1.6 }}>
+                {portfolioThesis.thesis}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Stats */}
         {totalDeals > 0 && (
