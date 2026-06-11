@@ -175,7 +175,7 @@ export default function Pricing() {
               },
               {
                 plan: "scale", label: "Scale", price: "$299", per: "per month",
-                color: "var(--purple)",
+                color: "var(--gold)",
                 blurb: "Commercial brokers, land developers, wholesalers.",
                 features: [
                   "Everything in Pro · unlimited",
@@ -189,15 +189,20 @@ export default function Pricing() {
                 cta: "Upgrade to Scale →",
                 action: () => handleUpgrade("scale"),
                 highlight: false,
+                premium: true,  // marks the card for gold "PREMIUM" ribbon
               },
             ].map(tier => (
               <div key={tier.plan} style={{
-                background: "var(--card)",
-                border: `1px solid ${tier.highlight ? tier.color : "var(--borderf)"}`,
+                background: tier.premium ? "linear-gradient(180deg, rgba(255,204,0,0.06) 0%, var(--card) 60%)" : "var(--card)",
+                border: `1px solid ${tier.premium || tier.highlight ? tier.color : "var(--borderf)"}`,
                 borderRadius: 8,
                 padding: 22,
                 display: "flex", flexDirection: "column",
-                boxShadow: tier.highlight ? `0 0 0 1px ${tier.color}55, 0 18px 56px rgba(0,0,0,0.45)` : "none",
+                boxShadow: tier.premium
+                  ? `0 0 0 1px ${tier.color}66, 0 24px 64px rgba(255,204,0,0.18)`
+                  : tier.highlight
+                    ? `0 0 0 1px ${tier.color}55, 0 18px 56px rgba(0,102,204,0.15)`
+                    : "none",
                 position: "relative",
               }}>
                 {tier.highlight && (
@@ -209,6 +214,17 @@ export default function Pricing() {
                     padding: "3px 9px", borderRadius: 3,
                   }}>
                     MOST POPULAR
+                  </div>
+                )}
+                {tier.premium && (
+                  <div style={{
+                    position: "absolute", top: -10, left: 16,
+                    background: tier.color, color: "#0f172a",
+                    fontFamily: "'Geist Mono',ui-monospace,monospace",
+                    fontSize: 9.5, fontWeight: 800, letterSpacing: "1.3px",
+                    padding: "3px 10px", borderRadius: 3,
+                  }}>
+                    ★ PREMIUM
                   </div>
                 )}
                 <div style={{

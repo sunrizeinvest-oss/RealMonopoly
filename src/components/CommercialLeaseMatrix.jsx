@@ -373,10 +373,11 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
           <span
             title={`${mlsSource.anchors} live listings from ${mlsSource.provider} anchored the AI-generated comps`}
             style={{
-              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
-              color: "var(--amber)", letterSpacing: "0.8px",
-              border: "1px solid rgba(240,160,48,0.4)", borderRadius: 3,
-              padding: "2px 7px",
+              fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 800,
+              background: "var(--gold)", color: "#0f172a",
+              letterSpacing: "0.8px",
+              border: "1px solid var(--gold)", borderRadius: 3,
+              padding: "2px 8px",
             }}
           >
             ⌖ GROUNDED · {mlsSource.provider.toUpperCase()} ({mlsSource.anchors})

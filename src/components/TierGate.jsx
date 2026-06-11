@@ -47,15 +47,18 @@ export default function TierGate({
       }}>
         <span style={{
           fontFamily: "'Geist Mono',ui-monospace,monospace",
-          fontSize: 10.5, fontWeight: 700,
-          padding: "3px 8px",
-          background: `${color}18`,
-          color,
+          fontSize: 10.5, fontWeight: 800,
+          padding: "3px 9px",
+          // Gold-tier badge wants dark text on a gold fill for legibility
+          // (gold-on-light contrast is too low). Other tiers stay with the
+          // accent-on-tinted-bg pattern.
+          background: tier === TIER.SCALE ? color : `${color}18`,
+          color: tier === TIER.SCALE ? "#0f172a" : color,
           border: `1px solid ${color}`,
           borderRadius: 3,
           letterSpacing: "1.2px",
         }}>
-          🔒 {tierLabel.toUpperCase()} · {priceLabel}
+          {tier === TIER.SCALE ? "★" : "🔒"} {tierLabel.toUpperCase()} · {priceLabel}
         </span>
         {feature && (
           <span style={{

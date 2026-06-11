@@ -420,11 +420,11 @@ export default function MarketTriggers() {
           <div style={{
             display: "inline-flex", alignItems: "center", gap: 8,
             padding: "6px 12px", marginBottom: 14,
-            background: "rgba(240,160,48,0.06)",
-            border: "1px solid rgba(240,160,48,0.3)",
+            background: "rgba(255,204,0,0.15)",
+            border: "1px solid var(--gold)",
             borderRadius: 3,
-            fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
-            color: "var(--amber)", letterSpacing: "1px",
+            fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 800,
+            color: "#0f172a", letterSpacing: "1px",
           }}>
             ⌖ GROUNDED · {mlsSource.provider.toUpperCase()} · {mlsSource.anchors} STALE LISTING{mlsSource.anchors === 1 ? "" : "S"} ANCHORED
           </div>

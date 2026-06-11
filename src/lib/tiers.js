@@ -113,5 +113,5 @@ export const TIER_PRICE_LABEL = {
 export const TIER_COLOR = {
   [TIER.FREE]:  "var(--sub)",
   [TIER.PRO]:   "var(--blue)",
-  [TIER.SCALE]: "var(--purple)",
+  [TIER.SCALE]: "var(--gold)",
 };
