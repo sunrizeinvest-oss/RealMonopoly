@@ -90,6 +90,10 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
   // telling the user which provider supplied the anchors and how many.
   const [mlsSource, setMlsSource] = useState(null);  // null | { provider, anchors }
   const [error, setError] = useState(null);
+  // AI Read on the comp set — fires once when ≥2 comps are present alongside
+  // the target. Same debounced auto-fire pattern as the other surfaces.
+  const [compsThesis, setCompsThesis] = useState(null);
+  const [compsThesisLoading, setCompsThesisLoading] = useState(false);
 
   // Mirror the comps array up to the parent so siblings (e.g. RiskSimulator's
   // IC Report PDF) can include them. Parent stays out of comp ownership.
@@ -152,6 +156,60 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
     }
     return avg;
   }, [comps]);
+
+  // Auto-fire AI Read on the comp set. ≥2 comps required so a single comp
+  // doesn't generate a "1 vs target" read. 600ms debounce so adding multiple
+  // comps in quick succession (e.g., AI generate returns 4) fires one call.
+  useEffect(() => {
+    if (!target?.address || comps.length < 2) return;
+    let cancelled = false;
+    setCompsThesisLoading(true);
+    setCompsThesis(null);
+    const timeoutId = setTimeout(() => {
+      const tgtPrice = Number(target.price);
+      const tgtSqft  = Number(target.sqft);
+      const tgtUnits = Number(target.units);
+      const tgtCap   = Number(target.capRate);
+      const tgtPsf   = (tgtPrice && tgtSqft) ? Math.round(tgtPrice / tgtSqft) : null;
+      const tgtPpu   = (tgtPrice && tgtUnits) ? Math.round(tgtPrice / tgtUnits) : null;
+      const avgPsf   = avgRow.psf != null ? Math.round(avgRow.psf) : null;
+      const avgPpu   = avgRow.ppu != null ? Math.round(avgRow.ppu) : null;
+      const avgCap   = avgRow.capRate != null ? avgRow.capRate : null;
+
+      fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "deal-thesis",
+          strategy: "Comp matrix · target vs comps",
+          address: target.address,
+          verdict: `${comps.length} comp${comps.length === 1 ? "" : "s"} · target cap ${tgtCap ? (tgtCap*100).toFixed(1)+"%" : "n/a"}, comp avg ${avgCap ? (avgCap*100).toFixed(1)+"%" : "n/a"}`,
+          metrics: {
+            targetPrice: tgtPrice || null,
+            targetSqft:  tgtSqft  || null,
+            targetUnits: tgtUnits || null,
+            targetPsf:   tgtPsf,
+            targetPpu:   tgtPpu,
+            targetCap:   tgtCap || null,
+            avgPsf, avgPpu, avgCap,
+            compCount: comps.length,
+            // Spread of comp caps lets Claude judge "is this market tight or loose"
+            minCap: Math.min(...comps.map(c => Number(c.capRate) || Infinity).filter(Number.isFinite)) || null,
+            maxCap: Math.max(...comps.map(c => Number(c.capRate) || -Infinity).filter(Number.isFinite)) || null,
+            mlsGrounded: !!mlsSource,
+          },
+        }),
+      })
+        .then(r => r.json())
+        .then(j => { if (!cancelled && j?.thesis) setCompsThesis(j); })
+        .catch(() => {})
+        .finally(() => { if (!cancelled) setCompsThesisLoading(false); });
+    }, 600);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeoutId);
+    };
+  }, [target?.address, comps.length, avgRow.psf, avgRow.ppu, avgRow.capRate, mlsSource?.anchors]);
 
   async function generateAI() {
     if (!target?.address) {
@@ -488,6 +546,41 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
       {columns.length === 0 && !generating && (
         <div style={{ padding: "32px 20px", textAlign: "center", color: "var(--dim)", fontSize: 13 }}>
           Add a target address in the analyzer, then click 🤖 GENERATE WITH AI for 4 starter comps — or + ADD COMP to enter them manually.
+        </div>
+      )}
+
+      {/* ── AI Read on the comp set — auto-fires when 2+ comps land
+          alongside the target. 1-2 sentence interpretation: "is the target
+          priced fair on $/sqft and $/unit vs the comps; which way does cap
+          drift relative to the avg." */}
+      {(compsThesisLoading || compsThesis?.thesis) && columns.length > 1 && (
+        <div style={{
+          margin: "0 14px 14px",
+          padding: "13px 16px",
+          background: "rgba(0,102,204,0.05)",
+          border: "1px solid rgba(0,102,204,0.22)",
+          borderLeft: "3px solid var(--blue)",
+          borderRadius: 6,
+        }}>
+          <div style={{
+            fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+            color: "var(--blue)", letterSpacing: "1.3px", marginBottom: 7,
+          }}>
+            ▸ AI READ · TARGET vs COMPS {compsThesis?.source && compsThesis.source !== "template" && (
+              <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4 }}>
+                · {compsThesis.source}
+              </span>
+            )}
+          </div>
+          {compsThesisLoading && !compsThesis ? (
+            <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>
+              Claude is comparing the comps…
+            </div>
+          ) : (
+            <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>
+              {compsThesis.thesis}
+            </div>
+          )}
         </div>
       )}
 
