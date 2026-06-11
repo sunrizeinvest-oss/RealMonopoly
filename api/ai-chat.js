@@ -73,6 +73,9 @@ export default async function handler(req, res) {
   if (req.body?.mode === "send-market-brief") {
     return handleSendMarketBrief(req, res);
   }
+  if (req.body?.mode === "unsubscribe") {
+    return handleUnsubscribe(req, res);
+  }
 
   const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -1346,10 +1349,14 @@ async function handleSendMarketBrief(req, res) {
 }
 
 // HTML template + Resend send. Returns { ok, id?, error? }.
-async function deliverMarketBrief({ to, market, items }) {
+// `userId` (optional) lets us sign a one-click unsubscribe token; if omitted
+// the footer just links to the manage-subscriptions page.
+async function deliverMarketBrief({ to, market, items, userId }) {
   const apiKey = process.env.RESEND_API_KEY;
   const from   = process.env.RESEND_FROM_EMAIL || "RizeAI <brief@rizeai.co>";
   if (!apiKey) return { ok: false, error: "Email is not configured (RESEND_API_KEY missing)." };
+  const unsubToken = userId ? signUnsubscribeToken(userId, market) : null;
+  const unsubUrl   = unsubToken ? `https://www.rizeai.co/unsubscribe?token=${encodeURIComponent(unsubToken)}` : null;
 
   const C = { bg:"#ffffff", card:"#f8fafc", text:"#0f172a", sub:"#475569", dim:"#94a3b8", blue:"#1e40af", green:"#16a34a", red:"#dc2626", amber:"#d97706" };
   const today = new Date().toLocaleDateString("en-CA", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
@@ -1389,6 +1396,7 @@ async function deliverMarketBrief({ to, market, items }) {
       RizeAI · rizeai.co<br>
       Aggregated from public RSS feeds. Verify sources before acting on any item.<br>
       <a href="https://www.rizeai.co/market-brief" style="color:${C.dim}">Manage your subscriptions →</a>
+      ${unsubUrl ? `<br><a href="${unsubUrl}" style="color:${C.dim};font-size:10px">Unsubscribe with one click</a>` : ""}
     </div>
   </div>
 </body></html>`;
@@ -1486,7 +1494,7 @@ async function handleCronMarketBrief(req, res) {
       if (!email) throw new Error("user has no email");
 
       const items = briefByMarket[s.market] || [];
-      const delivery = await deliverMarketBrief({ to: email, market: s.market, items });
+      const delivery = await deliverMarketBrief({ to: email, market: s.market, items, userId: s.user_id });
       if (!delivery.ok) throw new Error(delivery.error || "send failed");
       out.sentTo = email;
       out.count = delivery.count;
@@ -1516,4 +1524,97 @@ async function handleCronMarketBrief(req, res) {
   };
   console.log("[cron-market-brief] complete:", JSON.stringify(summary).slice(0, 800));
   return res.status(200).json(summary);
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   Unsubscribe — HMAC-signed one-click compliance link
+//
+//   Embedded in every market-brief and trigger-digest email. No auth
+//   required to click; the signed token IS the auth. Format:
+//
+//     {"u": user_id, "m": market | "*", "t": timestamp}.<hex-hmac>
+//
+//   The body is base64url, the hmac uses CRON_SECRET as the key. Token
+//   stays valid for 90 days from issue (re-signed automatically on every
+//   email send). Calls handleUnsubscribe to flip enabled=false on the
+//   matching subscription(s).
+// ──────────────────────────────────────────────────────────────────────
+
+import crypto from "node:crypto";
+
+function b64url(buf) {
+  return Buffer.from(buf).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function b64urlDecode(s) {
+  s = s.replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  return Buffer.from(s, "base64").toString("utf8");
+}
+
+export function signUnsubscribeToken(userId, market = "*") {
+  const secret = process.env.CRON_SECRET || "rizeai-fallback-please-set-CRON_SECRET";
+  const payload = JSON.stringify({ u: userId, m: market, t: Date.now() });
+  const body = b64url(payload);
+  const sig = crypto.createHmac("sha256", secret).update(body).digest("hex").slice(0, 24);
+  return `${body}.${sig}`;
+}
+
+function verifyUnsubscribeToken(token) {
+  if (!token || typeof token !== "string" || !token.includes(".")) return null;
+  const [body, sig] = token.split(".");
+  if (!body || !sig) return null;
+  const secret = process.env.CRON_SECRET || "rizeai-fallback-please-set-CRON_SECRET";
+  const expectedSig = crypto.createHmac("sha256", secret).update(body).digest("hex").slice(0, 24);
+  if (sig !== expectedSig) return null;
+  try {
+    const payload = JSON.parse(b64urlDecode(body));
+    const ageMs = Date.now() - (payload.t || 0);
+    // 90-day validity window — generous for an unsubscribe link
+    if (ageMs > 90 * 24 * 60 * 60 * 1000) return null;
+    return payload;
+  } catch { return null; }
+}
+
+async function handleUnsubscribe(req, res) {
+  const { token } = req.body || {};
+  const payload = verifyUnsubscribeToken(token);
+  if (!payload) {
+    return res.status(400).json({ ok: false, error: "Invalid or expired unsubscribe link." });
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) {
+    return res.status(503).json({ ok: false, error: "Backend not configured." });
+  }
+  const sbHeaders = {
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+    "Content-Type": "application/json",
+    Prefer: "return=representation",
+  };
+
+  // m="*" → unsubscribe from every email-enabled subscription for this user.
+  // m="calgary" / etc → just that market.
+  const marketFilter = payload.m && payload.m !== "*" ? `&market=eq.${encodeURIComponent(payload.m)}` : "";
+  try {
+    const r = await fetch(
+      `${supabaseUrl}/rest/v1/market_subscriptions?user_id=eq.${encodeURIComponent(payload.u)}${marketFilter}`,
+      { method: "PATCH", headers: sbHeaders, body: JSON.stringify({ enabled: false }) }
+    );
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      console.error("[unsubscribe] Supabase PATCH failed:", r.status, errBody.slice(0, 200));
+      return res.status(502).json({ ok: false, error: "Could not update subscription." });
+    }
+    const rows = await r.json().catch(() => []);
+    return res.status(200).json({
+      ok: true,
+      market: payload.m,
+      affected: Array.isArray(rows) ? rows.length : 0,
+    });
+  } catch (e) {
+    console.error("[unsubscribe] fetch error:", e.message);
+    return res.status(504).json({ ok: false, error: e.message });
+  }
 }

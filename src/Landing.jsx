@@ -1521,7 +1521,7 @@ export default function Landing() {
           <div style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", marginBottom: 10, letterSpacing: "-0.5px" }}>Got a GO verdict? <span style={{ color: "var(--blue)" }}>Get it funded.</span></div>
           <p style={{ fontSize: 14, color: "var(--sub)", marginBottom: 24, lineHeight: 1.7 }}>We work with CHMIC — a trusted private lender for fix &amp; flip and investment deals across Canada.</p>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
-            <a href="mailto:kaelan@chmic.ca?subject=Real%20Deal%20Referral" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--blue)", color: "#fff", borderRadius: 10, padding: "12px 22px", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>📩 Email Kaelan at CHMIC</a>
+            <a href="mailto:kaelan@chmic.ca?subject=RizeAI%20Referral" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--blue)", color: "#fff", borderRadius: 10, padding: "12px 22px", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>📩 Email Kaelan at CHMIC</a>
             <a href="tel:5875854571" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: "var(--sub)", border: "1px solid var(--borderf)", borderRadius: 10, padding: "12px 22px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>📞 587-585-4571</a>
           </div>
         </div>
