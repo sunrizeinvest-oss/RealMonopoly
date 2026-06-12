@@ -193,31 +193,35 @@ export default function Landing() {
     .ld-nav-btn:hover{background:#5aabff;transform:translateY(-1px)}
 
     /* ── HERO ── */
-    .ld-hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:96px 24px 56px;position:relative;overflow:hidden}
-    .ld-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(59,158,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(59,158,255,0.03) 1px,transparent 1px);background-size:56px 56px;pointer-events:none}
+    .ld-hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:96px 24px 56px;position:relative;overflow:hidden;background:#0f172a}
+    .ld-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,102,204,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,102,204,0.06) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:2}
+    /* ── Full-bleed video background ── */
+    .ld-hero-bgvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.55}
+    .ld-hero-bgvid-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,0.55) 0%,rgba(15,23,42,0.35) 35%,rgba(15,23,42,0.65) 75%,rgba(15,23,42,0.92) 100%);z-index:1;pointer-events:none}
+    .ld-hero-bgvid-tint{position:absolute;inset:0;background:radial-gradient(ellipse at center top,rgba(0,102,204,0.25) 0%,transparent 60%);z-index:1;pointer-events:none}
     .ld-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(59,158,255,0.09) 0%,transparent 65%);pointer-events:none;animation:breathe 5s ease-in-out infinite}
     @keyframes breathe{0%,100%{opacity:1}50%{opacity:0.55}}
-    .ld-hero-inner{max-width:1320px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:28px;position:relative;z-index:1}
+    .ld-hero-inner{max-width:1320px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:28px;position:relative;z-index:3}
     .ld-hero-head{text-align:center;max-width:820px;margin:0 auto}
-    .ld-eyebrow{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);margin-bottom:18px;display:inline-flex;align-items:center;gap:8px}
-    .ld-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:blink 2s infinite;flex-shrink:0}
+    .ld-eyebrow{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#ffffff;margin-bottom:18px;display:inline-flex;align-items:center;gap:8px;background:rgba(0,102,204,0.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);padding:6px 12px;border-radius:99px}
+    .ld-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:#ffcc00;animation:blink 2s infinite;flex-shrink:0;box-shadow:0 0 8px #ffcc00}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-    .ld-h1{font-size:clamp(36px,5.4vw,64px);font-weight:800;line-height:1.04;letter-spacing:-2.5px;color:var(--text);margin-bottom:14px}
-    .ld-h1 span{color:var(--blue)}
-    .ld-hero-p{font-size:17px;color:var(--sub);line-height:1.7;margin:0 auto;max-width:620px}
+    .ld-h1{font-size:clamp(36px,5.4vw,64px);font-weight:800;line-height:1.04;letter-spacing:-2.5px;color:#ffffff;margin-bottom:14px;text-shadow:0 4px 20px rgba(15,23,42,0.55)}
+    .ld-h1 span{color:#ffcc00}
+    .ld-hero-p{font-size:17px;color:rgba(255,255,255,0.88);line-height:1.7;margin:0 auto;max-width:620px;text-shadow:0 2px 12px rgba(15,23,42,0.4)}
     .ld-hero-foot{display:flex;flex-direction:column;gap:16px;align-items:center;max-width:980px;margin:0 auto;width:100%}
     .ld-hero-trust{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:0}
-    .ld-trust-pill{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--text);font-weight:500;font-family:'Geist Mono',ui-monospace,monospace;border:1px solid var(--borderf);border-radius:4px;padding:6px 11px;background:rgba(255,255,255,0.02);letter-spacing:0.1px}
-    .ld-trust-pill:hover{border-color:var(--border);background:rgba(15,23,42,0.04)}
+    .ld-trust-pill{display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,0.92);font-weight:500;font-family:'Geist Mono',ui-monospace,monospace;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:6px 11px;background:rgba(255,255,255,0.06);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);letter-spacing:0.1px}
+    .ld-trust-pill:hover{border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.12)}
 
     /* Live activity strip */
-    .ld-activity{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:0;margin:0 auto;width:100%;max-width:720px;overflow:hidden}
-    .ld-activity-head{padding:8px 14px;background:rgba(15,23,42,0.025);border-bottom:1px solid var(--borderf);font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
-    .ld-activity-glyph{color:var(--green);animation:blink 2s infinite}
+    .ld-activity{background:rgba(15,23,42,0.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:0;margin:0 auto;width:100%;max-width:720px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.45)}
+    .ld-activity-head{padding:8px 14px;background:rgba(0,102,204,0.15);border-bottom:1px solid rgba(255,255,255,0.08);font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;color:#ffffff;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+    .ld-activity-glyph{color:#ffcc00;animation:blink 2s infinite}
     .ld-activity-rows{display:flex;flex-direction:column}
-    .ld-activity-row{display:grid;grid-template-columns:50px 1fr 70px 70px;gap:12px;align-items:center;padding:8px 14px;border-bottom:1px solid rgba(15,23,42,0.03);font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;transition:background 0.15s}
+    .ld-activity-row{display:grid;grid-template-columns:50px 1fr 70px 70px;gap:12px;align-items:center;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.05);font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;transition:background 0.15s;color:rgba(255,255,255,0.92)}
     .ld-activity-row:last-child{border-bottom:none}
-    .ld-activity-row:hover{background:rgba(59,158,255,0.03)}
+    .ld-activity-row:hover{background:rgba(255,255,255,0.04)}
     .ld-ar-time{color:var(--dim);font-size:10.5px}
     .ld-ar-addr{color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .ld-ar-tag{font-size:9.5px;font-weight:700;letter-spacing:0.6px;padding:2px 6px;border-radius:3px;border:1px solid currentColor;text-align:center}
@@ -228,9 +232,9 @@ export default function Landing() {
     .ld-ar-roi.neg{color:var(--red)}
     .ld-trust-check{color:var(--green);font-size:14px}
     .ld-stats{display:flex;gap:32px;flex-wrap:wrap}
-    .ld-stat-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:24px;font-weight:700;color:var(--blue);letter-spacing:-0.3px;line-height:1}
-    .ld-stat-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;font-weight:600;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-top:5px;display:flex;align-items:center;gap:5px}
-    .ld-stat-lbl::before{content:"▸";color:var(--blue);font-size:8px}
+    .ld-stat-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:24px;font-weight:700;color:#ffcc00;letter-spacing:-0.3px;line-height:1;text-shadow:0 2px 12px rgba(15,23,42,0.5)}
+    .ld-stat-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;font-weight:600;color:rgba(255,255,255,0.7);letter-spacing:1px;text-transform:uppercase;margin-top:5px;display:flex;align-items:center;gap:5px}
+    .ld-stat-lbl::before{content:"▸";color:#ffcc00;font-size:8px}
     .ld-stats{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;margin-top:4px}
 
     /* ── WHY WE BUILT — motion-graphic sizzle reel section ── */
@@ -638,6 +642,22 @@ export default function Landing() {
 
       {/* ── HERO ── */}
       <section className="ld-hero">
+        {/* Full-bleed background video — autoplay loop muted; falls back
+            to the dark slate background if the browser blocks autoplay. */}
+        <video
+          className="ld-hero-bgvid"
+          src="/hero-demo.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          poster=""
+        >
+          Your browser doesn&rsquo;t support inline video.
+        </video>
+        <div className="ld-hero-bgvid-overlay" />
+        <div className="ld-hero-bgvid-tint" />
         <div className="ld-glow" />
         <div className="ld-hero-inner">
           <div className="ld-hero-head">
@@ -646,29 +666,7 @@ export default function Landing() {
               ● LIVE — RIZE AI TERMINAL · US &amp; CANADA
             </div>
             <h1 className="ld-h1">Know if it's a <span>real deal.</span><br />In minutes.</h1>
-            <p className="ld-hero-p">Stop wasting hours on spreadsheets. Get instant property evaluation — ARV estimate, full cost breakdown, and a plain-English <strong style={{color:"var(--green)"}}>Go</strong> / <strong style={{color:"var(--red)"}}>No-Go</strong> verdict. Clarity before you commit.</p>
-          </div>
-
-          {/* Hero Demo Video — 45s autoplay walkthrough of the whole product */}
-          <div className="ld-herovid">
-            <div className="ld-herovid-bar">
-              <span className="ld-herovid-dot" />
-              <span className="ld-herovid-bar-label">RIZE AI TERMINAL · FULL WALKTHROUGH</span>
-              <span className="ld-herovid-bar-status">▸ LIVE</span>
-            </div>
-            <video
-              src="/hero-demo.mp4"
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="auto"
-              poster=""
-              style={{display:"block",width:"100%",height:"auto",background:"#ffffff"}}
-            >
-              Your browser doesn&rsquo;t support inline video. The full product is at <a href="#auth-section">signup</a>.
-            </video>
-            <a href="#try-it-live" className="ld-herovid-cta">▶ Try it yourself — no signup</a>
+            <p className="ld-hero-p">Stop wasting hours on spreadsheets. Get instant property evaluation — ARV estimate, full cost breakdown, and a plain-English <strong style={{color:"#ffcc00"}}>Go</strong> / <strong style={{color:"#ff7676"}}>No-Go</strong> verdict. Clarity before you commit.</p>
           </div>
 
           <div className="ld-hero-foot">
