@@ -193,18 +193,21 @@ export default function Landing() {
     .ld-nav-btn:hover{background:#5aabff;transform:translateY(-1px)}
 
     /* ── HERO ── */
-    .ld-hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:96px 24px 56px;position:relative;overflow:hidden;background:#0f172a}
+    .ld-hero{min-height:100vh;display:flex;align-items:stretch;justify-content:center;padding:0;position:relative;overflow:hidden;background:#0f172a}
     .ld-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,102,204,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,102,204,0.06) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:2}
-    /* ── Full-bleed video background ──
-       Heavy blur + saturation boost turns the product walkthrough into
-       ambient motion + color (no readable UI behind the foreground text).
-       Same treatment Linear / Stripe Atlas / Vercel use for hero videos. */
-    .ld-hero-bgvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.42;filter:blur(14px) saturate(1.4) brightness(0.85);transform:scale(1.08);will-change:transform}
-    .ld-hero-bgvid-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,0.72) 0%,rgba(15,23,42,0.5) 35%,rgba(15,23,42,0.7) 70%,rgba(15,23,42,0.95) 100%);z-index:1;pointer-events:none}
-    .ld-hero-bgvid-tint{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(0,102,204,0.32) 0%,transparent 55%),radial-gradient(ellipse at 80% 80%,rgba(255,204,0,0.12) 0%,transparent 50%);z-index:1;pointer-events:none}
+    /* ── Full-bleed video as cover — letterbox treatment ──
+       Video plays SHARP and unblurred (it IS the proof — that's the
+       actual product walkthrough). Gradients at the top + bottom create
+       framed zones where the H1 and the activity feed sit. The middle
+       of the viewport stays clean — video plays unobscured. */
+    .ld-hero-bgvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.92}
+    /* Top frame: solid slate fades down → transparent at ~32% */
+    .ld-hero-bgvid-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,0.88) 0%,rgba(15,23,42,0.7) 18%,rgba(15,23,42,0.25) 32%,rgba(15,23,42,0) 45%,rgba(15,23,42,0) 60%,rgba(15,23,42,0.6) 80%,rgba(15,23,42,0.95) 100%);z-index:1;pointer-events:none}
+    /* Brand bokeh — soft royal-blue glow at center-top, gold at lower-right */
+    .ld-hero-bgvid-tint{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 8%,rgba(0,102,204,0.25) 0%,transparent 35%),radial-gradient(ellipse at 90% 95%,rgba(255,204,0,0.12) 0%,transparent 40%);z-index:1;pointer-events:none}
     .ld-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(59,158,255,0.09) 0%,transparent 65%);pointer-events:none;animation:breathe 5s ease-in-out infinite}
     @keyframes breathe{0%,100%{opacity:1}50%{opacity:0.55}}
-    .ld-hero-inner{max-width:1320px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:28px;position:relative;z-index:3}
+    .ld-hero-inner{max-width:1320px;width:100%;margin:0 auto;display:flex;flex-direction:column;justify-content:space-between;gap:28px;position:relative;z-index:3;min-height:100vh;padding:96px 24px 56px}
     .ld-hero-head{text-align:center;max-width:820px;margin:0 auto}
     .ld-eyebrow{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#ffffff;margin-bottom:18px;display:inline-flex;align-items:center;gap:8px;background:rgba(0,102,204,0.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);padding:6px 12px;border-radius:99px}
     .ld-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:#ffcc00;animation:blink 2s infinite;flex-shrink:0;box-shadow:0 0 8px #ffcc00}
