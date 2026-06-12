@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
+import AIReadShareButton from "./components/AIReadShareButton";
 
 const fmt = n => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n || 0);
 const fmtPct = n => isNaN(n) || !isFinite(n) ? "—" : `${(n * 100).toFixed(1)}%`;
@@ -326,6 +327,12 @@ export default function Dashboard() {
                   · via cache
                 </span>
               )}
+              <AIReadShareButton
+                scope="portfolio"
+                label={`${totalDeals} saved deal${totalDeals === 1 ? "" : "s"}`}
+                thesis={portfolioThesis?.thesis}
+                source={portfolioThesis?.source}
+              />
             </div>
             {portfolioThesisLoading && !portfolioThesis ? (
               <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>

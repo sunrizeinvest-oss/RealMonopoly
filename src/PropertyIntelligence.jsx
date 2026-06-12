@@ -5,6 +5,7 @@ import { useDocMeta } from "./lib/seo"
 import { celebrateFirstSave } from "./lib/celebrate"
 import { estimateARV } from "./lib/arv"
 import { cachedThesisFetch } from "./lib/aiReadCache"
+import AIReadShareButton from "./components/AIReadShareButton"
 import TopNav from "./components/TopNav"
 
 // ─── Formatters ──────────────────────────────────────────────────────────────
@@ -1725,6 +1726,12 @@ export default function PropertyIntelligence() {
                           · via cache
                         </span>
                       )}
+                      <AIReadShareButton
+                        scope="property"
+                        label={property?.address || query}
+                        thesis={propertyThesis?.thesis}
+                        source={propertyThesis?.source}
+                      />
                     </div>
                     {propertyThesisLoading && !propertyThesis ? (
                       <div style={{ fontSize: 13, color: "var(--sub)", fontStyle: "italic" }}>

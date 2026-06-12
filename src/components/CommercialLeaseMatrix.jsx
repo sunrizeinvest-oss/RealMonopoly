@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { cachedThesisFetch } from "../lib/aiReadCache";
+import AIReadShareButton from "./AIReadShareButton";
 
 /**
  * CommercialLeaseMatrix — side-by-side comparable-property table.
@@ -583,6 +584,12 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
                 · via cache
               </span>
             )}
+            <AIReadShareButton
+              scope="comps"
+              label={target?.address || "Comp matrix"}
+              thesis={compsThesis?.thesis}
+              source={compsThesis?.source}
+            />
           </div>
           {compsThesisLoading && !compsThesis ? (
             <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>

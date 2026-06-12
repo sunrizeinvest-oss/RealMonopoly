@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from "react";
 import { runMonteCarlo, DEFAULT_DISTRIBUTIONS } from "../lib/monteCarlo";
 import { generateTier2Report } from "../lib/tier2Report";
 import { cachedThesisFetch } from "../lib/aiReadCache";
+import AIReadShareButton from "./AIReadShareButton";
 
 // Institutional-style preset scenarios. Each maps to a delta from DEFAULT_DISTRIBUTIONS.
 // Bull = optimistic priors, Bear = stressed priors. Base = the defaults.
@@ -678,6 +679,12 @@ function Results({ results, target }) {
                 · via cache
               </span>
             )}
+            <AIReadShareButton
+              scope="risk"
+              label={`Monte Carlo · IRR P50 ${fmtPct(irr.p50)}`}
+              thesis={thesis?.thesis}
+              source={thesis?.source}
+            />
           </div>
           {thesisLoading ? (
             <div style={{ fontSize: 12, color: "var(--sub)", fontStyle: "italic" }}>

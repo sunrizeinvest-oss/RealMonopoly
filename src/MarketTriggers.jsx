@@ -5,6 +5,7 @@ import TierGate from "./components/TierGate";
 import { useAuth } from "./AuthContext";
 import { supabase } from "./supabase";
 import { cachedThesisFetch } from "./lib/aiReadCache";
+import AIReadShareButton from "./components/AIReadShareButton";
 
 /**
  * MarketTriggers — distressed-listing radar.
@@ -528,6 +529,12 @@ export default function MarketTriggers() {
                   · via cache
                 </span>
               )}
+              <AIReadShareButton
+                scope="scan"
+                label={area || "Market triggers"}
+                thesis={scanThesis?.thesis}
+                source={scanThesis?.source}
+              />
             </div>
             {scanThesisLoading && !scanThesis ? (
               <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>

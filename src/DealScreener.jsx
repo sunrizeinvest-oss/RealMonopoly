@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
 import { estimateARV } from "./lib/arv";
 import { cachedThesisFetch } from "./lib/aiReadCache";
+import AIReadShareButton from "./components/AIReadShareButton";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const fmt = (n) =>
@@ -778,6 +779,12 @@ export default function DealScreener() {
                     · via cache
                   </span>
                 )}
+                <AIReadShareButton
+                  scope="batch"
+                  label={`${lookupRows.filter(r => r.status === "ok").length} addresses`}
+                  thesis={batchThesis?.thesis}
+                  source={batchThesis?.source}
+                />
               </div>
               {batchThesisLoading && !batchThesis ? (
                 <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>

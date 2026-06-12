@@ -12,6 +12,7 @@ import AddressAutocomplete from "./AddressAutocomplete";
 import ShareDealButton from "./components/ShareDealButton";
 import AIDocumentDrop from "./components/AIDocumentDrop";
 import RiskSimulator from "./components/RiskSimulator";
+import AIReadShareButton from "./components/AIReadShareButton";
 import CommercialLeaseMatrix from "./components/CommercialLeaseMatrix";
 import TierGate from "./components/TierGate";
 
@@ -1162,6 +1163,12 @@ export default function CommercialAnalyzer() {
                     · via cache
                   </span>
                 )}
+                <AIReadShareButton
+                  scope="sens"
+                  label={propertyAddress || "Sensitivity grids"}
+                  thesis={sensThesis?.thesis}
+                  source={sensThesis?.source}
+                />
               </div>
               {sensThesisLoading && !sensThesis ? (
                 <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>
