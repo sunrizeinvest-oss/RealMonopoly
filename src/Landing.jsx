@@ -178,19 +178,52 @@ export default function Landing() {
   }
 
   const css = `
+    /* ── FAMILY OFFICE PALETTE — Landing page only ──
+       Deep navy + royal blue + brushed brass. Overrides every global token
+       inside the .ld-page scope so existing classes inherit the new
+       aesthetic without rewriting individual rules. Rest of the app stays
+       on the white-mode tokens defined in index.css. */
+    .ld-page{
+      --navy:        #0a1128;
+      --navy-2:      #001c3d;
+      --navy-3:      #0f1e3f;
+      --royal:       #2155cd;
+      --royal-2:     #0047ab;
+      --brass:       #d4af37;
+      --brass-2:     #c6a664;
+      --alabaster:   #f0f0f0;
+      --alabaster-2: #d4d8e0;
+      --alabaster-3: #8a93a8;
+
+      /* override global tokens so every .ld-* class adopts navy/royal/brass */
+      --bg:       #0a1128;
+      --card:     rgba(255,255,255,0.04);
+      --card2:    rgba(255,255,255,0.025);
+      --text:     #f0f0f0;
+      --sub:      #d4d8e0;
+      --dim:      #8a93a8;
+      --blue:     #2155cd;
+      --gold:     #d4af37;
+      --border:   rgba(212,175,55,0.22);
+      --borderf:  rgba(255,255,255,0.08);
+      --green:    #2dd47f;
+      --red:      #f25c5c;
+      --amber:    #f0a030;
+    }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
-    body{background:var(--bg);color:var(--text);font-family:'Geist',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+    .ld-page{background:var(--navy);color:var(--alabaster);font-family:'Geist',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased;min-height:100vh}
+    body:has(.ld-page){background:var(--navy)}
 
     /* ── NAV ── */
-    .ld-nav{position:fixed;top:0;left:0;right:0;z-index:200;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(255,255,255,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--borderf)}
-    .ld-logo{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-0.3px;text-decoration:none}
-    .ld-logo span{color:var(--blue)}
+    .ld-nav{position:fixed;top:0;left:0;right:0;z-index:200;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(10,17,40,0.78);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(212,175,55,0.12)}
+    .ld-logo{font-size:16px;font-weight:800;color:var(--alabaster);letter-spacing:-0.3px;text-decoration:none}
+    .ld-logo span{color:var(--brass)}
     .ld-nav-right{display:flex;align-items:center;gap:10px}
-    .ld-nav-link{font-size:13px;color:var(--sub);cursor:pointer;font-weight:500;padding:6px 12px;border-radius:7px;background:none;border:none;font-family:'Geist',sans-serif;transition:color 0.15s}
-    .ld-nav-link:hover{color:var(--text)}
-    .ld-nav-btn{background:var(--blue);color:#fff;border:none;border-radius:7px;padding:8px 18px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
-    .ld-nav-btn:hover{background:#5aabff;transform:translateY(-1px)}
+    .ld-nav-link{font-size:13px;color:var(--alabaster-2);cursor:pointer;font-weight:500;padding:6px 12px;border-radius:7px;background:none;border:none;font-family:'Geist',sans-serif;transition:color 0.15s}
+    .ld-nav-link:hover{color:var(--alabaster)}
+    .ld-nav-btn{background:var(--royal);color:#fff;border:1px solid var(--brass);border-radius:4px;padding:8px 18px;font-family:'Geist',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s;letter-spacing:0.3px}
+    .ld-nav-btn:hover{background:var(--royal-2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(212,175,55,0.25)}
 
     /* ── HERO ── */
     .ld-hero{min-height:100vh;display:flex;align-items:stretch;justify-content:center;padding:0;position:relative;overflow:hidden;background:#0f172a}
@@ -201,33 +234,33 @@ export default function Landing() {
        framed zones where the H1 and the activity feed sit. The middle
        of the viewport stays clean — video plays unobscured. */
     .ld-hero-bgvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.92}
-    /* Top frame: solid slate fades down → transparent at ~32% */
-    .ld-hero-bgvid-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,0.88) 0%,rgba(15,23,42,0.7) 18%,rgba(15,23,42,0.25) 32%,rgba(15,23,42,0) 45%,rgba(15,23,42,0) 60%,rgba(15,23,42,0.6) 80%,rgba(15,23,42,0.95) 100%);z-index:1;pointer-events:none}
-    /* Brand bokeh — soft royal-blue glow at center-top, gold at lower-right */
-    .ld-hero-bgvid-tint{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 8%,rgba(0,102,204,0.25) 0%,transparent 35%),radial-gradient(ellipse at 90% 95%,rgba(255,204,0,0.12) 0%,transparent 40%);z-index:1;pointer-events:none}
-    .ld-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(59,158,255,0.09) 0%,transparent 65%);pointer-events:none;animation:breathe 5s ease-in-out infinite}
+    /* Top frame: deep navy ~70-90% fades down → transparent mid-frame */
+    .ld-hero-bgvid-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,17,40,0.92) 0%,rgba(10,17,40,0.78) 18%,rgba(10,17,40,0.32) 32%,rgba(10,17,40,0.08) 45%,rgba(10,17,40,0.12) 60%,rgba(10,17,40,0.7) 80%,rgba(10,17,40,0.98) 100%);z-index:1;pointer-events:none}
+    /* Brand bokeh — royal blue glow at center-top, brushed brass at lower-right */
+    .ld-hero-bgvid-tint{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 8%,rgba(33,85,205,0.28) 0%,transparent 38%),radial-gradient(ellipse at 90% 95%,rgba(212,175,55,0.14) 0%,transparent 42%);z-index:1;pointer-events:none}
+    .ld-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(33,85,205,0.14) 0%,transparent 65%);pointer-events:none;animation:breathe 5s ease-in-out infinite}
     @keyframes breathe{0%,100%{opacity:1}50%{opacity:0.55}}
     .ld-hero-inner{max-width:1320px;width:100%;margin:0 auto;display:flex;flex-direction:column;justify-content:space-between;gap:28px;position:relative;z-index:3;min-height:100vh;padding:96px 24px 56px}
     .ld-hero-head{text-align:center;max-width:820px;margin:0 auto}
-    .ld-eyebrow{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#ffffff;margin-bottom:18px;display:inline-flex;align-items:center;gap:8px;background:rgba(0,102,204,0.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);padding:6px 12px;border-radius:99px}
-    .ld-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:#ffcc00;animation:blink 2s infinite;flex-shrink:0;box-shadow:0 0 8px #ffcc00}
+    .ld-eyebrow{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--brass);margin-bottom:18px;display:inline-flex;align-items:center;gap:8px;background:rgba(10,17,40,0.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(212,175,55,0.35);padding:7px 14px;border-radius:4px}
+    .ld-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--brass);animation:blink 2s infinite;flex-shrink:0;box-shadow:0 0 10px var(--brass)}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-    .ld-h1{font-size:clamp(40px,6vw,72px);font-weight:800;line-height:1.02;letter-spacing:-2.8px;color:#ffffff;margin-bottom:18px;text-shadow:0 6px 28px rgba(15,23,42,0.7),0 1px 0 rgba(0,0,0,0.5)}
-    .ld-h1 span{color:#ffcc00;text-shadow:0 6px 32px rgba(255,204,0,0.35),0 6px 28px rgba(15,23,42,0.7)}
-    .ld-hero-p{font-size:17px;color:rgba(255,255,255,0.92);line-height:1.7;margin:0 auto;max-width:620px;text-shadow:0 2px 16px rgba(15,23,42,0.6)}
+    .ld-h1{font-size:clamp(40px,6vw,72px);font-weight:800;line-height:1.02;letter-spacing:-2.8px;color:var(--alabaster);margin-bottom:18px;text-shadow:0 6px 28px rgba(0,0,0,0.7),0 1px 0 rgba(0,0,0,0.5)}
+    .ld-h1 span{color:var(--brass);text-shadow:0 6px 32px rgba(212,175,55,0.3),0 6px 28px rgba(0,0,0,0.7);font-style:italic;font-weight:700}
+    .ld-hero-p{font-size:17px;color:var(--alabaster-2);line-height:1.7;margin:0 auto;max-width:620px;text-shadow:0 2px 16px rgba(0,0,0,0.6)}
     .ld-hero-foot{display:flex;flex-direction:column;gap:16px;align-items:center;max-width:980px;margin:0 auto;width:100%}
     .ld-hero-trust{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:0}
-    .ld-trust-pill{display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,0.92);font-weight:500;font-family:'Geist Mono',ui-monospace,monospace;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:6px 11px;background:rgba(255,255,255,0.06);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);letter-spacing:0.1px}
-    .ld-trust-pill:hover{border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.12)}
+    .ld-trust-pill{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--alabaster-2);font-weight:500;font-family:'Geist Mono',ui-monospace,monospace;border:1px solid rgba(212,175,55,0.22);border-radius:4px;padding:6px 11px;background:rgba(10,17,40,0.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);letter-spacing:0.1px}
+    .ld-trust-pill:hover{border-color:var(--brass);background:rgba(212,175,55,0.08)}
 
     /* Live activity strip */
-    .ld-activity{background:rgba(15,23,42,0.72);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:0;margin:0 auto;width:100%;max-width:720px;overflow:hidden;box-shadow:0 28px 90px rgba(0,0,0,0.55),0 0 0 1px rgba(255,204,0,0.05)}
-    .ld-activity-head{padding:8px 14px;background:rgba(0,102,204,0.15);border-bottom:1px solid rgba(255,255,255,0.08);font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;color:#ffffff;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
-    .ld-activity-glyph{color:#ffcc00;animation:blink 2s infinite}
+    .ld-activity{background:rgba(0,12,31,0.78);backdrop-filter:blur(24px) saturate(1.2);-webkit-backdrop-filter:blur(24px) saturate(1.2);border:1px solid rgba(212,175,55,0.22);border-radius:6px;padding:0;margin:0 auto;width:100%;max-width:720px;overflow:hidden;box-shadow:0 28px 90px rgba(0,0,0,0.55),0 0 0 1px rgba(212,175,55,0.05)}
+    .ld-activity-head{padding:8px 14px;background:rgba(33,85,205,0.18);border-bottom:1px solid rgba(212,175,55,0.18);font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--alabaster);letter-spacing:1.2px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+    .ld-activity-glyph{color:var(--brass);animation:blink 2s infinite}
     .ld-activity-rows{display:flex;flex-direction:column}
-    .ld-activity-row{display:grid;grid-template-columns:50px 1fr 70px 70px;gap:12px;align-items:center;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.05);font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;transition:background 0.15s;color:rgba(255,255,255,0.92)}
+    .ld-activity-row{display:grid;grid-template-columns:50px 1fr 70px 70px;gap:12px;align-items:center;padding:8px 14px;border-bottom:1px solid rgba(255,255,255,0.05);font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;transition:background 0.15s;color:var(--alabaster-2)}
     .ld-activity-row:last-child{border-bottom:none}
-    .ld-activity-row:hover{background:rgba(255,255,255,0.04)}
+    .ld-activity-row:hover{background:rgba(212,175,55,0.04)}
     .ld-ar-time{color:var(--dim);font-size:10.5px}
     .ld-ar-addr{color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .ld-ar-tag{font-size:9.5px;font-weight:700;letter-spacing:0.6px;padding:2px 6px;border-radius:3px;border:1px solid currentColor;text-align:center}
@@ -238,9 +271,9 @@ export default function Landing() {
     .ld-ar-roi.neg{color:var(--red)}
     .ld-trust-check{color:var(--green);font-size:14px}
     .ld-stats{display:flex;gap:32px;flex-wrap:wrap}
-    .ld-stat-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:24px;font-weight:700;color:#ffcc00;letter-spacing:-0.3px;line-height:1;text-shadow:0 2px 12px rgba(15,23,42,0.5)}
-    .ld-stat-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;font-weight:600;color:rgba(255,255,255,0.7);letter-spacing:1px;text-transform:uppercase;margin-top:5px;display:flex;align-items:center;gap:5px}
-    .ld-stat-lbl::before{content:"▸";color:#ffcc00;font-size:8px}
+    .ld-stat-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:24px;font-weight:700;color:var(--brass);letter-spacing:-0.3px;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,0.5)}
+    .ld-stat-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;font-weight:600;color:var(--alabaster-2);letter-spacing:1.2px;text-transform:uppercase;margin-top:5px;display:flex;align-items:center;gap:5px}
+    .ld-stat-lbl::before{content:"▸";color:var(--brass);font-size:8px}
     .ld-stats{display:flex;gap:32px;flex-wrap:wrap;justify-content:center;margin-top:4px}
 
     /* ── WHY WE BUILT — motion-graphic sizzle reel section ── */
@@ -576,6 +609,62 @@ export default function Landing() {
     .ld-chrome-install-code{display:inline-block;background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius:3px;padding:2px 8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;color:var(--blue)}
 
     /* ── CTA SECTION ── */
+    /* ── SEE THE UNSEEN MARKET — interactive terminal ── */
+    .ld-unseen{padding:90px 24px 60px;position:relative;background:linear-gradient(180deg,transparent 0%,rgba(0,28,61,0.5) 50%,transparent 100%);border-top:1px solid rgba(212,175,55,0.08);border-bottom:1px solid rgba(212,175,55,0.08)}
+    .ld-unseen-inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:14px}
+    .ld-unseen-tag{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--brass)}
+    .ld-unseen-title{font-size:clamp(34px,4.5vw,54px);font-weight:800;letter-spacing:-1.8px;color:var(--alabaster);text-align:center;line-height:1.05;margin:0}
+    .ld-unseen-title span{color:var(--brass);font-style:italic;font-weight:700}
+    .ld-unseen-sub{font-size:16px;color:var(--alabaster-2);text-align:center;max-width:620px;line-height:1.7;margin:0 0 36px}
+
+    .ld-unseen-terminal{width:100%;max-width:920px;background:linear-gradient(180deg,rgba(0,28,61,0.7) 0%,rgba(10,17,40,0.85) 100%);border:1px solid rgba(212,175,55,0.25);border-radius:6px;overflow:hidden;box-shadow:0 32px 90px rgba(0,0,0,0.5),0 0 0 1px rgba(33,85,205,0.08) inset}
+
+    .ld-unseen-bar{display:flex;align-items:center;gap:10px;padding:11px 18px;background:rgba(0,0,0,0.35);border-bottom:1px solid rgba(212,175,55,0.18);font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--alabaster-2)}
+    .ld-unseen-dot{width:8px;height:8px;border-radius:50%;background:var(--brass);box-shadow:0 0 10px var(--brass);animation:blink 2s infinite}
+    .ld-unseen-status{margin-left:auto;color:var(--brass)}
+
+    .ld-unseen-input-row{display:flex;align-items:stretch;gap:0;padding:14px;background:rgba(0,0,0,0.2);border-bottom:1px solid rgba(255,255,255,0.06)}
+    .ld-unseen-prompt{display:flex;align-items:center;padding:0 14px;color:var(--brass);font-family:'Geist Mono',ui-monospace,monospace;font-size:18px;font-weight:700}
+    .ld-unseen-input{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(212,175,55,0.18);border-radius:4px;padding:14px 16px;font-family:'Geist Mono',ui-monospace,monospace;font-size:15px;color:var(--alabaster);outline:none;letter-spacing:0.2px;transition:border-color 0.2s}
+    .ld-unseen-input:focus{border-color:var(--brass);box-shadow:0 0 0 3px rgba(212,175,55,0.12)}
+    .ld-unseen-input::placeholder{color:var(--alabaster-3)}
+    .ld-unseen-go{margin-left:12px;background:var(--royal);color:#fff;border:1px solid var(--brass);border-radius:4px;padding:14px 22px;font-family:'Geist',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.4px;transition:all 0.2s;white-space:nowrap;text-transform:uppercase}
+    .ld-unseen-go:hover{background:var(--royal-2);box-shadow:0 8px 24px rgba(212,175,55,0.3);transform:translateY(-1px)}
+
+    .ld-unseen-result{padding:24px;transition:opacity 0.6s ease}
+    .ld-unseen-result-head{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;color:var(--brass);margin-bottom:16px;text-transform:uppercase}
+    .ld-unseen-result-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+    .ld-unseen-metric{background:rgba(0,0,0,0.3);border:1px solid rgba(212,175,55,0.15);border-left:2px solid var(--brass);border-radius:4px;padding:14px 16px}
+    .ld-unseen-metric-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:24px;font-weight:800;color:var(--brass);letter-spacing:-0.5px;line-height:1;margin-bottom:6px}
+    .ld-unseen-metric-lbl{font-size:11px;color:var(--alabaster-2);line-height:1.4}
+
+    .ld-unseen-blur{display:flex;flex-direction:column;gap:0;background:rgba(0,0,0,0.25);border:1px solid rgba(255,255,255,0.05);border-radius:4px;padding:6px 0;margin-bottom:14px}
+    .ld-unseen-row{display:flex;justify-content:space-between;align-items:center;padding:9px 16px;font-family:'Geist Mono',ui-monospace,monospace;font-size:12.5px;color:var(--alabaster-2);border-bottom:1px solid rgba(255,255,255,0.03)}
+    .ld-unseen-row:last-child{border-bottom:none}
+    .ld-unseen-row:nth-child(n+4){filter:blur(4px);user-select:none;pointer-events:none}
+
+    .ld-unseen-cta{display:block;width:100%;background:linear-gradient(135deg,var(--royal-2),var(--royal));color:#fff;border:1px solid var(--brass);border-radius:4px;padding:16px;font-family:'Geist',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.6px;transition:all 0.2s;text-transform:uppercase;margin-top:4px}
+    .ld-unseen-cta:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(212,175,55,0.3),0 0 0 1px var(--brass)}
+
+    @media(max-width:720px){
+      .ld-unseen-input-row{flex-direction:column;gap:10px}
+      .ld-unseen-go{margin-left:0}
+      .ld-unseen-result-grid{grid-template-columns:repeat(2,1fr)}
+    }
+
+    /* ── FAMILY OFFICE FOOTER — minimalist, manifesto, By Invitation Only ── */
+    .ld-foot{background:#000c1f;border-top:1px solid rgba(212,175,55,0.18);padding:64px 24px 40px;position:relative}
+    .ld-foot::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--brass) 50%,transparent 100%);opacity:0.4}
+    .ld-foot-inner{max-width:880px;margin:0 auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px}
+    .ld-foot-logo{font-size:22px;font-weight:800;letter-spacing:-0.4px;color:var(--brass);font-family:'Geist',sans-serif}
+    .ld-foot-logo span{color:var(--alabaster)}
+    .ld-foot-manifesto{font-size:14px;color:var(--alabaster-2);max-width:540px;line-height:1.75;font-style:italic;font-family:'Geist',sans-serif}
+    .ld-foot-rule{width:54px;height:1px;background:var(--brass);opacity:0.6;margin:6px 0}
+    .ld-foot-links{display:flex;align-items:center;gap:32px;flex-wrap:wrap;justify-content:center}
+    .ld-foot-links span{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;color:var(--alabaster-3);cursor:pointer;letter-spacing:1.4px;text-transform:uppercase;transition:color 0.2s}
+    .ld-foot-links span:hover{color:var(--brass)}
+    .ld-foot-note{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--alabaster-3);letter-spacing:1.2px;margin-top:8px;text-transform:uppercase}
+
     .ld-cta{text-align:center;padding:90px 24px;border-top:1px solid var(--borderf);position:relative;overflow:hidden}
     .ld-cta::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(59,158,255,0.07) 0%,transparent 60%);pointer-events:none}
     .ld-cta h2{font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:-1.5px;color:var(--text);margin-bottom:14px;position:relative;z-index:1;line-height:1.1}
@@ -640,7 +729,7 @@ export default function Landing() {
   `;
 
   return (
-    <>
+    <div className="ld-page">
       <style>{css}</style>
       <link href="https://fonts.googleapis.com/css2?family=Geist:wght;500;600;700;800&family=Geist+Mono:wght;500;600;700&display=swap" rel="stylesheet" />
 
@@ -669,10 +758,10 @@ export default function Landing() {
           <div className="ld-hero-head">
             <div className="ld-eyebrow">
               <div className="ld-eyebrow-dot" />
-              ● THE HIDDEN DOOR · INSIDER ACCESS · NORTH AMERICA
+              THE HIDDEN DOOR · BY INVITATION · NORTH AMERICA
             </div>
-            <h1 className="ld-h1">Underwrite like<br /><span>an insider.</span></h1>
-            <p className="ld-hero-p">Stop guessing on on-market scraps. RizeAI gives you the AI infrastructure used to source, analyze, and close off-market deals with the same fluency as the institutional desks — in under <strong style={{color:"#ffcc00"}}>60 seconds</strong>, not 4 hours of spreadsheets.</p>
+            <h1 className="ld-h1">Underwrite like an insider.<br /><span>Operate with absolute certainty.</span></h1>
+            <p className="ld-hero-p">RizeAI gives you the exact AI infrastructure used to source, analyze, and close multi-million dollar off-market deals across North America — with <strong style={{color:"var(--brass)"}}>institutional precision</strong>, in under 60 seconds.</p>
           </div>
 
           <div className="ld-hero-foot">
@@ -1407,8 +1496,8 @@ export default function Landing() {
       {/* ── AUTH SECTION (moved out of hero so the mini-calc gets primary placement) ── */}
       <div className="ld-auth-section">
         <div className="ld-auth-card" id="auth-section">
-          <div className="ld-auth-title">Step inside the ecosystem.</div>
-          <div className="ld-auth-sub">The same AI infrastructure used by institutional desks. Now in your pocket. Free during launch.</div>
+          <div className="ld-auth-title">Apply for access.</div>
+          <div className="ld-auth-sub">By invitation. Same AI infrastructure the institutional desks use — now extended to a select circle of operators.</div>
           <div className="ld-tabs">
             <button className={`ld-tab ${mode === "signup" ? "active" : "inactive"}`} onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Unlock access</button>
             <button className={`ld-tab ${mode === "login" ? "active" : "inactive"}`} onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Log in</button>
@@ -1785,11 +1874,90 @@ export default function Landing() {
         </div>
       </div>
 
+      {/* ── SEE THE UNSEEN MARKET — interactive terminal, off-market proof ── */}
+      <section className="ld-unseen fade">
+        <div className="ld-unseen-inner">
+          <div className="ld-unseen-tag">// Off-market intelligence</div>
+          <h2 className="ld-unseen-title">See the <span>unseen</span> market.</h2>
+          <p className="ld-unseen-sub">
+            Stop bidding on scraps the public can see. RizeAI surfaces properties
+            before they list — algorithmic discovery from permit filings, ownership
+            shifts, and predictive cap-rate decay.
+          </p>
+
+          <div className="ld-unseen-terminal">
+            <div className="ld-unseen-bar">
+              <span className="ld-unseen-dot" />
+              <span>OFF-MARKET DISCOVERY · LIVE</span>
+              <span className="ld-unseen-status">▸ READY</span>
+            </div>
+
+            <div className="ld-unseen-input-row">
+              <span className="ld-unseen-prompt">▸</span>
+              <input
+                type="text"
+                className="ld-unseen-input"
+                placeholder="Enter a city or asset type (e.g. 'Calgary Multifamily')"
+                defaultValue="Calgary Multifamily"
+                readOnly
+              />
+              <button
+                className="ld-unseen-go"
+                onClick={() => {
+                  const el = document.querySelector('.ld-unseen-result');
+                  if (el) {
+                    el.style.opacity = '0';
+                    setTimeout(() => { el.style.opacity = '1'; }, 1500);
+                  }
+                }}
+              >
+                Query the Market
+              </button>
+            </div>
+
+            <div className="ld-unseen-result">
+              <div className="ld-unseen-result-head">SCAN COMPLETE · 1.84s</div>
+              <div className="ld-unseen-result-grid">
+                <div className="ld-unseen-metric">
+                  <div className="ld-unseen-metric-val">9</div>
+                  <div className="ld-unseen-metric-lbl">Off-market deals matching criteria</div>
+                </div>
+                <div className="ld-unseen-metric">
+                  <div className="ld-unseen-metric-val">$3.2M</div>
+                  <div className="ld-unseen-metric-lbl">Estimated undervalued opportunity</div>
+                </div>
+                <div className="ld-unseen-metric">
+                  <div className="ld-unseen-metric-val">6.8%</div>
+                  <div className="ld-unseen-metric-lbl">Median forward cap-rate</div>
+                </div>
+                <div className="ld-unseen-metric">
+                  <div className="ld-unseen-metric-val">14d</div>
+                  <div className="ld-unseen-metric-lbl">Median window before public listing</div>
+                </div>
+              </div>
+
+              <div className="ld-unseen-blur">
+                <div className="ld-unseen-row"><span>▸ 24XX 14 St SW · Calgary</span><span>$4.2M · 6.4% cap</span></div>
+                <div className="ld-unseen-row"><span>▸ 38XX Edmonton Tr NE · Calgary</span><span>$2.9M · 7.1% cap</span></div>
+                <div className="ld-unseen-row"><span>▸ 11XX Macleod Tr SE · Calgary</span><span>$5.1M · 6.6% cap</span></div>
+                <div className="ld-unseen-row"><span>▸ ████████████████████████</span><span>$██████ · █.█% cap</span></div>
+                <div className="ld-unseen-row"><span>▸ ████████████████████████</span><span>$██████ · █.█% cap</span></div>
+                <div className="ld-unseen-row"><span>▸ ████████████████████████</span><span>$██████ · █.█% cap</span></div>
+              </div>
+
+              <button className="ld-unseen-cta" onClick={scrollToAuth}>
+                Authenticate to View Properties →
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── BOTTOM CTA ── */}
       <div className="ld-cta fade">
         <h2>The room you've been<br />trying to walk into <span>opens here.</span></h2>
-        <p>Free during launch. No credit card. The next deal you analyze will be the first one you actually understand.</p>
-        <button className="ld-cta-btn" onClick={scrollToAuth}>Step inside →</button>
+        <p>By invitation. No credit card. The next deal you analyze will be the first one you actually understand.</p>
+        <button className="ld-cta-btn" onClick={scrollToAuth}>Enter the Ecosystem →</button>
         <div className="ld-cta-trust">
           {["✓ Free during launch", "✓ No credit card", "✓ US & Canada markets", "✓ 20 tools, one platform"].map(item => (
             <div key={item} className="ld-cta-trust-item">{item}</div>
@@ -1797,17 +1965,25 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* ── FOOTER ── */}
-      <footer>
-        <div className="f-logo"><span>Real</span> Deal</div>
-        <div className="f-links">
-          <span style={{ fontSize: 12, color: "var(--dim)", cursor: "pointer" }} onClick={() => navigate('/pricing')}>Pricing</span>
-          <span style={{ fontSize: 12, color: "var(--dim)", cursor: "pointer" }} onClick={scrollToAuth}>Sign up</span>
-          <span style={{ fontSize: 12, color: "var(--dim)", cursor: "pointer" }} onClick={() => navigate('/privacy')}>Privacy</span>
-          <span style={{ fontSize: 12, color: "var(--dim)", cursor: "pointer" }} onClick={() => navigate('/terms')}>Terms</span>
+      {/* ── FOOTER — Family Office: minimalist, manifesto, By Invitation Only ── */}
+      <footer className="ld-foot">
+        <div className="ld-foot-inner">
+          <div className="ld-foot-logo">Rize<span>AI</span></div>
+          <div className="ld-foot-manifesto">
+            RizeAI is the hidden door to high-level real estate. We merge advanced
+            intelligence with operational peace — for those who treat capital as
+            literacy, not luck.
+          </div>
+          <div className="ld-foot-rule" />
+          <div className="ld-foot-links">
+            <span onClick={() => navigate('/pricing')}>Access</span>
+            <span onClick={scrollToAuth}>Application</span>
+            <span onClick={() => navigate('/privacy')}>Privacy</span>
+            <span onClick={() => navigate('/terms')}>Terms</span>
+          </div>
+          <div className="ld-foot-note">© 2026 RizeAI · By Invitation Only · North America</div>
         </div>
-        <div className="f-note">© 2026 rizeai.co</div>
       </footer>
-    </>
+    </div>
   );
 }
