@@ -54,6 +54,7 @@ const LoanCompare          = lazy(() => import('./LoanCompare.jsx'))
 const MarketTriggers       = lazy(() => import('./MarketTriggers.jsx'))
 const MarketBrief          = lazy(() => import('./MarketBrief.jsx'))
 const Unsubscribe          = lazy(() => import('./Unsubscribe.jsx'))
+const SharedRead           = lazy(() => import('./SharedRead.jsx'))
 
 // Logged-in users go straight to the analyzer, visitors see the landing page
 function Home() {
@@ -132,6 +133,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/triggers" element={<MarketTriggers />} />
             <Route path="/market-brief" element={<MarketBrief />} />
             <Route path="/unsubscribe" element={<Unsubscribe />} />
+            <Route path="/share/read/:payload" element={<SharedRead />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

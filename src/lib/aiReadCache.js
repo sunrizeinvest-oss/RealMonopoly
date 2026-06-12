@@ -210,6 +210,24 @@ export function markReadAsViewed(savedAt) {
   } catch { /* best-effort */ }
 }
 
+// Build a base64url-encoded share payload for a recent-read entry.
+// Stable URL — anyone can paste it into /share/read/<payload> to see it.
+export function encodeReadForShare(read) {
+  if (!read?.thesis) return null;
+  const slim = {
+    scope:   read.scope,
+    label:   read.label,
+    thesis:  read.thesis,
+    source:  read.source,
+    savedAt: read.savedAt,
+  };
+  try {
+    const json = JSON.stringify(slim);
+    const b64 = typeof btoa === "function" ? btoa(json) : Buffer.from(json).toString("base64");
+    return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  } catch { return null; }
+}
+
 export function markAllReadsAsViewed() {
   try {
     const reads = getRecentReads(VIEWED_MAX);

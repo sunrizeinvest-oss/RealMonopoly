@@ -708,12 +708,43 @@ function RecentReadsPanel() {
                   {r.thesis.length > 220 ? r.thesis.slice(0, 220) + "…" : r.thesis}
                 </div>
               </div>
-              <span style={{
-                fontFamily: "'Geist Mono',monospace", fontSize: 10,
-                color: "var(--dim)", whiteSpace: "nowrap",
+              <div style={{
+                display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 5,
               }}>
-                {timeAgo(r.savedAt)}
-              </span>
+                <span style={{
+                  fontFamily: "'Geist Mono',monospace", fontSize: 10,
+                  color: "var(--dim)", whiteSpace: "nowrap",
+                }}>
+                  {timeAgo(r.savedAt)}
+                </span>
+                <button
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const { encodeReadForShare } = await import("./lib/aiReadCache");
+                    const payload = encodeReadForShare(r);
+                    if (!payload) return;
+                    const url = `${window.location.origin}/share/read/${payload}`;
+                    try {
+                      await navigator.clipboard.writeText(url);
+                      // Brief visual confirmation
+                      const orig = e.currentTarget.textContent;
+                      e.currentTarget.textContent = "✓ COPIED";
+                      setTimeout(() => { e.currentTarget.textContent = orig; }, 1500);
+                    } catch {}
+                  }}
+                  title="Copy a shareable link to this AI Read"
+                  style={{
+                    background: "transparent", color: "var(--dim)",
+                    border: "1px solid var(--borderf)", borderRadius: 3,
+                    padding: "2px 7px",
+                    fontFamily: "'Geist Mono',monospace", fontSize: 8.5, fontWeight: 700,
+                    letterSpacing: "0.7px", cursor: "pointer", whiteSpace: "nowrap",
+                  }}
+                >
+                  ⎘ SHARE
+                </button>
+              </div>
             </>
           );
           const sharedStyle = {
