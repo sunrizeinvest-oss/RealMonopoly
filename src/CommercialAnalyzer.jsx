@@ -225,6 +225,11 @@ export default function CommercialAnalyzer() {
   // Comp matrix lifts its rows up here so the IC Report PDF (in RiskSimulator)
   // can embed them as an extra page when present.
   const [matrixComps, setMatrixComps] = useState([]);
+  // AI Read on the sensitivity tables — fires when DSCR/CoC/IRR grids settle.
+  // Same cached pattern as the other 7 surfaces. Reads the matrix thresholds
+  // and tells the user where the deal breaks.
+  const [sensThesis, setSensThesis] = useState(null);
+  const [sensThesisLoading, setSensThesisLoading] = useState(false);
 
   useEffect(() => {
     async function check() {
@@ -538,6 +543,69 @@ export default function CommercialAnalyzer() {
     }, 600);
     return () => clearTimeout(handle);
   }, [c?.NOI, c?.DSCR, c?.CoC, c?.irr, c?.eqMultiple, propertyAddress]);
+
+  // ── Sensitivity AI Read — fires when the grids settle ────────────────────
+  // Pulls thresholds from sensDSCR/sensCoC/sensIRR and asks Claude where
+  // the deal breaks. Same 24h cached pattern as the other 7 surfaces.
+  useEffect(() => {
+    if (!c?.sensDSCR || !c?.sensCoC || !c?.sensIRR) return;
+    let cancelled = false;
+    setSensThesisLoading(true);
+    setSensThesis(null);
+    const timeoutId = setTimeout(async () => {
+      const { cachedThesisFetch } = await import("./lib/aiReadCache");
+
+      // Where does DSCR cross 1.25 / 1.0 — most actionable signal.
+      const flatDSCR = c.sensDSCR.flat().filter(v => Number.isFinite(v));
+      const dscrFailCells = c.sensDSCR.flat().filter(v => v < 1.0).length;
+      const dscrThinCells = c.sensDSCR.flat().filter(v => v >= 1.0 && v < 1.25).length;
+      const dscrSafeCells = c.sensDSCR.flat().filter(v => v >= 1.25).length;
+      // CoC distribution
+      const flatCoC = c.sensCoC.flat().filter(v => Number.isFinite(v));
+      const cocNegCells = c.sensCoC.flat().filter(v => v < 0).length;
+      // IRR distribution
+      const flatIRR = c.sensIRR.flat().filter(v => Number.isFinite(v));
+      const irrMin = flatIRR.length ? Math.min(...flatIRR) : null;
+      const irrMax = flatIRR.length ? Math.max(...flatIRR) : null;
+      const irrMedian = flatIRR.length ? flatIRR.sort((a,b) => a-b)[Math.floor(flatIRR.length/2)] : null;
+
+      const fingerprintInput = {
+        address: propertyAddress,
+        dscrFailCells, dscrThinCells, dscrSafeCells,
+        cocNegCells,
+        irrMin, irrMax, irrMedian,
+      };
+      const result = await cachedThesisFetch("sens", fingerprintInput, () =>
+        fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "deal-thesis",
+            strategy: "Sensitivity analysis · DSCR + CoC + IRR grids",
+            address: propertyAddress,
+            verdict: `${dscrSafeCells} cells DSCR ≥ 1.25 · ${dscrThinCells} thin · ${dscrFailCells} fail`,
+            metrics: {
+              gridCells: c.sensDSCR.flat().length,
+              dscrSafePct:  Math.round(dscrSafeCells / c.sensDSCR.flat().length * 100),
+              dscrThinPct:  Math.round(dscrThinCells / c.sensDSCR.flat().length * 100),
+              dscrFailPct:  Math.round(dscrFailCells / c.sensDSCR.flat().length * 100),
+              cocNegPct:    Math.round(cocNegCells / c.sensCoC.flat().length * 100),
+              irrMin, irrMax, irrMedian,
+              baseDSCR:     c.DSCR,
+              baseCoC:      c.CoC,
+              baseIRR:      c.irr,
+              entryCap:     c.actualCap,
+            },
+          }),
+        }).then(r => r.json())
+      );
+      if (!cancelled) {
+        if (result) setSensThesis(result);
+        setSensThesisLoading(false);
+      }
+    }, 800);
+    return () => { cancelled = true; clearTimeout(timeoutId); };
+  }, [c?.sensDSCR, c?.sensCoC, c?.sensIRR, propertyAddress]);
 
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
@@ -1065,6 +1133,48 @@ export default function CommercialAnalyzer() {
         {/* ── SENSITIVITY ANALYSIS ──────────────────────────────────────────── */}
         <div className="mf-card">
           <SectionHead title="Sensitivity Analysis" sub="Stress Test"/>
+
+          {/* ── AI Read on the sensitivity grids — auto-fires when matrices
+              settle. Reads thresholds (where does DSCR drop below 1.25 / 1.0)
+              and tells the user where the deal breaks. Same cached pattern
+              as the other 7 surfaces. */}
+          {(sensThesisLoading || sensThesis?.thesis) && (
+            <div style={{
+              margin: "0 20px 14px",
+              padding: "13px 16px",
+              background: "rgba(0,102,204,0.05)",
+              border: "1px solid rgba(0,102,204,0.22)",
+              borderLeft: "3px solid var(--blue)",
+              borderRadius: 6,
+            }}>
+              <div style={{
+                fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                color: "var(--blue)", letterSpacing: "1.3px", marginBottom: 7,
+              }}>
+                ▸ AI READ · SENSITIVITY
+                {sensThesis?.source && sensThesis.source !== "template" && (
+                  <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4 }}>
+                    · {sensThesis.source}
+                  </span>
+                )}
+                {sensThesis?.cached && (
+                  <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4, fontStyle: "italic" }}>
+                    · via cache
+                  </span>
+                )}
+              </div>
+              {sensThesisLoading && !sensThesis ? (
+                <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>
+                  Claude is stress-testing the deal…
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>
+                  {sensThesis.thesis}
+                </div>
+              )}
+            </div>
+          )}
+
           <div style={{padding:"16px 20px 8px",fontSize:13,color:"var(--sub)"}}>
             How DSCR and Cash-on-Cash hold up as vacancy and interest rates shift. <span style={{color:"var(--green)"}}>Green ≥ threshold</span> · <span style={{color:"var(--amber)"}}>Amber marginal</span> · <span style={{color:"var(--red)"}}>Red fails</span>
           </div>
