@@ -773,6 +773,11 @@ export default function DealScreener() {
                     · {batchThesis.source}
                   </span>
                 )}
+                {batchThesis?.cached && (
+                  <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4, fontStyle: "italic" }}>
+                    · via cache
+                  </span>
+                )}
               </div>
               {batchThesisLoading && !batchThesis ? (
                 <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>

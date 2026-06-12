@@ -578,6 +578,11 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
                 · {compsThesis.source}
               </span>
             )}
+            {compsThesis?.cached && (
+              <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4, fontStyle: "italic" }}>
+                · via cache
+              </span>
+            )}
           </div>
           {compsThesisLoading && !compsThesis ? (
             <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>

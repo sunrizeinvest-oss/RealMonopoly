@@ -321,6 +321,11 @@ export default function Dashboard() {
                   · {portfolioThesis.source}
                 </span>
               )}
+              {portfolioThesis?.cached && (
+                <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4, fontStyle: "italic" }}>
+                  · via cache
+                </span>
+              )}
             </div>
             {portfolioThesisLoading && !portfolioThesis ? (
               <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>

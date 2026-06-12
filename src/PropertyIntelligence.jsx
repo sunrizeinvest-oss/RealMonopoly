@@ -1720,6 +1720,11 @@ export default function PropertyIntelligence() {
                           · {propertyThesis.source}
                         </span>
                       )}
+                      {propertyThesis?.cached && (
+                        <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4, fontStyle: "italic" }}>
+                          · via cache
+                        </span>
+                      )}
                     </div>
                     {propertyThesisLoading && !propertyThesis ? (
                       <div style={{ fontSize: 13, color: "var(--sub)", fontStyle: "italic" }}>
@@ -2217,6 +2222,7 @@ export default function PropertyIntelligence() {
                                 color: "var(--blue)", letterSpacing: "1.1px", marginBottom: 6,
                               }}>
                                 ▸ AI READ {zoningThesis.source !== "template" && <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4 }}>· {zoningThesis.source}</span>}
+                                {zoningThesis.cached && <span style={{ color: "var(--dim)", fontWeight: 500, marginLeft: 4, fontStyle: "italic" }}>· via cache</span>}
                               </div>
                               <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.55 }}>
                                 {zoningThesis.thesis}
