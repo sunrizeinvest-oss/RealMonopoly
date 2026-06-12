@@ -626,14 +626,8 @@ function RecentReadsPanel() {
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {reads.map((r, i) => {
           const meta = SCOPE_META[r.scope] || { label: r.scope.toUpperCase(), color: "var(--sub)" };
-          return (
-            <div key={i} style={{
-              display: "grid",
-              gridTemplateColumns: "92px 1fr auto",
-              gap: 12, alignItems: "start",
-              paddingBottom: i < reads.length - 1 ? 10 : 0,
-              borderBottom: i < reads.length - 1 ? "1px solid var(--borderf)" : "none",
-            }}>
+          const rowInner = (
+            <>
               <span style={{
                 fontFamily: "'Geist Mono',monospace", fontSize: 9, fontWeight: 800,
                 color: "#0f172a", background: meta.color,
@@ -648,7 +642,7 @@ function RecentReadsPanel() {
                   fontSize: 11.5, color: "var(--sub)", marginBottom: 3,
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 }}>
-                  {r.label}
+                  {r.label}{r.route && <span style={{ color: "var(--dim)", marginLeft: 4 }}>↗</span>}
                 </div>
                 <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.5 }}>
                   {r.thesis.length > 220 ? r.thesis.slice(0, 220) + "…" : r.thesis}
@@ -660,7 +654,31 @@ function RecentReadsPanel() {
               }}>
                 {timeAgo(r.savedAt)}
               </span>
-            </div>
+            </>
+          );
+          const sharedStyle = {
+            display: "grid",
+            gridTemplateColumns: "92px 1fr auto",
+            gap: 12, alignItems: "start",
+            paddingBottom: i < reads.length - 1 ? 10 : 0,
+            borderBottom: i < reads.length - 1 ? "1px solid var(--borderf)" : "none",
+            color: "inherit",
+            textDecoration: "none",
+            transition: "background 0.15s",
+          };
+          // Clickable row when we have a route; static otherwise.
+          return r.route ? (
+            <a
+              key={i}
+              href={r.route}
+              style={{ ...sharedStyle, cursor: "pointer", margin: "-2px -6px", padding: "2px 6px", paddingBottom: i < reads.length - 1 ? 12 : 2, borderRadius: 4 }}
+              onMouseEnter={e => e.currentTarget.style.background = "rgba(0,102,204,0.04)"}
+              onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+            >
+              {rowInner}
+            </a>
+          ) : (
+            <div key={i} style={sharedStyle}>{rowInner}</div>
           );
         })}
       </div>

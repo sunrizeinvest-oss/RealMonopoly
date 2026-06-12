@@ -56,6 +56,22 @@ export function getRecentReads(limit = 5) {
   } catch { return []; }
 }
 
+// Derive a route that takes the user back to the surface this read
+// came from. Property reads deep-link the address; bulk/risk surfaces
+// jump to the parent page where they live.
+function deriveRoute(scope, input) {
+  if (!input || typeof input !== "object") return null;
+  if (scope === "property") {
+    const addr = input.address;
+    return addr ? `/property?address=${encodeURIComponent(addr)}` : "/property";
+  }
+  if (scope === "comps" || scope === "sens" || scope === "risk") return "/commercial";
+  if (scope === "batch") return "/screen";
+  if (scope === "scan") return "/triggers";
+  if (scope === "portfolio") return "/dashboard";
+  return null;
+}
+
 // Append (most-recent-first) to the rolling history list. Dedupes by
 // (scope + label) so back-to-back identical reads don't crowd the list.
 function pushHistory(entry) {
@@ -125,6 +141,7 @@ export function setCachedRead(scope, input, thesis, source = null) {
   pushHistory({
     scope,
     label: deriveLabel(scope, input),
+    route: deriveRoute(scope, input),
     thesis,
     source,
     savedAt,
