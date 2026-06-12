@@ -176,5 +176,46 @@ export function clearAllCachedReads() {
   try {
     const keys = Object.keys(localStorage).filter(k => k.startsWith(KEY_PREFIX));
     keys.forEach(k => localStorage.removeItem(k));
+    localStorage.removeItem(HISTORY_KEY);
+    localStorage.removeItem(VIEWED_KEY);
+  } catch { /* best-effort */ }
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   Read / unread tracking — savedAt timestamps are the canonical IDs.
+//
+//   The viewed set is bounded to the last 100 entries so it doesn't
+//   grow unbounded over months of use.
+// ──────────────────────────────────────────────────────────────────────
+const VIEWED_KEY = "rde_ai_read_viewed_v1";
+const VIEWED_MAX = 100;
+
+export function getViewedReadIds() {
+  try {
+    const raw = localStorage.getItem(VIEWED_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch { return new Set(); }
+}
+
+export function markReadAsViewed(savedAt) {
+  if (savedAt == null) return;
+  try {
+    const set = getViewedReadIds();
+    if (set.has(savedAt)) return;  // no-op if already viewed
+    set.add(savedAt);
+    const arr = [...set].slice(-VIEWED_MAX);
+    localStorage.setItem(VIEWED_KEY, JSON.stringify(arr));
+  } catch { /* best-effort */ }
+}
+
+export function markAllReadsAsViewed() {
+  try {
+    const reads = getRecentReads(VIEWED_MAX);
+    const set = getViewedReadIds();
+    reads.forEach(r => { if (r.savedAt != null) set.add(r.savedAt); });
+    const arr = [...set].slice(-VIEWED_MAX);
+    localStorage.setItem(VIEWED_KEY, JSON.stringify(arr));
   } catch { /* best-effort */ }
 }

@@ -580,15 +580,33 @@ export default function Dashboard() {
 // ──────────────────────────────────────────────────────────────────────
 function RecentReadsPanel() {
   const [reads, setReads] = useState([]);
+  const [viewedSet, setViewedSet] = useState(() => new Set());
   useEffect(() => {
     let cancelled = false;
-    import("./lib/aiReadCache").then(({ getRecentReads }) => {
-      if (!cancelled) setReads(getRecentReads(5));
+    import("./lib/aiReadCache").then(({ getRecentReads, getViewedReadIds }) => {
+      if (cancelled) return;
+      setReads(getRecentReads(5));
+      setViewedSet(getViewedReadIds());
     });
     return () => { cancelled = true; };
   }, []);
 
   if (!reads.length) return null;
+
+  const unreadCount = reads.filter(r => !viewedSet.has(r.savedAt)).length;
+  function markRowViewed(savedAt) {
+    if (savedAt == null) return;
+    import("./lib/aiReadCache").then(({ markReadAsViewed }) => {
+      markReadAsViewed(savedAt);
+      setViewedSet(s => new Set([...s, savedAt]));
+    });
+  }
+  function markAll() {
+    import("./lib/aiReadCache").then(({ markAllReadsAsViewed, getViewedReadIds }) => {
+      markAllReadsAsViewed();
+      setViewedSet(getViewedReadIds());
+    });
+  }
 
   const SCOPE_META = {
     property:  { label: "PROPERTY",     color: "var(--blue)"   },
@@ -618,17 +636,48 @@ function RecentReadsPanel() {
       borderRadius: 8,
     }}>
       <div style={{
-        fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
-        color: "var(--sub)", letterSpacing: "1.3px", marginBottom: 12,
+        display: "flex", alignItems: "center", gap: 10, marginBottom: 12,
       }}>
-        ▸ RECENT AI READS · {reads.length} of last 20
+        <div style={{
+          fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+          color: "var(--sub)", letterSpacing: "1.3px",
+        }}>
+          ▸ RECENT AI READS · {reads.length} of last 20
+        </div>
+        {unreadCount > 0 && (
+          <span style={{
+            fontFamily: "'Geist Mono',monospace", fontSize: 9, fontWeight: 800,
+            background: "var(--blue)", color: "#ffffff",
+            padding: "2px 7px", borderRadius: 99,
+            letterSpacing: "0.5px",
+          }}>
+            {unreadCount} NEW
+          </span>
+        )}
+        {unreadCount > 0 && (
+          <button
+            onClick={markAll}
+            style={{
+              marginLeft: "auto",
+              background: "transparent", color: "var(--sub)",
+              border: "1px solid var(--borderf)", borderRadius: 3,
+              padding: "3px 9px",
+              fontFamily: "'Geist Mono',monospace", fontSize: 9.5, fontWeight: 700,
+              letterSpacing: "0.8px", cursor: "pointer",
+            }}
+          >
+            ✓ MARK ALL READ
+          </button>
+        )}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {reads.map((r, i) => {
           const meta = SCOPE_META[r.scope] || { label: r.scope.toUpperCase(), color: "var(--sub)" };
+          const isUnread = !viewedSet.has(r.savedAt);
           const rowInner = (
             <>
               <span style={{
+                position: "relative",
                 fontFamily: "'Geist Mono',monospace", fontSize: 9, fontWeight: 800,
                 color: "#0f172a", background: meta.color,
                 letterSpacing: "1px", textAlign: "center",
@@ -636,6 +685,14 @@ function RecentReadsPanel() {
                 whiteSpace: "nowrap",
               }}>
                 {meta.label}
+                {isUnread && (
+                  <span style={{
+                    position: "absolute", top: -3, right: -3,
+                    width: 8, height: 8, borderRadius: "50%",
+                    background: "var(--blue)",
+                    border: "2px solid var(--card)",
+                  }} />
+                )}
               </span>
               <div style={{ minWidth: 0 }}>
                 <div style={{
@@ -644,7 +701,10 @@ function RecentReadsPanel() {
                 }}>
                   {r.label}{r.route && <span style={{ color: "var(--dim)", marginLeft: 4 }}>↗</span>}
                 </div>
-                <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.5 }}>
+                <div style={{
+                  fontSize: 13, color: "var(--text)", lineHeight: 1.5,
+                  fontWeight: isUnread ? 600 : 400,
+                }}>
                   {r.thesis.length > 220 ? r.thesis.slice(0, 220) + "…" : r.thesis}
                 </div>
               </div>
@@ -671,6 +731,7 @@ function RecentReadsPanel() {
             <a
               key={i}
               href={r.route}
+              onClick={() => markRowViewed(r.savedAt)}
               style={{ ...sharedStyle, cursor: "pointer", margin: "-2px -6px", padding: "2px 6px", paddingBottom: i < reads.length - 1 ? 12 : 2, borderRadius: 4 }}
               onMouseEnter={e => e.currentTarget.style.background = "rgba(0,102,204,0.04)"}
               onMouseLeave={e => e.currentTarget.style.background = "transparent"}
@@ -678,7 +739,13 @@ function RecentReadsPanel() {
               {rowInner}
             </a>
           ) : (
-            <div key={i} style={sharedStyle}>{rowInner}</div>
+            <div
+              key={i}
+              style={{ ...sharedStyle, cursor: isUnread ? "pointer" : "default" }}
+              onClick={isUnread ? () => markRowViewed(r.savedAt) : undefined}
+            >
+              {rowInner}
+            </div>
           );
         })}
       </div>
