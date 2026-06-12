@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     // Step 1: Geocode the address to get lat/lng
     const geoRes = await fetch(
       `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
-      { headers: { "User-Agent": "RealDeal/1.0 (rizeai.co)" } }
+      { headers: { "User-Agent": "RizeAI/1.0 (rizeai.co)" } }
     );
 
     let lat = null, lon = null;

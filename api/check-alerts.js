@@ -25,7 +25,7 @@ async function checkRealtorCA({ city, maxPrice, minBeds }) {
   // Step 1: geocode the city via Nominatim
   const geoUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1`;
   const geoRes = await fetch(geoUrl, {
-    headers: { 'User-Agent': 'RealDealApp/1.0 (rizeai.co)' },
+    headers: { 'User-Agent': 'RizeAI/1.0 (rizeai.co)' },
   });
 
   if (!geoRes.ok) {
@@ -65,7 +65,7 @@ async function checkRealtorCA({ city, maxPrice, minBeds }) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'User-Agent': 'Mozilla/5.0 (compatible; RealDealApp/1.0)',
+      'User-Agent': 'Mozilla/5.0 (compatible; RizeAI/1.0)',
       'Referer': 'https://www.realtor.ca/',
       'Origin': 'https://www.realtor.ca',
     },

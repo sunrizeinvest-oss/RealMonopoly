@@ -1286,7 +1286,7 @@ async function aggregateMarketNews({ market = "all", limit = 8 }) {
       try {
         const r = await fetch(f.url, {
           signal: AbortSignal.timeout(12_000),
-          headers: { "User-Agent": "RealDealEstate/1.0 (+https://rizeai.co)" },
+          headers: { "User-Agent": "RizeAI/1.0 (+https://rizeai.co)" },
         });
         if (!r.ok) return [];
         const xml = await r.text();

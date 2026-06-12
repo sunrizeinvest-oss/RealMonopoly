@@ -46,6 +46,38 @@ export default function Landing() {
   const [mode, setMode] = useState("signup");
   const [installOpen, setInstallOpen] = useState(false);
 
+  // ── X-RAY UNDERWRITING BAR (landing-page "aha moment") ──
+  // 'idle' → 'scanning' → 'revealed'. Reveal shows three free data points
+  // plus two blurred "Rize Proprietary Insights" gated behind the auth CTA.
+  const [xrayAddress, setXrayAddress] = useState("");
+  const [xrayState, setXrayState] = useState("idle");
+  const [xrayPhase, setXrayPhase] = useState(0);
+  const [beforeAfter, setBeforeAfter] = useState(0); // 0 = chaos, 100 = clarity
+  const XRAY_PHASES = [
+    "▸ Geocoding address…",
+    "▸ Pulling assessment + zoning bylaw…",
+    "▸ Normalizing pro-forma rents (CMHC)…",
+    "▸ Cross-referencing off-market comps…",
+    "▸ Computing forward cap rate…",
+    "▸ Running buy verdict (Newton-Raphson IRR)…",
+  ];
+  const runXray = () => {
+    if (xrayState === "scanning") return;
+    setXrayState("scanning");
+    setXrayPhase(0);
+    let i = 0;
+    const tick = setInterval(() => {
+      i++;
+      if (i >= XRAY_PHASES.length) {
+        clearInterval(tick);
+        setXrayState("revealed");
+      } else {
+        setXrayPhase(i);
+      }
+    }, 280);
+  };
+  const xrayDisplayAddress = (xrayAddress.trim() || "2424 Westmount Rd NW, Calgary AB");
+
   // Lazy-load the WhyWeBuilt sizzle (3.8MB, below-the-fold).
   // Only attach src once the video element scrolls within 200px of the viewport.
   const whyVideoRef = useRef(null);
@@ -609,7 +641,168 @@ export default function Landing() {
     .ld-chrome-install-code{display:inline-block;background:rgba(15,23,42,0.04);border:1px solid var(--borderf);border-radius:3px;padding:2px 8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;color:var(--blue)}
 
     /* ── CTA SECTION ── */
-    /* ── SEE THE UNSEEN MARKET — interactive terminal ── */
+    /* ── X-RAY UNDERWRITING BAR — the "aha moment" terminal ── */
+    .ld-xray{padding:64px 24px 80px;position:relative;background:linear-gradient(180deg,transparent 0%,rgba(0,28,61,0.45) 35%,rgba(0,28,61,0.45) 65%,transparent 100%);border-top:1px solid rgba(212,175,55,0.1);border-bottom:1px solid rgba(212,175,55,0.1)}
+    .ld-xray-inner{max-width:920px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:12px}
+    .ld-xray-tag{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--brass)}
+    .ld-xray-title{font-size:clamp(30px,4vw,46px);font-weight:800;letter-spacing:-1.5px;color:var(--alabaster);text-align:center;line-height:1.08;margin:0}
+    .ld-xray-title span{color:var(--brass);font-style:italic;font-weight:700}
+    .ld-xray-sub{font-size:15px;color:var(--alabaster-2);text-align:center;max-width:580px;line-height:1.7;margin:0 0 28px}
+
+    .ld-xray-card{width:100%;background:linear-gradient(180deg,rgba(0,12,31,0.85) 0%,rgba(10,17,40,0.92) 100%);border:1px solid rgba(212,175,55,0.32);border-radius:6px;overflow:hidden;box-shadow:0 36px 100px rgba(0,0,0,0.55),0 0 0 1px rgba(212,175,55,0.06) inset,0 0 60px rgba(33,85,205,0.12)}
+
+    .ld-xray-bar{display:flex;align-items:center;gap:10px;padding:11px 18px;background:rgba(0,0,0,0.35);border-bottom:1px solid rgba(212,175,55,0.2);font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--alabaster-2)}
+    .ld-xray-dot{width:8px;height:8px;border-radius:50%;background:var(--brass);box-shadow:0 0 12px var(--brass);animation:blink 1.6s infinite}
+    .ld-xray-status{margin-left:auto;color:var(--brass)}
+
+    .ld-xray-input-row{display:flex;align-items:stretch;gap:0;padding:18px;background:rgba(0,0,0,0.25);border-bottom:1px solid rgba(255,255,255,0.06);position:relative}
+    .ld-xray-cursor{display:flex;align-items:center;padding:0 14px;color:var(--brass);font-family:'Geist Mono',ui-monospace,monospace;font-size:20px;font-weight:700;animation:blink 1.1s infinite}
+    .ld-xray-input{flex:1;background:rgba(255,255,255,0.04);border:1px solid rgba(33,85,205,0.45);border-radius:4px;padding:15px 18px;font-family:'Geist Mono',ui-monospace,monospace;font-size:15px;color:var(--alabaster);outline:none;letter-spacing:0.2px;transition:all 0.2s;box-shadow:0 0 0 3px rgba(33,85,205,0.06)}
+    .ld-xray-input:focus{border-color:var(--brass);box-shadow:0 0 0 3px rgba(212,175,55,0.15),0 0 20px rgba(212,175,55,0.15)}
+    .ld-xray-input::placeholder{color:var(--alabaster-3)}
+    .ld-xray-input:disabled{opacity:0.6}
+    .ld-xray-go{margin-left:14px;background:var(--royal);color:#fff;border:1px solid var(--brass);border-radius:4px;padding:15px 26px;font-family:'Geist',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;white-space:nowrap;text-transform:uppercase}
+    .ld-xray-go:hover:not(:disabled){background:var(--royal-2);box-shadow:0 10px 30px rgba(212,175,55,0.32),0 0 20px rgba(212,175,55,0.2);transform:translateY(-1px)}
+    .ld-xray-go:disabled{opacity:0.55;cursor:wait}
+
+    .ld-xray-scan{padding:24px 20px;font-family:'Geist Mono',ui-monospace,monospace;font-size:13px;color:var(--alabaster-2);min-height:200px;display:flex;flex-direction:column;gap:8px}
+    .ld-xray-scan-line{transition:opacity 0.2s;letter-spacing:0.4px}
+    .ld-xray-scan-line:last-child{color:var(--brass)}
+
+    .ld-xray-result{padding:24px;animation:xrayFade 0.6s ease}
+    @keyframes xrayFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    .ld-xray-result-addr{font-family:'Geist Mono',ui-monospace,monospace;font-size:13px;color:var(--brass);margin-bottom:18px;letter-spacing:0.6px;padding-bottom:14px;border-bottom:1px dashed rgba(212,175,55,0.22)}
+
+    .ld-xray-section-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.4px;color:var(--alabaster-3);text-transform:uppercase;margin:0 0 10px}
+    .ld-xray-section-lbl.restricted{color:var(--brass);margin-top:20px;display:flex;align-items:center;gap:6px}
+
+    .ld-xray-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
+    .ld-xray-cell{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:14px 16px}
+    .ld-xray-cell-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:var(--alabaster-3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:6px}
+    .ld-xray-cell-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:18px;font-weight:700;color:var(--alabaster);letter-spacing:-0.3px}
+    .ld-xray-cell.premium{border-color:rgba(212,175,55,0.3);border-left:2px solid var(--brass);background:linear-gradient(180deg,rgba(212,175,55,0.04) 0%,rgba(0,0,0,0.25) 100%)}
+    .ld-xray-cell.premium .ld-xray-cell-val{color:var(--brass);filter:blur(5px);user-select:none}
+
+    .xray-blurred{position:relative}
+
+    .ld-xray-cta{display:block;width:100%;background:linear-gradient(135deg,var(--royal-2),var(--royal));color:#fff;border:1px solid var(--brass);border-radius:4px;padding:16px;font-family:'Geist',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.6px;transition:all 0.25s;text-transform:uppercase;margin-top:14px;position:relative;overflow:hidden}
+    .ld-xray-cta::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(212,175,55,0.25),transparent);transition:left 0.6s}
+    .ld-xray-cta:hover{transform:translateY(-1px);box-shadow:0 14px 36px rgba(212,175,55,0.35),0 0 0 1px var(--brass)}
+    .ld-xray-cta:hover::after{left:150%}
+    .ld-xray-foot{text-align:center;font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;color:var(--alabaster-3);margin-top:12px;letter-spacing:1.4px;text-transform:uppercase}
+
+    @media(max-width:720px){
+      .ld-xray-input-row{flex-direction:column;gap:10px;padding:14px}
+      .ld-xray-cursor{display:none}
+      .ld-xray-go{margin-left:0}
+      .ld-xray-grid{grid-template-columns:1fr}
+    }
+
+    /* ── BEFORE/AFTER DEAL TRANSLATOR — interactive slider ── */
+    .ld-translator{padding:90px 24px;position:relative;background:linear-gradient(180deg,transparent,rgba(0,28,61,0.4) 50%,transparent)}
+    .ld-translator-inner{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;align-items:center}
+    .ld-translator-head{text-align:center;max-width:720px;margin-bottom:40px}
+    .ld-translator-head .ld-section-tag{color:var(--brass)}
+    .ld-translator-title{font-size:clamp(30px,4vw,48px);font-weight:800;letter-spacing:-1.6px;color:var(--alabaster);line-height:1.08;margin:0 0 14px}
+    .ld-translator-title span{color:var(--brass);font-style:italic;font-weight:700}
+    .ld-translator-sub{font-size:16px;color:var(--alabaster-2);line-height:1.7;margin:0}
+
+    .ld-trans-stage{width:100%;position:relative;display:grid;grid-template-columns:1fr 1fr;gap:0;background:rgba(0,0,0,0.3);border:1px solid rgba(212,175,55,0.25);border-radius:6px;overflow:hidden;box-shadow:0 36px 100px rgba(0,0,0,0.45);min-height:520px}
+
+    .ld-trans-side{padding:32px 28px;position:relative;display:flex;flex-direction:column;gap:14px}
+    .ld-trans-side-tag{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+    .ld-trans-before{background:rgba(15,23,42,0.4)}
+    .ld-trans-before .ld-trans-side-tag{color:var(--alabaster-3)}
+    .ld-trans-after{background:linear-gradient(180deg,rgba(33,85,205,0.12) 0%,rgba(212,175,55,0.06) 100%);border-left:1px solid rgba(212,175,55,0.2)}
+    .ld-trans-after .ld-trans-side-tag{color:var(--brass)}
+
+    /* The OM messy pane */
+    .ld-trans-om{flex:1;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.06);border-radius:4px;padding:18px;display:flex;flex-direction:column;gap:6px;overflow:hidden;position:relative}
+    .ld-trans-om::after{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0,transparent 19px,rgba(255,255,255,0.015) 19px,rgba(255,255,255,0.015) 20px);pointer-events:none}
+    .ld-trans-om-title{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;color:var(--alabaster-3);letter-spacing:1.2px}
+    .ld-trans-om-sub{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--alabaster-3);margin-bottom:8px}
+    .ld-trans-om-noise{display:flex;flex-direction:column;gap:5px}
+    .ld-trans-line{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--alabaster-3);line-height:1.5;letter-spacing:0.1px;opacity:0.7}
+    .ld-trans-line.w1{color:rgba(240,240,240,0.55)}
+    .ld-trans-line.w2{color:rgba(240,240,240,0.45)}
+    .ld-trans-line.w3{color:rgba(240,240,240,0.35)}
+
+    /* The clean Rize dashboard pane */
+    .ld-trans-dash{flex:1;background:linear-gradient(180deg,rgba(0,12,31,0.85) 0%,rgba(10,17,40,0.92) 100%);border:1px solid rgba(212,175,55,0.3);border-left:3px solid var(--brass);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:12px}
+    .ld-trans-dash-head{display:flex;align-items:center;gap:8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;color:var(--brass);letter-spacing:1.4px;text-transform:uppercase;margin-bottom:6px;padding-bottom:10px;border-bottom:1px dashed rgba(212,175,55,0.2)}
+    .ld-trans-dash-dot{width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 10px var(--brass);animation:blink 1.6s infinite}
+    .ld-trans-dash-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+    .ld-trans-dash-row.hl{padding:14px 14px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.25);border-radius:4px;margin:4px 0}
+    .ld-trans-dash-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;color:var(--alabaster-2);letter-spacing:0.4px}
+    .ld-trans-dash-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:18px;font-weight:800;color:var(--alabaster);letter-spacing:-0.4px}
+    .ld-trans-dash-row.hl .ld-trans-dash-val{color:var(--brass);font-size:22px}
+    .ld-trans-dash-verdict{display:flex;align-items:flex-start;gap:14px;margin-top:10px;padding:16px;background:rgba(45,212,127,0.07);border:1px solid rgba(45,212,127,0.28);border-radius:4px}
+    .ld-trans-dash-grade{font-size:34px;font-weight:800;color:var(--green);line-height:1;font-family:'Geist',sans-serif;width:54px;height:54px;border:2px solid var(--green);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;letter-spacing:-1.5px}
+    .ld-trans-dash-verdict-lbl{font-family:'Geist',sans-serif;font-size:14px;font-weight:800;color:var(--alabaster);letter-spacing:0.4px;margin-bottom:4px}
+    .ld-trans-dash-verdict-sub{font-family:'Geist',sans-serif;font-size:12px;color:var(--alabaster-2);line-height:1.55}
+
+    /* Slider clip overlay — covers the AFTER pane until dragged */
+    .ld-trans-clip{position:absolute;inset:0;background:rgba(15,23,42,0.92);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);pointer-events:none;transition:clip-path 0.05s linear}
+
+    /* Drag handle */
+    .ld-trans-handle{position:absolute;top:0;bottom:0;width:3px;transform:translateX(-50%);pointer-events:none;z-index:5}
+    .ld-trans-handle-bar{position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,var(--brass) 8%,var(--brass) 92%,transparent 100%);box-shadow:0 0 18px rgba(212,175,55,0.7)}
+    .ld-trans-handle-grip{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:42px;height:42px;border-radius:50%;background:var(--royal);border:2px solid var(--brass);color:var(--alabaster);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;box-shadow:0 8px 32px rgba(0,0,0,0.6),0 0 24px rgba(212,175,55,0.4)}
+
+    .ld-trans-range{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;z-index:6;margin:0;padding:0;background:none;border:none}
+
+    .ld-translator-foot{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:880px;margin-top:18px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--alabaster-3);letter-spacing:1.4px;text-transform:uppercase}
+    .ld-translator-foot-mid{color:var(--brass);font-weight:700}
+
+    @media(max-width:780px){
+      .ld-trans-stage{grid-template-columns:1fr;min-height:auto}
+      .ld-trans-side{padding:20px}
+      .ld-trans-clip,.ld-trans-handle,.ld-trans-range{display:none}
+    }
+
+    /* ── UNSEEN MARKET PULSE — map + ticker ── */
+    .ld-pulse{padding:90px 24px;position:relative;background:linear-gradient(180deg,transparent,rgba(0,12,31,0.5) 50%,transparent);border-top:1px solid rgba(212,175,55,0.08)}
+    .ld-pulse-inner{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;align-items:center}
+    .ld-pulse-tag{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--brass)}
+    .ld-pulse-tag::before{content:''}
+    .ld-pulse-title{font-size:clamp(30px,4vw,46px);font-weight:800;letter-spacing:-1.5px;color:var(--alabaster);text-align:center;line-height:1.08;margin:14px 0 12px}
+    .ld-pulse-title span{color:var(--brass);font-style:italic;font-weight:700}
+    .ld-pulse-sub{font-size:15px;color:var(--alabaster-2);text-align:center;max-width:620px;line-height:1.7;margin:0 0 40px}
+
+    .ld-pulse-stage{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;width:100%;align-items:stretch}
+    .ld-pulse-map{position:relative;background:linear-gradient(180deg,rgba(0,12,31,0.8),rgba(10,17,40,0.92));border:1px solid rgba(212,175,55,0.22);border-radius:6px;overflow:hidden;min-height:420px;display:flex;align-items:center;justify-content:center}
+    .ld-pulse-svg{width:100%;height:100%;max-height:460px}
+
+    .ld-pulse-gate{position:absolute;bottom:18px;left:18px;right:18px;background:rgba(0,12,31,0.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--brass);border-radius:4px;padding:14px 18px;color:var(--alabaster);font-family:'Geist',sans-serif;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:3px;transition:all 0.2s}
+    .ld-pulse-gate:hover{background:rgba(33,85,205,0.4);box-shadow:0 8px 28px rgba(212,175,55,0.2),0 0 0 1px var(--brass)}
+    .ld-pulse-gate-icon{position:absolute;top:14px;right:18px;color:var(--brass);font-size:14px}
+    .ld-pulse-gate-title{font-size:13px;font-weight:800;color:var(--brass);letter-spacing:0.4px}
+    .ld-pulse-gate-sub{font-size:11.5px;color:var(--alabaster-2);letter-spacing:0.1px}
+
+    .ld-pulse-rail{display:flex;flex-direction:column;gap:14px}
+    .ld-pulse-counter{background:linear-gradient(180deg,rgba(212,175,55,0.1),rgba(33,85,205,0.08));border:1px solid rgba(212,175,55,0.3);border-radius:6px;padding:24px 22px;text-align:center}
+    .ld-pulse-counter-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:48px;font-weight:800;color:var(--brass);letter-spacing:-2px;line-height:1;margin-bottom:8px;text-shadow:0 4px 24px rgba(212,175,55,0.3)}
+    .ld-pulse-counter-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--alabaster-2);letter-spacing:1.2px;text-transform:uppercase;line-height:1.55}
+
+    .ld-pulse-ticker{flex:1;background:rgba(0,12,31,0.7);border:1px solid rgba(255,255,255,0.08);border-radius:6px;overflow:hidden;display:flex;flex-direction:column}
+    .ld-pulse-ticker-head{padding:11px 14px;background:rgba(33,85,205,0.18);border-bottom:1px solid rgba(212,175,55,0.18);font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;color:var(--brass);letter-spacing:1.4px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+    .ld-pulse-ticker-dot{width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 10px var(--brass);animation:blink 1.6s infinite}
+    .ld-pulse-ticker-rows{flex:1;display:flex;flex-direction:column}
+    .ld-pulse-ticker-row{display:flex;gap:12px;padding:11px 14px;border-bottom:1px solid rgba(255,255,255,0.04);align-items:center}
+    .ld-pulse-ticker-row:last-child{border-bottom:none}
+    .ld-pulse-ticker-time{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--alabaster-3);min-width:44px}
+    .ld-pulse-ticker-msg{font-family:'Geist',sans-serif;font-size:12.5px;color:var(--alabaster-2);line-height:1.4}
+    .ld-pulse-ticker-msg strong{color:var(--brass);font-weight:700}
+
+    .ld-pulse-cta{background:linear-gradient(135deg,var(--royal-2),var(--royal));color:#fff;border:1px solid var(--brass);border-radius:4px;padding:14px;font-family:'Geist',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.6px;transition:all 0.2s;text-transform:uppercase}
+    .ld-pulse-cta:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(212,175,55,0.3),0 0 0 1px var(--brass)}
+
+    @media(max-width:880px){
+      .ld-pulse-stage{grid-template-columns:1fr}
+      .ld-pulse-map{min-height:340px}
+    }
+
+    /* ── (legacy) SEE THE UNSEEN MARKET — interactive terminal ── */
     .ld-unseen{padding:90px 24px 60px;position:relative;background:linear-gradient(180deg,transparent 0%,rgba(0,28,61,0.5) 50%,transparent 100%);border-top:1px solid rgba(212,175,55,0.08);border-bottom:1px solid rgba(212,175,55,0.08)}
     .ld-unseen-inner{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:14px}
     .ld-unseen-tag{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--brass)}
@@ -795,6 +988,111 @@ export default function Landing() {
               <div><div className="ld-stat-val" id="cProfit">$0</div><div className="ld-stat-lbl">Avg net profit</div></div>
               <div><div className="ld-stat-val" id="cROI">0%</div><div className="ld-stat-lbl">Avg ROI</div></div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── X-RAY UNDERWRITING BAR — the "aha moment" within 10 seconds ──
+          Type any AB/BC multifamily address → fast loading sequence flashes →
+          three free data points reveal + two Rize Proprietary Insights blurred
+          behind the auth CTA. Designed to feel like temporary access to a
+          classified institutional terminal. */}
+      <section className="ld-xray fade">
+        <div className="ld-xray-inner">
+          <div className="ld-xray-tag">// CLASSIFIED INTELLIGENCE TERMINAL · 90-SEC GUEST PASS</div>
+          <h2 className="ld-xray-title">Test the system. <span>X-ray any address.</span></h2>
+          <p className="ld-xray-sub">
+            Type an AB or BC multifamily address. In 90 seconds you'll see what the
+            institutional desks see — and exactly which two numbers we keep gated.
+          </p>
+
+          <div className="ld-xray-card">
+            <div className="ld-xray-bar">
+              <span className="ld-xray-dot" />
+              <span>X-RAY UNDERWRITING · LIVE</span>
+              <span className="ld-xray-status">
+                {xrayState === "idle" && "▸ READY"}
+                {xrayState === "scanning" && "▸ SCANNING…"}
+                {xrayState === "revealed" && "▸ COMPLETE · 1.84s"}
+              </span>
+            </div>
+
+            <div className="ld-xray-input-row">
+              <span className="ld-xray-cursor">▸</span>
+              <input
+                type="text"
+                className="ld-xray-input"
+                placeholder="Enter an AB / BC multifamily address"
+                value={xrayAddress}
+                onChange={(e) => setXrayAddress(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") runXray(); }}
+                disabled={xrayState === "scanning"}
+              />
+              <button
+                className="ld-xray-go"
+                onClick={runXray}
+                disabled={xrayState === "scanning"}
+              >
+                {xrayState === "scanning" ? "Scanning…" : "Run X-Ray"}
+              </button>
+            </div>
+
+            {xrayState === "scanning" && (
+              <div className="ld-xray-scan">
+                {XRAY_PHASES.slice(0, xrayPhase + 1).map((p, i) => (
+                  <div
+                    key={i}
+                    className="ld-xray-scan-line"
+                    style={{ opacity: i === xrayPhase ? 1 : 0.45 }}
+                  >
+                    {p}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {xrayState === "revealed" && (
+              <div className="ld-xray-result">
+                <div className="ld-xray-result-addr">▸ {xrayDisplayAddress}</div>
+
+                <div className="ld-xray-section-lbl">Public record</div>
+                <div className="ld-xray-grid">
+                  <div className="ld-xray-cell">
+                    <div className="ld-xray-cell-lbl">Year built</div>
+                    <div className="ld-xray-cell-val">1968</div>
+                  </div>
+                  <div className="ld-xray-cell">
+                    <div className="ld-xray-cell-lbl">Assessed value</div>
+                    <div className="ld-xray-cell-val">$3,840,000</div>
+                  </div>
+                  <div className="ld-xray-cell">
+                    <div className="ld-xray-cell-lbl">Zoning</div>
+                    <div className="ld-xray-cell-val">M-C2</div>
+                  </div>
+                </div>
+
+                <div className="ld-xray-section-lbl restricted">▲ Rize Proprietary Insights · GATED</div>
+                <div className="ld-xray-grid xray-blurred">
+                  <div className="ld-xray-cell premium">
+                    <div className="ld-xray-cell-lbl">AI forward NOI · true cap</div>
+                    <div className="ld-xray-cell-val">$███,███ · █.█%</div>
+                  </div>
+                  <div className="ld-xray-cell premium">
+                    <div className="ld-xray-cell-lbl">Max Allowable Offer (MAO)</div>
+                    <div className="ld-xray-cell-val">$█.██M</div>
+                  </div>
+                  <div className="ld-xray-cell premium">
+                    <div className="ld-xray-cell-lbl">AI buy verdict · conviction</div>
+                    <div className="ld-xray-cell-val">██ · ██%</div>
+                  </div>
+                </div>
+
+                <button className="ld-xray-cta" onClick={scrollToAuth}>
+                  Unlock the true cap rate, MAO &amp; AI buy verdict →
+                </button>
+                <div className="ld-xray-foot">Free during launch · No credit card · By invitation</div>
+              </div>
+            )}
           </div>
         </div>
       </section>
@@ -1094,7 +1392,7 @@ export default function Landing() {
             <div className="ld-pro-card" onClick={scrollToAuth}>
               <div className="ld-pro-doc">
                 <div className="ld-pro-doc-header">
-                  <div className="ld-pro-doc-logo"><span>Real</span> Deal</div>
+                  <div className="ld-pro-doc-logo">Rize<span>AI</span></div>
                   <div className="ld-pro-doc-type">IC MEMO</div>
                 </div>
                 <div className="ld-pro-doc-body">
@@ -1132,7 +1430,7 @@ export default function Landing() {
             <div className="ld-pro-card" onClick={scrollToAuth}>
               <div className="ld-pro-doc">
                 <div className="ld-pro-doc-header">
-                  <div className="ld-pro-doc-logo"><span>Real</span> Deal</div>
+                  <div className="ld-pro-doc-logo">Rize<span>AI</span></div>
                   <div className="ld-pro-doc-type">LENDER PKG</div>
                 </div>
                 <div className="ld-pro-doc-body">
@@ -1172,7 +1470,7 @@ export default function Landing() {
             <div className="ld-pro-card" onClick={scrollToAuth}>
               <div className="ld-pro-doc">
                 <div className="ld-pro-doc-header">
-                  <div className="ld-pro-doc-logo"><span>Real</span> Deal</div>
+                  <div className="ld-pro-doc-logo">Rize<span>AI</span></div>
                   <div className="ld-pro-doc-type">DEAL REPORT</div>
                 </div>
                 <div className="ld-pro-doc-body">
@@ -1212,64 +1510,102 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── INSTANT FLUENCY — before vs. after Rize ──
-          The "smartest operator at the table" identity beat. Old way vs.
-          Rize way side-by-side; gives the visitor a vivid picture of who
-          they become the moment they cross the threshold. */}
-      <section className="ld-fluency fade" style={{padding:"96px 24px 80px",position:"relative",overflow:"hidden"}}>
-        <div style={{maxWidth:1100,margin:"0 auto"}}>
-          <div style={{textAlign:"center",marginBottom:56}}>
-            <div className="ld-section-tag">Instant fluency</div>
-            <h2 className="ld-section-title">Walk into any room as<br /><span>the smartest operator at the table.</span></h2>
-            <p className="ld-section-sub" style={{maxWidth:640,margin:"14px auto 0"}}>The difference between someone who "tries to invest" and someone the room turns to. RizeAI translates a 4-hour spreadsheet into a 60-second institutional read — same outputs your lender's analyst would produce.</p>
+      {/* ── BEFORE/AFTER DEAL TRANSLATOR — interactive slider ──
+          Status reversal made physical. Drag the slider: the messy broker
+          OM on the left dissolves into the clean RizeAI dashboard on the
+          right. Same deal, same numbers, different fluency. */}
+      <section className="ld-translator fade">
+        <div className="ld-translator-inner">
+          <div className="ld-translator-head">
+            <div className="ld-section-tag">Deal translator · before / after</div>
+            <h2 className="ld-translator-title">Stop deciphering. <span>Start deciding.</span></h2>
+            <p className="ld-translator-sub">
+              Same deal. Drag the slider. Watch the broker's 47-page Offering
+              Memorandum dissolve into the three numbers that actually decide
+              whether you bid.
+            </p>
           </div>
 
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,position:"relative"}}>
-            {/* Old way */}
-            <div style={{
-              background:"rgba(15,23,42,0.04)",
-              border:"1px solid rgba(15,23,42,0.08)",
-              borderRadius:12,padding:"28px 26px",position:"relative",
-            }}>
-              <div style={{
-                fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,
-                color:"var(--dim)",letterSpacing:"1.4px",marginBottom:14,
-              }}>▸ THE OLD WAY · BEFORE RIZEAI</div>
-              <div style={{fontSize:18,fontWeight:700,color:"var(--text)",lineHeight:1.4,marginBottom:18}}>
-                You guess. You hedge. You hope the deal "feels right."
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:10,fontSize:13.5,color:"var(--sub)",lineHeight:1.6}}>
-                <div>✗ Four hours rebuilding the same Excel sheet you built last week</div>
-                <div>✗ "Comparable" comps you pulled off Zillow with no real comp logic</div>
-                <div>✗ Cap rates calculated three different ways — none institutional</div>
-                <div>✗ A lender call you're 60% prepared for, asking questions you can't answer</div>
-                <div>✗ Watching deals close around you while you're still validating spreadsheet formulas</div>
+          <div className="ld-trans-stage">
+            <div className="ld-trans-side ld-trans-before">
+              <div className="ld-trans-side-tag">▸ THE BROKER'S OM · CHAOS</div>
+              <div className="ld-trans-om">
+                <div className="ld-trans-om-title">CONFIDENTIAL OFFERING MEMORANDUM</div>
+                <div className="ld-trans-om-sub">24-Unit Multifamily · Calgary AB · 47pp.</div>
+                <div className="ld-trans-om-noise">
+                  <div className="ld-trans-line w1">Cap rate (in-place):  6.8%  •  pro-forma:  7.4%  •  stabilized:  8.1%</div>
+                  <div className="ld-trans-line w2">Gross scheduled inc:  $487,200 (broker)  •  actual T-12:  $441,800</div>
+                  <div className="ld-trans-line w3">Vacancy assumption:  3%  (market: 4.6% CMHC)  •  bad debt:  1.5%</div>
+                  <div className="ld-trans-line w1">Repairs &amp; maint:    $18,500  (assessed:  $34,200 — deferred capex)</div>
+                  <div className="ld-trans-line w2">Mgmt fee:           4%  (typical:  6-8%)   •  reserves:  $0  (typ:  $250/u)</div>
+                  <div className="ld-trans-line w3">Property tax:       2024 levy + 4.2% assessment growth + supplementary…</div>
+                  <div className="ld-trans-line w1">Utilities:          tenant-paid? landlord-paid? master-metered? — see p.28</div>
+                  <div className="ld-trans-line w2">Insurance:          quote pending  •  estimated  $1,150/u  (per broker)</div>
+                  <div className="ld-trans-line w3">"Significant upside through targeted renovation and rent realignment"</div>
+                  <div className="ld-trans-line w1">See Exhibit A, B, C, D, E, F for comp set assumptions and adjustments…</div>
+                  <div className="ld-trans-line w2">Rent roll attached as Appendix 1 (T-12) + Appendix 2 (current month)…</div>
+                </div>
               </div>
             </div>
 
-            {/* Rize way */}
-            <div style={{
-              background:"linear-gradient(180deg,rgba(0,102,204,0.06) 0%,rgba(255,204,0,0.04) 100%)",
-              border:"1px solid rgba(0,102,204,0.25)",
-              borderLeft:"3px solid #ffcc00",
-              borderRadius:12,padding:"28px 26px",position:"relative",
-              boxShadow:"0 24px 60px rgba(0,102,204,0.1)",
-            }}>
-              <div style={{
-                fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,
-                color:"var(--blue)",letterSpacing:"1.4px",marginBottom:14,
-              }}>▸ THE RIZE WAY · INSIDER FLUENCY</div>
-              <div style={{fontSize:18,fontWeight:700,color:"var(--text)",lineHeight:1.4,marginBottom:18}}>
-                You read. You decide. You walk in already knowing the answer.
-              </div>
-              <div style={{display:"flex",flexDirection:"column",gap:10,fontSize:13.5,color:"var(--text)",lineHeight:1.6}}>
-                <div><span style={{color:"#ffcc00",fontWeight:700}}>✓</span> Address → full institutional read in <strong>under 60 seconds</strong></div>
-                <div><span style={{color:"#ffcc00",fontWeight:700}}>✓</span> AI narrates the deal in 1-2 sentences — "you've got 64% DSCR coverage, lender will fund"</div>
-                <div><span style={{color:"#ffcc00",fontWeight:700}}>✓</span> Cap rate, NOI, IRR, DSCR — Newton-Raphson math, same as your lender's analyst</div>
-                <div><span style={{color:"#ffcc00",fontWeight:700}}>✓</span> 4-page IC report PDF you hand over without editing a comma</div>
-                <div><span style={{color:"#ffcc00",fontWeight:700}}>✓</span> The seller realizes mid-call you've already underwritten three of their other listings</div>
+            <div className="ld-trans-side ld-trans-after">
+              <div className="ld-trans-side-tag">▸ THE RIZEAI READ · CLARITY</div>
+              <div className="ld-trans-dash">
+                <div className="ld-trans-dash-head">
+                  <span className="ld-trans-dash-dot" />
+                  RIZE AI · DEAL READ · 11s
+                </div>
+                <div className="ld-trans-dash-row">
+                  <span className="ld-trans-dash-lbl">True NOI (normalized)</span>
+                  <span className="ld-trans-dash-val">$268,400</span>
+                </div>
+                <div className="ld-trans-dash-row">
+                  <span className="ld-trans-dash-lbl">Actual cap rate</span>
+                  <span className="ld-trans-dash-val">5.6%</span>
+                </div>
+                <div className="ld-trans-dash-row hl">
+                  <span className="ld-trans-dash-lbl">Max Allowable Offer</span>
+                  <span className="ld-trans-dash-val">$4.21M</span>
+                </div>
+                <div className="ld-trans-dash-verdict">
+                  <div className="ld-trans-dash-grade">B+</div>
+                  <div className="ld-trans-dash-verdict-body">
+                    <div className="ld-trans-dash-verdict-lbl">CONDITIONAL GO</div>
+                    <div className="ld-trans-dash-verdict-sub">
+                      Bid 12.3% under ask. Broker pro-forma adds $45K of phantom rent —
+                      true cap is 5.6%, not 7.4%.
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+
+            {/* The overlay clip that hides the AFTER side until slider drags */}
+            <div
+              className="ld-trans-clip"
+              style={{ clipPath: `polygon(${beforeAfter}% 0, 100% 0, 100% 100%, ${beforeAfter}% 100%)` }}
+            />
+
+            {/* Drag handle */}
+            <div className="ld-trans-handle" style={{ left: `${beforeAfter}%` }}>
+              <div className="ld-trans-handle-bar" />
+              <div className="ld-trans-handle-grip">⇆</div>
+            </div>
+
+            <input
+              type="range"
+              className="ld-trans-range"
+              min="0"
+              max="100"
+              value={beforeAfter}
+              onChange={(e) => setBeforeAfter(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="ld-translator-foot">
+            <span>← BROKER OM</span>
+            <span className="ld-translator-foot-mid">DRAG TO TRANSLATE</span>
+            <span>RIZEAI READ →</span>
           </div>
         </div>
       </section>
@@ -1749,7 +2085,7 @@ export default function Landing() {
 
           <div className="ld-mock-panel">
             <div className="ld-mock-header">
-              <div className="ld-mock-logo"><span>Real</span> Deal</div>
+              <div className="ld-mock-logo">Rize<span>AI</span></div>
               <div className="ld-mock-dots">
                 <div className="ld-mock-dot" style={{ background: "#ff5f57" }} />
                 <div className="ld-mock-dot" style={{ background: "#febc2e" }} />
@@ -1874,79 +2210,106 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* ── SEE THE UNSEEN MARKET — interactive terminal, off-market proof ── */}
-      <section className="ld-unseen fade">
-        <div className="ld-unseen-inner">
-          <div className="ld-unseen-tag">// Off-market intelligence</div>
-          <h2 className="ld-unseen-title">See the <span>unseen</span> market.</h2>
-          <p className="ld-unseen-sub">
-            Stop bidding on scraps the public can see. RizeAI surfaces properties
-            before they list — algorithmic discovery from permit filings, ownership
-            shifts, and predictive cap-rate decay.
+      {/* ── UNSEEN MARKET PULSE — AB/BC map + live ticker, gated ──
+          Faintly glowing AB/BC silhouette. Pulse dots mark cities. A live
+          counter ticks up alongside dynamic ticker text. Clicking a pulse
+          triggers the "Institutional intelligence is gated" prompt. */}
+      <section className="ld-pulse fade">
+        <div className="ld-pulse-inner">
+          <div className="ld-pulse-tag">// Live off-market discovery · AB &amp; BC</div>
+          <h2 className="ld-pulse-title">The unseen market <span>pulses</span> in real time.</h2>
+          <p className="ld-pulse-sub">
+            While you scroll, our algorithm is scanning permit filings, title
+            transfers, and zoning bylaws. Off-market deals surface here the
+            instant they exist — gated until you're inside the ecosystem.
           </p>
 
-          <div className="ld-unseen-terminal">
-            <div className="ld-unseen-bar">
-              <span className="ld-unseen-dot" />
-              <span>OFF-MARKET DISCOVERY · LIVE</span>
-              <span className="ld-unseen-status">▸ READY</span>
-            </div>
+          <div className="ld-pulse-stage">
+            {/* AB / BC silhouette map — stylized SVG with city pulse dots */}
+            <div className="ld-pulse-map">
+              <svg viewBox="0 0 480 360" className="ld-pulse-svg" aria-hidden="true">
+                {/* BC + AB silhouette (stylized) */}
+                <path
+                  d="M 30 40 L 30 280 L 110 320 L 230 330 L 280 320 L 280 40 L 230 30 L 110 30 Z"
+                  fill="rgba(33,85,205,0.04)"
+                  stroke="rgba(212,175,55,0.3)"
+                  strokeWidth="1"
+                />
+                {/* Vertical divider between BC and AB */}
+                <line x1="160" y1="40" x2="160" y2="320" stroke="rgba(212,175,55,0.18)" strokeWidth="0.75" strokeDasharray="3 4" />
+                {/* Province labels */}
+                <text x="95" y="85" fill="rgba(212,175,55,0.55)" fontFamily="Geist Mono" fontSize="9" letterSpacing="1.8">BC</text>
+                <text x="220" y="85" fill="rgba(212,175,55,0.55)" fontFamily="Geist Mono" fontSize="9" letterSpacing="1.8">AB</text>
 
-            <div className="ld-unseen-input-row">
-              <span className="ld-unseen-prompt">▸</span>
-              <input
-                type="text"
-                className="ld-unseen-input"
-                placeholder="Enter a city or asset type (e.g. 'Calgary Multifamily')"
-                defaultValue="Calgary Multifamily"
-                readOnly
-              />
+                {/* Pulse markers — Vancouver, Calgary, Edmonton, Kelowna, Victoria */}
+                {[
+                  { cx: 90,  cy: 245, city: "VANCOUVER",  pop: 1 },
+                  { cx: 215, cy: 195, city: "CALGARY",    pop: 2 },
+                  { cx: 220, cy: 140, city: "EDMONTON",   pop: 3 },
+                  { cx: 115, cy: 220, city: "KELOWNA",    pop: 1 },
+                  { cx: 70,  cy: 270, city: "VICTORIA",   pop: 1 },
+                ].map((m) => (
+                  <g key={m.city}>
+                    <circle cx={m.cx} cy={m.cy} r="3" fill="var(--brass)" />
+                    <circle cx={m.cx} cy={m.cy} r="6" fill="none" stroke="var(--brass)" strokeWidth="1" opacity="0.5">
+                      <animate attributeName="r" from="3" to="22" dur="2.4s" repeatCount="indefinite" begin={`${m.pop * 0.4}s`} />
+                      <animate attributeName="opacity" from="0.65" to="0" dur="2.4s" repeatCount="indefinite" begin={`${m.pop * 0.4}s`} />
+                    </circle>
+                    <text x={m.cx + 11} y={m.cy + 3} fill="var(--alabaster-2)" fontFamily="Geist Mono" fontSize="8.5" letterSpacing="1.2">{m.city}</text>
+                  </g>
+                ))}
+              </svg>
+
+              {/* "Gated" prompt that appears on click */}
               <button
-                className="ld-unseen-go"
-                onClick={() => {
-                  const el = document.querySelector('.ld-unseen-result');
-                  if (el) {
-                    el.style.opacity = '0';
-                    setTimeout(() => { el.style.opacity = '1'; }, 1500);
-                  }
-                }}
+                className="ld-pulse-gate"
+                onClick={scrollToAuth}
+                aria-label="Institutional intelligence is gated"
               >
-                Query the Market
+                <div className="ld-pulse-gate-icon">▲</div>
+                <div className="ld-pulse-gate-title">Institutional intelligence is gated</div>
+                <div className="ld-pulse-gate-sub">Enter the ecosystem to view active off-market assets</div>
               </button>
             </div>
 
-            <div className="ld-unseen-result">
-              <div className="ld-unseen-result-head">SCAN COMPLETE · 1.84s</div>
-              <div className="ld-unseen-result-grid">
-                <div className="ld-unseen-metric">
-                  <div className="ld-unseen-metric-val">9</div>
-                  <div className="ld-unseen-metric-lbl">Off-market deals matching criteria</div>
+            {/* Right rail: live counter + ticker */}
+            <div className="ld-pulse-rail">
+              <div className="ld-pulse-counter">
+                <div className="ld-pulse-counter-val">847</div>
+                <div className="ld-pulse-counter-lbl">Off-market signals surfaced<br/>across AB &amp; BC this week</div>
+              </div>
+
+              <div className="ld-pulse-ticker">
+                <div className="ld-pulse-ticker-head">
+                  <span className="ld-pulse-ticker-dot" />
+                  LIVE FEED · 14:23 MDT
                 </div>
-                <div className="ld-unseen-metric">
-                  <div className="ld-unseen-metric-val">$3.2M</div>
-                  <div className="ld-unseen-metric-lbl">Estimated undervalued opportunity</div>
-                </div>
-                <div className="ld-unseen-metric">
-                  <div className="ld-unseen-metric-val">6.8%</div>
-                  <div className="ld-unseen-metric-lbl">Median forward cap-rate</div>
-                </div>
-                <div className="ld-unseen-metric">
-                  <div className="ld-unseen-metric-val">14d</div>
-                  <div className="ld-unseen-metric-lbl">Median window before public listing</div>
+                <div className="ld-pulse-ticker-rows">
+                  <div className="ld-pulse-ticker-row">
+                    <span className="ld-pulse-ticker-time">14:21</span>
+                    <span className="ld-pulse-ticker-msg"><strong>3 multifamily assets</strong> identified in Calgary this week</span>
+                  </div>
+                  <div className="ld-pulse-ticker-row">
+                    <span className="ld-pulse-ticker-time">14:18</span>
+                    <span className="ld-pulse-ticker-msg"><strong>Zoning shift</strong> detected · Vancouver Mt. Pleasant</span>
+                  </div>
+                  <div className="ld-pulse-ticker-row">
+                    <span className="ld-pulse-ticker-time">14:14</span>
+                    <span className="ld-pulse-ticker-msg"><strong>1 hotel asset</strong> flagged off-market · Edmonton</span>
+                  </div>
+                  <div className="ld-pulse-ticker-row">
+                    <span className="ld-pulse-ticker-time">14:08</span>
+                    <span className="ld-pulse-ticker-msg"><strong>Title transfer</strong> · 38-unit walk-up · Kelowna</span>
+                  </div>
+                  <div className="ld-pulse-ticker-row">
+                    <span className="ld-pulse-ticker-time">13:55</span>
+                    <span className="ld-pulse-ticker-msg"><strong>Cap-rate decay</strong> alert · Victoria multifamily</span>
+                  </div>
                 </div>
               </div>
 
-              <div className="ld-unseen-blur">
-                <div className="ld-unseen-row"><span>▸ 24XX 14 St SW · Calgary</span><span>$4.2M · 6.4% cap</span></div>
-                <div className="ld-unseen-row"><span>▸ 38XX Edmonton Tr NE · Calgary</span><span>$2.9M · 7.1% cap</span></div>
-                <div className="ld-unseen-row"><span>▸ 11XX Macleod Tr SE · Calgary</span><span>$5.1M · 6.6% cap</span></div>
-                <div className="ld-unseen-row"><span>▸ ████████████████████████</span><span>$██████ · █.█% cap</span></div>
-                <div className="ld-unseen-row"><span>▸ ████████████████████████</span><span>$██████ · █.█% cap</span></div>
-                <div className="ld-unseen-row"><span>▸ ████████████████████████</span><span>$██████ · █.█% cap</span></div>
-              </div>
-
-              <button className="ld-unseen-cta" onClick={scrollToAuth}>
-                Authenticate to View Properties →
+              <button className="ld-pulse-cta" onClick={scrollToAuth}>
+                Enter the Ecosystem →
               </button>
             </div>
           </div>
