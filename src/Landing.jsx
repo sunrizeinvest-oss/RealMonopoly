@@ -47,11 +47,14 @@ export default function Landing() {
   const [installOpen, setInstallOpen] = useState(false);
 
   // ── X-RAY UNDERWRITING BAR (landing-page "aha moment") ──
-  // 'idle' → 'scanning' → 'revealed'. Reveal shows three free data points
-  // plus two blurred "Rize Proprietary Insights" gated behind the auth CTA.
+  // 'idle' → 'scanning' → 'revealed' | 'error'. Reveal shows three free
+  // data points from /api/property-lookup (yearBuilt, assessedValue, zoning)
+  // plus three blurred "Rize Proprietary Insights" gated behind the auth CTA.
   const [xrayAddress, setXrayAddress] = useState("");
   const [xrayState, setXrayState] = useState("idle");
   const [xrayPhase, setXrayPhase] = useState(0);
+  const [xrayData, setXrayData] = useState(null);
+  const [xrayError, setXrayError] = useState("");
   const [beforeAfter, setBeforeAfter] = useState(0); // 0 = chaos, 100 = clarity
   const XRAY_PHASES = [
     "▸ Geocoding address…",
@@ -61,22 +64,77 @@ export default function Landing() {
     "▸ Computing forward cap rate…",
     "▸ Running buy verdict (Newton-Raphson IRR)…",
   ];
-  const runXray = () => {
+
+  const runXray = async () => {
     if (xrayState === "scanning") return;
+    const addr = xrayAddress.trim();
+    if (!addr) {
+      setXrayError("Enter an address to begin.");
+      setXrayState("error");
+      return;
+    }
+    setXrayError("");
+    setXrayData(null);
     setXrayState("scanning");
     setXrayPhase(0);
-    let i = 0;
+
+    // Drive the phase ticker independent of the network call so the
+    // loading sequence always reads as a deliberate, classified-terminal
+    // scan even when the API returns in 200ms.
+    let phase = 0;
     const tick = setInterval(() => {
-      i++;
-      if (i >= XRAY_PHASES.length) {
+      phase++;
+      if (phase >= XRAY_PHASES.length - 1) {
         clearInterval(tick);
-        setXrayState("revealed");
+        setXrayPhase(XRAY_PHASES.length - 1);
       } else {
-        setXrayPhase(i);
+        setXrayPhase(phase);
       }
-    }, 280);
+    }, 320);
+
+    // Minimum perceived scan time = 1.6s — anything faster doesn't feel
+    // earned and breaks the "Aha! Moment" tension.
+    const start = Date.now();
+    const minScanMs = 1600;
+
+    try {
+      const resp = await fetch(`/api/property-lookup?address=${encodeURIComponent(addr)}`);
+      const payload = await resp.json().catch(() => ({}));
+
+      if (!resp.ok) {
+        throw new Error(payload?.error || `Lookup failed (${resp.status})`);
+      }
+
+      const elapsed = Date.now() - start;
+      if (elapsed < minScanMs) {
+        await new Promise(r => setTimeout(r, minScanMs - elapsed));
+      }
+      clearInterval(tick);
+
+      setXrayData({
+        address:        payload.address || addr,
+        yearBuilt:      payload.yearBuilt,
+        assessedValue:  payload.assessedValue,
+        propertyTaxes:  payload.propertyTaxes,
+        squareFootage:  payload.squareFootage,
+        zoningCode:     payload.zoning?.code,
+        zoningDesc:     payload.zoning?.description,
+        country:        payload.country,
+        source:         payload.source,
+        scanMs:         Math.max(elapsed, minScanMs),
+      });
+      setXrayState("revealed");
+    } catch (err) {
+      clearInterval(tick);
+      setXrayError(err?.message || "Scan failed. Try a different address.");
+      setXrayState("error");
+    }
   };
-  const xrayDisplayAddress = (xrayAddress.trim() || "2424 Westmount Rd NW, Calgary AB");
+
+  const xrayDisplayAddress = (xrayData?.address || xrayAddress.trim() || "2424 Westmount Rd NW, Calgary AB");
+  const fmtUSD = (n) => (typeof n === "number" && Number.isFinite(n))
+    ? "$" + Math.round(n).toLocaleString()
+    : "—";
 
   // Lazy-load the WhyWeBuilt sizzle (3.8MB, below-the-fold).
   // Only attach src once the video element scrolls within 200px of the viewport.
@@ -671,7 +729,17 @@ export default function Landing() {
 
     .ld-xray-result{padding:24px;animation:xrayFade 0.6s ease}
     @keyframes xrayFade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    .ld-xray-result-addr{font-family:'Geist Mono',ui-monospace,monospace;font-size:13px;color:var(--brass);margin-bottom:18px;letter-spacing:0.6px;padding-bottom:14px;border-bottom:1px dashed rgba(212,175,55,0.22)}
+    .ld-xray-result-addr{font-family:'Geist Mono',ui-monospace,monospace;font-size:13px;color:var(--brass);margin-bottom:18px;letter-spacing:0.6px;padding-bottom:14px;border-bottom:1px dashed rgba(212,175,55,0.22);display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
+    .ld-xray-result-src{font-size:10px;color:var(--alabaster-3);letter-spacing:1.2px;text-transform:uppercase}
+    .ld-xray-cell-fine{font-family:'Geist Mono',ui-monospace,monospace;font-size:9.5px;color:var(--alabaster-3);margin-top:4px;letter-spacing:0.6px;line-height:1.4}
+
+    /* Error / inconclusive state */
+    .ld-xray-error{display:flex;align-items:flex-start;gap:14px;padding:22px 24px;background:rgba(242,92,92,0.06);border:1px solid rgba(242,92,92,0.25);border-left:3px solid var(--red);margin:18px;border-radius:4px;animation:xrayFade 0.4s ease}
+    .ld-xray-error-icon{color:var(--red);font-size:16px;margin-top:2px}
+    .ld-xray-error-title{font-family:'Geist',sans-serif;font-size:14px;font-weight:800;color:var(--alabaster);letter-spacing:0.3px;margin-bottom:5px}
+    .ld-xray-error-sub{font-family:'Geist',sans-serif;font-size:13px;color:var(--alabaster-2);line-height:1.55}
+    .ld-xray-error-eg{background:none;border:none;color:var(--brass);font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;font-weight:600;cursor:pointer;padding:0;letter-spacing:0.1px;text-decoration:underline;text-decoration-color:rgba(212,175,55,0.4);text-underline-offset:3px}
+    .ld-xray-error-eg:hover{color:var(--alabaster);text-decoration-color:var(--brass)}
 
     .ld-xray-section-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.4px;color:var(--alabaster-3);text-transform:uppercase;margin:0 0 10px}
     .ld-xray-section-lbl.restricted{color:var(--brass);margin-top:20px;display:flex;align-items:center;gap:6px}
@@ -1013,7 +1081,8 @@ export default function Landing() {
               <span className="ld-xray-status">
                 {xrayState === "idle" && "▸ READY"}
                 {xrayState === "scanning" && "▸ SCANNING…"}
-                {xrayState === "revealed" && "▸ COMPLETE · 1.84s"}
+                {xrayState === "revealed" && `▸ COMPLETE · ${(xrayData?.scanMs / 1000).toFixed(2)}s`}
+                {xrayState === "error" && "▸ SCAN FAILED"}
               </span>
             </div>
 
@@ -1051,23 +1120,57 @@ export default function Landing() {
               </div>
             )}
 
-            {xrayState === "revealed" && (
+            {xrayState === "error" && (
+              <div className="ld-xray-error">
+                <div className="ld-xray-error-icon">▲</div>
+                <div className="ld-xray-error-body">
+                  <div className="ld-xray-error-title">Scan inconclusive</div>
+                  <div className="ld-xray-error-sub">
+                    {xrayError}{" "}
+                    Try a full Canadian address — e.g.{" "}
+                    <button
+                      type="button"
+                      className="ld-xray-error-eg"
+                      onClick={() => {
+                        setXrayAddress("2424 Westmount Rd NW, Calgary AB");
+                        setXrayState("idle");
+                        setXrayError("");
+                      }}
+                    >2424 Westmount Rd NW, Calgary AB</button>.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {xrayState === "revealed" && xrayData && (
               <div className="ld-xray-result">
-                <div className="ld-xray-result-addr">▸ {xrayDisplayAddress}</div>
+                <div className="ld-xray-result-addr">
+                  ▸ {xrayDisplayAddress}
+                  {xrayData.source && (
+                    <span className="ld-xray-result-src"> · src: {xrayData.source}</span>
+                  )}
+                </div>
 
                 <div className="ld-xray-section-lbl">Public record</div>
                 <div className="ld-xray-grid">
                   <div className="ld-xray-cell">
                     <div className="ld-xray-cell-lbl">Year built</div>
-                    <div className="ld-xray-cell-val">1968</div>
+                    <div className="ld-xray-cell-val">
+                      {xrayData.yearBuilt ? xrayData.yearBuilt : "—"}
+                    </div>
                   </div>
                   <div className="ld-xray-cell">
                     <div className="ld-xray-cell-lbl">Assessed value</div>
-                    <div className="ld-xray-cell-val">$3,840,000</div>
+                    <div className="ld-xray-cell-val">{fmtUSD(xrayData.assessedValue)}</div>
                   </div>
                   <div className="ld-xray-cell">
                     <div className="ld-xray-cell-lbl">Zoning</div>
-                    <div className="ld-xray-cell-val">M-C2</div>
+                    <div className="ld-xray-cell-val">
+                      {xrayData.zoningCode || "—"}
+                    </div>
+                    {xrayData.zoningDesc && (
+                      <div className="ld-xray-cell-fine">{xrayData.zoningDesc}</div>
+                    )}
                   </div>
                 </div>
 
