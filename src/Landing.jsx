@@ -195,10 +195,13 @@ export default function Landing() {
     /* ── HERO ── */
     .ld-hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:96px 24px 56px;position:relative;overflow:hidden;background:#0f172a}
     .ld-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,102,204,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,102,204,0.06) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:2}
-    /* ── Full-bleed video background ── */
-    .ld-hero-bgvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.55}
-    .ld-hero-bgvid-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,0.55) 0%,rgba(15,23,42,0.35) 35%,rgba(15,23,42,0.65) 75%,rgba(15,23,42,0.92) 100%);z-index:1;pointer-events:none}
-    .ld-hero-bgvid-tint{position:absolute;inset:0;background:radial-gradient(ellipse at center top,rgba(0,102,204,0.25) 0%,transparent 60%);z-index:1;pointer-events:none}
+    /* ── Full-bleed video background ──
+       Heavy blur + saturation boost turns the product walkthrough into
+       ambient motion + color (no readable UI behind the foreground text).
+       Same treatment Linear / Stripe Atlas / Vercel use for hero videos. */
+    .ld-hero-bgvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.42;filter:blur(14px) saturate(1.4) brightness(0.85);transform:scale(1.08);will-change:transform}
+    .ld-hero-bgvid-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,23,42,0.72) 0%,rgba(15,23,42,0.5) 35%,rgba(15,23,42,0.7) 70%,rgba(15,23,42,0.95) 100%);z-index:1;pointer-events:none}
+    .ld-hero-bgvid-tint{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 30%,rgba(0,102,204,0.32) 0%,transparent 55%),radial-gradient(ellipse at 80% 80%,rgba(255,204,0,0.12) 0%,transparent 50%);z-index:1;pointer-events:none}
     .ld-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(59,158,255,0.09) 0%,transparent 65%);pointer-events:none;animation:breathe 5s ease-in-out infinite}
     @keyframes breathe{0%,100%{opacity:1}50%{opacity:0.55}}
     .ld-hero-inner{max-width:1320px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:28px;position:relative;z-index:3}
@@ -206,16 +209,16 @@ export default function Landing() {
     .ld-eyebrow{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#ffffff;margin-bottom:18px;display:inline-flex;align-items:center;gap:8px;background:rgba(0,102,204,0.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.2);padding:6px 12px;border-radius:99px}
     .ld-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:#ffcc00;animation:blink 2s infinite;flex-shrink:0;box-shadow:0 0 8px #ffcc00}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-    .ld-h1{font-size:clamp(36px,5.4vw,64px);font-weight:800;line-height:1.04;letter-spacing:-2.5px;color:#ffffff;margin-bottom:14px;text-shadow:0 4px 20px rgba(15,23,42,0.55)}
-    .ld-h1 span{color:#ffcc00}
-    .ld-hero-p{font-size:17px;color:rgba(255,255,255,0.88);line-height:1.7;margin:0 auto;max-width:620px;text-shadow:0 2px 12px rgba(15,23,42,0.4)}
+    .ld-h1{font-size:clamp(40px,6vw,72px);font-weight:800;line-height:1.02;letter-spacing:-2.8px;color:#ffffff;margin-bottom:18px;text-shadow:0 6px 28px rgba(15,23,42,0.7),0 1px 0 rgba(0,0,0,0.5)}
+    .ld-h1 span{color:#ffcc00;text-shadow:0 6px 32px rgba(255,204,0,0.35),0 6px 28px rgba(15,23,42,0.7)}
+    .ld-hero-p{font-size:17px;color:rgba(255,255,255,0.92);line-height:1.7;margin:0 auto;max-width:620px;text-shadow:0 2px 16px rgba(15,23,42,0.6)}
     .ld-hero-foot{display:flex;flex-direction:column;gap:16px;align-items:center;max-width:980px;margin:0 auto;width:100%}
     .ld-hero-trust{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:0}
     .ld-trust-pill{display:flex;align-items:center;gap:8px;font-size:12.5px;color:rgba(255,255,255,0.92);font-weight:500;font-family:'Geist Mono',ui-monospace,monospace;border:1px solid rgba(255,255,255,0.15);border-radius:4px;padding:6px 11px;background:rgba(255,255,255,0.06);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);letter-spacing:0.1px}
     .ld-trust-pill:hover{border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.12)}
 
     /* Live activity strip */
-    .ld-activity{background:rgba(15,23,42,0.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:0;margin:0 auto;width:100%;max-width:720px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.45)}
+    .ld-activity{background:rgba(15,23,42,0.72);backdrop-filter:blur(24px) saturate(1.4);-webkit-backdrop-filter:blur(24px) saturate(1.4);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:0;margin:0 auto;width:100%;max-width:720px;overflow:hidden;box-shadow:0 28px 90px rgba(0,0,0,0.55),0 0 0 1px rgba(255,204,0,0.05)}
     .ld-activity-head{padding:8px 14px;background:rgba(0,102,204,0.15);border-bottom:1px solid rgba(255,255,255,0.08);font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;color:#ffffff;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
     .ld-activity-glyph{color:#ffcc00;animation:blink 2s infinite}
     .ld-activity-rows{display:flex;flex-direction:column}
