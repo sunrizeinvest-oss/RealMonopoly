@@ -19,7 +19,61 @@
  */
 
 const KEY_PREFIX = "rde_ai_read_";
+const HISTORY_KEY = "rde_ai_read_history_v1";
+const HISTORY_MAX = 20;
 const DEFAULT_TTL_MS = 24 * 60 * 60 * 1000;  // 24 hours
+
+// Derive a short human-readable label for a history entry. Falls back to
+// the scope name if no obvious context field is present.
+function deriveLabel(scope, input) {
+  if (!input || typeof input !== "object") return scope;
+  if (input.address) return String(input.address).slice(0, 60);
+  if (input.area)    return String(input.area).slice(0, 60);
+  if (scope === "portfolio" && input.totalDeals)
+    return `${input.totalDeals} saved deal${input.totalDeals === 1 ? "" : "s"}`;
+  if (scope === "batch" && input.totalAddresses)
+    return `${input.totalAddresses} address${input.totalAddresses === 1 ? "" : "es"}`;
+  if (scope === "scan" && input.triggerCount)
+    return `${input.triggerCount} trigger${input.triggerCount === 1 ? "" : "s"}`;
+  if (scope === "comps" && input.compCount)
+    return `${input.compCount} comp${input.compCount === 1 ? "" : "s"}`;
+  if (scope === "risk")
+    return `Monte Carlo · IRR P50 ${input.irrP50 ? (input.irrP50 * 100).toFixed(1) + "%" : "—"}`;
+  if (scope === "sens")
+    return "Sensitivity grids";
+  return scope;
+}
+
+// Read the recent-reads list (most recent first). Returns array of
+// { scope, label, thesis, source, savedAt }. Never throws.
+export function getRecentReads(limit = 5) {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr.slice(0, limit);
+  } catch { return []; }
+}
+
+// Append (most-recent-first) to the rolling history list. Dedupes by
+// (scope + label) so back-to-back identical reads don't crowd the list.
+function pushHistory(entry) {
+  try {
+    const existing = (() => {
+      try {
+        const raw = localStorage.getItem(HISTORY_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch { return []; }
+    })();
+    const dedupe = existing.filter(e =>
+      !(e.scope === entry.scope && e.label === entry.label)
+    );
+    const next = [entry, ...dedupe].slice(0, HISTORY_MAX);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(next));
+  } catch { /* best-effort */ }
+}
 
 // Stable, compact hash for an object — used to key reads by metric shape.
 // We don't need cryptographic strength; just collision-resistant enough to
@@ -56,17 +110,25 @@ export function getCachedRead(scope, input, ttlMs = DEFAULT_TTL_MS) {
 
 /**
  * Save a fresh thesis to the cache. No-op on storage error (private mode,
- * quota exceeded, etc.).
+ * quota exceeded, etc.). Also appends to the rolling history list.
  */
 export function setCachedRead(scope, input, thesis, source = null) {
   if (!thesis) return;
+  const savedAt = Date.now();
   try {
     localStorage.setItem(key(scope, input), JSON.stringify({
       thesis,
       source,
-      savedAt: Date.now(),
+      savedAt,
     }));
   } catch { /* best-effort */ }
+  pushHistory({
+    scope,
+    label: deriveLabel(scope, input),
+    thesis,
+    source,
+    savedAt,
+  });
 }
 
 /**

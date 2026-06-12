@@ -339,6 +339,12 @@ export default function Dashboard() {
           </div>
         )}
 
+        {/* ── Recent AI Reads — last 5 across all 9 surfaces ──
+            Sourced from localStorage history (lib/aiReadCache pushes
+            here every time a thesis is written). Shows the user the
+            arc of how Claude has read their work over time. */}
+        <RecentReadsPanel />
+
         {/* Stats */}
         {totalDeals > 0 && (
           <div className="db-stats">
@@ -552,6 +558,111 @@ export default function Dashboard() {
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   RecentReadsPanel — last 5 AI Reads across all surfaces
+//
+//   Sourced from lib/aiReadCache's rolling history (auto-populated on
+//   every successful cache write). Each row shows:
+//     · scope badge (PROPERTY / SCAN / PORTFOLIO / etc.)
+//     · contextual label (address, area, deal count, etc.)
+//     · time-ago stamp
+//     · the thesis itself, truncated
+//
+//   Hides entirely when history is empty. Lazy-loads from localStorage
+//   once on mount; no live subscription (history only grows in the
+//   background during the same session, which is fine for a Dashboard
+//   panel — the user can refresh).
+// ──────────────────────────────────────────────────────────────────────
+function RecentReadsPanel() {
+  const [reads, setReads] = useState([]);
+  useEffect(() => {
+    let cancelled = false;
+    import("./lib/aiReadCache").then(({ getRecentReads }) => {
+      if (!cancelled) setReads(getRecentReads(5));
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  if (!reads.length) return null;
+
+  const SCOPE_META = {
+    property:  { label: "PROPERTY",     color: "var(--blue)"   },
+    risk:      { label: "RISK SIM",     color: "var(--purple)" },
+    comps:     { label: "COMP MATRIX",  color: "var(--blue)"   },
+    sens:      { label: "SENSITIVITY",  color: "var(--purple)" },
+    batch:     { label: "BULK SCREEN",  color: "var(--gold)"   },
+    scan:      { label: "TRIGGERS",     color: "var(--red)"    },
+    portfolio: { label: "PORTFOLIO",    color: "var(--green)"  },
+  };
+
+  function timeAgo(ts) {
+    if (!ts) return "—";
+    const s = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+    if (s < 60)        return `${s}s ago`;
+    if (s < 3600)      return `${Math.floor(s/60)}m ago`;
+    if (s < 86400)     return `${Math.floor(s/3600)}h ago`;
+    return `${Math.floor(s/86400)}d ago`;
+  }
+
+  return (
+    <div style={{
+      marginBottom: 28,
+      padding: "14px 18px",
+      background: "rgba(15,23,42,0.025)",
+      border: "1px solid var(--borderf)",
+      borderRadius: 8,
+    }}>
+      <div style={{
+        fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+        color: "var(--sub)", letterSpacing: "1.3px", marginBottom: 12,
+      }}>
+        ▸ RECENT AI READS · {reads.length} of last 20
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {reads.map((r, i) => {
+          const meta = SCOPE_META[r.scope] || { label: r.scope.toUpperCase(), color: "var(--sub)" };
+          return (
+            <div key={i} style={{
+              display: "grid",
+              gridTemplateColumns: "92px 1fr auto",
+              gap: 12, alignItems: "start",
+              paddingBottom: i < reads.length - 1 ? 10 : 0,
+              borderBottom: i < reads.length - 1 ? "1px solid var(--borderf)" : "none",
+            }}>
+              <span style={{
+                fontFamily: "'Geist Mono',monospace", fontSize: 9, fontWeight: 800,
+                color: "#0f172a", background: meta.color,
+                letterSpacing: "1px", textAlign: "center",
+                padding: "3px 6px", borderRadius: 3,
+                whiteSpace: "nowrap",
+              }}>
+                {meta.label}
+              </span>
+              <div style={{ minWidth: 0 }}>
+                <div style={{
+                  fontSize: 11.5, color: "var(--sub)", marginBottom: 3,
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>
+                  {r.label}
+                </div>
+                <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.5 }}>
+                  {r.thesis.length > 220 ? r.thesis.slice(0, 220) + "…" : r.thesis}
+                </div>
+              </div>
+              <span style={{
+                fontFamily: "'Geist Mono',monospace", fontSize: 10,
+                color: "var(--dim)", whiteSpace: "nowrap",
+              }}>
+                {timeAgo(r.savedAt)}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
