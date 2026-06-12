@@ -40,15 +40,34 @@ export async function getZoning({ lat, lng, address }) {
 }
 
 export async function getAssessment({ lat, lng, address }) {
-  // Same polygon issue as getZoning — use intersects().
-  const u = url(DS_ASSESSMENT, {
+  // The geocoder returns street-line coords, so an exact intersects() against
+  // the parcel polygon usually misses by 20-40m. Try intersects() first (cheap,
+  // and authoritative when the geocode lands on the parcel), then fall back to
+  // the nearest parcel within 50m. 50m keeps us inside the same lot — never
+  // jumping the street to an unrelated neighbour.
+  const exactUrl = url(DS_ASSESSMENT, {
     $where: `intersects(multipolygon, 'POINT(${lng} ${lat})')`,
     $limit: 1,
   });
-  const res = await fetch(u);
-  if (!res.ok) return null;
-  const rows = await res.json();
-  if (!rows.length) return null;
+  const exactRes = await fetch(exactUrl);
+  if (!exactRes.ok) return null;
+  let rows = await exactRes.json();
+
+  if (!rows.length) {
+    const nearestUrl = url(DS_ASSESSMENT, {
+      $select: `*, distance_in_meters(multipolygon, 'POINT(${lng} ${lat})') as _dist`,
+      $order: "_dist ASC",
+      $limit: 1,
+    });
+    const nearRes = await fetch(nearestUrl);
+    if (!nearRes.ok) return null;
+    const nearRows = await nearRes.json();
+    if (!nearRows.length) return null;
+    const dist = parseFloat(nearRows[0]._dist);
+    if (!(dist >= 0) || dist > 50) return null;
+    rows = nearRows;
+  }
+
   const r = rows[0];
   return {
     assessedValue: parseFloat(r.assessed_value) || null,

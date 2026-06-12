@@ -39,26 +39,60 @@ export async function getZoning({ lat, lng, address }) {
  * Assessment lookup by address (more reliable than coord-based — latitude is
  * stored as string in Socrata and numeric comparisons return blank rows).
  */
+// Edmonton's open-data assessment dataset stores street types fully expanded
+// ("101 STREET NW", not "101 ST NW"). The geocoder hands us the abbreviated
+// form, so we expand every common suffix — anywhere in the token sequence,
+// not just trailing — before querying.
+const STREET_SUFFIX = {
+  ST: "STREET", AVE: "AVENUE", RD: "ROAD", DR: "DRIVE",
+  BLVD: "BOULEVARD", PL: "PLACE", CRES: "CRESCENT", CR: "CRESCENT",
+  CT: "COURT", LN: "LANE", WY: "WAY", PKY: "PARKWAY", PKWY: "PARKWAY",
+  TER: "TERRACE", TRL: "TRAIL", TR: "TRAIL", HWY: "HIGHWAY", CIR: "CIRCLE",
+  GDNS: "GARDENS", GRN: "GREEN", HTS: "HEIGHTS", LNDG: "LANDING",
+  MNR: "MANOR", PT: "POINT", PTE: "POINTE", VW: "VIEW", VLG: "VILLAGE",
+};
+const DIRECTIONAL = new Set(["N", "S", "E", "W", "NW", "NE", "SW", "SE"]);
+
+function expandEdmontonStreet(streetRaw) {
+  const tokens = streetRaw.trim().toUpperCase().split(/\s+/);
+  return tokens.map(t => STREET_SUFFIX[t] || t).join(" ");
+}
+
 export async function getAssessment({ address }) {
   if (!address) return null;
   const m = /^\s*(\d+)\s+(.+?)(?:,|$)/.exec(address.toUpperCase());
   if (!m) return null;
   const house = m[1];
-  let street = m[2].trim();
-  if (street.endsWith(" AVE")) street = street.slice(0, -4) + " AVENUE";
-  if (street.endsWith(" ST")) street = street.slice(0, -3) + " STREET";
-  const u = url(DS_ASSESSMENT, {
-    $where: `house_number='${house}' AND street_name='${street.replace(/'/g, "''")}'`,
-    $limit: 1,
-  });
-  const res = await fetch(u);
-  if (!res.ok) return null;
-  const rows = await res.json();
-  if (!rows.length) return null;
-  const r = rows[0];
+  const streetExpanded = expandEdmontonStreet(m[2]);
+
+  // Try the full expanded street first.
+  const tryQuery = async (street) => {
+    const u = url(DS_ASSESSMENT, {
+      $where: `house_number='${house}' AND street_name='${street.replace(/'/g, "''")}'`,
+      $limit: 1,
+    });
+    const res = await fetch(u);
+    if (!res.ok) return null;
+    const rows = await res.json();
+    return rows.length ? rows[0] : null;
+  };
+
+  let r = await tryQuery(streetExpanded);
+
+  // Fallback: drop a trailing directional (rare alignment mismatch between
+  // geocoder and dataset, e.g. "101 STREET" vs "101 STREET NW").
+  if (!r) {
+    const tokens = streetExpanded.split(/\s+/);
+    if (DIRECTIONAL.has(tokens[tokens.length - 1])) {
+      r = await tryQuery(tokens.slice(0, -1).join(" "));
+    }
+  }
+
+  if (!r) return null;
   return {
     assessedValue: parseFloat(r.assessed_value) || null,
     assessmentYear: r.assessment_year || null,
+    yearBuilt: null, // Edmonton's open-data assessment doesn't publish year built
     taxClass: r.tax_class || null,
     houseNumber: r.house_number || null,
     streetName: r.street_name || null,
