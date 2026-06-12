@@ -669,10 +669,10 @@ export default function Landing() {
           <div className="ld-hero-head">
             <div className="ld-eyebrow">
               <div className="ld-eyebrow-dot" />
-              ● LIVE — RIZE AI TERMINAL · US &amp; CANADA
+              ● THE HIDDEN DOOR · INSIDER ACCESS · NORTH AMERICA
             </div>
-            <h1 className="ld-h1">Know if it's a <span>real deal.</span><br />In minutes.</h1>
-            <p className="ld-hero-p">Stop wasting hours on spreadsheets. Get instant property evaluation — ARV estimate, full cost breakdown, and a plain-English <strong style={{color:"#ffcc00"}}>Go</strong> / <strong style={{color:"#ff7676"}}>No-Go</strong> verdict. Clarity before you commit.</p>
+            <h1 className="ld-h1">Underwrite like<br /><span>an insider.</span></h1>
+            <p className="ld-hero-p">Stop guessing on on-market scraps. RizeAI gives you the AI infrastructure used to source, analyze, and close off-market deals with the same fluency as the institutional desks — in under <strong style={{color:"#ffcc00"}}>60 seconds</strong>, not 4 hours of spreadsheets.</p>
           </div>
 
           <div className="ld-hero-foot">
@@ -1123,6 +1123,184 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── INSTANT FLUENCY — before vs. after Rize ──
+          The "smartest operator at the table" identity beat. Old way vs.
+          Rize way side-by-side; gives the visitor a vivid picture of who
+          they become the moment they cross the threshold. */}
+      <section className="ld-fluency fade" style={{padding:"96px 24px 80px",position:"relative",overflow:"hidden"}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:56}}>
+            <div className="ld-section-tag">Instant fluency</div>
+            <h2 className="ld-section-title">Walk into any room as<br /><span>the smartest operator at the table.</span></h2>
+            <p className="ld-section-sub" style={{maxWidth:640,margin:"14px auto 0"}}>The difference between someone who "tries to invest" and someone the room turns to. RizeAI translates a 4-hour spreadsheet into a 60-second institutional read — same outputs your lender's analyst would produce.</p>
+          </div>
+
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:24,position:"relative"}}>
+            {/* Old way */}
+            <div style={{
+              background:"rgba(15,23,42,0.04)",
+              border:"1px solid rgba(15,23,42,0.08)",
+              borderRadius:12,padding:"28px 26px",position:"relative",
+            }}>
+              <div style={{
+                fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,
+                color:"var(--dim)",letterSpacing:"1.4px",marginBottom:14,
+              }}>▸ THE OLD WAY · BEFORE RIZEAI</div>
+              <div style={{fontSize:18,fontWeight:700,color:"var(--text)",lineHeight:1.4,marginBottom:18}}>
+                You guess. You hedge. You hope the deal "feels right."
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:10,fontSize:13.5,color:"var(--sub)",lineHeight:1.6}}>
+                <div>✗ Four hours rebuilding the same Excel sheet you built last week</div>
+                <div>✗ "Comparable" comps you pulled off Zillow with no real comp logic</div>
+                <div>✗ Cap rates calculated three different ways — none institutional</div>
+                <div>✗ A lender call you're 60% prepared for, asking questions you can't answer</div>
+                <div>✗ Watching deals close around you while you're still validating spreadsheet formulas</div>
+              </div>
+            </div>
+
+            {/* Rize way */}
+            <div style={{
+              background:"linear-gradient(180deg,rgba(0,102,204,0.06) 0%,rgba(255,204,0,0.04) 100%)",
+              border:"1px solid rgba(0,102,204,0.25)",
+              borderLeft:"3px solid #ffcc00",
+              borderRadius:12,padding:"28px 26px",position:"relative",
+              boxShadow:"0 24px 60px rgba(0,102,204,0.1)",
+            }}>
+              <div style={{
+                fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,
+                color:"var(--blue)",letterSpacing:"1.4px",marginBottom:14,
+              }}>▸ THE RIZE WAY · INSIDER FLUENCY</div>
+              <div style={{fontSize:18,fontWeight:700,color:"var(--text)",lineHeight:1.4,marginBottom:18}}>
+                You read. You decide. You walk in already knowing the answer.
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:10,fontSize:13.5,color:"var(--text)",lineHeight:1.6}}>
+                <div><span style={{color:"#ffcc00",fontWeight:700}}>✓</span> Address → full institutional read in <strong>under 60 seconds</strong></div>
+                <div><span style={{color:"#ffcc00",fontWeight:700}}>✓</span> AI narrates the deal in 1-2 sentences — "you've got 64% DSCR coverage, lender will fund"</div>
+                <div><span style={{color:"#ffcc00",fontWeight:700}}>✓</span> Cap rate, NOI, IRR, DSCR — Newton-Raphson math, same as your lender's analyst</div>
+                <div><span style={{color:"#ffcc00",fontWeight:700}}>✓</span> 4-page IC report PDF you hand over without editing a comma</div>
+                <div><span style={{color:"#ffcc00",fontWeight:700}}>✓</span> The seller realizes mid-call you've already underwritten three of their other listings</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── DAILY RITUAL — "your new morning ceremony" ──
+          The product-as-religion beat. Visualises logging in with morning
+          coffee as the daily ritual that grounds the day in intelligence. */}
+      <section className="ld-ritual fade" style={{
+        padding:"96px 24px",
+        background:"linear-gradient(180deg,rgba(15,23,42,0.02) 0%,rgba(0,102,204,0.04) 50%,rgba(15,23,42,0.02) 100%)",
+        position:"relative",
+      }}>
+        <div style={{maxWidth:1100,margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 1fr",gap:48,alignItems:"center"}}>
+          <div>
+            <div className="ld-section-tag" style={{textAlign:"left",marginBottom:14}}>Your new morning ceremony</div>
+            <h2 className="ld-section-title" style={{textAlign:"left",fontSize:"clamp(28px,3.6vw,44px)",lineHeight:1.1,marginBottom:18}}>
+              Before the market wakes up,<br /><span>you're already informed.</span>
+            </h2>
+            <p style={{fontSize:16.5,color:"var(--sub)",lineHeight:1.75,marginBottom:24}}>
+              The way operators check Bloomberg with their coffee — that's RizeAI on your phone before you even pour the second cup. Off-market signals from the last 24h. Zoning shifts in your target markets. The three deals worth a closer read. No overwhelm. Just pure, actionable intelligence.
+            </p>
+            <ul style={{listStyle:"none",padding:0,margin:0,display:"flex",flexDirection:"column",gap:12}}>
+              {[
+                {time:"07:00",text:"Daily Market Brief lands in your inbox — Calgary, YYZ, BC sub-markets in one read"},
+                {time:"07:05",text:"Three flagged signals from saved Triggers · two STRONG, one OK"},
+                {time:"07:12",text:"You've already routed two to your lender. The day hasn't started."},
+              ].map((row,i) => (
+                <li key={i} style={{
+                  display:"grid",gridTemplateColumns:"60px 1fr",gap:14,alignItems:"start",
+                  padding:"10px 0",
+                  borderBottom: i < 2 ? "1px solid var(--borderf)" : "none",
+                }}>
+                  <span style={{fontFamily:"'Geist Mono',monospace",fontSize:12,fontWeight:700,color:"var(--blue)",letterSpacing:"0.5px"}}>{row.time}</span>
+                  <span style={{fontSize:13.5,color:"var(--text)",lineHeight:1.55}}>{row.text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div style={{position:"relative"}}>
+            <div style={{
+              background:"linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%)",
+              borderRadius:14,
+              padding:"22px 22px 26px",
+              boxShadow:"0 32px 90px rgba(0,102,204,0.2)",
+              border:"1px solid rgba(255,204,0,0.15)",
+              position:"relative",overflow:"hidden",
+            }}>
+              <div style={{
+                display:"flex",alignItems:"center",gap:8,marginBottom:18,
+                fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,
+                color:"rgba(255,255,255,0.85)",letterSpacing:"1.2px",
+              }}>
+                <span style={{width:7,height:7,borderRadius:"50%",background:"#ffcc00",boxShadow:"0 0 10px #ffcc00",animation:"blink 2s infinite"}} />
+                07:00 · DAILY MARKET BRIEF · CALGARY
+              </div>
+
+              <div style={{color:"#ffcc00",fontSize:10,fontWeight:800,letterSpacing:"1.3px",fontFamily:"'Geist Mono',monospace",marginBottom:8}}>▸ AI READ · TODAY'S TAKE</div>
+              <div style={{color:"rgba(255,255,255,0.95)",fontSize:13.5,lineHeight:1.6,marginBottom:18,fontStyle:"italic"}}>
+                "BoC held at 4.5% — Storeys flags YYC condo listings up 18% MoM, suggesting buyer's-market window for multifamily acquisitions before fall."
+              </div>
+
+              <div style={{display:"flex",flexDirection:"column",gap:10}}>
+                {[
+                  {title:"Calgary 6-plex on Centre St. drops $50K",pill:"STRONG",pillColor:"#16a34a"},
+                  {title:"YYC NE land assembly · 3 lots same owner",pill:"OK",pillColor:"#ffcc00"},
+                  {title:"Storeys: BoC rate-decision day Thursday",pill:"WATCH",pillColor:"#0066cc"},
+                ].map((row,i) => (
+                  <div key={i} style={{
+                    display:"flex",alignItems:"center",gap:10,
+                    padding:"10px 12px",
+                    background:"rgba(255,255,255,0.06)",
+                    backdropFilter:"blur(10px)",
+                    border:"1px solid rgba(255,255,255,0.1)",
+                    borderRadius:5,
+                  }}>
+                    <span style={{flex:1,color:"#ffffff",fontSize:12.5,fontWeight:500}}>{row.title}</span>
+                    <span style={{
+                      fontFamily:"'Geist Mono',monospace",fontSize:9,fontWeight:800,
+                      letterSpacing:"0.8px",padding:"3px 7px",borderRadius:3,
+                      background:row.pillColor,color:"#0f172a",
+                    }}>{row.pill}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{position:"absolute",top:-50,right:-50,width:200,height:200,background:"radial-gradient(circle,rgba(255,204,0,0.15) 0%,transparent 70%)",pointerEvents:"none"}} />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── THE RIZE ETHOS — manifesto ──
+          The Hidden Door positioning. Frames RizeAI not as "tool I bought"
+          but "ecosystem I joined." Builds the movement / legacy framing. */}
+      <section className="ld-ethos fade" style={{padding:"96px 24px",textAlign:"center",position:"relative"}}>
+        <div style={{maxWidth:780,margin:"0 auto"}}>
+          <div className="ld-section-tag">The RizeAI ethos</div>
+          <h2 className="ld-section-title" style={{marginBottom:24,lineHeight:1.18}}>Real estate isn't a transaction.<br /><span>It's literacy in a market that locked you out.</span></h2>
+          <p style={{fontSize:17,color:"var(--sub)",lineHeight:1.75,marginBottom:20,maxWidth:680,margin:"0 auto 20px"}}>
+            For decades the institutional desks held the data, the math, and the language. They had analysts running Newton-Raphson IRR while you ran "purchase × 7%" on the back of an envelope. The room had a door, and you weren't supposed to find it.
+          </p>
+          <p style={{fontSize:17,color:"var(--text)",lineHeight:1.75,marginBottom:32,fontWeight:600,maxWidth:680,margin:"0 auto 32px"}}>
+            RizeAI is the door. Same infrastructure. Same fluency. In your pocket. Free during launch.
+          </p>
+          <div style={{
+            display:"inline-block",
+            padding:"14px 22px",
+            background:"linear-gradient(135deg,rgba(0,102,204,0.05) 0%,rgba(255,204,0,0.05) 100%)",
+            border:"1px solid rgba(0,102,204,0.18)",
+            borderLeft:"3px solid #ffcc00",
+            borderRadius:6,
+            fontFamily:"'Geist Mono',monospace",fontSize:11.5,fontWeight:700,
+            color:"var(--text)",letterSpacing:"0.8px",
+          }}>
+            ▸ NOT A SOFTWARE PURCHASE. A STATUS UPGRADE.
+          </div>
+        </div>
+      </section>
+
       {/* ── WHY WE BUILT THIS — motion-graphic sizzle reel ── */}
       <section className="ld-why fade">
         <div className="ld-why-inner">
@@ -1229,10 +1407,10 @@ export default function Landing() {
       {/* ── AUTH SECTION (moved out of hero so the mini-calc gets primary placement) ── */}
       <div className="ld-auth-section">
         <div className="ld-auth-card" id="auth-section">
-          <div className="ld-auth-title">Save your analysis. Compare deals. Track your pipeline.</div>
-          <div className="ld-auth-sub">Free account. No credit card. Instant access to all tools.</div>
+          <div className="ld-auth-title">Step inside the ecosystem.</div>
+          <div className="ld-auth-sub">The same AI infrastructure used by institutional desks. Now in your pocket. Free during launch.</div>
           <div className="ld-tabs">
-            <button className={`ld-tab ${mode === "signup" ? "active" : "inactive"}`} onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Sign up free</button>
+            <button className={`ld-tab ${mode === "signup" ? "active" : "inactive"}`} onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Unlock access</button>
             <button className={`ld-tab ${mode === "login" ? "active" : "inactive"}`} onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Log in</button>
           </div>
           <button className="ld-google" onClick={handleGoogle}>
@@ -1609,11 +1787,11 @@ export default function Landing() {
 
       {/* ── BOTTOM CTA ── */}
       <div className="ld-cta fade">
-        <h2>Your next deal deserves<br />a <span>real answer.</span></h2>
-        <p>Free to use. Takes 5 minutes. No credit card required.</p>
-        <button className="ld-cta-btn" onClick={scrollToAuth}>Analyze my first deal free →</button>
+        <h2>The room you've been<br />trying to walk into <span>opens here.</span></h2>
+        <p>Free during launch. No credit card. The next deal you analyze will be the first one you actually understand.</p>
+        <button className="ld-cta-btn" onClick={scrollToAuth}>Step inside →</button>
         <div className="ld-cta-trust">
-          {["✓ Free forever (launch offer)", "✓ No credit card needed", "✓ US & Canada markets", "✓ 4 tools included"].map(item => (
+          {["✓ Free during launch", "✓ No credit card", "✓ US & Canada markets", "✓ 20 tools, one platform"].map(item => (
             <div key={item} className="ld-cta-trust-item">{item}</div>
           ))}
         </div>
