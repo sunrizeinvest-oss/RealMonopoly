@@ -710,209 +710,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── WHY WE BUILT THIS — motion-graphic sizzle reel ── */}
-      <section className="ld-why fade">
-        <div className="ld-why-inner">
-          <div className="ld-why-head">
-            <div className="ld-section-tag">// Why we built this</div>
-            <h2 className="ld-section-title">A story we kept hearing.<br /><span>So we did something about it.</span></h2>
-          </div>
-          <div className="ld-whyvid">
-            <video
-              ref={whyVideoRef}
-              src={whyVideoLoaded ? "/why-we-built.mp4" : undefined}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload={whyVideoLoaded ? "auto" : "none"}
-              style={{display:"block",width:"100%",height:"auto",aspectRatio:"16/9",background:"#ffffff"}}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ── TRY IT LIVE: the interactive mini-calc (moved out of the hero) ── */}
-      <div id="try-it-live" style={{padding:"56px 24px 8px",maxWidth:1140,margin:"0 auto"}}>
-        <div className="ld-section-tag" style={{textAlign:"left",marginBottom:8}}>Try it live</div>
-        <h2 className="ld-section-title" style={{textAlign:"left",fontSize:"clamp(24px,3vw,34px)"}}>Edit any number. Verdict updates in real time.</h2>
-        <p className="ld-section-sub" style={{textAlign:"left",margin:"0 0 28px"}}>The same engine that powers the video. Drop your own deal in — no signup required.</p>
-        <div className="ld-hcalc" style={{maxWidth:560}}>
-          <div className="ld-hcalc-bar">
-            <span className="ld-hcalc-dot" />
-            <span className="ld-hcalc-bar-label">RIZE AI TERMINAL · v2.0</span>
-            <span className="ld-hcalc-bar-status">▸ LIVE</span>
-          </div>
-          <div className="ld-hcalc-sub">Try it instantly. Edit any number — verdict updates in real time.</div>
-
-          <div className="ld-hcalc-grid">
-            <label className="ld-hcalc-field">
-              <span className="ld-hcalc-lbl">ARV (after-repair)</span>
-              <input className="ld-hcalc-input" type="number" value={dArv} onChange={e=>setDArv(e.target.value)} />
-            </label>
-            <label className="ld-hcalc-field">
-              <span className="ld-hcalc-lbl">Purchase Price</span>
-              <input className="ld-hcalc-input" type="number" value={dPurchase} onChange={e=>setDPurchase(e.target.value)} />
-            </label>
-            <label className="ld-hcalc-field">
-              <span className="ld-hcalc-lbl">Repairs</span>
-              <input className="ld-hcalc-input" type="number" value={dRepair} onChange={e=>setDRepair(e.target.value)} />
-            </label>
-            <label className="ld-hcalc-field">
-              <span className="ld-hcalc-lbl">Hold (months)</span>
-              <input className="ld-hcalc-input" type="number" value={dHold} onChange={e=>setDHold(e.target.value)} />
-            </label>
-          </div>
-
-          <div className="ld-hcalc-verdict" style={{borderColor:dGrade.c+"40",background:dGrade.c+"0d"}}>
-            <div className="ld-hcalc-grade" style={{color:dGrade.c,borderColor:dGrade.c+"50"}}>{dGrade.g}</div>
-            <div style={{flex:1,minWidth:0}}>
-              <div className="ld-hcalc-verdict-lbl" style={{color:dGrade.c}}>{dGrade.label.replace(/[✅⚠️🚫]\s*/,"")}</div>
-              <div className="ld-hcalc-verdict-sub">{demo.margin>0.20?"Margin exceeds 20% institutional threshold":demo.margin>0.12?"Margin acceptable; verify repair scope":demo.margin>0.05?"Thin margin — negotiate price down":"Numbers do not pencil"}</div>
-            </div>
-            <div className="ld-hcalc-verdict-roi" style={{color:demo.profit>=0?"var(--green)":"var(--red)"}}>
-              {demo.profit>=0?"▲ ":"▼ "}{fmtPct(demo.margin*100)}
-            </div>
-          </div>
-
-          <div className="ld-hcalc-rows">
-            <div className="ld-hcalc-row"><span>Net Profit</span><span className={demo.profit>=0?"pos":"neg"}>{fmt(demo.profit)}</span></div>
-            <div className="ld-hcalc-row"><span>All-In Cost</span><span>{fmt(demo.totalCost)}</span></div>
-            <div className="ld-hcalc-row"><span>70% Rule Max</span><span style={{color:"var(--sub)"}}>{fmt(num(dArv)*0.70 - num(dRepair))}</span></div>
-          </div>
-
-          <a href="#auth-section" className="ld-hcalc-cta">→ Save this deal — sign up free</a>
-          <div className="ld-hcalc-foot">No credit card · 4,180+ deals analyzed</div>
-        </div>
-      </div>
-
-      {/* ── AUTH SECTION (moved out of hero so the mini-calc gets primary placement) ── */}
-      <div className="ld-auth-section">
-        <div className="ld-auth-card" id="auth-section">
-          <div className="ld-auth-title">Save your analysis. Compare deals. Track your pipeline.</div>
-          <div className="ld-auth-sub">Free account. No credit card. Instant access to all tools.</div>
-          <div className="ld-tabs">
-            <button className={`ld-tab ${mode === "signup" ? "active" : "inactive"}`} onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Sign up free</button>
-            <button className={`ld-tab ${mode === "login" ? "active" : "inactive"}`} onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Log in</button>
-          </div>
-          <button className="ld-google" onClick={handleGoogle}>
-            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Continue with Google
-          </button>
-          <div className="ld-divider"><span>or</span></div>
-          {authError && <div className="ld-error">{authError}</div>}
-          {submitted && <div className="ld-success">✅ You're in — taking you to the analyzer...</div>}
-          {!submitted && (
-            <form onSubmit={handleSubmit}>
-              <div className="ld-field">
-                <div className="ld-label">Email</div>
-                <input className="ld-input" type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
-              </div>
-              {mode === "signup" && !showPass ? (
-                <button type="button" className="ld-btn" onClick={() => { if (email) setShowPass(true); }}>Continue →</button>
-              ) : (
-                <>
-                  <div className="ld-field">
-                    <div className="ld-label">Password</div>
-                    <input className="ld-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
-                  </div>
-                  <button type="submit" className="ld-btn" disabled={authLoading}>
-                    {authLoading ? "Please wait..." : mode === "signup" ? "Create free account →" : "Sign in →"}
-                  </button>
-                </>
-              )}
-            </form>
-          )}
-          <div className="ld-auth-note">
-            {mode === "signup"
-              ? <>Already have an account? <span onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Sign in</span></>
-              : <>No account? <span onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Sign up free</span></>}
-          </div>
-        </div>
-      </div>
-
-      {/* ── DEAL TICKER ── */}
-      <div className="deals-outer"><div className="deals-track" id="dealsTrack" /></div>
-
-      {/* ── LIVE DEMO ── */}
-      <div className="ld-section fade">
-        <div className="ld-section-tag">Try it right now</div>
-        <h2 className="ld-section-title">Enter 4 numbers.<br /><span>Get a real answer.</span></h2>
-        <p className="ld-section-sub">No sign-up needed for the preview. See exactly what you'll get — then save your full analysis.</p>
-        <div className="ld-demo-wrap">
-          <div className="ld-demo-header">
-            <div className="ld-demo-dot" style={{ background: "#ff5f57" }} />
-            <div className="ld-demo-dot" style={{ background: "#febc2e" }} />
-            <div className="ld-demo-dot" style={{ background: "#28c840" }} />
-            <div className="ld-demo-title">Fix &amp; Flip Quick Analyzer — Live Preview</div>
-          </div>
-          <div className="ld-demo-body">
-            <div className="ld-demo-inputs">
-              <div className="ld-demo-label">After Repair Value (ARV)</div>
-              <input className="ld-demo-input" type="number" value={dArv} onChange={e => setDArv(e.target.value)} placeholder="385000" />
-              <div className="ld-demo-label">Purchase Price</div>
-              <input className="ld-demo-input" type="number" value={dPurchase} onChange={e => setDPurchase(e.target.value)} placeholder="250000" />
-              <div className="ld-demo-label">Estimated Repair Costs</div>
-              <input className="ld-demo-input" type="number" value={dRepair} onChange={e => setDRepair(e.target.value)} placeholder="55000" />
-              <div className="ld-demo-label">Hold Time (months)</div>
-              <input className="ld-demo-input" type="number" value={dHold} onChange={e => setDHold(e.target.value)} placeholder="6" />
-              <button className="ld-btn" style={{ marginTop: 4 }} onClick={scrollToAuth}>Get full analysis free →</button>
-            </div>
-            <div className="ld-demo-results">
-              <div className="ld-demo-verdict" style={{ background: `${dGrade.c}15`, border: `1px solid ${dGrade.c}30` }}>
-                <div className="ld-demo-grade" style={{ color: dGrade.c }}>{dGrade.g}</div>
-                <div>
-                  <div className="ld-demo-verdict-label" style={{ color: dGrade.c }}>{dGrade.label}</div>
-                  <div className="ld-demo-verdict-sub">Deal health score</div>
-                </div>
-              </div>
-              <div className="ld-demo-metric-row">
-                <span className="ld-demo-metric-name">Net Profit</span>
-                <span className="ld-demo-metric-val" style={{ color: demo.profit >= 0 ? "var(--green)" : "var(--red)" }}>{fmt(demo.profit)}</span>
-              </div>
-              <div className="ld-demo-metric-row">
-                <span className="ld-demo-metric-name">Profit Margin</span>
-                <span className="ld-demo-metric-val" style={{ color: "var(--blue)" }}>{fmtPct(demo.margin * 100)}</span>
-              </div>
-              <div className="ld-demo-metric-row">
-                <span className="ld-demo-metric-name">All-In Cost</span>
-                <span className="ld-demo-metric-val">{fmt(demo.totalCost)}</span>
-              </div>
-              <div className="ld-demo-metric-row">
-                <span className="ld-demo-metric-name">ARV</span>
-                <span className="ld-demo-metric-val">{fmt(num(dArv))}</span>
-              </div>
-              <div className="ld-demo-note">
-                ✨ Sign up free to unlock full breakdown: financing costs, holding costs, MAO, deal score, 5-year projections, PDF export, and save deals.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── WHY RIZE AI ── */}
-      <div className="ld-section fade">
-        <div className="ld-section-tag">Why RizeAI</div>
-        <h2 className="ld-section-title">Three things that matter.<br /><span>Nothing that doesn't.</span></h2>
-        <div className="ld-feat-grid">
-          <div className="ld-feat-cell">
-            <div className="ld-feat-icon">⚡</div>
-            <div className="ld-feat-title">Instant evaluation</div>
-            <div className="ld-feat-desc">Enter 4 numbers and get a full deal analysis in seconds. ARV estimate, profit margin, cost breakdown, and a clear Go/No-Go verdict — no spreadsheet needed.</div>
-          </div>
-          <div className="ld-feat-cell">
-            <div className="ld-feat-icon">⏱️</div>
-            <div className="ld-feat-title">Saves you hours</div>
-            <div className="ld-feat-desc">What used to take 2 hours in Excel takes 5 minutes here. Analyze more deals, faster. Stop missing opportunities because the math took too long.</div>
-          </div>
-          <div className="ld-feat-cell">
-            <div className="ld-feat-icon">🎯</div>
-            <div className="ld-feat-title">Gives you clarity</div>
-            <div className="ld-feat-desc">Plain-English reasons behind every verdict. Not just a number — "Your purchase price is $18k above MAO" is more useful than a red cell in a spreadsheet.</div>
-          </div>
-        </div>
-      </div>
-
       {/* ── FULL TOOLKIT — 20 tools across 5 categories ── */}
       <div className="ld-toolkit fade">
         <div className="ld-toolkit-inner">
@@ -1325,6 +1122,239 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* ── WHY WE BUILT THIS — motion-graphic sizzle reel ── */}
+      <section className="ld-why fade">
+        <div className="ld-why-inner">
+          <div className="ld-why-head">
+            <div className="ld-section-tag">// Why we built this</div>
+            <h2 className="ld-section-title">A story we kept hearing.<br /><span>So we did something about it.</span></h2>
+            <p className="ld-section-sub" style={{maxWidth:560,margin:"14px auto 0"}}>Real investors. Real frustration. Six seconds is all it should take to know if a deal is worth your time.</p>
+          </div>
+          <div className="ld-whyvid" style={{
+            position:"relative",
+            background:"linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%)",
+            border:"1px solid rgba(255,204,0,0.15)",
+            borderLeft:"4px solid #ffcc00",
+            borderRadius:12,
+            overflow:"hidden",
+            boxShadow:"0 32px 80px rgba(0,102,204,0.18),0 0 0 1px rgba(0,102,204,0.08) inset",
+          }}>
+            {/* Terminal-style header bar */}
+            <div style={{
+              display:"flex",alignItems:"center",gap:10,
+              padding:"11px 18px",
+              background:"rgba(15,23,42,0.55)",
+              backdropFilter:"blur(12px)",
+              WebkitBackdropFilter:"blur(12px)",
+              borderBottom:"1px solid rgba(255,255,255,0.08)",
+              fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,
+              letterSpacing:"1.2px",color:"rgba(255,255,255,0.85)",
+            }}>
+              <span style={{width:8,height:8,borderRadius:"50%",background:"#ffcc00",boxShadow:"0 0 10px #ffcc00",animation:"blink 2s infinite"}} />
+              <span style={{flex:1,textTransform:"uppercase"}}>RIZE AI · MOTION REEL · 0:42</span>
+              <span style={{color:"#ffcc00"}}>▸ LIVE</span>
+            </div>
+            <video
+              ref={whyVideoRef}
+              src={whyVideoLoaded ? "/why-we-built.mp4" : undefined}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload={whyVideoLoaded ? "auto" : "none"}
+              style={{display:"block",width:"100%",height:"auto",aspectRatio:"16/9",background:"#0f172a"}}
+            />
+            {/* Gold + blue corner glows for brand presence */}
+            <div style={{position:"absolute",top:0,right:0,width:260,height:260,background:"radial-gradient(circle,rgba(255,204,0,0.12) 0%,transparent 70%)",pointerEvents:"none"}} />
+            <div style={{position:"absolute",bottom:0,left:0,width:260,height:260,background:"radial-gradient(circle,rgba(0,102,204,0.18) 0%,transparent 70%)",pointerEvents:"none"}} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── TRY IT LIVE: the interactive mini-calc (moved out of the hero) ── */}
+      <div id="try-it-live" style={{padding:"56px 24px 8px",maxWidth:1140,margin:"0 auto"}}>
+        <div className="ld-section-tag" style={{textAlign:"left",marginBottom:8}}>Try it live</div>
+        <h2 className="ld-section-title" style={{textAlign:"left",fontSize:"clamp(24px,3vw,34px)"}}>Edit any number. Verdict updates in real time.</h2>
+        <p className="ld-section-sub" style={{textAlign:"left",margin:"0 0 28px"}}>The same engine that powers the video. Drop your own deal in — no signup required.</p>
+        <div className="ld-hcalc" style={{maxWidth:560}}>
+          <div className="ld-hcalc-bar">
+            <span className="ld-hcalc-dot" />
+            <span className="ld-hcalc-bar-label">RIZE AI TERMINAL · v2.0</span>
+            <span className="ld-hcalc-bar-status">▸ LIVE</span>
+          </div>
+          <div className="ld-hcalc-sub">Try it instantly. Edit any number — verdict updates in real time.</div>
+
+          <div className="ld-hcalc-grid">
+            <label className="ld-hcalc-field">
+              <span className="ld-hcalc-lbl">ARV (after-repair)</span>
+              <input className="ld-hcalc-input" type="number" value={dArv} onChange={e=>setDArv(e.target.value)} />
+            </label>
+            <label className="ld-hcalc-field">
+              <span className="ld-hcalc-lbl">Purchase Price</span>
+              <input className="ld-hcalc-input" type="number" value={dPurchase} onChange={e=>setDPurchase(e.target.value)} />
+            </label>
+            <label className="ld-hcalc-field">
+              <span className="ld-hcalc-lbl">Repairs</span>
+              <input className="ld-hcalc-input" type="number" value={dRepair} onChange={e=>setDRepair(e.target.value)} />
+            </label>
+            <label className="ld-hcalc-field">
+              <span className="ld-hcalc-lbl">Hold (months)</span>
+              <input className="ld-hcalc-input" type="number" value={dHold} onChange={e=>setDHold(e.target.value)} />
+            </label>
+          </div>
+
+          <div className="ld-hcalc-verdict" style={{borderColor:dGrade.c+"40",background:dGrade.c+"0d"}}>
+            <div className="ld-hcalc-grade" style={{color:dGrade.c,borderColor:dGrade.c+"50"}}>{dGrade.g}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div className="ld-hcalc-verdict-lbl" style={{color:dGrade.c}}>{dGrade.label.replace(/[✅⚠️🚫]\s*/,"")}</div>
+              <div className="ld-hcalc-verdict-sub">{demo.margin>0.20?"Margin exceeds 20% institutional threshold":demo.margin>0.12?"Margin acceptable; verify repair scope":demo.margin>0.05?"Thin margin — negotiate price down":"Numbers do not pencil"}</div>
+            </div>
+            <div className="ld-hcalc-verdict-roi" style={{color:demo.profit>=0?"var(--green)":"var(--red)"}}>
+              {demo.profit>=0?"▲ ":"▼ "}{fmtPct(demo.margin*100)}
+            </div>
+          </div>
+
+          <div className="ld-hcalc-rows">
+            <div className="ld-hcalc-row"><span>Net Profit</span><span className={demo.profit>=0?"pos":"neg"}>{fmt(demo.profit)}</span></div>
+            <div className="ld-hcalc-row"><span>All-In Cost</span><span>{fmt(demo.totalCost)}</span></div>
+            <div className="ld-hcalc-row"><span>70% Rule Max</span><span style={{color:"var(--sub)"}}>{fmt(num(dArv)*0.70 - num(dRepair))}</span></div>
+          </div>
+
+          <a href="#auth-section" className="ld-hcalc-cta">→ Save this deal — sign up free</a>
+          <div className="ld-hcalc-foot">No credit card · 4,180+ deals analyzed</div>
+        </div>
+      </div>
+
+      {/* ── AUTH SECTION (moved out of hero so the mini-calc gets primary placement) ── */}
+      <div className="ld-auth-section">
+        <div className="ld-auth-card" id="auth-section">
+          <div className="ld-auth-title">Save your analysis. Compare deals. Track your pipeline.</div>
+          <div className="ld-auth-sub">Free account. No credit card. Instant access to all tools.</div>
+          <div className="ld-tabs">
+            <button className={`ld-tab ${mode === "signup" ? "active" : "inactive"}`} onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Sign up free</button>
+            <button className={`ld-tab ${mode === "login" ? "active" : "inactive"}`} onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Log in</button>
+          </div>
+          <button className="ld-google" onClick={handleGoogle}>
+            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Continue with Google
+          </button>
+          <div className="ld-divider"><span>or</span></div>
+          {authError && <div className="ld-error">{authError}</div>}
+          {submitted && <div className="ld-success">✅ You're in — taking you to the analyzer...</div>}
+          {!submitted && (
+            <form onSubmit={handleSubmit}>
+              <div className="ld-field">
+                <div className="ld-label">Email</div>
+                <input className="ld-input" type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
+              </div>
+              {mode === "signup" && !showPass ? (
+                <button type="button" className="ld-btn" onClick={() => { if (email) setShowPass(true); }}>Continue →</button>
+              ) : (
+                <>
+                  <div className="ld-field">
+                    <div className="ld-label">Password</div>
+                    <input className="ld-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
+                  </div>
+                  <button type="submit" className="ld-btn" disabled={authLoading}>
+                    {authLoading ? "Please wait..." : mode === "signup" ? "Create free account →" : "Sign in →"}
+                  </button>
+                </>
+              )}
+            </form>
+          )}
+          <div className="ld-auth-note">
+            {mode === "signup"
+              ? <>Already have an account? <span onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Sign in</span></>
+              : <>No account? <span onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Sign up free</span></>}
+          </div>
+        </div>
+      </div>
+
+      {/* ── DEAL TICKER ── */}
+      <div className="deals-outer"><div className="deals-track" id="dealsTrack" /></div>
+
+      {/* ── LIVE DEMO ── */}
+      <div className="ld-section fade">
+        <div className="ld-section-tag">Try it right now</div>
+        <h2 className="ld-section-title">Enter 4 numbers.<br /><span>Get a real answer.</span></h2>
+        <p className="ld-section-sub">No sign-up needed for the preview. See exactly what you'll get — then save your full analysis.</p>
+        <div className="ld-demo-wrap">
+          <div className="ld-demo-header">
+            <div className="ld-demo-dot" style={{ background: "#ff5f57" }} />
+            <div className="ld-demo-dot" style={{ background: "#febc2e" }} />
+            <div className="ld-demo-dot" style={{ background: "#28c840" }} />
+            <div className="ld-demo-title">Fix &amp; Flip Quick Analyzer — Live Preview</div>
+          </div>
+          <div className="ld-demo-body">
+            <div className="ld-demo-inputs">
+              <div className="ld-demo-label">After Repair Value (ARV)</div>
+              <input className="ld-demo-input" type="number" value={dArv} onChange={e => setDArv(e.target.value)} placeholder="385000" />
+              <div className="ld-demo-label">Purchase Price</div>
+              <input className="ld-demo-input" type="number" value={dPurchase} onChange={e => setDPurchase(e.target.value)} placeholder="250000" />
+              <div className="ld-demo-label">Estimated Repair Costs</div>
+              <input className="ld-demo-input" type="number" value={dRepair} onChange={e => setDRepair(e.target.value)} placeholder="55000" />
+              <div className="ld-demo-label">Hold Time (months)</div>
+              <input className="ld-demo-input" type="number" value={dHold} onChange={e => setDHold(e.target.value)} placeholder="6" />
+              <button className="ld-btn" style={{ marginTop: 4 }} onClick={scrollToAuth}>Get full analysis free →</button>
+            </div>
+            <div className="ld-demo-results">
+              <div className="ld-demo-verdict" style={{ background: `${dGrade.c}15`, border: `1px solid ${dGrade.c}30` }}>
+                <div className="ld-demo-grade" style={{ color: dGrade.c }}>{dGrade.g}</div>
+                <div>
+                  <div className="ld-demo-verdict-label" style={{ color: dGrade.c }}>{dGrade.label}</div>
+                  <div className="ld-demo-verdict-sub">Deal health score</div>
+                </div>
+              </div>
+              <div className="ld-demo-metric-row">
+                <span className="ld-demo-metric-name">Net Profit</span>
+                <span className="ld-demo-metric-val" style={{ color: demo.profit >= 0 ? "var(--green)" : "var(--red)" }}>{fmt(demo.profit)}</span>
+              </div>
+              <div className="ld-demo-metric-row">
+                <span className="ld-demo-metric-name">Profit Margin</span>
+                <span className="ld-demo-metric-val" style={{ color: "var(--blue)" }}>{fmtPct(demo.margin * 100)}</span>
+              </div>
+              <div className="ld-demo-metric-row">
+                <span className="ld-demo-metric-name">All-In Cost</span>
+                <span className="ld-demo-metric-val">{fmt(demo.totalCost)}</span>
+              </div>
+              <div className="ld-demo-metric-row">
+                <span className="ld-demo-metric-name">ARV</span>
+                <span className="ld-demo-metric-val">{fmt(num(dArv))}</span>
+              </div>
+              <div className="ld-demo-note">
+                ✨ Sign up free to unlock full breakdown: financing costs, holding costs, MAO, deal score, 5-year projections, PDF export, and save deals.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── WHY RIZE AI ── */}
+      <div className="ld-section fade">
+        <div className="ld-section-tag">Why RizeAI</div>
+        <h2 className="ld-section-title">Three things that matter.<br /><span>Nothing that doesn't.</span></h2>
+        <div className="ld-feat-grid">
+          <div className="ld-feat-cell">
+            <div className="ld-feat-icon">⚡</div>
+            <div className="ld-feat-title">Instant evaluation</div>
+            <div className="ld-feat-desc">Enter 4 numbers and get a full deal analysis in seconds. ARV estimate, profit margin, cost breakdown, and a clear Go/No-Go verdict — no spreadsheet needed.</div>
+          </div>
+          <div className="ld-feat-cell">
+            <div className="ld-feat-icon">⏱️</div>
+            <div className="ld-feat-title">Saves you hours</div>
+            <div className="ld-feat-desc">What used to take 2 hours in Excel takes 5 minutes here. Analyze more deals, faster. Stop missing opportunities because the math took too long.</div>
+          </div>
+          <div className="ld-feat-cell">
+            <div className="ld-feat-icon">🎯</div>
+            <div className="ld-feat-title">Gives you clarity</div>
+            <div className="ld-feat-desc">Plain-English reasons behind every verdict. Not just a number — "Your purchase price is $18k above MAO" is more useful than a red cell in a spreadsheet.</div>
+          </div>
+        </div>
+      </div>
+
+
+
 
       {/* ── CHROME EXTENSION SHOWCASE ── */}
       <section className="ld-chrome fade">
