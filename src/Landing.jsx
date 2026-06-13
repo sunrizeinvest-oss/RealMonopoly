@@ -175,7 +175,10 @@ export default function Landing() {
     : demo.margin > 0.05 ? { g: "C", c: "var(--amber)", label: "⚠️ Caution" }
     : { g: "F", c: "var(--red)", label: "🚫 No-Go" };
 
-  useEffect(() => { if (user) navigate("/analyze"); }, [user]);
+  // Previously: auto-redirected logged-in users to /analyze. Removed so the
+  // hero is always visible — sharing the landing as a demo/investor link
+  // shouldn't require the recipient to be signed out. Logged-in users can
+  // still jump into the app via the nav's "Dashboard" button.
 
   useEffect(() => {
     // Animate counters in once, then keep cDeals ticking up so the page feels alive.
