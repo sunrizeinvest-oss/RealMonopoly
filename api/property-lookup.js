@@ -77,7 +77,11 @@ async function lookupCanadian({ address, res }) {
   // null on every response). Now we import the helpers and call them in-process
   // — faster, more reliable, and works for every Canadian city CMHC covers
   // (~26 CMAs), regardless of whether we have a city-data adapter.
-  const cmhc = lookupCMHC(geo.cityRaw || geo.citySlug, geo.province) || null;
+  // CMHC tracks ~26 CMAs by city name. We try the geocoder's raw `city`
+  // first (handles "ottawa", "halifax", etc.) then fall back to citySlug
+  // (which only resolves to one of our 4 adapter cities). The lookup is
+  // alias-aware — north vancouver / burnaby / surrey all map to Vancouver CMA.
+  const cmhc = lookupCMHC(geo.city, geo.province) || lookupCMHC(geo.citySlug, geo.province) || null;
 
   let rent = null;
   if (cmhc) {
