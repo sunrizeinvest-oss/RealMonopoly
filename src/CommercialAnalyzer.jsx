@@ -1483,6 +1483,9 @@ export default function CommercialAnalyzer() {
                     ? `Marginal coverage (DSCR ${c.DSCR.toFixed(2)}x) — tighten OpEx or push rent before bidding.`
                     : `Sub-coverage (DSCR ${c.DSCR.toFixed(2)}x) — pass at this price.`,
                 notes: "For the institutional 4-page IC Report with Monte Carlo + comps, use Run Simulation → Export IC Report on the Risk Simulator below.",
+                // Adds a second LTL Analysis page when the user has run the
+                // rent-roll → loss-to-lease parser on this deal.
+                ltl: ltlData?.ok ? { ...ltlData.ltl, aiRead: ltlData.aiRead } : null,
               },
             });
             doc.save(`investor-memo-multifamily-${new Date().toISOString().slice(0,10)}.pdf`);

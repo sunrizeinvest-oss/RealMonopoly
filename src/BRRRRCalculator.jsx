@@ -1417,6 +1417,9 @@ export default function BRRRRCalculator() {
                             ? `Cash-flowing rental with ${fmtM(calc.cashLeftInDeal)} left in. DSCR ${calc.dscr.toFixed(2)}x.`
                             : `Marginal deal — ${fmtM(calc.cashLeftInDeal)} stays in, ${calc.dscr.toFixed(2)}x DSCR. Re-verify rent + reno budget.`,
                         notes: form.notes || "Rates assumed flat through refi. Verify lender terms and post-refi rent before committing capital.",
+                        // Adds an LTL Analysis page when the user has run the
+                        // rent-roll → loss-to-lease parser on this deal.
+                        ltl: ltlData?.ok ? { ...ltlData.ltl, aiRead: ltlData.aiRead } : null,
                       },
                     });
                     doc.save(`investor-memo-brrrr-${new Date().toISOString().slice(0,10)}.pdf`);

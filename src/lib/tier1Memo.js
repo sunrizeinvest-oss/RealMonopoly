@@ -202,10 +202,168 @@ export function generateTier1Memo({ type = "rental", deal = {}, summary = {} }) 
     }
   }
 
-  // ── Footer ───────────────────────────────────────────────────────────────
-  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(C.dim);
-  doc.text(`Generated ${today} · rizeai.co · Report ID ${reportId}`, W/2, H - 32, { align: "center" });
-  doc.text("Estimates only. Not financial advice. Verify all assumptions before committing capital.", W/2, H - 20, { align: "center" });
+  // ── Page footer ──────────────────────────────────────────────────────────
+  // Page count is determined later based on whether the LTL page renders.
+  const hasLtl = !!(summary.ltl && summary.ltl.ok && summary.ltl.totals);
+  const totalPages = hasLtl ? 2 : 1;
+
+  const drawPageFooter = (pageNum) => {
+    doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(C.dim);
+    doc.text(`Generated ${today} · rizeai.co · Report ID ${reportId}`, W/2, H - 32, { align: "center" });
+    doc.text("Estimates only. Not financial advice. Verify all assumptions before committing capital.", W/2, H - 20, { align: "center" });
+    if (totalPages > 1) {
+      doc.text(`p. ${pageNum} / ${totalPages}`, W - M, H - 32, { align: "right" });
+    }
+  };
+
+  drawPageFooter(1);
+
+  // ── Page 2: Loss-to-Lease Analysis (only if summary.ltl present) ─────────
+  if (hasLtl) {
+    drawLossToLeasePage({ doc, ltl: summary.ltl, deal, accent, today, reportId, drawPageFooter });
+  }
 
   return doc;
+}
+
+// ─── Loss-to-Lease analysis page ───────────────────────────────────────────
+// Rendered as page 2 when summary.ltl is provided. Mirrors the on-screen
+// LossToLeasePanel: 4 KPI tiles, sorted per-unit table (top 10 below-market),
+// AI Read narrative, methodology footer.
+function drawLossToLeasePage({ doc, ltl, deal, accent, today, reportId, drawPageFooter }) {
+  doc.addPage();
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const M = 48;
+
+  // Header bar (same brand strip as page 1)
+  doc.setFillColor(7, 9, 15);
+  doc.rect(0, 0, W, 56, "F");
+  doc.setFont("helvetica", "bold").setFontSize(13).setTextColor(C.blue);
+  doc.text("RIZE AI", M, 26);
+  doc.setFont("helvetica", "normal").setFontSize(11).setTextColor(C.dim);
+  doc.text("·", M + 64, 26);
+  doc.setFont("helvetica", "bold").setFontSize(11).setTextColor(C.text);
+  doc.text("LOSS-TO-LEASE ANALYSIS", M + 74, 26);
+  doc.setFont("helvetica", "normal").setFontSize(9).setTextColor(C.sub);
+  doc.text(today, M, 42);
+
+  const pillLabel = "RENT ROLL · UPSIDE";
+  const pillW = doc.getTextWidth(pillLabel) + 28;
+  doc.setFillColor(C.gold);
+  doc.rect(W - M - pillW, 16, pillW, 26, "F");
+  doc.setFont("helvetica", "bold").setFontSize(10).setTextColor("#000000");
+  doc.text(pillLabel, W - M - pillW + 14, 33);
+
+  let y = 92;
+  doc.setFont("helvetica", "bold").setFontSize(20).setTextColor(C.text);
+  doc.text("Stranded Upside Analysis", M, y);
+  y += 22;
+  doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(C.sub);
+  doc.text(`${deal.address || "—"}  ·  Anchor: ${ltl.methodology?.anchor || "—"}`, M, y);
+  y += 18;
+  doc.setDrawColor(C.gold).setLineWidth(2);
+  doc.line(M, y, M + 64, y);
+  y += 18;
+
+  // ── 4 KPI tiles ──
+  const t = ltl.totals;
+  const kpis = [
+    { label: "ANNUAL UPSIDE",       value: fmtMoneyK(t.deltaAnnual),     sub: "vs. CMHC market" },
+    { label: "PER DOOR / MO",       value: fmtMoney(t.perDoorMonthly),   sub: `${t.pricedDoors} priced units` },
+    { label: "BELOW MARKET",        value: fmtPct(t.avgUpsidePct),        sub: "weighted avg" },
+    { label: "5-YR STRANDED NPV",   value: fmtMoneyK(t.stranded5YearNPV), sub: "discounted 8%" },
+  ];
+  const tileW = (W - M*2 - 12 * 3) / 4;
+  const tileH = 76;
+  kpis.forEach((tile, i) => {
+    const x = M + i * (tileW + 12);
+    doc.setFillColor(245, 247, 250);
+    doc.rect(x, y, tileW, tileH, "F");
+    doc.setDrawColor(C.gold).setLineWidth(2.5);
+    doc.line(x, y, x, y + tileH);
+    doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(C.dim);
+    doc.text(tile.label, x + 12, y + 16);
+    doc.setFont("helvetica", "bold").setFontSize(18).setTextColor(C.text);
+    doc.text(String(tile.value), x + 12, y + 44);
+    doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(C.sub);
+    doc.text(String(tile.sub), x + 12, y + 62);
+  });
+  y += tileH + 22;
+
+  // ── Per-unit table (top 10 below-market) ──
+  const units = (ltl.units || [])
+    .slice()
+    .sort((a, b) => {
+      const da = a.deltaMonthly == null ? -Infinity : a.deltaMonthly;
+      const db = b.deltaMonthly == null ? -Infinity : b.deltaMonthly;
+      return db - da;
+    })
+    .slice(0, 10);
+
+  doc.setFont("helvetica", "bold").setFontSize(10).setTextColor(accent);
+  doc.text("PER-UNIT DETAIL · TOP 10 BELOW-MARKET", M, y);
+  y += 14;
+  doc.setDrawColor(C.dim).setLineWidth(0.4);
+  doc.line(M, y, W - M, y);
+  y += 14;
+
+  // Column layout
+  const cols = [
+    { key: "unit",       label: "UNIT",   x: M,        align: "left",  fmt: u => String(u.unit ?? "—") },
+    { key: "bedrooms",   label: "BR",     x: M + 90,   align: "left",  fmt: u => u.bedrooms == null ? "?" : String(u.bedrooms) },
+    { key: "sqft",       label: "SQFT",   x: M + 130,  align: "left",  fmt: u => u.sqft ?? "—" },
+    { key: "actualRent", label: "ACTUAL", x: M + 200,  align: "right", fmt: u => fmtMoney(u.actualRent) },
+    { key: "marketRent", label: "MARKET", x: M + 290,  align: "right", fmt: u => fmtMoney(u.marketRent) },
+    { key: "delta",      label: "Δ /MO",  x: M + 380,  align: "right", fmt: u => u.deltaMonthly == null ? "—" : (u.deltaMonthly >= 0 ? "+" : "") + fmtMoney(u.deltaMonthly) },
+    { key: "deltaPct",   label: "% VS",   x: M + 460,  align: "right", fmt: u => u.deltaPct == null ? "—" : `${u.deltaPct >= 0 ? "-" : "+"}${(Math.abs(u.deltaPct) * 100).toFixed(1)}%` },
+  ];
+  doc.setFont("helvetica", "bold").setFontSize(8).setTextColor(C.dim);
+  cols.forEach(c => doc.text(c.label, c.x, y, { align: c.align }));
+  y += 12;
+  doc.setDrawColor("#e2e8f0").setLineWidth(0.3);
+  doc.line(M, y - 4, W - M, y - 4);
+
+  doc.setFont("helvetica", "normal").setFontSize(9);
+  for (const u of units) {
+    if (y > H - 200) break; // leave room for AI Read + footer
+    const isAbove = (u.deltaMonthly ?? 0) < 0;
+    const isVacant = u.status === "vacant";
+    const isUngraded = u.status === "ungraded";
+    cols.forEach(c => {
+      // Status-aware coloring on the numeric delta columns
+      let color = C.text;
+      if (c.key === "delta" || c.key === "deltaPct") {
+        color = u.deltaMonthly == null ? C.dim : isAbove ? C.red : C.green;
+      }
+      if (isVacant || isUngraded) color = C.dim;
+      doc.setTextColor(color);
+      doc.setFont("helvetica", c.key === "unit" ? "bold" : "normal");
+      doc.text(c.fmt(u), c.x, y, { align: c.align });
+    });
+    y += 14;
+  }
+
+  // ── AI Read box ──
+  if (ltl.aiRead || ltl.airead) {
+    y += 8;
+    const aiRead = ltl.aiRead || ltl.airead;
+    doc.setFillColor(245, 247, 252);
+    const lines = doc.splitTextToSize(aiRead, W - M*2 - 28);
+    const boxH = Math.max(48, 22 + lines.length * 12);
+    doc.rect(M, y, W - M*2, boxH, "F");
+    doc.setDrawColor(C.blue).setLineWidth(2.5);
+    doc.line(M, y, M, y + boxH);
+    doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(C.blue);
+    doc.text("AI READ", M + 14, y + 16);
+    doc.setFont("helvetica", "italic").setFontSize(9).setTextColor(C.text);
+    doc.text(lines, M + 14, y + 30, { lineHeightFactor: 1.4 });
+    y += boxH + 14;
+  }
+
+  // ── Methodology footer (above the page footer) ──
+  doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(C.dim);
+  doc.text(`Method: ${ltl.methodology?.captureCurve || "—"}  ·  Discount: ${ltl.methodology?.discount || "—"}  ·  Anchor: ${ltl.methodology?.anchor || "—"}`, M, H - 50);
+
+  drawPageFooter(2);
 }
