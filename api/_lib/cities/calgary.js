@@ -64,7 +64,10 @@ export async function getAssessment({ lat, lng, address }) {
     const nearRows = await nearRes.json();
     if (!nearRows.length) return null;
     const dist = parseFloat(nearRows[0]._dist);
-    if (!(dist >= 0) || dist > 50) return null;
+    // 150m radius: keeps us inside the same block, but generous enough to
+    // catch geocoder misses where the parcel polygon is well off the
+    // street centerline (common on corner lots and large multifamily).
+    if (!(dist >= 0) || dist > 150) return null;
     rows = nearRows;
   }
 

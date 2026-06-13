@@ -20,6 +20,8 @@
  */
 
 import { geocode } from "./_lib/geocode.js";
+import { lookupCMHC, CMHC_DATA_SOURCE } from "./_lib/cmhc-data.js";
+import { predictRent } from "./_lib/rent-model.js";
 
 // Canadian-address heuristic. Province code anywhere in the string, OR
 // a Canadian postal code anywhere.
@@ -68,32 +70,48 @@ async function lookupCanadian({ address, res }) {
   else if (geo.citySlug === "vancouver") cityMod = await import("./_lib/cities/vancouver.js");
   else if (geo.citySlug === "toronto")   cityMod = await import("./_lib/cities/toronto.js");
 
-  const cmhcCity = geo.cityRaw || geo.citySlug || "calgary";
-  const cmhcProv = (geo.province || "alberta").toLowerCase();
-  const baseUrl  = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "";
+  // ── CMHC + predict-rent: call helpers DIRECTLY ──
+  // Previously these self-fetched over HTTP via process.env.VERCEL_URL, which
+  // silently failed in production (deployment URL + serverless cold starts +
+  // the rewrite to index.html on non-matching paths combined to leave cmhc
+  // null on every response). Now we import the helpers and call them in-process
+  // — faster, more reliable, and works for every Canadian city CMHC covers
+  // (~26 CMAs), regardless of whether we have a city-data adapter.
+  const cmhc = lookupCMHC(geo.cityRaw || geo.citySlug, geo.province) || null;
 
-  // All sources in parallel — allSettled so one failure doesn't kill the rest.
-  const [assessR, zoningR, cmhcR, rentR] = await Promise.allSettled([
+  let rent = null;
+  if (cmhc) {
+    // 2BR / 900sqft is the default "show-me-something" preview. The frontend
+    // can call /api/predict-rent directly with the real unit details once the
+    // user enters them.
+    const r = predictRent({ cmhc, bedrooms: 2, sqft: 900 });
+    if (r?.ok) {
+      rent = {
+        ok: true,
+        predictedRent: r.rent,
+        range:         { low: r.low, high: r.high, spreadPct: r.spreadPct },
+        unitType:      r.unitType,
+        breakdown:     r.breakdown,
+        market:        r.market,
+      };
+    }
+  }
+
+  // City open-data calls — only fire if we have an adapter for the city.
+  // Promise.allSettled so a single failure doesn't take the whole response.
+  const [assessR, zoningR] = await Promise.allSettled([
     cityMod?.getAssessment ? cityMod.getAssessment({ address, lat: geo.lat, lng: geo.lng }) : Promise.resolve(null),
     cityMod?.getZoning     ? cityMod.getZoning({ lat: geo.lat, lng: geo.lng, address })     : Promise.resolve(null),
-    fetchJSON(`${baseUrl}/api/cmhc-rental?city=${encodeURIComponent(cmhcCity)}&province=${encodeURIComponent(cmhcProv)}`),
-    fetchJSON(`${baseUrl}/api/predict-rent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ address, bedrooms: 2, sqft: 900 }),
-    }),
   ]);
 
   const assess  = assessR.status === "fulfilled" ? assessR.value : null;
   const zoning  = zoningR.status === "fulfilled" ? zoningR.value : null;
-  const cmhc    = cmhcR.status   === "fulfilled" ? cmhcR.value   : null;
-  const rent    = rentR.status   === "fulfilled" ? rentR.value   : null;
 
   const attribution = [];
-  if (assess)         attribution.push(`${geo.citySlug} open data`);
-  if (zoning?.found)  attribution.push(`${geo.citySlug} zoning`);
-  if (cmhc?.dataYear) attribution.push(`CMHC ${cmhc.dataYear}`);
-  if (rent?.ok)       attribution.push("Predict-rent (CMHC-anchored)");
+  if (assess)              attribution.push(`${geo.citySlug} open data`);
+  if (zoning?.found)       attribution.push(`${geo.citySlug} zoning`);
+  if (cmhc?.dataYear)      attribution.push(`CMHC ${cmhc.dataYear}`);
+  if (rent?.ok)            attribution.push("Predict-rent (CMHC-anchored)");
 
   // Calgary's lot size is sqm — convert to sqft for the unified shape.
   const sqmToSqft = sm => (sm == null ? null : Math.round(sm * 10.7639));
