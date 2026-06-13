@@ -54,6 +54,7 @@ export default function Landing() {
   const [xrayState, setXrayState] = useState("idle");
   const [xrayPhase, setXrayPhase] = useState(0);
   const [xrayData, setXrayData] = useState(null);
+  const [xrayGrade, setXrayGrade] = useState(null);
   const [xrayError, setXrayError] = useState("");
   const [beforeAfter, setBeforeAfter] = useState(0); // 0 = chaos, 100 = clarity
   const XRAY_PHASES = [
@@ -75,6 +76,7 @@ export default function Landing() {
     }
     setXrayError("");
     setXrayData(null);
+    setXrayGrade(null);
     setXrayState("scanning");
     setXrayPhase(0);
 
@@ -122,8 +124,33 @@ export default function Landing() {
         country:        payload.country,
         source:         payload.source,
         scanMs:         Math.max(elapsed, minScanMs),
+        zoning:         payload.zoning,
+        cmhc:           payload.cmhc,
       });
       setXrayState("revealed");
+
+      // Fire the building-grade call after the reveal so the public-record
+      // cells appear immediately. Grade lands ~1-2s later and slots in.
+      fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "building-grade",
+          address: payload.address || addr,
+          zoning: payload.zoning,
+          assessment: {
+            yearBuilt:    payload.yearBuilt,
+            assessedValue: payload.assessedValue,
+            lotSizeSqM:   payload.lotSize ? (payload.lotSize / 10.7639) : null,
+          },
+          cmhc: payload.cmhc,
+        }),
+      })
+        .then(r => r.json())
+        .then(g => {
+          if (g?.ok) setXrayGrade(g);
+        })
+        .catch(() => {/* grade is optional — silent failure */});
     } catch (err) {
       clearInterval(tick);
       setXrayError(err?.message || "Scan failed. Try a different address.");
@@ -744,8 +771,24 @@ export default function Landing() {
     .ld-xray-error-eg{background:none;border:none;color:var(--brass);font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;font-weight:600;cursor:pointer;padding:0;letter-spacing:0.1px;text-decoration:underline;text-decoration-color:rgba(212,175,55,0.4);text-underline-offset:3px}
     .ld-xray-error-eg:hover{color:var(--alabaster);text-decoration-color:var(--brass)}
 
-    .ld-xray-section-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.4px;color:var(--alabaster-3);text-transform:uppercase;margin:0 0 10px}
-    .ld-xray-section-lbl.restricted{color:var(--brass);margin-top:20px;display:flex;align-items:center;gap:6px}
+    .ld-xray-section-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.4px;color:var(--alabaster-3);text-transform:uppercase;margin:20px 0 10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    .ld-xray-section-lbl.restricted{color:var(--brass);display:flex;align-items:center;gap:6px}
+    .ld-xray-grade-overall{margin-left:auto;font-size:11px;font-weight:800;color:var(--brass);letter-spacing:1.2px;border:1px solid var(--brass);padding:3px 9px;border-radius:3px;background:rgba(212,175,55,0.06)}
+
+    /* Building grade card — 4 dimensions */
+    .ld-xray-gradegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+    .ld-xray-gradecell{display:flex;align-items:flex-start;gap:12px;background:rgba(0,0,0,0.25);border:1px solid rgba(212,175,55,0.18);border-left:2px solid var(--brass);border-radius:4px;padding:12px 14px}
+    .ld-xray-gradecell-grade{font-family:'Geist',sans-serif;font-size:24px;font-weight:800;color:var(--brass);letter-spacing:-1px;line-height:1;width:42px;height:42px;border:1.5px solid var(--brass);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(212,175,55,0.06)}
+    .ld-xray-gradecell-body{flex:1;min-width:0}
+    .ld-xray-gradecell-name{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;letter-spacing:0.8px;color:var(--alabaster-2);text-transform:uppercase;margin-bottom:5px}
+    .ld-xray-gradecell-note{font-family:'Geist',sans-serif;font-size:12px;color:var(--alabaster-2);line-height:1.45}
+    .ld-xray-gradesummary{grid-column:1 / -1;margin-top:4px;padding:12px 14px;background:rgba(33,85,205,0.08);border:1px solid rgba(33,85,205,0.25);border-left:2px solid var(--royal);border-radius:4px;font-family:'Geist',sans-serif;font-size:12.5px;color:var(--alabaster);line-height:1.5;font-style:italic}
+    .ld-xray-gradeloading{display:flex;align-items:center;gap:10px;padding:14px 16px;background:rgba(212,175,55,0.04);border:1px dashed rgba(212,175,55,0.3);border-radius:4px;font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;color:var(--brass);letter-spacing:0.4px}
+    .ld-xray-gradeloading-dot{width:7px;height:7px;border-radius:50%;background:var(--brass);box-shadow:0 0 10px var(--brass);animation:blink 1.2s infinite}
+
+    @media(max-width:720px){
+      .ld-xray-gradegrid{grid-template-columns:1fr}
+    }
 
     .ld-xray-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:6px}
     .ld-xray-cell{background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:14px 16px}
@@ -1176,6 +1219,35 @@ export default function Landing() {
                     )}
                   </div>
                 </div>
+
+                {/* ── Building quality grade — 4-dimension institutional read ── */}
+                <div className="ld-xray-section-lbl">
+                  Building grade · 4-dimension institutional read
+                  {xrayGrade?.overall && (
+                    <span className="ld-xray-grade-overall">{xrayGrade.overall} · Class {xrayGrade.class}</span>
+                  )}
+                </div>
+                {xrayGrade ? (
+                  <div className="ld-xray-gradegrid">
+                    {(xrayGrade.dimensions || []).map((d) => (
+                      <div key={d.name} className="ld-xray-gradecell">
+                        <div className="ld-xray-gradecell-grade">{d.grade}</div>
+                        <div className="ld-xray-gradecell-body">
+                          <div className="ld-xray-gradecell-name">{d.name}</div>
+                          <div className="ld-xray-gradecell-note">{d.note}</div>
+                        </div>
+                      </div>
+                    ))}
+                    {xrayGrade.summary && (
+                      <div className="ld-xray-gradesummary">{xrayGrade.summary}</div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="ld-xray-gradeloading">
+                    <span className="ld-xray-gradeloading-dot" />
+                    Grading the building — architecture, systems, amenities, site…
+                  </div>
+                )}
 
                 <div className="ld-xray-section-lbl restricted">▲ Rize Proprietary Insights · GATED</div>
                 <div className="ld-xray-grid xray-blurred">
@@ -2297,19 +2369,18 @@ export default function Landing() {
           <div style={{background:"linear-gradient(135deg,rgba(59,158,255,0.07),var(--card))",border:"1px solid rgba(59,158,255,0.3)",borderRadius: 16,padding:"32px 28px",position:"relative"}}>
             <div style={{position:"absolute",top:-12,right:20,background:"linear-gradient(135deg,var(--blue),var(--purple))",color:"#fff",fontSize:11,fontWeight:800,padding:"4px 14px",borderRadius:99,letterSpacing:"0.5px"}}>MOST POPULAR</div>
             <div style={{fontSize:13,fontWeight:700,color:"var(--blue)",textTransform:"uppercase",letterSpacing:"0.5px",marginBottom:8}}>Pro</div>
-            <div style={{fontSize:42,fontWeight:800,color:"var(--text)",letterSpacing:"-2px",marginBottom:4}}>$29<span style={{fontSize:16,fontWeight:500,color:"var(--sub)"}}>/mo</span></div>
+            <div style={{fontSize:42,fontWeight:800,color:"var(--text)",letterSpacing:"-2px",marginBottom:4}}>$99<span style={{fontSize:16,fontWeight:500,color:"var(--sub)"}}>/mo</span></div>
             <div style={{fontSize:13,color:"var(--dim)",marginBottom:24}}>Cancel anytime</div>
             <button onClick={() => navigate('/pricing')} style={{width:"100%",background:"var(--blue)",border:"none",borderRadius:10,padding:"12px",fontSize:14,fontWeight:700,color:"#fff",cursor:"pointer",fontFamily:"inherit",marginBottom:24}}>Start Pro →</button>
             {[
               "Everything in Free",
-              "Unlimited saved deals",
-              "Address auto-fill from public records",
-              "Rentcast sold comps + rental data",
-              "Realtor.ca Canadian comps",
-              "CMHC rental market data",
+              "Unlimited saved deals + Pipeline tracking",
+              "AI Read narrative on every surface (9 modes)",
+              "Address auto-fill from city open data",
+              "CMHC-anchored rent predictor (model-based)",
               "Offer Letter + Lender Package PDF",
-              "Net Worth Dashboard",
-              "Portfolio Tracker",
+              "Building quality grade (4-dimension institutional read)",
+              "Net Worth Dashboard + Portfolio Tracker",
               "Priority support via chat",
             ].map(f => <div key={f} style={{display:"flex",alignItems:"center",gap:10,fontSize:13,color:"var(--sub)",marginBottom:10}}><span style={{color:"var(--blue)",flexShrink:0}}>✓</span>{f}</div>)}
           </div>

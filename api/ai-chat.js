@@ -76,6 +76,9 @@ export default async function handler(req, res) {
   if (req.body?.mode === "unsubscribe") {
     return handleUnsubscribe(req, res);
   }
+  if (req.body?.mode === "building-grade") {
+    return handleBuildingGrade(req, res);
+  }
 
   const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -1639,6 +1642,137 @@ async function handleUnsubscribe(req, res) {
     console.error("[unsubscribe] fetch error:", e.message);
     return res.status(504).json({ ok: false, error: e.message });
   }
+}
+
+// ─── Building Grade Mode ───────────────────────────────────────────────────
+// Institutional building quality grade across the four dimensions a
+// commercial appraiser uses: Architecture & Finishes, Structure & Systems,
+// Amenities & Management, Site & Certifications. Outputs per-dimension
+// letter grades + reasoning + an overall asset-class read (A / B / C).
+//
+// Inputs: address, zoning {code, description, maxStoreys, maxUnits, maxHeightM},
+//         assessment {yearBuilt, assessedValue, lotSizeSqM},
+//         cmhc {avgRents, vacancyRate} for area context.
+// Output: { ok, overall: "B+", class: "B", dimensions: [{name, grade, note}], summary }
+//
+// Pure inference — no photo, no inspection report. The grade is a
+// "first-pass institutional read" the same way a broker grades a
+// building from year-built + neighbourhood + assessed-value-per-sqft
+// before they ever step inside. Future work: accept user-uploaded
+// photos and refine via Claude vision.
+async function handleBuildingGrade(req, res) {
+  const { address, zoning, assessment, cmhc } = req.body || {};
+  if (!address) return res.status(400).json({ error: "address required" });
+
+  const template = buildBuildingGradeTemplate({ zoning, assessment, cmhc });
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") {
+    return res.status(200).json({ ...template, source: "template" });
+  }
+
+  try {
+    const prompt = buildBuildingGradePrompt({ address, zoning, assessment, cmhc });
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 600,
+        messages: [{ role: "user", content: prompt }],
+      }),
+      signal: AbortSignal.timeout(9000),
+    });
+    if (!r.ok) {
+      return res.status(200).json({ ...template, source: "template", note: `AI fallback (${r.status})` });
+    }
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim();
+    if (!text) return res.status(200).json({ ...template, source: "template" });
+
+    // Claude returns JSON inside the response. Extract the first balanced {...}.
+    const m = text.match(/\{[\s\S]*\}/);
+    if (!m) return res.status(200).json({ ...template, source: "template", note: "AI returned non-JSON" });
+    try {
+      const parsed = JSON.parse(m[0]);
+      return res.status(200).json({ ok: true, ...parsed, source: "claude-haiku-4-5" });
+    } catch {
+      return res.status(200).json({ ...template, source: "template", note: "AI JSON parse failed" });
+    }
+  } catch (e) {
+    return res.status(200).json({ ...template, source: "template", note: `AI timeout/error: ${e.message}` });
+  }
+}
+
+function buildBuildingGradePrompt({ address, zoning, assessment, cmhc }) {
+  const age = assessment?.yearBuilt ? (2026 - Math.floor(parseFloat(assessment.yearBuilt))) : null;
+  const ageStr = age != null ? `${age} years old (built ${Math.floor(parseFloat(assessment.yearBuilt))})` : "age unknown";
+  const psf = (assessment?.assessedValue && assessment?.lotSizeSqM)
+    ? `$${Math.round(assessment.assessedValue / (assessment.lotSizeSqM * 10.7639))}/sqft of lot`
+    : "psf unknown";
+  const vacancyStr = cmhc?.vacancyRate != null ? `${cmhc.vacancyRate}% area vacancy` : "vacancy unknown";
+
+  return `You are an institutional real estate appraiser. Grade the property below across four standard dimensions used in commercial appraisal. Use grades A (institutional / Class A), B+ / B / B- (solid / Class B), C+ / C / C- (functional but tired), D (significant capex / Class C).
+
+PROPERTY: ${address}
+AGE: ${ageStr}
+ZONING: ${zoning?.code || "unknown"}${zoning?.description ? ` (${zoning.description})` : ""}
+  Max storeys: ${zoning?.maxStoreys ?? "n/a"}
+  Max units: ${zoning?.maxUnits ?? "n/a"}
+  Max height: ${zoning?.maxHeightM != null ? zoning.maxHeightM + "m" : "n/a"}
+ASSESSED: ${assessment?.assessedValue ? `$${Math.round(assessment.assessedValue).toLocaleString()}` : "unknown"} (${psf})
+MARKET CONTEXT: ${vacancyStr}
+
+Respond with VALID JSON ONLY (no prose before/after, no markdown fences). Schema:
+{
+  "overall": "B+",          // overall letter grade
+  "class": "B",             // asset class A | B | C
+  "dimensions": [
+    {"name": "Architecture & Finishes", "grade": "B",  "note": "one sentence on exterior aesthetic, era, finish quality"},
+    {"name": "Structure & Systems",     "grade": "B-", "note": "one sentence on age-driven HVAC/plumbing/electrical/envelope risk"},
+    {"name": "Amenities & Management",  "grade": "C+", "note": "one sentence on amenity profile + likely management quality given building scale"},
+    {"name": "Site & Certifications",   "grade": "B",  "note": "one sentence on lot, curb appeal, likely energy/LEED status given age + zone"}
+  ],
+  "summary": "2-3 sentence asset-class read. Lead with the verdict (Class B+), then the one biggest upside, then the biggest risk."
+}
+
+Be honest. Older buildings in suburban zones typically grade C-B-. New downtown high-rises grade A-B+. No flattery — investors read this.`;
+}
+
+function buildBuildingGradeTemplate({ zoning, assessment, cmhc }) {
+  // Heuristic fallback when Claude is unavailable. Grades from age + zone + psf.
+  const yr = assessment?.yearBuilt ? Math.floor(parseFloat(assessment.yearBuilt)) : null;
+  const age = yr ? (2026 - yr) : null;
+  const isDC = /^DC\b|^CD-/i.test(zoning?.code || "");           // mixed-use / comprehensive dev
+  const isHighDensity = (zoning?.maxStoreys ?? 0) >= 6 || (zoning?.maxUnits ?? 0) >= 12;
+
+  const archGrade = age == null ? "C+" : age < 10 ? "A-" : age < 25 ? "B" : age < 50 ? "B-" : "C+";
+  const sysGrade  = age == null ? "C"  : age < 10 ? "A-" : age < 25 ? "B-" : age < 40 ? "C+" : "C-";
+  const amenGrade = isHighDensity ? (isDC ? "B+" : "B") : (age && age < 15 ? "B-" : "C+");
+  const siteGrade = isDC ? "B+" : (zoning?.maxUnits >= 4 ? "B" : "B-");
+
+  // Rough overall: weighted average via point map.
+  const pts = { "A+":13, A:12, "A-":11, "B+":10, B:9, "B-":8, "C+":7, C:6, "C-":5, D:4 };
+  const grades = [archGrade, sysGrade, amenGrade, siteGrade];
+  const avg = grades.reduce((s,g) => s + (pts[g] || 6), 0) / 4;
+  const overall = Object.entries(pts).sort((a,b) => Math.abs(a[1]-avg) - Math.abs(b[1]-avg))[0][0];
+  const cls = avg >= 10 ? "A" : avg >= 8 ? "B" : "C";
+
+  return {
+    ok: true,
+    overall,
+    class: cls,
+    dimensions: [
+      { name: "Architecture & Finishes", grade: archGrade, note: age != null ? `Built ${yr} — ${age}-year-old envelope and finishes typical of the era.` : "Year built unknown — grade based on zoning era." },
+      { name: "Structure & Systems",     grade: sysGrade,  note: age != null && age >= 25 ? `${age}-year-old systems likely require capex on roof, HVAC, and electrical within 5–7 years.` : "Systems likely within useful life; budget routine reserves." },
+      { name: "Amenities & Management",  grade: amenGrade, note: isHighDensity ? "Density supports common amenities and professional management." : "Smaller scale — limited amenity load; owner-operator or third-party management." },
+      { name: "Site & Certifications",   grade: siteGrade, note: isDC ? "Comprehensive development zone supports mixed use and curb appeal." : "Conventional residential lot; no certification on file in open data." },
+    ],
+    summary: `First-pass Class ${cls} (${overall}) read based on age, zoning, and density signals. ${age != null && age >= 30 ? "Building age is the dominant grade-down — verify capex plan." : "Modern envelope; verify systems and management on-site."} Photos and an inspection report would refine each dimension by a notch.`,
+  };
 }
 
 // ──────────────────────────────────────────────────────────────────────
