@@ -79,6 +79,9 @@ export default async function handler(req, res) {
   if (req.body?.mode === "building-grade") {
     return handleBuildingGrade(req, res);
   }
+  if (req.body?.mode === "rent-roll-loss-to-lease") {
+    return handleRentRollLossToLease(req, res);
+  }
 
   const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -491,8 +494,19 @@ Schema:
 - yearBuilt        — 4-digit year
 - notes            — 1-2 sentence summary of what this document is and any salient details that don't fit elsewhere (e.g. "5-unit walkup; 2 units vacant; deferred maintenance on roof")
 - units            — ONLY IF the document is a rent roll with per-unit detail: an array of unit-type groupings. Each entry: { "type": "1 Bed / 1 Bath" or similar, "count": integer, "sqft": integer, "currentRent": monthly rent in dollars, "marketRent": estimated market rent if mentioned }. Group identical unit types together (don't list every single unit individually). Omit this field entirely if the document is not a rent roll.
+- unitMix          — ONLY IF the document is a rent roll with row-level per-unit detail (different from "units" above which groups by type): an array of every single unit row. Each entry MUST include the unit's actual contract rent so we can compute loss-to-lease against market. Schema per entry:
+    {
+      "unit": "101" or "Suite B" or "B-12" — whatever identifier the row uses,
+      "bedrooms": 0 for bachelor, integer for 1/2/3+,
+      "bathrooms": number (0.5 for half-bath),
+      "sqft": integer or null,
+      "actualRent": current contract monthly rent in dollars, integer. CRITICAL — never null unless the row is vacant,
+      "tenancyStart": "YYYY-MM" if visible, else null,
+      "notes": "vacant" | "month-to-month" | "owner-occupied" | "subsidized" | null
+    }
+  Read EVERY row of the rent table. Don't summarize, don't average — preserve per-unit variation. If the document is not a rent roll (it's a listing sheet, lease, appraisal, etc.), omit this field entirely.
 
-Target: ${target === "multifamily" ? "MULTIFAMILY (5+ units) — if this looks like a rent roll with per-unit detail, populate the units array with the unique unit groupings" : "RESIDENTIAL (1-4 units)"}.
+Target: ${target === "multifamily" || target === "rent-roll" ? "MULTIFAMILY / RENT ROLL — populate BOTH `units` (type groupings) AND `unitMix` (per-unit rows) when the document has per-unit rent detail." : "RESIDENTIAL (1-4 units)"}.
 
 Output STRICT JSON only — no preamble, no markdown code fences, no commentary. Just the JSON object.`;
 
@@ -1773,6 +1787,171 @@ function buildBuildingGradeTemplate({ zoning, assessment, cmhc }) {
     ],
     summary: `First-pass Class ${cls} (${overall}) read based on age, zoning, and density signals. ${age != null && age >= 30 ? "Building age is the dominant grade-down — verify capex plan." : "Modern envelope; verify systems and management on-site."} Photos and an inspection report would refine each dimension by a notch.`,
   };
+}
+
+// ─── Rent-Roll → Loss-to-Lease Mode ────────────────────────────────────────
+// One round trip: PDF rent roll + city → parsed unitMix + LTL math + AI Read.
+//
+// Pipeline:
+//   1. parse-document (Claude sonnet) extracts the unitMix array
+//   2. lookupCMHC for the city resolves the market rent anchor
+//   3. computeLossToLease produces per-unit deltas + totals
+//   4. Claude haiku generates a 2-3 sentence institutional narrative
+//
+// All four steps in one server call so the client gets a single object back.
+async function handleRentRollLossToLease(req, res) {
+  const { document, mediaType = "application/pdf", city, province } = req.body || {};
+  if (!document || typeof document !== "string") {
+    return res.status(400).json({ error: "Missing 'document' (base64 PDF)." });
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") {
+    return res.status(503).json({ error: "AI parsing is not configured." });
+  }
+
+  // Lazy import the helpers — top-of-file imports kept clean.
+  const { lookupCMHC } = await import("./_lib/cmhc-data.js");
+  const { computeLossToLease } = await import("./_lib/lossToLease.js");
+
+  // Resolve CMHC anchor before parsing — fail fast if city isn't covered.
+  const cmhc = lookupCMHC(city, province);
+  if (!cmhc) {
+    return res.status(400).json({
+      ok: false,
+      error: `No CMHC anchor for "${city}". CMHC covers ~26 Canadian CMAs.`,
+    });
+  }
+
+  // ── Step 1: parse the rent roll via Claude sonnet ──
+  const b64 = document.replace(/^data:[^;]+;base64,/, "");
+  const parsePrompt = `You are extracting a rent roll from a real estate document.
+
+Return STRICT JSON with this shape (no markdown fences, no preamble):
+{
+  "address": "street address or null",
+  "unitCount": integer,
+  "unitMix": [
+    {
+      "unit": "101" or "Suite B" or whatever the row labels it,
+      "bedrooms": 0 for bachelor, integer for 1/2/3+,
+      "bathrooms": number (0.5 for half),
+      "sqft": integer or null,
+      "actualRent": current contract monthly rent in dollars, integer. CRITICAL — never null unless vacant,
+      "tenancyStart": "YYYY-MM" if visible else null,
+      "notes": "vacant" | "month-to-month" | "subsidized" | null
+    }
+  ]
+}
+
+Read EVERY row of the rent table. Do not summarize, do not group, do not average — preserve per-unit variation in rent. If you cannot find a rent table at all, return { "unitMix": [], "error": "No rent table found." }`;
+
+  let parsed;
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 4000,
+        messages: [{
+          role: "user",
+          content: [
+            { type: "document", source: { type: "base64", media_type: mediaType, data: b64 } },
+            { type: "text", text: parsePrompt },
+          ],
+        }],
+      }),
+      signal: AbortSignal.timeout(55_000),
+    });
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      return res.status(502).json({ ok: false, error: `Parse failed (${r.status})`, detail: errBody.slice(0, 200) });
+    }
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim() || "";
+    const extracted = extractJSON(text);
+    if (!extracted) {
+      return res.status(502).json({ ok: false, error: "AI returned non-JSON response", raw: text.slice(0, 400) });
+    }
+    parsed = extracted;
+  } catch (e) {
+    return res.status(504).json({ ok: false, error: `Parsing failed: ${e.message}` });
+  }
+
+  if (!Array.isArray(parsed?.unitMix) || parsed.unitMix.length === 0) {
+    return res.status(200).json({
+      ok: false,
+      parsed,
+      error: parsed?.error || "No rent table detected in this document.",
+      hint: "If this is a rent roll, ensure the PDF has the unit-level rent table on a readable page (not a scanned photo).",
+    });
+  }
+
+  // ── Step 2: compute LTL ──
+  const ltl = computeLossToLease({ unitMix: parsed.unitMix, cmhc });
+  if (!ltl.ok) {
+    return res.status(200).json({ ok: false, parsed, ltl, error: ltl.reason });
+  }
+
+  // ── Step 3: generate AI Read narrative (best-effort, never blocks) ──
+  let aiRead = null;
+  try {
+    const t = ltl.totals;
+    const aboveMarketNote = ltl.flags.aboveMarketCount > 0
+      ? ` ${ltl.flags.aboveMarketCount} of ${t.pricedDoors} units are already at or above market.`
+      : "";
+    const vacantNote = ltl.flags.vacant > 0
+      ? ` ${ltl.flags.vacant} vacant.`
+      : "";
+    const narrPrompt = `You are an institutional multifamily underwriter. In 2-3 sentences (under 65 words total), write a tight institutional read on this rent roll's loss-to-lease finding.
+
+PROPERTY: ${parsed.address || "address unknown"}
+MARKET ANCHOR: CMHC ${ltl.market.dataYear} · ${ltl.market.cma}
+DOORS: ${t.doors} (${t.pricedDoors} priced, ${ltl.flags.vacant} vacant, ${ltl.flags.missingBedrooms} ungraded)
+ACTUAL: $${t.actualMonthly.toLocaleString()}/mo  MARKET: $${t.marketMonthly.toLocaleString()}/mo
+DELTA: $${t.deltaMonthly.toLocaleString()}/mo  ANNUAL: $${t.deltaAnnual.toLocaleString()}
+PER DOOR: $${t.perDoorMonthly}/mo  AVG: ${(t.avgUpsidePct * 100).toFixed(1)}% below market
+5-YR STRANDED NPV @8%: $${t.stranded5YearNPV.toLocaleString()}${aboveMarketNote}${vacantNote}
+
+Lead with the annual upside dollar figure. Cite the per-door average. Close with whether this is a value-add play or already-at-market. No fluff. Plain English.`;
+
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 180,
+        messages: [{ role: "user", content: narrPrompt }],
+      }),
+      signal: AbortSignal.timeout(8000),
+    });
+    if (r.ok) {
+      const j = await r.json();
+      aiRead = j.content?.[0]?.text?.trim() || null;
+    }
+  } catch (e) {
+    // AI Read is optional — failure leaves it null.
+    console.warn("[rent-roll-LTL] AI Read failed:", e.message);
+  }
+
+  return res.status(200).json({
+    ok: true,
+    address:    parsed.address,
+    unitCount:  parsed.unitCount,
+    unitMix:    parsed.unitMix,
+    ltl,
+    aiRead,
+    source:     "claude-sonnet-4-6 + computeLossToLease + haiku-4-5",
+  });
 }
 
 // ──────────────────────────────────────────────────────────────────────

@@ -11,6 +11,7 @@ import TopNav from "./components/TopNav";
 import AddressAutocomplete from "./AddressAutocomplete";
 import ShareDealButton from "./components/ShareDealButton";
 import AIDocumentDrop from "./components/AIDocumentDrop";
+import LossToLeasePanel from "./components/LossToLeasePanel";
 import TierGate from "./components/TierGate";
 
 // Lazy-load the charts card so recharts (~200KB gzipped) doesn't ship in the
@@ -144,6 +145,57 @@ export default function BRRRRCalculator() {
   const { user, signOut, getSubscription } = useAuth();
   const [isPro, setIsPro]         = useState(false);
   const [proChecked, setProChecked] = useState(false);
+
+  // ── Loss-to-Lease (rent roll → CMHC delta) ─────────────────────────────────
+  const [ltlData, setLtlData]       = useState(null);
+  const [ltlLoading, setLtlLoading] = useState(false);
+  const [ltlError, setLtlError]     = useState("");
+
+  async function runLossToLease(file) {
+    if (!file) return;
+    setLtlError("");
+    setLtlLoading(true);
+    try {
+      const b64 = await new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload  = () => resolve(String(fr.result).split(",")[1] || "");
+        fr.onerror = () => reject(fr.error);
+        fr.readAsDataURL(file);
+      });
+      const addr = (form?.address || "").toLowerCase();
+      let city = "calgary", province = "alberta";
+      const cityMatches = [
+        ["edmonton","alberta"],["calgary","alberta"],["red deer","alberta"],["lethbridge","alberta"],
+        ["vancouver","bc"],["victoria","bc"],["kelowna","bc"],["abbotsford","bc"],
+        ["toronto","ontario"],["ottawa","ontario"],["hamilton","ontario"],["london","ontario"],
+        ["kitchener","ontario"],["windsor","ontario"],["kingston","ontario"],["barrie","ontario"],
+        ["montreal","quebec"],["quebec city","quebec"],["winnipeg","manitoba"],
+        ["saskatoon","saskatchewan"],["regina","saskatchewan"],["halifax","nova scotia"],
+        ["moncton","new brunswick"],["saint john","new brunswick"],
+        ["st. john's","newfoundland and labrador"],["charlottetown","prince edward island"],
+      ];
+      for (const [c,p] of cityMatches) {
+        if (addr.includes(c)) { city = c; province = p; break; }
+      }
+      const r = await fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "rent-roll-loss-to-lease",
+          document: b64,
+          mediaType: file.type || "application/pdf",
+          city, province,
+        }),
+      });
+      const data = await r.json();
+      setLtlData(data);
+      if (!data.ok && data.error) setLtlError(data.error);
+    } catch (e) {
+      setLtlError(e?.message || "Could not analyze the rent roll.");
+    } finally {
+      setLtlLoading(false);
+    }
+  }
 
   useEffect(() => {
     async function check() {
@@ -612,6 +664,52 @@ export default function BRRRRCalculator() {
                 setF(k, String(v));
               }}
             />
+          </TierGate>
+
+          {/* Loss-to-Lease — rent roll → CMHC delta → upside */}
+          <TierGate
+            tier="scale"
+            feature="Loss-to-Lease Analyzer"
+            description="Drop a rent roll. We extract every unit row, cross-reference each against CMHC market rent, and show you the stranded upside in dollars per door per year."
+          >
+            <div style={{
+              display:"flex", alignItems:"center", gap:14,
+              padding:"14px 16px", marginTop:12,
+              background:"linear-gradient(180deg,rgba(212,175,55,0.05),rgba(0,102,204,0.04))",
+              border:"1px solid rgba(212,175,55,0.32)",
+              borderLeft:"3px solid var(--gold)",
+              borderRadius:6, cursor:"pointer",
+            }}
+              onClick={() => document.getElementById("ltl-brrrr-input")?.click()}
+            >
+              <div style={{fontSize:24}}>📊</div>
+              <div style={{flex:1}}>
+                <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:11,fontWeight:700,letterSpacing:"1.2px",color:"var(--gold)",textTransform:"uppercase",marginBottom:3}}>
+                  Loss-to-Lease Analyzer
+                </div>
+                <div style={{fontSize:13,color:"var(--text)",lineHeight:1.5}}>
+                  {ltlLoading
+                    ? "Reading rent roll · cross-referencing CMHC · computing per-door upside…"
+                    : ltlError
+                      ? <span style={{color:"var(--red)"}}>⚠ {ltlError}</span>
+                      : ltlData?.ok
+                        ? <span style={{color:"var(--green)"}}>✓ Analyzed — see panel below</span>
+                        : <>Drop a <strong>rent roll PDF</strong> · we'll find the stranded upside</>}
+                </div>
+              </div>
+              <input
+                type="file"
+                id="ltl-brrrr-input"
+                accept="application/pdf"
+                style={{display:"none"}}
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) runLossToLease(f);
+                  e.target.value = "";
+                }}
+              />
+            </div>
+            {ltlData && <LossToLeasePanel data={ltlData} />}
           </TierGate>
 
           {/* Live zoning + assessment + permits + AI thesis (Edmonton + Calgary) */}
