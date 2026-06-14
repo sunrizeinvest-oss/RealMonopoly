@@ -67,9 +67,11 @@ export default function Landing() {
     "▸ Running buy verdict (Newton-Raphson IRR)…",
   ];
 
-  const runXray = async () => {
+  const runXray = async (overrideAddr) => {
     if (xrayState === "scanning") return;
-    const addr = xrayAddress.trim();
+    // Preset clicks pass the address directly so we don't fight React's
+    // batched state updates. Manual input falls back to xrayAddress.
+    const addr = (typeof overrideAddr === "string" ? overrideAddr : xrayAddress).trim();
     if (!addr) {
       setXrayError("Enter an address to begin.");
       setXrayState("error");
@@ -768,6 +770,13 @@ export default function Landing() {
     .ld-xray-input:disabled{opacity:0.6}
     .ld-xray-go{margin-left:14px;background:var(--royal);color:#fff;border:1px solid var(--brass);border-radius:4px;padding:15px 26px;font-family:'Geist',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.5px;transition:all 0.2s;white-space:nowrap;text-transform:uppercase}
     .ld-xray-go:hover:not(:disabled){background:var(--royal-2);box-shadow:0 10px 30px rgba(212,175,55,0.32),0 0 20px rgba(212,175,55,0.2);transform:translateY(-1px)}
+
+    /* Preset chips — verified-working addresses below the X-Ray input.
+       Click → auto-fill + auto-run. Live-demo insurance. */
+    .ld-xray-presets{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:12px 18px;background:rgba(0,0,0,0.18);border-bottom:1px solid rgba(255,255,255,0.05)}
+    .ld-xray-presets-lbl{font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;letter-spacing:1.3px;color:var(--alabaster-3);text-transform:uppercase;margin-right:4px}
+    .ld-xray-preset{background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.28);color:var(--alabaster-2);font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:600;letter-spacing:0.4px;padding:6px 11px;border-radius:3px;cursor:pointer;transition:all 0.15s}
+    .ld-xray-preset:hover{background:rgba(212,175,55,0.14);border-color:var(--brass);color:var(--brass);transform:translateY(-1px)}
     .ld-xray-go:disabled{opacity:0.55;cursor:wait}
 
     .ld-xray-scan{padding:24px 20px;font-family:'Geist Mono',ui-monospace,monospace;font-size:13px;color:var(--alabaster-2);min-height:200px;display:flex;flex-direction:column;gap:8px}
@@ -1154,7 +1163,7 @@ export default function Landing() {
               <input
                 type="text"
                 className="ld-xray-input"
-                placeholder="Enter an AB / BC multifamily address"
+                placeholder="Enter any Canadian address"
                 value={xrayAddress}
                 onChange={(e) => setXrayAddress(e.target.value)}
                 onKeyDown={(e) => { if (e.key === "Enter") runXray(); }}
@@ -1168,6 +1177,34 @@ export default function Landing() {
                 {xrayState === "scanning" ? "Scanning…" : "Run X-Ray"}
               </button>
             </div>
+
+            {/* ── Try-this preset row — 4 pre-verified addresses that always
+                geocode and return real data. Prevents the live-demo disaster
+                of a typo failing in front of an investor. ── */}
+            {xrayState === "idle" && (
+              <div className="ld-xray-presets">
+                <span className="ld-xray-presets-lbl">▸ Try one of these</span>
+                {[
+                  { label: "Vancouver · CD-1",   addr: "555 Robson St, Vancouver BC" },
+                  { label: "Calgary · R-CG",     addr: "2424 Westmount Rd NW, Calgary AB" },
+                  { label: "Toronto · CR",       addr: "100 Queen St W, Toronto ON" },
+                  { label: "Ottawa · MD",        addr: "233 Gloucester St, Ottawa ON" },
+                ].map(p => (
+                  <button
+                    key={p.addr}
+                    className="ld-xray-preset"
+                    onClick={() => {
+                      // Update input visually + run with the explicit address
+                      // so state-batching never bites us.
+                      setXrayAddress(p.addr);
+                      runXray(p.addr);
+                    }}
+                  >
+                    {p.label}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {xrayState === "scanning" && (
               <div className="ld-xray-scan">
