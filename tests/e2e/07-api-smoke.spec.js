@@ -126,4 +126,23 @@ test.describe("API smoke (prod, read-only)", () => {
     const j = await r.json();
     expect(j.url).toMatch(/checkout\.stripe\.com\/c\/pay\/cs_live_/);
   });
+
+  test("comps — Canadian address returns either Repliers data or notConfigured flag", async () => {
+    const ctx = await request.newContext();
+    const r = await ctx.get(
+      `${PROD}/api/comps?type=sale&address=${encodeURIComponent("233 Gloucester St, Ottawa ON")}`
+    );
+    expect(r.ok()).toBe(true);
+    const j = await r.json();
+    // Either the integration is configured (source: "repliers") and we get real comps,
+    // OR the flag is correctly set (source: "none", notConfigured: "repliers").
+    // Anything else means the feature flag broke.
+    const isLive = j.source === "repliers";
+    const isNotConfigured = j.source === "none" && j.notConfigured === "repliers";
+    expect(isLive || isNotConfigured).toBe(true);
+    // Response shape must always be valid regardless of which path served it.
+    expect(j.stats).toBeTruthy();
+    expect(Array.isArray(j.soldComps)).toBe(true);
+    expect(Array.isArray(j.activeListings)).toBe(true);
+  });
 });
