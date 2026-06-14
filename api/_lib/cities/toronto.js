@@ -2,9 +2,14 @@
  * Toronto city adapter — ArcGIS Feature Service for live zoning lookup,
  * plus open.toronto.ca CKAN for permits.
  *
- * Toronto publishes the Zoning By-law 569-2013 as an ArcGIS REST
- * Feature Service. ArcGIS supports a point-in-polygon spatial query
- * out of the box (esriSpatialRelIntersects on an esriGeometryPoint).
+ * Toronto's official open-data portal only ships the Zoning By-law 569-2013
+ * as bulk GeoJSON / SHP downloads — no point-in-polygon REST query endpoint.
+ * Hosted ArcGIS mirrors of the same dataset DO support spatial queries; the
+ * one we use here was the most reliable mirror at last verification and has
+ * the canonical By-law 569-2013 schema (ZN_ZONE, FSI_TOTAL, UNITS, DENSITY).
+ *
+ * If this mirror goes offline, swap TORONTO_ZONING_SERVICE for another
+ * Esri Hub-hosted copy — the schema is stable, just the host changes.
  *
  * Permits are available via the CKAN datastore.
  *
@@ -12,10 +17,10 @@
  * on any network / schema / dataset-rename failure.
  */
 
-// Esri Feature Service for Toronto's current Zoning By-law (City of Toronto Open Data).
-// The exact service URL has rotated a few times; this is the most current public layer.
+// Esri Feature Service mirror of Toronto's Zoning By-law 569-2013.
+// Layer 0 = "Zones" polygon layer with canonical schema.
 const TORONTO_ZONING_SERVICE =
-  "https://services3.arcgis.com/b9WvedVPoizGfvfD/ArcGIS/rest/services/COTGEO_ZONING_BYLAW/FeatureServer/0";
+  "https://services7.arcgis.com/AHJOWTX3sFcnmA9U/arcgis/rest/services/City_of_Toronto_Zoning_ByLaws/FeatureServer/0";
 
 const CKAN_BASE = "https://ckan0.cf.opendata.inter.prod-toronto.ca/api/3/action";
 
@@ -26,6 +31,10 @@ async function fetchArcGIS(url, params) {
   if (!r.ok) throw new Error(`ArcGIS fetch failed: ${r.status}`);
   return r.json();
 }
+
+// Helper: Toronto's mirror dataset uses -1 to mean "not specified for this
+// zone family." Treat as null so downstream callers don't display -1 metres.
+const notSpecified = v => (v == null || v === -1 || v === "-1") ? null : v;
 
 export async function getZoning({ lat, lng, address }) {
   try {
@@ -42,31 +51,53 @@ export async function getZoning({ lat, lng, address }) {
     if (!feat) return { city: "toronto", found: false, address };
 
     const a = feat.attributes || {};
-    // Toronto's zoning by-law splits the label into category + subcategory.
-    const zone =
-      a.ZN_ZONE ||
-      a.ZONE_CAT ||
-      a.ZN_STRING ||
-      a.Z_LABEL ||
-      a.ZONING ||
-      null;
+    // Toronto schema (By-law 569-2013):
+    //   ZN_ZONE       — base zone code (R, CR, R3, CR2.5, etc.)
+    //   ZN_HOLDING    — "N" or "Y" — site-specific holding provision flag
+    //   GEN_ZONE      — numeric zone category (200s = downtown, etc.)
+    //   FSI_TOTAL     — max floor-space index (FAR equivalent)
+    //   UNITS         — max permitted dwelling units (-1 = not specified)
+    //   DENSITY       — units per hectare
+    //   FRONTAGE      — minimum lot frontage
+    //   PRCNT_COMM    — max % commercial floor space
+    //   PRCNT_RES     — max % residential floor space
+    //   COVERAGE      — max lot coverage %
+    const zone = a.ZN_ZONE || a.ZONE_CAT || a.ZN_STRING || null;
     if (!zone) return { city: "toronto", found: false, address };
 
     const info = ZONE_INFO[zone] || matchPrefix(zone) || {};
+    const fsiLive   = notSpecified(a.FSI_TOTAL);
+    const unitsLive = notSpecified(a.UNITS);
+    const densLive  = notSpecified(a.DENSITY);
+
     return {
       city: "toronto",
       found: true,
       address,
       zone,
-      zoneDescription: info.description || a.Z_NAME || a.SUBJECT || null,
+      zoneDescription: info.description || null,
       permittedUses: [],
-      maxHeightM: a.HEIGHT || info.maxHeightM || null,
-      maxStoreys: info.maxStoreys || null,
-      maxFAR: info.maxFAR || null,
-      maxUnits: info.maxUnits || null,
+      // Toronto's mirror doesn't publish absolute heights — we surface FSI
+      // (floor-space index) as the density proxy. maxStoreys still falls
+      // back to the by-law reference table.
+      maxHeightM:   info.maxHeightM || null,
+      maxStoreys:   info.maxStoreys || null,
+      // Prefer per-parcel FSI from the live data when published; fall
+      // back to the zone-family default.
+      maxFAR:       fsiLive != null ? fsiLive : info.maxFAR,
+      maxUnits:     unitsLive != null ? unitsLive : info.maxUnits,
+      maxDensity:   densLive,
       minLotAreaM2: info.minLotAreaM2 || null,
       setbacks: { frontM: null, rearM: null, sideM: null },
       bylawUrl: "https://www.toronto.ca/city-government/planning-development/zoning-by-law-preliminary-zoning-reviews/",
+      bylawNumber: "569-2013",
+      // Holding provision flag — useful signal for developers screening
+      // for sites with active development controls.
+      holdingProvision: a.ZN_HOLDING === "Y",
+      // % commercial / residential split helps mixed-use deal screening.
+      maxCommercialPct: notSpecified(a.PRCNT_COMM),
+      maxResidentialPct: notSpecified(a.PRCNT_RES),
+      maxCoveragePct:   notSpecified(a.COVERAGE),
       raw: a,
     };
   } catch (e) {
