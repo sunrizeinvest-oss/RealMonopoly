@@ -148,7 +148,7 @@ export default function Pricing() {
                 blurb: "Try the platform. No credit card.",
                 features: [
                   "All 20+ underwriting calculators",
-                  "X-Ray address scan (Calgary · Edmonton · Vancouver · Toronto · Ottawa)",
+                  "X-Ray address scan (Calgary · Edmonton · Vancouver · Toronto · Ottawa · Mississauga)",
                   "CMHC rent + vacancy on 26 Canadian metros",
                   "3 saved deals",
                   "Single-deal PDF export",

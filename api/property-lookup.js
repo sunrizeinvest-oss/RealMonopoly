@@ -65,11 +65,12 @@ async function lookupCanadian({ address, res }) {
   }
 
   let cityMod = null;
-  if (geo.citySlug === "calgary")        cityMod = await import("./_lib/cities/calgary.js");
-  else if (geo.citySlug === "edmonton")  cityMod = await import("./_lib/cities/edmonton.js");
-  else if (geo.citySlug === "vancouver") cityMod = await import("./_lib/cities/vancouver.js");
-  else if (geo.citySlug === "toronto")   cityMod = await import("./_lib/cities/toronto.js");
-  else if (geo.citySlug === "ottawa")    cityMod = await import("./_lib/cities/ottawa.js");
+  if (geo.citySlug === "calgary")          cityMod = await import("./_lib/cities/calgary.js");
+  else if (geo.citySlug === "edmonton")    cityMod = await import("./_lib/cities/edmonton.js");
+  else if (geo.citySlug === "vancouver")   cityMod = await import("./_lib/cities/vancouver.js");
+  else if (geo.citySlug === "toronto")     cityMod = await import("./_lib/cities/toronto.js");
+  else if (geo.citySlug === "ottawa")      cityMod = await import("./_lib/cities/ottawa.js");
+  else if (geo.citySlug === "mississauga") cityMod = await import("./_lib/cities/mississauga.js");
 
   // ── CMHC + predict-rent: call helpers DIRECTLY ──
   // Previously these self-fetched over HTTP via process.env.VERCEL_URL, which

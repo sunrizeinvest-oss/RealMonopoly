@@ -15,6 +15,7 @@ export const CITY_ADAPTERS = {
   vancouver: "vancouver",
   toronto: "toronto",
   ottawa: "ottawa",
+  mississauga: "mississauga",
 };
 
 export async function geocode(address) {
@@ -38,7 +39,12 @@ export async function geocode(address) {
     citySlug = "calgary";
   } else if (cityRaw.includes("vancouver") || /burnaby|richmond|surrey|north vancouver|west vancouver|coquitlam|new westminster|delta/.test(cityRaw)) {
     citySlug = "vancouver";
-  } else if (cityRaw.includes("toronto") || /mississauga|brampton|markham|vaughan|pickering|ajax|oakville|burlington|richmond hill|north york|scarborough|etobicoke/.test(cityRaw)) {
+  } else if (cityRaw.includes("mississauga") || /port credit|streetsville|cooksville|clarkson|meadowvale|erin mills/.test(cityRaw)) {
+    // Mississauga has its own zoning bylaw 0225-2007 with parcel-level data.
+    // Keep this branch BEFORE the Toronto GTA catch-all so Mississauga
+    // addresses hit the Mississauga adapter, not Toronto's.
+    citySlug = "mississauga";
+  } else if (cityRaw.includes("toronto") || /brampton|markham|vaughan|pickering|ajax|oakville|burlington|richmond hill|north york|scarborough|etobicoke/.test(cityRaw)) {
     citySlug = "toronto";
   } else if (cityRaw.includes("ottawa") || /gatineau|kanata|orléans|orleans|nepean|barrhaven|stittsville|gloucester|cumberland|rockcliffe park|vanier/.test(cityRaw)) {
     // Ottawa-Gatineau CMA. Gatineau is QC but historically operates as part
