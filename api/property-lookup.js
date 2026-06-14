@@ -22,6 +22,7 @@
 import { geocode } from "./_lib/geocode.js";
 import { lookupCMHC, CMHC_DATA_SOURCE } from "./_lib/cmhc-data.js";
 import { predictRent } from "./_lib/rent-model.js";
+import { estimateYearBuilt } from "./_lib/yearBuiltEstimator.js";
 
 // Canadian-address heuristic. Province code anywhere in the string, OR
 // a Canadian postal code anywhere.
@@ -113,11 +114,30 @@ async function lookupCanadian({ address, res }) {
   const assess  = assessR.status === "fulfilled" ? assessR.value : null;
   const zoning  = zoningR.status === "fulfilled" ? zoningR.value : null;
 
+  // ── AI year-built estimator ──
+  // Fires only when city open-data left yearBuilt null AND we have enough
+  // context (zoning + assessed value + an address) for a defensible guess.
+  // Today this is the rule rather than the exception for Edmonton + Ontario
+  // cities (MPAC) — those datasets don't publish year_of_construction.
+  let yearBuiltEst = null;
+  if (!assess?.yearBuilt && (zoning?.found || assess?.assessedValue)) {
+    yearBuiltEst = await estimateYearBuilt({
+      address,
+      neighbourhood: assess?.neighbourhood || assess?.raw?.NEIGHBOURHOOD || null,
+      zoning:        zoning?.zone || null,
+      assessedValue: assess?.assessedValue || null,
+      sqft:          assess?.squareFootage || null,
+      propertyType:  assess?.buildingClass || null,
+      taxClass:      assess?.taxClass || null,
+    });
+  }
+
   const attribution = [];
   if (assess)              attribution.push(`${geo.citySlug} open data`);
   if (zoning?.found)       attribution.push(`${geo.citySlug} zoning`);
   if (cmhc?.dataYear)      attribution.push(`CMHC ${cmhc.dataYear}`);
   if (rent?.ok)            attribution.push("Predict-rent (CMHC-anchored)");
+  if (yearBuiltEst?.estimatedYear) attribution.push(`AI year-built estimator (${yearBuiltEst.source})`);
 
   // Calgary's lot size is sqm — convert to sqft for the unified shape.
   const sqmToSqft = sm => (sm == null ? null : Math.round(sm * 10.7639));
@@ -132,7 +152,14 @@ async function lookupCanadian({ address, res }) {
     bedrooms:      null,
     bathrooms:     null,
     squareFootage: null,
-    yearBuilt:     assess?.yearBuilt ?? null,
+    // Prefer the city's published yearBuilt. Fall back to the AI estimator
+    // when the city dataset doesn't publish that column (Edmonton, Ontario
+    // MPAC cities). yearBuiltSource discriminates so the UI can render the
+    // value with appropriate confidence labeling.
+    yearBuilt:           assess?.yearBuilt ?? yearBuiltEst?.estimatedYear ?? null,
+    yearBuiltSource:     assess?.yearBuilt ? "city-open-data" : (yearBuiltEst?.source ?? null),
+    yearBuiltConfidence: assess?.yearBuilt ? "high" : (yearBuiltEst?.confidence ?? null),
+    yearBuiltReasoning:  assess?.yearBuilt ? null : (yearBuiltEst?.reasoning ?? null),
     lotSize:       sqmToSqft(assess?.lotSizeSqM) ?? null,
     propertyType:  assess?.buildingClass || assess?.taxClass || null,
 

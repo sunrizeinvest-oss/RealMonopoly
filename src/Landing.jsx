@@ -115,18 +115,21 @@ export default function Landing() {
       clearInterval(tick);
 
       setXrayData({
-        address:        payload.address || addr,
-        yearBuilt:      payload.yearBuilt,
-        assessedValue:  payload.assessedValue,
-        propertyTaxes:  payload.propertyTaxes,
-        squareFootage:  payload.squareFootage,
-        zoningCode:     payload.zoning?.code,
-        zoningDesc:     payload.zoning?.description,
-        country:        payload.country,
-        source:         payload.source,
-        scanMs:         Math.max(elapsed, minScanMs),
-        zoning:         payload.zoning,
-        cmhc:           payload.cmhc,
+        address:             payload.address || addr,
+        yearBuilt:           payload.yearBuilt,
+        yearBuiltSource:     payload.yearBuiltSource,
+        yearBuiltConfidence: payload.yearBuiltConfidence,
+        yearBuiltReasoning:  payload.yearBuiltReasoning,
+        assessedValue:       payload.assessedValue,
+        propertyTaxes:       payload.propertyTaxes,
+        squareFootage:       payload.squareFootage,
+        zoningCode:          payload.zoning?.code,
+        zoningDesc:          payload.zoning?.description,
+        country:             payload.country,
+        source:              payload.source,
+        scanMs:              Math.max(elapsed, minScanMs),
+        zoning:              payload.zoning,
+        cmhc:                payload.cmhc,
       });
       setXrayState("revealed");
 
@@ -1214,10 +1217,22 @@ export default function Landing() {
                 <div className="ld-xray-section-lbl">Public record</div>
                 <div className="ld-xray-grid">
                   <div className="ld-xray-cell">
-                    <div className="ld-xray-cell-lbl">Year built</div>
+                    <div className="ld-xray-cell-lbl">
+                      Year built
+                      {xrayData.yearBuiltSource && xrayData.yearBuiltSource !== "city-open-data" && (
+                        <span style={{marginLeft:6,fontSize:8.5,color:"var(--brass)",letterSpacing:1,fontWeight:700}}>
+                          ▸ AI EST
+                        </span>
+                      )}
+                    </div>
                     <div className="ld-xray-cell-val">
                       {xrayData.yearBuilt ? xrayData.yearBuilt : "—"}
                     </div>
+                    {xrayData.yearBuiltSource && xrayData.yearBuiltSource !== "city-open-data" && xrayData.yearBuiltConfidence && (
+                      <div className="ld-xray-cell-fine">
+                        {xrayData.yearBuiltConfidence} confidence · {xrayData.yearBuiltSource === "heuristic" ? "neighbourhood era" : "Claude inference"}
+                      </div>
+                    )}
                   </div>
                   <div className="ld-xray-cell">
                     <div className="ld-xray-cell-lbl">Assessed value</div>
