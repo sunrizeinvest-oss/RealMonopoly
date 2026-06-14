@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import XrayPrefillBanner from "./components/XrayPrefillBanner";
 import { getXrayPrefill, clearXrayPrefill } from "./lib/xrayPrefill";
+import LossToLeasePanel from "./components/LossToLeasePanel";
 
 const num = v => parseFloat(v) || 0;
 const fmt = (n, cur = "USD") => new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(n || 0);
@@ -259,6 +260,101 @@ export default function PropertyHub() {
     setXrayPrefill(xp);
     setQuery(prev => prev || xp.address);
   }, []);
+
+  // ── Building Grade — 4-dimension institutional read ──────────────────────
+  // Auto-fires when property + zoning land. Cached in component state for
+  // the session; re-fetches when address changes.
+  const [buildingGrade, setBuildingGrade] = useState(null);
+  const [buildingGradeLoading, setBuildingGradeLoading] = useState(false);
+
+  useEffect(() => {
+    if (!property?.address) return;
+    if (!property?.estimatedValue && !property?.assessedValue) return;
+
+    let cancelled = false;
+    setBuildingGradeLoading(true);
+    setBuildingGrade(null);
+    const t = setTimeout(async () => {
+      try {
+        const r = await fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "building-grade",
+            address: property.address,
+            zoning: property.zoning || null,
+            assessment: {
+              yearBuilt:     property.yearBuilt,
+              assessedValue: property.assessedValue || property.estimatedValue,
+              lotSizeSqM:    property.lotSize ? property.lotSize / 10.7639 : null,
+            },
+            cmhc: property.cmhc || null,
+          }),
+        });
+        const j = await r.json();
+        if (!cancelled && j?.overall) setBuildingGrade(j);
+      } catch {
+        // Silent fail — panel just doesn't render.
+      } finally {
+        if (!cancelled) setBuildingGradeLoading(false);
+      }
+    }, 1000); // small debounce so the search results render first
+
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [property?.address, property?.estimatedValue, property?.assessedValue]);
+
+  // ── Loss-to-Lease — drop a rent roll PDF, get stranded upside ────────────
+  const [ltlData, setLtlData]       = useState(null);
+  const [ltlLoading, setLtlLoading] = useState(false);
+  const [ltlError, setLtlError]     = useState("");
+
+  async function runLossToLease(file) {
+    if (!file) return;
+    setLtlError("");
+    setLtlLoading(true);
+    try {
+      const b64 = await new Promise((resolve, reject) => {
+        const fr = new FileReader();
+        fr.onload  = () => resolve(String(fr.result).split(",")[1] || "");
+        fr.onerror = () => reject(fr.error);
+        fr.readAsDataURL(file);
+      });
+      // Detect city from the loaded property (cleaner than guessing from
+      // the search query). Falls back to the current query if needed.
+      const addr = (property?.address || query || "").toLowerCase();
+      let city = "calgary", province = "alberta";
+      const m = [
+        ["edmonton","alberta"],["calgary","alberta"],["red deer","alberta"],["lethbridge","alberta"],
+        ["vancouver","bc"],["victoria","bc"],["kelowna","bc"],["abbotsford","bc"],
+        ["toronto","ontario"],["ottawa","ontario"],["hamilton","ontario"],["london","ontario"],
+        ["kitchener","ontario"],["windsor","ontario"],["kingston","ontario"],["barrie","ontario"],
+        ["montreal","quebec"],["quebec city","quebec"],["winnipeg","manitoba"],
+        ["saskatoon","saskatchewan"],["regina","saskatchewan"],["halifax","nova scotia"],
+        ["moncton","new brunswick"],["saint john","new brunswick"],
+        ["st. john's","newfoundland and labrador"],["charlottetown","prince edward island"],
+      ];
+      for (const [c,p] of m) {
+        if (addr.includes(c)) { city = c; province = p; break; }
+      }
+      const r = await fetch("/api/ai-chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "rent-roll-loss-to-lease",
+          document: b64,
+          mediaType: file.type || "application/pdf",
+          city, province,
+        }),
+      });
+      const data = await r.json();
+      setLtlData(data);
+      if (!data.ok && data.error) setLtlError(data.error);
+    } catch (e) {
+      setLtlError(e?.message || "Could not analyze the rent roll.");
+    } finally {
+      setLtlLoading(false);
+    }
+  }
 
   async function search() {
     const q = query.trim();
@@ -696,6 +792,123 @@ export default function PropertyHub() {
                 </div>
               )}
             </>
+          )}
+
+          {/* ── BUILDING GRADE · 4-dimension institutional read ────────
+              Auto-fires once the property's assessed value lands. Same
+              4-cell grade card the X-Ray bar and Property Intel surface. */}
+          {hasData && (buildingGradeLoading || buildingGrade?.overall) && (
+            <div style={{
+              margin: "16px 0",
+              padding: "18px 20px",
+              background: "linear-gradient(180deg,rgba(212,175,55,0.04) 0%,var(--card) 100%)",
+              border: "1px solid rgba(212,175,55,0.32)",
+              borderLeft: "3px solid #d4af37",
+              borderRadius: 8,
+            }}>
+              <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:12}}>
+                <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,letterSpacing:"1.3px",color:"#d4af37",textTransform:"uppercase"}}>
+                  ▸ Building Grade · 4-dimension institutional read
+                </div>
+                {buildingGrade?.overall && (
+                  <span style={{
+                    marginLeft:"auto",fontFamily:"'Geist',sans-serif",
+                    fontSize:13,fontWeight:800,color:"#d4af37",letterSpacing:1,
+                    border:"1px solid #d4af37",padding:"4px 10px",borderRadius:3,
+                    background:"rgba(212,175,55,0.06)",
+                  }}>
+                    {buildingGrade.overall} · CLASS {buildingGrade.class}
+                  </span>
+                )}
+              </div>
+              {buildingGradeLoading && !buildingGrade ? (
+                <div style={{fontSize:13,color:"var(--sub)",fontStyle:"italic"}}>
+                  Grading architecture, systems, amenities, site…
+                </div>
+              ) : (
+                <>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
+                    {(buildingGrade.dimensions || []).map(d => (
+                      <div key={d.name} style={{
+                        display:"flex",alignItems:"flex-start",gap:12,
+                        background:"rgba(255,255,255,0.6)",
+                        border:"1px solid rgba(212,175,55,0.2)",
+                        borderLeft:"2px solid #d4af37",borderRadius:4,padding:"10px 12px",
+                      }}>
+                        <div style={{
+                          fontFamily:"'Geist',sans-serif",fontSize:22,fontWeight:800,
+                          color:"#d4af37",letterSpacing:"-0.5px",lineHeight:1,
+                          width:44,height:44,border:"1.5px solid #d4af37",borderRadius:4,
+                          display:"flex",alignItems:"center",justifyContent:"center",
+                          flexShrink:0,background:"rgba(212,175,55,0.06)",
+                        }}>{d.grade}</div>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:9.5,fontWeight:700,letterSpacing:"0.8px",color:"var(--sub)",textTransform:"uppercase",marginBottom:4}}>{d.name}</div>
+                          <div style={{fontSize:12,color:"var(--text)",lineHeight:1.45}}>{d.note}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {buildingGrade.summary && (
+                    <div style={{
+                      marginTop:6,padding:"10px 12px",
+                      background:"rgba(0,102,204,0.06)",
+                      border:"1px solid rgba(0,102,204,0.22)",
+                      borderLeft:"2px solid var(--blue)",borderRadius:4,
+                      fontSize:12.5,color:"var(--text)",lineHeight:1.5,fontStyle:"italic",
+                    }}>
+                      {buildingGrade.summary}
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          )}
+
+          {/* ── LOSS-TO-LEASE · rent roll → CMHC delta ────────────────
+              Brass-bordered drag-drop zone. When a PDF lands, the
+              LossToLeasePanel renders the per-door stranded upside math. */}
+          {hasData && (
+            <div style={{margin:"16px 0"}}>
+              <div
+                onClick={() => document.getElementById("ph-ltl-input")?.click()}
+                style={{
+                  display:"flex",alignItems:"center",gap:14,
+                  padding:"14px 16px",
+                  background:"linear-gradient(180deg,rgba(212,175,55,0.05),rgba(0,102,204,0.04))",
+                  border:"1px solid rgba(212,175,55,0.32)",
+                  borderLeft:"3px solid #d4af37",
+                  borderRadius:6,cursor:"pointer",
+                }}>
+                <div style={{fontSize:24}}>📊</div>
+                <div style={{flex:1}}>
+                  <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:11,fontWeight:700,letterSpacing:"1.2px",color:"#d4af37",textTransform:"uppercase",marginBottom:3}}>
+                    Loss-to-Lease · drop a rent roll PDF
+                  </div>
+                  <div style={{fontSize:13,color:"var(--text)",lineHeight:1.5}}>
+                    {ltlLoading
+                      ? "Reading rent roll · cross-referencing CMHC · computing per-door upside…"
+                      : ltlError
+                        ? <span style={{color:"var(--red)"}}>⚠ {ltlError}</span>
+                        : ltlData?.ok
+                          ? <span style={{color:"var(--green)"}}>✓ Analyzed — see panel below</span>
+                          : <>Find the stranded upside on this address · multifamily rent rolls only</>}
+                  </div>
+                </div>
+                <input
+                  type="file"
+                  id="ph-ltl-input"
+                  accept="application/pdf"
+                  style={{display:"none"}}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) runLossToLease(f);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+              {ltlData && <LossToLeasePanel data={ltlData} />}
+            </div>
           )}
 
           {/* ── COMPS LOADING ─────────────────────────────────────────── */}
