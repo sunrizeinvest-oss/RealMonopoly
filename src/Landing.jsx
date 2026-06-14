@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import TopNav from "./components/TopNav";
+import { saveXrayPrefill } from "./lib/xrayPrefill";
 
 const DEALS = [
   {addr:"142 Birchwood Dr",city:"Calgary, AB",profit:38400,roi:12.8,coc:22.4,arv:310000,verdict:"go"},
@@ -128,6 +129,19 @@ export default function Landing() {
         cmhc:           payload.cmhc,
       });
       setXrayState("revealed");
+
+      // Persist the scan so every calculator can read it on mount and
+      // pre-fill the address + property fields. 30-min TTL inside the helper.
+      saveXrayPrefill({
+        address:       payload.address || addr,
+        yearBuilt:     payload.yearBuilt,
+        assessedValue: payload.assessedValue,
+        zoning:        payload.zoning,
+        cmhc:          payload.cmhc,
+        rentEstimate:  payload.rentEstimate,
+        country:       payload.country,
+        source:        payload.source,
+      });
 
       // Fire the building-grade call after the reveal so the public-record
       // cells appear immediately. Grade lands ~1-2s later and slots in.

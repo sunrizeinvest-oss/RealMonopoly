@@ -12,6 +12,8 @@ import AddressAutocomplete from "./AddressAutocomplete";
 import ShareDealButton from "./components/ShareDealButton";
 import AIDocumentDrop from "./components/AIDocumentDrop";
 import LossToLeasePanel from "./components/LossToLeasePanel";
+import XrayPrefillBanner from "./components/XrayPrefillBanner";
+import { getXrayPrefill, clearXrayPrefill } from "./lib/xrayPrefill";
 import TierGate from "./components/TierGate";
 
 // Lazy-load the charts card so recharts (~200KB gzipped) doesn't ship in the
@@ -363,6 +365,19 @@ export default function BRRRRCalculator() {
 
   const setF = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
+  // X-Ray prefill — read on mount, pre-fill address only when empty.
+  const [xrayPrefill, setXrayPrefill] = useState(null);
+  useEffect(() => {
+    const xp = getXrayPrefill();
+    if (!xp) return;
+    setXrayPrefill(xp);
+    setForm(prev => ({
+      ...prev,
+      address:   prev.address || xp.address,
+      yearBuilt: prev.yearBuilt || (xp.yearBuilt ? Math.floor(parseFloat(xp.yearBuilt)) : prev.yearBuilt),
+    }));
+  }, []);
+
   const calc = useMemo(() => {
     const pp = num(form.purchasePrice);
     const rehab = num(form.rehabBudget);
@@ -620,6 +635,12 @@ export default function BRRRRCalculator() {
               <div><div className="br-card-title">Deal Info</div><div className="br-card-sub">Name &amp; address for saving</div></div>
             </div>
             <div className="br-card-body">
+              {xrayPrefill && (
+                <XrayPrefillBanner
+                  data={xrayPrefill}
+                  onClear={() => { clearXrayPrefill(); setXrayPrefill(null); }}
+                />
+              )}
               <div className="br-field">
                 <div className="br-label">Deal Name</div>
                 <input className="br-input" type="text" placeholder="e.g. 142 Birchwood — BRRRR" value={form.dealName} onChange={e=>setF("dealName",e.target.value)} />

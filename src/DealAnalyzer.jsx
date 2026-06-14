@@ -6,6 +6,8 @@ import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
 import TopNav from "./components/TopNav";
 import AddressAutocomplete from "./AddressAutocomplete";
+import XrayPrefillBanner from "./components/XrayPrefillBanner";
+import { getXrayPrefill, clearXrayPrefill } from "./lib/xrayPrefill";
 
 const num = v => parseFloat(v) || 0;
 const fmt = n => new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(n || 0);
@@ -220,6 +222,19 @@ export default function DealAnalyzer() {
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
+
+  // X-Ray prefill — pre-fill address when empty + show dismissible banner.
+  const [xrayPrefill, setXrayPrefill] = useState(null);
+  useEffect(() => {
+    const xp = getXrayPrefill();
+    if (!xp) return;
+    setXrayPrefill(xp);
+    setForm(prev => ({
+      ...prev,
+      address: prev.address || xp.address,
+    }));
+  }, []);
+
   const [dealType, setDealType] = useState("flip");
   const [form, setForm] = useState(() => {
     // Prefill from URL params — used by the Chrome extension + shareable deal links
@@ -413,6 +428,12 @@ export default function DealAnalyzer() {
                 <button className={`da-type-btn ${dealType==="rental"?"active":"inactive"}`} onClick={() => setDealType("rental")}>🏠 Rental</button>
               </div>
             </div>
+            {xrayPrefill && (
+              <XrayPrefillBanner
+                data={xrayPrefill}
+                onClear={() => { clearXrayPrefill(); setXrayPrefill(null); }}
+              />
+            )}
             <div className="da-field">
               <div className="da-label">Property Address</div>
               <div className="da-input-wrap">

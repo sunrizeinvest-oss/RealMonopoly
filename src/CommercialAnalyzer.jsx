@@ -12,6 +12,8 @@ import AddressAutocomplete from "./AddressAutocomplete";
 import ShareDealButton from "./components/ShareDealButton";
 import AIDocumentDrop from "./components/AIDocumentDrop";
 import LossToLeasePanel from "./components/LossToLeasePanel";
+import XrayPrefillBanner from "./components/XrayPrefillBanner";
+import { getXrayPrefill, clearXrayPrefill } from "./lib/xrayPrefill";
 import RiskSimulator from "./components/RiskSimulator";
 import AIReadShareButton from "./components/AIReadShareButton";
 import CommercialLeaseMatrix from "./components/CommercialLeaseMatrix";
@@ -251,6 +253,11 @@ export default function CommercialAnalyzer() {
     } catch { return ""; }
   });
 
+  // X-Ray prefill banner — visible when the landing X-Ray scanned an address
+  // within the last 30 minutes. State drives the banner; clearing dismisses
+  // the banner only (does not erase the user's already-typed address).
+  const [xrayPrefill, setXrayPrefill] = useState(null);
+
   useEffect(() => {
     // 1. URL params first (cross-link from Flip / BRRRR / Chrome extension)
     try {
@@ -261,15 +268,26 @@ export default function CommercialAnalyzer() {
     // 2. localStorage handoff from PropertyHub
     try {
       const raw = localStorage.getItem("rde_prefill");
-      if (!raw) return;
-      const pf = JSON.parse(raw);
-      if (Date.now() - pf.timestamp > 5 * 60 * 1000) return;
-      if (pf.strategy && pf.strategy !== "multifamily") return;
-      localStorage.removeItem("rde_prefill");
-      if (pf.address) setPropertyAddress(pf.address);
-      if (pf.estimatedValue) setPurchasePrice(Math.round(pf.estimatedValue));
-      if (pf.propertyTaxes) setPropTax(Math.round(pf.propertyTaxes));
+      if (raw) {
+        const pf = JSON.parse(raw);
+        if (Date.now() - pf.timestamp <= 5 * 60 * 1000 &&
+            (!pf.strategy || pf.strategy === "multifamily")) {
+          localStorage.removeItem("rde_prefill");
+          if (pf.address) setPropertyAddress(pf.address);
+          if (pf.estimatedValue) setPurchasePrice(Math.round(pf.estimatedValue));
+          if (pf.propertyTaxes) setPropTax(Math.round(pf.propertyTaxes));
+        }
+      }
     } catch {}
+    // 3. X-Ray prefill from the landing page — pre-fills address, surfaces
+    //    yearBuilt/zoning context, and only fires if the address field is
+    //    still empty so we never overwrite the user's own input.
+    const xp = getXrayPrefill();
+    if (xp) {
+      setXrayPrefill(xp);
+      setPropertyAddress(prev => prev || xp.address);
+      if (xp.assessedValue) setPurchasePrice(prev => prev || Math.round(xp.assessedValue));
+    }
   }, []);
 
   // Simple/Advanced mode (default to Simple for new users; persisted in localStorage)
@@ -858,6 +876,12 @@ export default function CommercialAnalyzer() {
         <div className="mf-card" style={{marginBottom:16}}>
           <SectionHead title="Property"/>
           <div style={{padding:"14px 20px"}}>
+            {xrayPrefill && (
+              <XrayPrefillBanner
+                data={xrayPrefill}
+                onClear={() => { clearXrayPrefill(); setXrayPrefill(null); }}
+              />
+            )}
             <div style={{fontSize:11,fontWeight:700,color:"var(--dim)",letterSpacing:"0.5px",textTransform:"uppercase",marginBottom:6}}>Address</div>
             <AddressAutocomplete
               className="mf-input"

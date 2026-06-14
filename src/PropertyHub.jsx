@@ -1,7 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import AddressAutocomplete from "./AddressAutocomplete";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import XrayPrefillBanner from "./components/XrayPrefillBanner";
+import { getXrayPrefill, clearXrayPrefill } from "./lib/xrayPrefill";
 
 const num = v => parseFloat(v) || 0;
 const fmt = (n, cur = "USD") => new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(n || 0);
@@ -248,6 +250,16 @@ export default function PropertyHub() {
   const [compsLoading, setCompsLoading] = useState(false);
   const inputRef = useRef(null);
 
+  // X-Ray prefill: when the user runs an X-Ray on the Landing then arrives
+  // here, pre-fill the query and surface a "from your X-Ray" banner.
+  const [xrayPrefill, setXrayPrefill] = useState(null);
+  useEffect(() => {
+    const xp = getXrayPrefill();
+    if (!xp) return;
+    setXrayPrefill(xp);
+    setQuery(prev => prev || xp.address);
+  }, []);
+
   async function search() {
     const q = query.trim();
     if (!q) return;
@@ -425,6 +437,12 @@ export default function PropertyHub() {
         </div>
 
         <div className="ph-search-wrap">
+          {xrayPrefill && (
+            <XrayPrefillBanner
+              data={xrayPrefill}
+              onClear={() => { clearXrayPrefill(); setXrayPrefill(null); }}
+            />
+          )}
           <div className="ph-search-box">
             <span className="ph-search-icon">📍</span>
             <AddressAutocomplete
