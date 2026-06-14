@@ -14,6 +14,7 @@ export const CITY_ADAPTERS = {
   calgary: "calgary",
   vancouver: "vancouver",
   toronto: "toronto",
+  ottawa: "ottawa",
 };
 
 export async function geocode(address) {
@@ -39,6 +40,11 @@ export async function geocode(address) {
     citySlug = "vancouver";
   } else if (cityRaw.includes("toronto") || /mississauga|brampton|markham|vaughan|pickering|ajax|oakville|burlington|richmond hill|north york|scarborough|etobicoke/.test(cityRaw)) {
     citySlug = "toronto";
+  } else if (cityRaw.includes("ottawa") || /gatineau|kanata|orléans|orleans|nepean|barrhaven|stittsville|gloucester|cumberland|rockcliffe park|vanier/.test(cityRaw)) {
+    // Ottawa-Gatineau CMA. Gatineau is QC but historically operates as part
+    // of the same metro; routing it to the Ottawa adapter gives users a
+    // zoning lookup even when the geocoder lands on the Gatineau side.
+    citySlug = "ottawa";
   }
   return {
     lat: parseFloat(r.lat),
