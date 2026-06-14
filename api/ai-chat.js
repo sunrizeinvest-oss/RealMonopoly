@@ -82,6 +82,9 @@ export default async function handler(req, res) {
   if (req.body?.mode === "rent-roll-loss-to-lease") {
     return handleRentRollLossToLease(req, res);
   }
+  if (req.body?.mode === "admin-dashboard") {
+    return handleAdminDashboard(req, res);
+  }
 
   const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -2081,5 +2084,128 @@ Write 1-2 sentences. Start with the headline takeaway. If one item dominates (e.
     return text || null;
   } catch {
     return null;
+  }
+}
+
+// ─── Admin Dashboard Mode ──────────────────────────────────────────────────
+// Returns aggregated user + subscription + activity stats. Auth: caller's
+// Supabase JWT must belong to an email in the ADMIN_EMAILS env var
+// (comma-separated). Without that allowlist set, the endpoint refuses every
+// request — fail-closed.
+async function handleAdminDashboard(req, res) {
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!supabaseUrl || !serviceKey) {
+    return res.status(503).json({ ok: false, error: "Backend not configured." });
+  }
+
+  const allowlist = (process.env.ADMIN_EMAILS || "")
+    .split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+  if (!allowlist.length) {
+    return res.status(503).json({
+      ok: false,
+      error: "ADMIN_EMAILS not configured. Set the env var to a comma-separated list of admin emails."
+    });
+  }
+
+  // Verify the caller's JWT and check their email against the allowlist.
+  let callerEmail;
+  try {
+    const { requireUser } = await import("./_lib/auth.js");
+    const user = await requireUser(req);
+    callerEmail = (user?.email || "").toLowerCase();
+  } catch (e) {
+    return res.status(e?.status || 401).json({ ok: false, error: e?.message || "Unauthorized" });
+  }
+  if (!allowlist.includes(callerEmail)) {
+    return res.status(403).json({ ok: false, error: "Forbidden — your email is not on the admin allowlist." });
+  }
+
+  const sbHeaders = {
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+    "Content-Type": "application/json",
+  };
+
+  try {
+    // 1. All users via Supabase admin API (paginated, cap at 1000).
+    const users = [];
+    for (let page = 1; page <= 5; page++) {
+      const r = await fetch(`${supabaseUrl}/auth/v1/admin/users?page=${page}&per_page=200`, { headers: sbHeaders });
+      if (!r.ok) break;
+      const data = await r.json();
+      const batch = data?.users || [];
+      users.push(...batch);
+      if (batch.length < 200) break;
+    }
+
+    // 2. Subscription rows → user_id → active plan.
+    const subsR = await fetch(`${supabaseUrl}/rest/v1/subscriptions?select=user_id,plan,status,current_period_end&limit=2000`, { headers: sbHeaders });
+    const subs = subsR.ok ? await subsR.json() : [];
+    const planByUser = new Map();
+    for (const s of subs) {
+      const active = s.status === "active" || s.status === "trialing";
+      planByUser.set(s.user_id, active ? (s.plan || "pro") : "free");
+    }
+
+    // 3. Saved-deals total via Content-Range header.
+    let totalSavedDeals = 0;
+    const dealsR = await fetch(`${supabaseUrl}/rest/v1/saved_deals?select=id`, { headers: { ...sbHeaders, Prefer: "count=exact" } });
+    if (dealsR.ok) {
+      const cr = dealsR.headers.get("content-range") || "";
+      const m = /\/(\d+)$/.exec(cr);
+      if (m) totalSavedDeals = parseInt(m[1], 10);
+    }
+
+    // 4. Aggregate.
+    const now = Date.now();
+    const DAY = 86_400_000;
+    let signupsLast24h = 0, signupsLast7d = 0;
+    let activeLast7d   = 0, activeLast30d = 0;
+    let freeC = 0, proC = 0, scaleC = 0;
+    for (const u of users) {
+      const signedUpAt   = u.created_at      ? new Date(u.created_at).getTime()      : 0;
+      const lastSignInAt = u.last_sign_in_at ? new Date(u.last_sign_in_at).getTime() : 0;
+      if (now - signedUpAt   < DAY)        signupsLast24h++;
+      if (now - signedUpAt   < 7  * DAY)   signupsLast7d++;
+      if (lastSignInAt && now - lastSignInAt < 7  * DAY) activeLast7d++;
+      if (lastSignInAt && now - lastSignInAt < 30 * DAY) activeLast30d++;
+      const p = planByUser.get(u.id) || "free";
+      if      (p === "scale") scaleC++;
+      else if (p === "pro")   proC++;
+      else                    freeC++;
+    }
+    const mrr = proC * 99 + scaleC * 299;
+
+    const recentUsers = users
+      .slice()
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 50)
+      .map(u => ({
+        id:           u.id,
+        email:        u.email,
+        plan:         planByUser.get(u.id) || "free",
+        signedUpAt:   u.created_at,
+        lastSignInAt: u.last_sign_in_at,
+        confirmed:    !!u.email_confirmed_at,
+      }));
+
+    return res.status(200).json({
+      ok: true,
+      stats: {
+        totalUsers:    users.length,
+        signupsLast24h,
+        signupsLast7d,
+        activeLast7d,
+        activeLast30d,
+      },
+      plans: { free: freeC, pro: proC, scale: scaleC, total: users.length, mrr },
+      recentUsers,
+      deals: { totalSavedDeals },
+      generatedAt: new Date().toISOString(),
+    });
+  } catch (e) {
+    console.error("[admin-dashboard] failed:", e.message);
+    return res.status(502).json({ ok: false, error: e.message });
   }
 }
