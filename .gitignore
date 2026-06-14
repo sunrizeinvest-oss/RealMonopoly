@@ -85,3 +85,8 @@ research/
 # Source export zips
 realdealestate-app-source-*.zip
 *.zip
+
+# Playwright artifacts
+test-results/
+playwright-report/
+playwright/.cache/

@@ -1,0 +1,6 @@
+$(cat .gitignore 2>/dev/null)
+
+# Playwright artifacts
+test-results/
+playwright-report/
+playwright/.cache/
