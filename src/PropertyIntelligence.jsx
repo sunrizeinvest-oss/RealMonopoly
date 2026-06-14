@@ -864,6 +864,11 @@ export default function PropertyIntelligence() {
   const [propertyThesis, setPropertyThesis] = useState(null)
   const [propertyThesisLoading, setPropertyThesisLoading] = useState(false)
 
+  // Building Grade — 4-dimension institutional read fired when property loads.
+  // Same Claude haiku endpoint the X-Ray bar uses on the landing.
+  const [buildingGrade, setBuildingGrade] = useState(null)
+  const [buildingGradeLoading, setBuildingGradeLoading] = useState(false)
+
   // Tracks why property-lookup returned what it did, so we can show a helpful
   // notice instead of the silent empty state on 403 (RentCast subscription down).
   const [lookupStatus, setLookupStatus] = useState(null) // null | 'ok' | 'down' | 'not-found' | 'error'
@@ -979,6 +984,61 @@ export default function PropertyIntelligence() {
       clearTimeout(timeoutId)
     }
   }, [property?.address, property?.estimatedValue, property?.rentEstimate, zoningData?.zoning?.zone])
+
+  // ─── Building Grade — 4-dimension institutional read ──────────────────────
+  // Fires once property + zoning land. Uses the same /api/ai-chat
+  // ?mode=building-grade endpoint the landing X-Ray bar uses. Cached the same
+  // way as the property thesis so a re-render doesn't burn another Claude call.
+  useEffect(() => {
+    if (!property || property.error) return
+    if (!property.estimatedValue) return // need at least an assessed/estimated value
+
+    let cancelled = false
+    setBuildingGradeLoading(true)
+    const timeoutId = setTimeout(async () => {
+      const fingerprintInput = {
+        address:       property.address || query,
+        yearBuilt:     property.yearBuilt,
+        assessedValue: property.assessedValue || property.estimatedValue,
+        zoning:        zoningData?.zoning?.zone,
+      }
+      const result = await cachedThesisFetch("building-grade", fingerprintInput, () =>
+        fetch("/api/ai-chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "building-grade",
+            address: property.address || query,
+            zoning: {
+              code:        zoningData?.zoning?.zone,
+              description: zoningData?.zoning?.zoneDescription,
+              maxStoreys:  zoningData?.zoning?.maxStoreys,
+              maxUnits:    zoningData?.zoning?.maxUnits,
+              maxHeightM:  zoningData?.zoning?.maxHeightM,
+            },
+            assessment: {
+              yearBuilt:     property.yearBuilt,
+              assessedValue: property.assessedValue || property.estimatedValue,
+              lotSizeSqM:    property.lotSize ? property.lotSize / 10.7639 : null,
+            },
+            cmhc: cmhcData ? {
+              vacancyRate: cmhcData.vacancyRate,
+              avgRents:    cmhcData.avgRents,
+            } : null,
+          }),
+        }).then(r => r.json())
+      )
+      if (!cancelled) {
+        if (result?.overall) setBuildingGrade(result)
+        setBuildingGradeLoading(false)
+      }
+    }, 1200) // slight stagger so the property thesis call goes first
+
+    return () => {
+      cancelled = true
+      clearTimeout(timeoutId)
+    }
+  }, [property?.address, property?.estimatedValue, property?.yearBuilt, zoningData?.zoning?.zone])
 
   // ─── Property Search ───────────────────────────────────────────────────────
   async function handleSearch(overrideAddr) {
@@ -1741,6 +1801,101 @@ export default function PropertyIntelligence() {
                       <div style={{ fontSize: 13.5, color: "var(--text)", lineHeight: 1.6 }}>
                         {propertyThesis.thesis}
                       </div>
+                    )}
+                  </div>
+                )}
+
+                {/* ── Building Grade — 4-dimension institutional read ───
+                    Same Claude grade the landing X-Ray bar produces, now on
+                    the post-signup research surface. Architecture & Finishes,
+                    Structure & Systems, Amenities & Management, Site &
+                    Certifications. */}
+                {(buildingGradeLoading || buildingGrade?.overall) && (
+                  <div style={{
+                    margin: "0 0 20px",
+                    padding: "16px 18px",
+                    background: "linear-gradient(180deg,rgba(212,175,55,0.04) 0%,rgba(255,255,255,0.4) 100%)",
+                    border: "1px solid rgba(212,175,55,0.32)",
+                    borderLeft: "3px solid #d4af37",
+                    borderRadius: 6,
+                  }}>
+                    <div style={{
+                      display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
+                      marginBottom: 12,
+                    }}>
+                      <div style={{
+                        fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                        color: "#d4af37", letterSpacing: "1.3px", textTransform: "uppercase",
+                      }}>
+                        ▸ Building Grade · 4-dimension institutional read
+                      </div>
+                      {buildingGrade?.overall && (
+                        <span style={{
+                          marginLeft: "auto", fontFamily: "'Geist',sans-serif",
+                          fontSize: 12, fontWeight: 800, color: "#d4af37",
+                          letterSpacing: 1, border: "1px solid #d4af37",
+                          padding: "3px 9px", borderRadius: 3,
+                          background: "rgba(212,175,55,0.06)",
+                        }}>
+                          {buildingGrade.overall} · CLASS {buildingGrade.class}
+                        </span>
+                      )}
+                    </div>
+
+                    {buildingGradeLoading && !buildingGrade ? (
+                      <div style={{ fontSize: 13, color: "var(--sub)", fontStyle: "italic" }}>
+                        Grading architecture, systems, amenities, site…
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{
+                          display: "grid", gridTemplateColumns: "1fr 1fr",
+                          gap: 10, marginBottom: 12,
+                        }}>
+                          {(buildingGrade.dimensions || []).map(d => (
+                            <div key={d.name} style={{
+                              display: "flex", alignItems: "flex-start", gap: 12,
+                              background: "rgba(255,255,255,0.6)",
+                              border: "1px solid rgba(212,175,55,0.2)",
+                              borderLeft: "2px solid #d4af37",
+                              borderRadius: 4, padding: "10px 12px",
+                            }}>
+                              <div style={{
+                                fontFamily: "'Geist',sans-serif",
+                                fontSize: 20, fontWeight: 800, color: "#d4af37",
+                                letterSpacing: "-0.5px", lineHeight: 1,
+                                width: 40, height: 40,
+                                border: "1.5px solid #d4af37", borderRadius: 4,
+                                display: "flex", alignItems: "center", justifyContent: "center",
+                                flexShrink: 0, background: "rgba(212,175,55,0.06)",
+                              }}>{d.grade}</div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <div style={{
+                                  fontFamily: "'Geist Mono',monospace", fontSize: 9.5,
+                                  fontWeight: 700, letterSpacing: 0.8, color: "var(--sub)",
+                                  textTransform: "uppercase", marginBottom: 4,
+                                }}>{d.name}</div>
+                                <div style={{
+                                  fontSize: 12, color: "var(--text)", lineHeight: 1.45,
+                                }}>{d.note}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {buildingGrade.summary && (
+                          <div style={{
+                            marginTop: 4, padding: "10px 12px",
+                            background: "rgba(0,102,204,0.06)",
+                            border: "1px solid rgba(0,102,204,0.22)",
+                            borderLeft: "2px solid var(--blue)",
+                            borderRadius: 4,
+                            fontSize: 12.5, color: "var(--text)",
+                            lineHeight: 1.5, fontStyle: "italic",
+                          }}>
+                            {buildingGrade.summary}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 )}
