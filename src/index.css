@@ -162,3 +162,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: transp
 @media (max-width: 480px) {
   table { font-size: 11px; }
 }
+
+/* ── Building Grade panel grid (PropertyHub + PropertyIntelligence) ─────
+ * 4-dimension grade card uses a 2-col grid that needs to collapse to 1-col
+ * on phones so the brass tile + body text stay legible. */
+@media (max-width: 720px) {
+  .bg-grade-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

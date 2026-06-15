@@ -1848,7 +1848,7 @@ export default function PropertyIntelligence() {
                       </div>
                     ) : (
                       <>
-                        <div style={{
+                        <div className="bg-grade-grid" style={{
                           display: "grid", gridTemplateColumns: "1fr 1fr",
                           gap: 10, marginBottom: 12,
                         }}>

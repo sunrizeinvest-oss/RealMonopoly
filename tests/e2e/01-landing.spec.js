@@ -22,7 +22,7 @@ test.describe("Landing page", () => {
 
   test("X-Ray bar accepts an address and shows scan phases on click", async ({ page }) => {
     // The X-Ray input is on the landing — `Run X-Ray` button starts the scan.
-    const input = page.getByPlaceholder(/Enter an AB.*BC multifamily address/i);
+    const input = page.getByPlaceholder(/Enter any Canadian address/i);
     await expect(input).toBeVisible();
     await input.fill("2424 Westmount Rd NW, Calgary AB");
 
@@ -50,15 +50,15 @@ test.describe("Landing page", () => {
     // Each tool tile contains a /route attribute used by the click handler.
     // We just check that the toolkit section heading exists and at least
     // a few well-known calculators show up by name.
-    await expect(page.getByRole("heading", { name: /Your full toolkit/i })).toBeVisible();
-    await expect(page.getByText(/Fix & Flip Analyzer/i)).toBeVisible();
-    await expect(page.getByText(/BRRRR Calculator/i)).toBeVisible();
-    await expect(page.getByText(/Multifamily Underwriter/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: /20 tools/i })).toBeVisible();
+    await expect(page.getByText(/Fix & Flip Analyzer/i).first()).toBeVisible();
+    await expect(page.getByText(/BRRRR Calculator/i).first()).toBeVisible();
+    await expect(page.getByText(/Multifamily Underwriter/i).first()).toBeVisible();
   });
 
   test("bottom CTA says Enter the Ecosystem", async ({ page }) => {
     // Scroll to bottom — the CTA is below the fold.
-    const cta = page.getByRole("button", { name: /Enter the Ecosystem/i });
+    const cta = page.getByRole("button", { name: /Enter the Ecosystem/i }).last();
     await cta.scrollIntoViewIfNeeded();
     await expect(cta).toBeVisible();
   });

@@ -89,7 +89,22 @@ export default function Admin() {
   return (
     <>
       <TopNav />
-      <div style={{maxWidth:1200,margin:"0 auto",padding:"24px 20px 80px",fontFamily:"'Geist',sans-serif"}}>
+      <style>{`
+        /* Mobile responsive overrides for the Admin dashboard. Inline styles
+           on the grids would force JS-driven resize listeners; a small CSS
+           class-targeted rule is cleaner. */
+        @media (max-width: 720px) {
+          .admin-root              { padding: 16px 14px 60px !important }
+          .admin-plans-row         { grid-template-columns: 1fr !important }
+          .admin-table-wrap        { overflow-x: auto !important; -webkit-overflow-scrolling: touch }
+          .admin-table             { min-width: 600px }
+          .admin-kpi-strip         { grid-template-columns: repeat(2, 1fr) !important }
+        }
+        @media (max-width: 480px) {
+          .admin-kpi-strip         { grid-template-columns: 1fr !important }
+        }
+      `}</style>
+      <div className="admin-root" style={{maxWidth:1200,margin:"0 auto",padding:"24px 20px 80px",fontFamily:"'Geist',sans-serif"}}>
         {/* Header */}
         <div style={{display:"flex",alignItems:"baseline",justifyContent:"space-between",marginBottom:8,flexWrap:"wrap",gap:12}}>
           <div>
@@ -135,7 +150,7 @@ export default function Admin() {
         {data && (
           <>
             {/* KPI strip */}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(160px, 1fr))",gap:10,marginTop:24,marginBottom:18}}>
+            <div className="admin-kpi-strip" style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(160px, 1fr))",gap:10,marginTop:24,marginBottom:18}}>
               <Kpi label="Total users"        value={fmtN(data.stats.totalUsers)}     accent="var(--gold)" />
               <Kpi label="Signups · 24h"      value={fmtN(data.stats.signupsLast24h)} accent="var(--green)" />
               <Kpi label="Signups · 7d"       value={fmtN(data.stats.signupsLast7d)}  accent="var(--green)" />
@@ -144,7 +159,7 @@ export default function Admin() {
             </div>
 
             {/* Plans + revenue + deals row */}
-            <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:14,marginBottom:24}}>
+            <div className="admin-plans-row" style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:14,marginBottom:24}}>
               <div style={{background:"var(--card)",border:"1px solid var(--borderf)",borderRadius:8,padding:"18px 20px"}}>
                 <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:"1.4px",color:"var(--sub)",textTransform:"uppercase",marginBottom:10}}>Plan distribution</div>
                 <PlanBars plans={data.plans} />
@@ -173,8 +188,8 @@ export default function Admin() {
                 <span>Recent users (newest 50)</span>
                 <span style={{color:"var(--dim)"}}>{sortedUsers.length} shown</span>
               </div>
-              <div style={{overflowX:"auto"}}>
-                <table style={{width:"100%",borderCollapse:"collapse",fontSize:12.5,fontFamily:"'Geist Mono',monospace"}}>
+              <div className="admin-table-wrap" style={{overflowX:"auto"}}>
+                <table className="admin-table" style={{width:"100%",borderCollapse:"collapse",fontSize:12.5,fontFamily:"'Geist Mono',monospace"}}>
                   <thead>
                     <tr style={{background:"rgba(15,23,42,0.02)"}}>
                       <th style={th}>Email</th>

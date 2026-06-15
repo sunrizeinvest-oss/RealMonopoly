@@ -827,7 +827,7 @@ export default function PropertyHub() {
                 </div>
               ) : (
                 <>
-                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
+                  <div className="bg-grade-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
                     {(buildingGrade.dimensions || []).map(d => (
                       <div key={d.name} style={{
                         display:"flex",alignItems:"flex-start",gap:12,
