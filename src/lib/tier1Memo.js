@@ -312,7 +312,7 @@ function drawLossToLeasePage({ doc, ltl, deal, accent, today, reportId, drawPage
   const cols = [
     { key: "unit",       label: "UNIT",   x: M,        align: "left",  fmt: u => String(u.unit ?? "—") },
     { key: "bedrooms",   label: "BR",     x: M + 90,   align: "left",  fmt: u => u.bedrooms == null ? "?" : String(u.bedrooms) },
-    { key: "sqft",       label: "SQFT",   x: M + 130,  align: "left",  fmt: u => u.sqft ?? "—" },
+    { key: "sqft",       label: "SQFT",   x: M + 130,  align: "left",  fmt: u => u.sqft == null ? "—" : String(u.sqft) },
     { key: "actualRent", label: "ACTUAL", x: M + 200,  align: "right", fmt: u => fmtMoney(u.actualRent) },
     { key: "marketRent", label: "MARKET", x: M + 290,  align: "right", fmt: u => fmtMoney(u.marketRent) },
     { key: "delta",      label: "Δ /MO",  x: M + 380,  align: "right", fmt: u => u.deltaMonthly == null ? "—" : (u.deltaMonthly >= 0 ? "+" : "") + fmtMoney(u.deltaMonthly) },
