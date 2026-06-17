@@ -919,6 +919,97 @@ export default function PropertyHub() {
             </div>
           )}
 
+          {/* ── MLS COMPS UPSELL — Canadian addresses without Repliers wired ──
+              Replaces the previously-blank section with a clean,
+              brand-honest card. Triggers when /api/comps returns
+              source:"none" + notConfigured:"repliers". */}
+          {!compsLoading && saleComps?.notConfigured === "repliers" && !hasCaComps && (
+            <>
+              <div className="ph-section-divider" />
+              <div style={{
+                margin: "16px 0",
+                padding: "20px 22px",
+                background: "linear-gradient(180deg,rgba(212,175,55,0.06) 0%,rgba(255,255,255,0.4) 100%)",
+                border: "1px solid rgba(212,175,55,0.32)",
+                borderLeft: "3px solid #d4af37",
+                borderRadius: 8,
+              }}>
+                <div style={{
+                  fontFamily: "'Geist Mono',ui-monospace,monospace",
+                  fontSize: 10.5, fontWeight: 700, letterSpacing: "1.4px",
+                  color: "#d4af37", textTransform: "uppercase", marginBottom: 8,
+                }}>
+                  ▸ Sale + active comps · CREA feed
+                </div>
+                <div style={{fontSize: 15, fontWeight: 700, color: "var(--text)", marginBottom: 6, lineHeight: 1.4}}>
+                  Real Canadian MLS comps for this address require a Pro subscription.
+                </div>
+                <div style={{fontSize: 13, color: "var(--sub)", lineHeight: 1.6, marginBottom: 12}}>
+                  Active listings, recent sale comps (last 6 months), and rental comps via the CREA feed.
+                  This address is in a covered Canadian market — the data is one subscription away.
+                  Free during launch for the first 50 paying users.
+                </div>
+                <div style={{display: "flex", gap: 10, flexWrap: "wrap"}}>
+                  <button
+                    onClick={() => navigate("/pricing")}
+                    style={{
+                      background: "var(--blue)", color: "#fff", border: "1px solid #d4af37",
+                      borderRadius: 6, padding: "10px 18px",
+                      fontFamily: "'Geist Mono',ui-monospace,monospace",
+                      fontSize: 11, fontWeight: 700, letterSpacing: "0.6px",
+                      textTransform: "uppercase", cursor: "pointer",
+                      transition: "all 0.15s",
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 6px 18px rgba(212,175,55,0.25)"; }}
+                    onMouseOut={e  => { e.currentTarget.style.transform = ""; e.currentTarget.style.boxShadow = ""; }}>
+                    See pricing →
+                  </button>
+                  <button
+                    onClick={() => navigate(`/property?address=${encodeURIComponent(query)}`)}
+                    style={{
+                      background: "transparent", color: "var(--text)",
+                      border: "1px solid var(--borderf)", borderRadius: 6,
+                      padding: "10px 18px",
+                      fontFamily: "'Geist Mono',ui-monospace,monospace",
+                      fontSize: 11, fontWeight: 700, letterSpacing: "0.6px",
+                      textTransform: "uppercase", cursor: "pointer",
+                    }}>
+                    Full property intel →
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* ── EMPTY COMPS — configured but no matches in 6mo window ──
+              Different message from the upsell: tell the user the address
+              is covered but no recent transactions, so they don't think
+              the platform is broken. */}
+          {!compsLoading && saleComps?.source === "repliers"
+            && (saleComps.soldComps?.length ?? 0) === 0
+            && (saleComps.activeListings?.length ?? 0) === 0
+            && !hasCaComps && (
+            <>
+              <div className="ph-section-divider" />
+              <div style={{
+                margin: "16px 0", padding: "16px 18px",
+                background: "rgba(0,102,204,0.04)",
+                border: "1px solid rgba(0,102,204,0.22)",
+                borderLeft: "2px solid var(--blue)",
+                borderRadius: 6,
+              }}>
+                <div style={{fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700, color: "var(--blue)", letterSpacing: "1.2px", marginBottom: 6}}>
+                  ▸ No comps in the 6-month window
+                </div>
+                <div style={{fontSize: 13, color: "var(--text)", lineHeight: 1.55}}>
+                  This address is in a covered Canadian market but no sale or rental activity matched
+                  within 1km in the last 180 days. Try a more central address, or extend the search radius
+                  in your saved searches.
+                </div>
+              </div>
+            </>
+          )}
+
           {/* ── MARKET SNAPSHOT ───────────────────────────────────────── */}
           {!compsLoading && hasComps && !hasCaComps && (
             <>
