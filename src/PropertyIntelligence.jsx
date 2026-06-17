@@ -1513,9 +1513,39 @@ export default function PropertyIntelligence() {
                         <span className="pi-badge pi-badge-blue">{property.propertyType}</span>
                       )}
                       {ca && <span className="pi-badge" style={{ background: "rgba(167,130,255,0.13)", color: "var(--purple)" }}>🍁 Canada</span>}
-                      <span className="pi-badge pi-badge-green">
-                        {property.source === "public" ? "📋 Public Records" : property.error ? "⚠️ Not in Records" : "✓ Data Loaded"}
-                      </span>
+                      {/* What loaded — specific data signals */}
+                      {zoningData?.zoning?.found && (
+                        <span className="pi-badge pi-badge-green" title={`${zoningData.zoning.zone} · ${zoningData.zoning.zoneDescription || ""}`}>
+                          ✓ Zoning
+                        </span>
+                      )}
+                      {property.rentEstimate && (
+                        <span className="pi-badge pi-badge-green" title={`Rent estimate: $${Math.round(property.rentEstimate)}/mo`}>
+                          ✓ Rent
+                        </span>
+                      )}
+                      {property.estimatedValue && (
+                        <span className="pi-badge pi-badge-green" title={`Estimated value: $${Math.round(property.estimatedValue).toLocaleString()}`}>
+                          ✓ Value
+                        </span>
+                      )}
+                      {property.assessedValue && !property.estimatedValue && (
+                        <span className="pi-badge pi-badge-green" title={`Assessed value: $${Math.round(property.assessedValue).toLocaleString()}`}>
+                          ✓ Assessment
+                        </span>
+                      )}
+                      {/* Fallback: generic loaded/error states */}
+                      {!zoningData?.zoning?.found && !property.rentEstimate && !property.estimatedValue && !property.assessedValue && (
+                        <span className="pi-badge pi-badge-green">
+                          {property.source === "public" ? "📋 Public Records" : property.error ? "⚠️ Not in Records" : "✓ Data Loaded"}
+                        </span>
+                      )}
+                      {/* Canadian data limits — info chip */}
+                      {ca && !property.estimatedValue && (
+                        <span className="pi-badge" style={{ background: "rgba(245,158,11,0.13)", color: "#b45309", fontSize: 11 }} title="Canadian open-data doesn't publish sale comps, bedrooms, or sqft. Enter Purchase Price and ARV manually below.">
+                          ℹ️ Manual price entry
+                        </span>
+                      )}
                     </div>
                   </div>
                   {/* Save Deal — persists property snapshot to localStorage */}
@@ -2525,29 +2555,42 @@ export default function PropertyIntelligence() {
                       <Field label="Repair Costs" value={repairCosts} onChange={setRepairCosts} prefix="$" />
                       <Field label="Hold Months" value={holdMonths} onChange={setHoldMonths} suffix="mo" />
                     </div>
-                    <div className="pi-results">
-                      <div className="pi-result-main">
-                        <div className="pi-result-label">Net Profit</div>
-                        <div className="pi-result-big" style={{ color: flipCalc.profit >= 0 ? "var(--green)" : "var(--red)" }}>
-                          {currency(flipCalc.profit)}
-                        </div>
-                        <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
-                          <div
-                            className="pi-grade-badge"
-                            style={{ background: `${flipCalc.gradeColor}20`, color: flipCalc.gradeColor }}
-                          >
-                            {flipCalc.grade}
+                    {num(purchasePrice) > 0 && num(arv) > 0 ? (
+                      <div className="pi-results">
+                        <div className="pi-result-main">
+                          <div className="pi-result-label">Net Profit</div>
+                          <div className="pi-result-big" style={{ color: flipCalc.profit >= 0 ? "var(--green)" : "var(--red)" }}>
+                            {currency(flipCalc.profit)}
                           </div>
+                          <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
+                            <div
+                              className="pi-grade-badge"
+                              style={{ background: `${flipCalc.gradeColor}20`, color: flipCalc.gradeColor }}
+                            >
+                              {flipCalc.grade}
+                            </div>
+                          </div>
+                          <div style={{ fontSize: 11, color: "var(--sub)", marginTop: 4 }}>Deal Grade · Score {flipCalc.score}/100</div>
                         </div>
-                        <div style={{ fontSize: 11, color: "var(--sub)", marginTop: 4 }}>Deal Grade · Score {flipCalc.score}/100</div>
+                        <div className="pi-results-grid">
+                          <ResultItem label="ROI %" value={fmtPct(flipCalc.roi)} color={flipCalc.roi > 0 ? "var(--green)" : "var(--red)"} />
+                          <ResultItem label="Profit Margin" value={fmtPct(flipCalc.margin)} color={flipCalc.margin > 0 ? "var(--green)" : "var(--red)"} />
+                          <ResultItem label="Annualized CoC" value={fmtPct(flipCalc.annualCoc)} />
+                          <ResultItem label="Hold Period" value={`${holdMonths} months`} />
+                        </div>
                       </div>
-                      <div className="pi-results-grid">
-                        <ResultItem label="ROI %" value={fmtPct(flipCalc.roi)} color={flipCalc.roi > 0 ? "var(--green)" : "var(--red)"} />
-                        <ResultItem label="Profit Margin" value={fmtPct(flipCalc.margin)} color={flipCalc.margin > 0 ? "var(--green)" : "var(--red)"} />
-                        <ResultItem label="Annualized CoC" value={fmtPct(flipCalc.annualCoc)} />
-                        <ResultItem label="Hold Period" value={`${holdMonths} months`} />
+                    ) : (
+                      <div className="pi-results" style={{ padding: 24, textAlign: "center", background: "var(--surface, rgba(0,0,0,0.02))", border: "1px dashed var(--border, #e2e8f0)", borderRadius: 12 }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: "var(--sub)", marginBottom: 6 }}>
+                          💡 Enter Purchase Price and ARV to see analysis
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--dim)", lineHeight: 1.5 }}>
+                          {ca
+                            ? "Canadian data doesn't include sale prices or comps — enter values manually to calculate Net Profit, Deal Grade, and MAO."
+                            : "Fill in the inputs above to calculate Net Profit, Deal Grade, ROI, and MAO."}
+                        </div>
                       </div>
-                    </div>
+                    )}
                     <div className="pi-mao">
                       <div>
                         <div className="pi-mao-label">Maximum Allowable Offer (MAO)</div>

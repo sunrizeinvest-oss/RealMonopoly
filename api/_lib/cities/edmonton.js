@@ -58,9 +58,31 @@ function expandEdmontonStreet(streetRaw) {
   return tokens.map(t => STREET_SUFFIX[t] || t).join(" ");
 }
 
+/**
+ * Strip city, province, and postal code from a free-form address so we're left
+ * with just "house_number street_name [directional]" — the shape Socrata expects.
+ *
+ * Examples:
+ *   "6408 106 St NW, Edmonton, AB T6H 2V5" → "6408 106 ST NW"
+ *   "6408 106 St NW Edmonton AB"           → "6408 106 ST NW"
+ *   "6408 106 Street NW"                    → "6408 106 STREET NW"
+ */
+function stripCityProvincePostal(addressUpper) {
+  let s = addressUpper;
+  // Strip Canadian postal code (e.g. T6H 2V5 or T6H2V5)
+  s = s.replace(/\b[A-Z]\d[A-Z]\s*\d[A-Z]\d\b/g, "");
+  // Strip province (with or without preceding comma)
+  s = s.replace(/,?\s*\b(AB|ALBERTA|BC|BRITISH\s+COLUMBIA|ON|ONTARIO|QC|QUEBEC|SK|SASKATCHEWAN|MB|MANITOBA|NS|NOVA\s+SCOTIA|NB|NEW\s+BRUNSWICK|NL|NEWFOUNDLAND|PE|PEI|YT|YUKON|NT|NWT|NU|NUNAVUT)\b.*$/i, "");
+  // Strip Edmonton city name (specific to this adapter)
+  s = s.replace(/,?\s*\bEDMONTON\b.*$/i, "");
+  // Collapse whitespace and trim trailing punctuation
+  return s.replace(/[,\s]+$/g, "").replace(/\s+/g, " ").trim();
+}
+
 export async function getAssessment({ address }) {
   if (!address) return null;
-  const m = /^\s*(\d+)\s+(.+?)(?:,|$)/.exec(address.toUpperCase());
+  const cleaned = stripCityProvincePostal(address.toUpperCase());
+  const m = /^\s*(\d+[A-Z]?)\s+(.+?)(?:,|$)/.exec(cleaned);
   if (!m) return null;
   const house = m[1];
   const streetExpanded = expandEdmontonStreet(m[2]);
