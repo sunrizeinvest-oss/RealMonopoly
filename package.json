@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:smoke": "PLAYWRIGHT_MODE=smoke playwright test 07-api-smoke.spec.js 01-landing.spec.js 02-pricing.spec.js",
-    "memo:sample": "node scripts/generate-sample-memo.mjs"
+    "memo:sample": "node scripts/generate-sample-memo.mjs",
+    "guide:raise": "node scripts/generate-raise-guide.mjs"
   },
   "dependencies": {
     "@stripe/stripe-js": "^9.0.0",
