@@ -15,7 +15,10 @@
     "test:e2e:ui": "playwright test --ui",
     "test:smoke": "PLAYWRIGHT_MODE=smoke playwright test 07-api-smoke.spec.js 01-landing.spec.js 02-pricing.spec.js",
     "memo:sample": "node scripts/generate-sample-memo.mjs",
-    "guide:raise": "node scripts/generate-raise-guide.mjs"
+    "guide:raise": "node scripts/generate-raise-guide.mjs",
+    "deck:pdf": "node scripts/generate-deck.mjs",
+    "model:financial": "node scripts/generate-financial-model.mjs",
+    "fundraise:all": "npm run guide:raise && npm run deck:pdf && npm run model:financial && npm run memo:sample"
   },
   "dependencies": {
     "@stripe/stripe-js": "^9.0.0",
