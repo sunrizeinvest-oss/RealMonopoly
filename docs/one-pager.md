@@ -90,12 +90,15 @@ A live, deployed Canadian-first AI underwriting platform with five differentiate
 
 | Allocation | Cost | What it unlocks |
 |---|---|---|
-| **First-100-paying-users outbound** | $25K | LinkedIn outreach + content + small paid pilot. Target 100 paying users by month 6. |
-| **Real-time MLS data** | $30K | Repliers Growth tier × 12 months ($549/mo) + buffer for Altus where Repliers doesn't reach |
-| **3 more Canadian metros** | $10K | Engineering: Hamilton, Quebec City, Halifax parcel-level zoning + assessment workarounds |
-| **First engineering hire** | $80K-120K | Senior full-stack to ship US coverage (RentCast + Mashvisor) and off-market sourcing layer |
-| **Founder runway** | $30K | 6 months to build to seed-readiness |
-| **Total** | **$175K–$215K** | **6-month runway to seed-readiness with paying user base** |
+| **Senior engineer hire** (9 months @ $135K/yr fully loaded) | $135K | Ships US coverage (RentCast / Mashvisor) and off-market sourcing layer |
+| **Founder runway** (12 months @ $80K/yr) | $80K | Full-time focus through seed-readiness milestone |
+| **Tools + infra** (12 months) | $60K | Vercel Pro · Supabase Pro · Claude API · Repliers Growth tier |
+| **Marketing + content** (12 months) | $40K | LinkedIn Sales Navigator · content · paid acquisition experiments |
+| **Repliers MLS Growth subscription** ($549/mo × 12) | $7K | Real-time Canadian MLS comps live across the platform |
+| **Legal + corp + SR&ED specialist** | $20K | Incorporation review · SAFE legal · SR&ED retainer (35-65% R&D refund) |
+| **DNS migration + brand polish** (rizeai.io) | $3K | One-time domain + setup |
+| **Contingency + opportunity reserve** | $155K | Designer hire / extended runway / seize unexpected channel |
+| **Total** | **$500K** | **12-month runway to seed-readiness with 100+ paying users + design partner case study** |
 
 ---
 

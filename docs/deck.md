@@ -16,7 +16,7 @@ Copy-paste into Keynote, PowerPoint, or Google Slides. Each slide has a title, a
 
 **Body:**
 - Live: `www.realdealestate.app` *(migrating to rizeai.io)*
-- Pre-seed allocation: $175K-$215K
+- Pre-seed allocation: $500K
 - Sunni Yaremchuk, founder
 - *Date · location*
 
@@ -246,7 +246,7 @@ A self-serve tier triggers every existing $5K-$50K customer asking "why am I pay
 
 ## Slide 11 — Ask + Use of Funds
 
-**Title:** $175K-$215K pre-seed to fund 6-month runway + paid data.
+**Title:** $500K pre-seed to fund 6-month runway + paid data.
 
 **Subhead:** *Get to seed-readiness with 100 paying users + design partner case study.*
 
@@ -254,19 +254,22 @@ A self-serve tier triggers every existing $5K-$50K customer asking "why am I pay
 
 | Allocation | Cost | Outcome |
 |---|---|---|
-| First-100-paying-users outbound | $25K | LinkedIn outreach + content + small paid pilot |
-| Real-time MLS data (Repliers + buffer) | $30K | 12 months Repliers Growth tier ($549/mo) |
-| 3 more Canadian metros (Hamilton, Quebec City, Halifax) | $10K | Engineering: open-data adapters |
-| First engineering hire | $80K-$120K | Senior full-stack: US coverage + off-market sourcing |
-| Founder runway | $30K | 6 months to seed-readiness |
-| **Total** | **$175K-$215K** | **6-month bridge** |
+| Senior engineer hire (9 months @ $135K/yr) | $135K | Ships US coverage + off-market sourcing layer |
+| Founder runway (12 months @ $80K/yr) | $80K | Full-time focus |
+| Tools + infra (12 months) | $60K | Vercel Pro · Supabase Pro · Claude API · Repliers Growth |
+| Marketing + content (12 months) | $40K | LinkedIn Sales Nav · content · paid experiments |
+| Repliers MLS Growth subscription | $7K | Real Canadian comps live |
+| Legal + corp + SR&ED setup | $20K | Incorp / SAFE legal / specialist retainer |
+| DNS migration + brand polish (rizeai.io) | $3K | One-time |
+| Contingency + opportunity reserve | $155K | Hire designer / extend runway / seize moment |
+| **Total** | **$500K** | **12-month runway to seed-readiness** |
 
 **Below:**
 > Goal at month 6: $30K MRR · 100 paying users · 1 named design partner case study · seed-ready
 
 **Visual:** Pie chart of the allocation OR the table above clearly formatted.
 
-**Presenter cue:** *"This is bridge capital. Seed round at $1M-$2M follows traction proof."*
+**Presenter cue:** *"This is 12-month runway. Seed round of $2.5M-$3M follows traction proof — 100 paying users, $30K MRR, named design partner."*
 
 ---
 
@@ -357,7 +360,7 @@ Bigger Pockets, Mr. Money Mustache, the BRRRR movement — there's a generation 
 > - 6 Canadian cities at parcel-level (Calgary, Edmonton, Vancouver, Toronto, Ottawa, Mississauga)
 > - The moat is the rent-roll → loss-to-lease parser. Drag any broker rent roll PDF, see the stranded upside in dollars per door in 5 seconds.
 > - Stripe live-mode billing is wired. Pre-revenue but pre-product is also true — we're 30 days from the first paying user.
-> - Pre-seed ask: $175K-$215K to fund the first 100 paying users + first engineering hire + real-time MLS data subscription.
+> - Pre-seed ask: $500K to fund the first 100 paying users + first engineering hire + real-time MLS data subscription.
 >
 > 60-second live demo if you want to skip the deck: [Loom link or skip if not recorded yet]
 >

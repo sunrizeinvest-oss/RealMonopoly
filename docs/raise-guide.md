@@ -1,6 +1,6 @@
 # RizeAI Pre-Seed Raise Guide
 
-A founder's guide for a $175K-$215K pre-seed round on a live Canadian SaaS product. Written for the actual situation: pre-revenue, pre-PMF, live product, warm intro queue forming.
+A founder's guide for a $500K pre-seed round on a live Canadian SaaS product. Written for the actual situation: pre-revenue, pre-PMF, live product, warm intro queue forming.
 
 ---
 
@@ -51,14 +51,14 @@ For a Canadian B2B SaaS pre-seed with live product + no revenue + clear wedge:
 The honest answer: **valuation is what an investor agrees to pay.** It's not formula-driven at this stage. But here's the framework:
 
 **Step 1 — Set your ask amount.**
-You said $175K-$215K. Use $200K as the round size.
+You said $500K. Use $500K as the round size.
 
 **Step 2 — Set your acceptable dilution.**
 At pre-seed, founders typically accept 5-10% dilution. More than 10% is a red flag (you'll be over-diluted before Series A).
 
 **Step 3 — Work backwards.**
-- 5% dilution + $200K raise = $4M post-money
-- 10% dilution + $200K raise = $2M post-money
+- 5% dilution + $500K raise = $10M post-money
+- 10% dilution + $500K raise = $5M post-money
 
 **Step 4 — Set the cap at the high end of your range.**
 $4M-$5M post-money cap = 4-5% dilution = good range for pre-seed.
@@ -67,7 +67,7 @@ $4M-$5M post-money cap = 4-5% dilution = good range for pre-seed.
 
 Investor: *"What valuation are you raising at?"*
 
-You: *"We're raising $200K on a SAFE with a $5M post-money cap. Open to a conversation on terms if there's a strong lead."*
+You: *"We're raising $500K on a SAFE with a $5M post-money cap. Open to a conversation on terms if there's a strong lead."*
 
 This is **specific, not negotiable-feeling, and signals you've done the work.** Vague answers ("whatever the market accepts") signal you haven't.
 
@@ -122,10 +122,10 @@ If you later sign a SAFE with better terms (lower cap, higher discount), all pre
 **Post-money** = pre-money + new investment amount.
 
 Example:
-- Pre-money $4.8M + $200K investment = $5M post-money
-- Investor owns $200K / $5M = 4% of the company
+- Pre-money $4.5M + $500K investment = $5M post-money
+- Investor owns $500K / $5M = 10% of the company
 
-A "$5M post-money cap" SAFE means: when the SAFE converts (at your next priced round), the investor's $200K converts at a $5M post-money valuation OR the next round's valuation, whichever is LOWER.
+A "$5M post-money cap" SAFE means: when the SAFE converts (at your next priced round), the investor.s $500K converts at a $5M post-money valuation OR the next round's valuation, whichever is LOWER.
 
 ### The terms that matter at pre-seed
 
@@ -143,7 +143,7 @@ A "$5M post-money cap" SAFE means: when the SAFE converts (at your next priced r
 ### Two terms you must NOT give up at pre-seed
 
 1. **Board seat.** Pre-seed investors do not get a board seat. Period. Even if they offer $200K. The seed lead gets the first board seat, not pre-seed angels. If someone insists, walk.
-2. **Founder common-stock control.** You should still own >50% of the common voting stock after this round. Doing simple SAFE math at $200K on $5M cap, you'll be at ~96% post-round (excluding any prior friends/family). That's fine.
+2. **Founder common-stock control.** You should still own >50% of the common voting stock after this round. Doing simple SAFE math at $500K on $5M cap, you.ll be at ~90% post-round (excluding any prior friends/family). That's fine.
 
 ---
 
@@ -158,7 +158,7 @@ A "$5M post-money cap" SAFE means: when the SAFE converts (at your next priced r
 | 3-4 | First meetings (30-60 min each). 80% no's, 20% follow-ups. |
 | 5-6 | Second meetings with the follow-ups. Diligence questions emerge. |
 | 7 | First soft commits ("I'm in for $25K when you're ready to close"). |
-| 8-9 | Build momentum to a critical mass of $150K-$200K committed. |
+| 8-9 | Build momentum to a critical mass of $300K-$500K committed. |
 | 10-11 | Send signed SAFE documents. Investors sign + wire. |
 | 12 | Round closes. |
 
@@ -334,7 +334,7 @@ Assumed Series A: $5M-$8M on $25M-$40M post-money
 
 By Series A you'll still own ~60% of the company. **That's healthy.** Founders who own <40% at Series A had structural issues at pre-seed or seed.
 
-The single biggest dilution mistake at pre-seed: **letting investors push the cap below $4M.** A $2.5M cap on $200K = 8% dilution = you arrive at seed with one hand tied behind your back.
+The single biggest dilution mistake at pre-seed: **letting investors push the cap below $4M.** A $2.5M cap on $500K = 20% dilution = you arrive at seed with one hand tied behind your back.
 
 ---
 
@@ -385,7 +385,7 @@ If you haven't incorporated yet: do it BEFORE raising. Investors won't fund an u
 ### From investors
 
 - Wants a board seat at pre-seed
-- Wants >10% dilution on $200K-$250K raise
+- Wants >10% dilution on $500K raise
 - Wants liquidation preference >1x
 - Wants ROFR (Right of First Refusal) on common stock
 - Wants you to give up some founder vesting / acceleration
@@ -446,7 +446,7 @@ Corey Ho at MK Family Office offered to review your deck and make intros if it's
 - Don't ask for a meeting in the first email — let HIM offer
 
 **Do:**
-- Be specific about the ask amount ($175K-$215K)
+- Be specific about the ask amount ($500K)
 - Reference his offer explicitly
 - Make it easy for him to forward to others (the deck is the artifact)
 
