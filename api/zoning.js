@@ -24,6 +24,7 @@ import * as vancouver from "./_lib/cities/vancouver.js";  // stub — reference 
 import * as toronto from "./_lib/cities/toronto.js";      // stub — reference data only
 import * as ottawa from "./_lib/cities/ottawa.js";        // live — Zoning By-law 2008-250
 import * as mississauga from "./_lib/cities/mississauga.js"; // live — Zoning By-law 0225-2007
+import * as hamilton from "./_lib/cities/hamilton.js";        // live — Zoning By-law 25-155
 
 const ADAPTERS = {
   edmonton,
@@ -32,13 +33,14 @@ const ADAPTERS = {
   toronto,
   ottawa,
   mississauga,
+  hamilton,
 };
 
 // Adapters that actually fetch live data. Each does its own best-effort
 // query against the city's open-data API and silently falls back to
 // {found:false} on schema drift, network failure, or dataset rename —
 // so adding a new city here is low-risk.
-const LIVE_ADAPTERS = new Set(["edmonton", "calgary", "vancouver", "toronto", "ottawa", "mississauga"]);
+const LIVE_ADAPTERS = new Set(["edmonton", "calgary", "vancouver", "toronto", "ottawa", "mississauga", "hamilton"]);
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
 function setCors(res) {
@@ -63,7 +65,7 @@ export default async function handler(req, res) {
         address,
         geocode: geo,
         zoning: null,
-        error: `city "${geo.city}" not yet supported. Currently: Edmonton, Calgary, Vancouver, Toronto, Ottawa, Mississauga.`,
+        error: `city "${geo.city}" not yet supported. Currently: Edmonton, Calgary, Vancouver, Toronto, Ottawa, Mississauga, Hamilton.`,
       });
     }
     const adapter = ADAPTERS[geo.citySlug];

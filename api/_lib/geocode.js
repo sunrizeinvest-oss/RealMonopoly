@@ -16,6 +16,7 @@ export const CITY_ADAPTERS = {
   toronto: "toronto",
   ottawa: "ottawa",
   mississauga: "mississauga",
+  hamilton: "hamilton",
 };
 
 export async function geocode(address) {
@@ -39,6 +40,11 @@ export async function geocode(address) {
     citySlug = "calgary";
   } else if (cityRaw.includes("vancouver") || /burnaby|richmond|surrey|north vancouver|west vancouver|coquitlam|new westminster|delta/.test(cityRaw)) {
     citySlug = "vancouver";
+  } else if (cityRaw.includes("hamilton") || /dundas|ancaster|flamborough|stoney creek|waterdown|binbrook/.test(cityRaw)) {
+    // Hamilton metro — amalgamated city covers Dundas, Ancaster, Flamborough,
+    // Stoney Creek, Waterdown, Binbrook. All use the same consolidated
+    // Zoning By-law 25-155 surfaced by the Hamilton adapter.
+    citySlug = "hamilton";
   } else if (cityRaw.includes("mississauga") || /port credit|streetsville|cooksville|clarkson|meadowvale|erin mills/.test(cityRaw)) {
     // Mississauga has its own zoning bylaw 0225-2007 with parcel-level data.
     // Keep this branch BEFORE the Toronto GTA catch-all so Mississauga
