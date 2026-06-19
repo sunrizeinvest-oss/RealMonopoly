@@ -2582,6 +2582,7 @@ export default function Landing() {
           </div>
           <div className="ld-foot-rule" />
           <div className="ld-foot-links">
+            <span onClick={() => navigate('/about')}>About</span>
             <span onClick={() => navigate('/pricing')}>Access</span>
             <span onClick={scrollToAuth}>Application</span>
             <span onClick={() => navigate('/privacy')}>Privacy</span>
