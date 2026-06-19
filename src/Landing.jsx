@@ -317,6 +317,22 @@ export default function Landing() {
   }
 
   const css = `
+    /* ── INVESTOR-MODE NOISE FILTER ──
+       Six sections were template-y / manifesto-y / redundant for the
+       first-impression flow. Hidden via CSS instead of deleted so they're
+       still in the code if the user wants to revive them later.
+       Remove this block (or comment out individual selectors) to restore. */
+    .ld-ritual,
+    .ld-ethos,
+    .ld-why,
+    .ld-auth-section,
+    .ld-chrome,
+    .ld-pulse,
+    .deals-outer,
+    .ld-preview {
+      display: none !important;
+    }
+
     /* ── FAMILY OFFICE PALETTE — Landing page only ──
        Deep navy + royal blue + brushed brass. Overrides every global token
        inside the .ld-page scope so existing classes inherit the new
@@ -986,17 +1002,29 @@ export default function Landing() {
     }
 
     /* ── FAMILY OFFICE FOOTER — minimalist, manifesto, By Invitation Only ── */
-    .ld-foot{background:#000c1f;border-top:1px solid rgba(212,175,55,0.18);padding:64px 24px 40px;position:relative}
+    .ld-foot{background:#000c1f;border-top:1px solid rgba(212,175,55,0.18);padding:56px 0 32px;position:relative}
     .ld-foot::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--brass) 50%,transparent 100%);opacity:0.4}
-    .ld-foot-inner{max-width:880px;margin:0 auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px}
+    .ld-foot-grid{max-width:1120px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:32px}
+    .ld-foot-col{display:flex;flex-direction:column;gap:10px}
+    .ld-foot-brand{gap:14px;padding-right:24px}
     .ld-foot-logo{font-size:22px;font-weight:800;letter-spacing:-0.4px;color:var(--brass);font-family:'Geist',sans-serif}
     .ld-foot-logo span{color:var(--alabaster)}
-    .ld-foot-manifesto{font-size:14px;color:var(--alabaster-2);max-width:540px;line-height:1.75;font-style:italic;font-family:'Geist',sans-serif}
-    .ld-foot-rule{width:54px;height:1px;background:var(--brass);opacity:0.6;margin:6px 0}
-    .ld-foot-links{display:flex;align-items:center;gap:32px;flex-wrap:wrap;justify-content:center}
-    .ld-foot-links span{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;color:var(--alabaster-3);cursor:pointer;letter-spacing:1.4px;text-transform:uppercase;transition:color 0.2s}
-    .ld-foot-links span:hover{color:var(--brass)}
-    .ld-foot-note{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--alabaster-3);letter-spacing:1.2px;margin-top:8px;text-transform:uppercase}
+    .ld-foot-tag{font-size:14px;color:var(--alabaster-2);line-height:1.65}
+    .ld-foot-stats{display:flex;flex-direction:column;gap:6px;margin-top:6px;font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;color:var(--alabaster-3);letter-spacing:0.2px}
+    .ld-foot-stats strong{color:var(--brass);font-weight:700;margin-right:4px}
+    .ld-foot-col-head{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.4px;color:var(--brass);text-transform:uppercase;margin-bottom:6px}
+    .ld-foot-col span,.ld-foot-link{font-family:'Geist',sans-serif;font-size:13.5px;color:var(--alabaster-2);cursor:pointer;letter-spacing:0;text-decoration:none;transition:color 0.15s;display:inline-block}
+    .ld-foot-col span:hover,.ld-foot-link:hover{color:var(--brass)}
+    .ld-foot-rule-line{max-width:1120px;margin:0 auto;height:1px;background:rgba(212,175,55,0.15)}
+    .ld-foot-bottom{max-width:1120px;margin:0 auto;padding:20px 24px 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+    .ld-foot-copyright{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--alabaster-3);letter-spacing:0.6px;text-transform:uppercase}
+    .ld-foot-status{display:flex;align-items:center;gap:7px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--alabaster-3);letter-spacing:0.6px;text-transform:uppercase}
+    .ld-foot-status-dot{width:7px;height:7px;border-radius:50%;background:#2dd47f;box-shadow:0 0 8px #2dd47f;animation:blink 2s infinite}
+    @media (max-width:720px){
+      .ld-foot-grid{grid-template-columns:1fr 1fr;gap:28px;padding:0 18px}
+      .ld-foot-brand{grid-column:1 / -1;padding-right:0}
+      .ld-foot-bottom{flex-direction:column;align-items:flex-start;gap:8px}
+    }
 
     .ld-cta{text-align:center;padding:90px 24px;border-top:1px solid var(--borderf);position:relative;overflow:hidden}
     .ld-cta::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(59,158,255,0.07) 0%,transparent 60%);pointer-events:none}
@@ -2573,24 +2601,52 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* ── FOOTER — Family Office: minimalist, manifesto, By Invitation Only ── */}
+      {/* ── FOOTER — designed, multi-column, with real contact ── */}
       <footer className="ld-foot">
-        <div className="ld-foot-inner">
-          <div className="ld-foot-logo">Rize<span>AI</span></div>
-          <div className="ld-foot-manifesto">
-            RizeAI is the hidden door to high-level real estate. We merge advanced
-            intelligence with operational peace — for those who treat capital as
-            literacy, not luck.
+        <div className="ld-foot-grid">
+          <div className="ld-foot-col ld-foot-brand">
+            <div className="ld-foot-logo">Rize<span>AI</span></div>
+            <div className="ld-foot-tag">AI underwriting for Canadian real estate operators.</div>
+            <div className="ld-foot-stats">
+              <span><strong>7</strong> cities · parcel-level zoning</span>
+              <span><strong>26</strong> CMHC metros · rent + vacancy</span>
+              <span><strong>20+</strong> calculators · 15 AI Read modes</span>
+            </div>
           </div>
-          <div className="ld-foot-rule" />
-          <div className="ld-foot-links">
+
+          <div className="ld-foot-col">
+            <div className="ld-foot-col-head">Product</div>
+            <span onClick={() => navigate('/')}>X-Ray bar</span>
+            <span onClick={() => navigate('/commercial')}>Commercial Underwriter</span>
+            <span onClick={() => navigate('/brrrr')}>BRRRR Calculator</span>
+            <span onClick={() => navigate('/property')}>Property Intel</span>
+            <span onClick={() => navigate('/pricing')}>Pricing</span>
+          </div>
+
+          <div className="ld-foot-col">
+            <div className="ld-foot-col-head">Company</div>
             <span onClick={() => navigate('/about')}>About</span>
-            <span onClick={() => navigate('/pricing')}>Access</span>
-            <span onClick={scrollToAuth}>Application</span>
+            <span onClick={scrollToAuth}>Sign in</span>
             <span onClick={() => navigate('/privacy')}>Privacy</span>
             <span onClick={() => navigate('/terms')}>Terms</span>
           </div>
-          <div className="ld-foot-note">© 2026 RizeAI · By Invitation Only · North America</div>
+
+          <div className="ld-foot-col">
+            <div className="ld-foot-col-head">Contact</div>
+            <a className="ld-foot-link" href="mailto:hello@rizeai.io">hello@rizeai.io</a>
+            <a className="ld-foot-link" href="https://linkedin.com/in/sunniyaremchuk" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a className="ld-foot-link" href="https://twitter.com/sunni_yaremchuk" target="_blank" rel="noreferrer">X / Twitter</a>
+          </div>
+        </div>
+
+        <div className="ld-foot-rule-line" />
+
+        <div className="ld-foot-bottom">
+          <div className="ld-foot-copyright">© 2026 RizeAI · Built in Canada · For Canadian operators.</div>
+          <div className="ld-foot-status">
+            <span className="ld-foot-status-dot" />
+            All systems operational
+          </div>
         </div>
       </footer>
     </div>
