@@ -57,6 +57,7 @@ const Unsubscribe          = lazy(() => import('./Unsubscribe.jsx'))
 const SharedRead           = lazy(() => import('./SharedRead.jsx'))
 const Admin                = lazy(() => import('./Admin.jsx'))
 const About                = lazy(() => import('./About.jsx'))
+const NotFound             = lazy(() => import('./NotFound.jsx'))
 
 // Logged-in users go straight to the analyzer, visitors see the landing page
 function Home() {
@@ -138,7 +139,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/about" element={<About />} />
             <Route path="/unsubscribe" element={<Unsubscribe />} />
             <Route path="/share/read/:payload" element={<SharedRead />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
         </IntercomProvider>
