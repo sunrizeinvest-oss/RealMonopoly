@@ -1185,10 +1185,12 @@ export default function Landing() {
               <div className="ld-xray-presets">
                 <span className="ld-xray-presets-lbl">▸ Try one of these</span>
                 {[
-                  { label: "Vancouver · CD-1",   addr: "555 Robson St, Vancouver BC" },
-                  { label: "Calgary · R-CG",     addr: "2424 Westmount Rd NW, Calgary AB" },
-                  { label: "Toronto · CR",       addr: "100 Queen St W, Toronto ON" },
-                  { label: "Ottawa · MD",        addr: "233 Gloucester St, Ottawa ON" },
+                  { label: "Vancouver · CD-1",       addr: "555 Robson St, Vancouver BC" },
+                  { label: "Calgary · R-CG",         addr: "2424 Westmount Rd NW, Calgary AB" },
+                  { label: "Toronto · CR",           addr: "100 Queen St W, Toronto ON" },
+                  { label: "Ottawa · MD",            addr: "233 Gloucester St, Ottawa ON" },
+                  { label: "Hamilton · D1",          addr: "100 King St W, Hamilton ON" },
+                  { label: "Mississauga · CC2",      addr: "300 City Centre Dr, Mississauga ON" },
                 ].map(p => (
                   <button
                     key={p.addr}
