@@ -192,7 +192,11 @@ export async function generateInvestorOnePagerPDF({ metrics = null, ask = null, 
   y += 40;
 
   // ── THE ASK ──────────────────────────────────────────────────────────────
-  if (ask && (ask.amount || ask.targetMRR)) {
+  // Only render if ALL three fields are set. Previously would print
+  // "$X pre-seed to reach $YK MRR in N months." (placeholders visible) when
+  // any of the three was missing — investor-facing PDF should never ship
+  // with placeholders.
+  if (ask && ask.amount && ask.targetMRR && ask.months) {
     doc.setFillColor(245, 246, 249);
     doc.rect(M, y, W - M * 2, 40, "F");
     doc.setDrawColor(BRASS);
@@ -207,7 +211,7 @@ export async function generateInvestorOnePagerPDF({ metrics = null, ask = null, 
     doc.setFont("helvetica", "bold");
     doc.setFontSize(11);
     doc.setTextColor(TEXT);
-    const askText = `${ask.amount || "$X"} pre-seed to reach ${ask.targetMRR || "$Y"}K MRR in ${ask.months || "N"} months.`;
+    const askText = `${ask.amount} pre-seed to reach ${ask.targetMRR}K MRR in ${ask.months} months.`;
     doc.text(askText, M + 10, y + 30);
     y += 50;
   }

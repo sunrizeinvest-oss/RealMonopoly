@@ -193,7 +193,9 @@ export async function generateVerdictMemoPDF({ memo, property, verdicts = [], br
   const factsY = 120;
   const facts = [];
   if (city)          facts.push(["Location",  city]);
-  if (purchasePrice) facts.push(["List / Est",   `$${Math.round(purchasePrice).toLocaleString()}`]);
+  // Guard against typo/negative entries — a "$-500,000" facts label breaks the
+  // grid layout AND raises "wait, is this a distressed sale?" confusion.
+  if (purchasePrice && purchasePrice > 0) facts.push(["List / Est",   `$${Math.round(purchasePrice).toLocaleString()}`]);
   if (property?.rentEstimate) facts.push(["Est. Rent", `$${Math.round(property.rentEstimate).toLocaleString()}/mo`]);
   if (property?.sqft)   facts.push(["Sqft",      property.sqft.toLocaleString()]);
   if (property?.units)  facts.push(["Units",     String(property.units)]);

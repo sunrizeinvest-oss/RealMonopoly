@@ -15,14 +15,23 @@
 const PREFIX = "b64:";
 
 // ── URL-safe base64 (handles multi-byte chars in addresses like Montréal) ─
+// Uses TextEncoder/TextDecoder instead of the deprecated escape/unescape pair,
+// which some modern browsers have removed and which mangled certain Unicode
+// codepoints (emoji, extended Latin, non-BMP). btoa/atob still handle only
+// byte strings, so we round-trip through Uint8Array explicitly.
 function utf8ToB64(str) {
-  const utf8 = unescape(encodeURIComponent(str));
-  return btoa(utf8).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 function b64ToUtf8(b64) {
   let std = b64.replace(/-/g, "+").replace(/_/g, "/");
   while (std.length % 4) std += "=";
-  return decodeURIComponent(escape(atob(std)));
+  const bin = atob(std);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
 }
 
 /**

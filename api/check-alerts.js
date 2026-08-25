@@ -23,9 +23,10 @@ function sanitizeStr(v) {
 // ─── Realtor.ca (Canada) ──────────────────────────────────────────────────────
 async function checkRealtorCA({ city, maxPrice, minBeds }) {
   // Step 1: geocode the city via Nominatim
+  // Nominatim REQUIRES a real contact UA per their usage policy — keep this one.
   const geoUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city)}&format=json&limit=1`;
   const geoRes = await fetch(geoUrl, {
-    headers: { 'User-Agent': 'RizeAI/1.0 (rizeai.co)' },
+    headers: { 'User-Agent': 'RizeAI/1.0 (https://www.realdealestate.app)' },
   });
 
   if (!geoRes.ok) {
@@ -61,20 +62,30 @@ async function checkRealtorCA({ city, maxPrice, minBeds }) {
     ...(minBeds >= 1 ? { BedRange: `${minBeds}-0` } : {}),
   });
 
+  // Headers match the working api/_lib/mls/realtorCa.js — Realtor.ca's bot
+  // detection 403s any UA that names a non-browser product (was "RizeAI/1.0").
   const listRes = await fetch('https://api2.realtor.ca/Listing.svc/PropertySearch_Post', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      'User-Agent': 'Mozilla/5.0 (compatible; RizeAI/1.0)',
-      'Referer': 'https://www.realtor.ca/',
-      'Origin': 'https://www.realtor.ca',
+      'User-Agent':   'Mozilla/5.0',
+      'Accept':       'application/json, text/plain, */*',
+      'Referer':      'https://www.realtor.ca/',
+      'Origin':       'https://www.realtor.ca',
     },
     body: body.toString(),
+    signal: AbortSignal.timeout(15_000),
   });
 
   if (!listRes.ok) {
-    const errText = await listRes.text().catch(() => '');
-    throw new Error(`Realtor.ca API error: HTTP ${listRes.status} — ${errText.slice(0, 200)}`);
+    // Realtor.ca's bot detection now returns 403 with an HTML page on most
+    // scrape attempts. Treat this as "degraded" — empty listings + a flag
+    // the UI can render — rather than throwing. This way the daily cron
+    // continues iterating other alerts instead of erroring on every CA one.
+    const err = new Error(`Realtor.ca blocked (HTTP ${listRes.status}). Subscribe for live MLS comps.`);
+    err.degraded = true;
+    err.upstreamStatus = listRes.status;
+    throw err;
   }
 
   const data = await listRes.json();
@@ -88,7 +99,10 @@ async function checkRealtorCA({ city, maxPrice, minBeds }) {
     const address = item?.Property?.Address || {};
 
     const price = parseFloat(prop?.Price?.replace(/[^0-9.]/g, '') || '0') || null;
-    const beds = parseInt(building?.BathroomTotal || building?.Bedrooms || '0', 10) || null;
+    // NB: previously `beds` fell back to BathroomTotal (typo/copy-paste bug) so
+    // alert emails showed bath counts labeled as beds. Filter (bedsVal below)
+    // was correct; the display field wasn't.
+    const beds = parseInt(building?.Bedrooms || '0', 10) || null;
     const bedsVal = parseInt(building?.Bedrooms || '0', 10) || 0;
     const baths = parseFloat(building?.BathroomTotal || '0') || null;
 
@@ -108,8 +122,12 @@ async function checkRealtorCA({ city, maxPrice, minBeds }) {
       ? parseInt(String(building.SizeInterior).replace(/[^0-9]/g, ''), 10) || null
       : null;
 
-    const dom = item?.InsertedDateUtc
-      ? Math.max(0, Math.floor((Date.now() - new Date(item.InsertedDateUtc).getTime()) / 86400000))
+    // Realtor.ca's schema uses `InsertedDateUTC` (capital UTC); the older
+    // camelCase form silently returned undefined so DOM was always null.
+    // Fall back to both spellings just in case they change again upstream.
+    const insertedRaw = item?.InsertedDateUTC || item?.InsertedDateUtc || null;
+    const dom = insertedRaw
+      ? Math.max(0, Math.floor((Date.now() - new Date(insertedRaw).getTime()) / 86400000))
       : null;
 
     listings.push({
@@ -185,6 +203,44 @@ async function checkRentcastUS({ city, maxPrice, minBeds }) {
   return listings;
 }
 
+// ─── Reusable runner ─────────────────────────────────────────────────────────
+// Exported so the daily cron can iterate Supabase alerts without paying the
+// cost of an HTTP self-call per alert. Same shape as the handler response.
+// Degraded source = empty listings + `degraded: true` flag. The cron treats
+// degraded as "0 new listings" and skips emailing.
+export async function runAlertCheck({ city, country = 'CA', maxPrice = null, minBeds = 1 }) {
+  if (!city) throw new Error('city is required');
+  const c = String(country).toUpperCase();
+  const args = { city, maxPrice, minBeds: numBeds(minBeds) };
+  let listings = [];
+  let degraded = null;
+  try {
+    if (c === 'CA')      listings = await checkRealtorCA(args);
+    else if (c === 'US') listings = await checkRentcastUS(args);
+    else throw new Error(`Unsupported country: ${c}. Use CA or US.`);
+  } catch (err) {
+    // Only swallow upstream-degraded errors (bot-detection). Configuration
+    // / argument errors still throw so the caller knows it was user error.
+    if (err.degraded) {
+      degraded = {
+        reason: err.message,
+        upstreamStatus: err.upstreamStatus || null,
+      };
+      listings = [];
+    } else {
+      throw err;
+    }
+  }
+  return {
+    count: listings.length,
+    city,
+    country: c,
+    listings,
+    degraded,
+    checkedAt: new Date().toISOString(),
+  };
+}
+
 // ─── Handler ─────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
   setCors(res);
@@ -211,23 +267,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    let listings = [];
-
-    if (country === 'CA') {
-      listings = await checkRealtorCA({ city, maxPrice, minBeds });
-    } else if (country === 'US') {
-      listings = await checkRentcastUS({ city, maxPrice, minBeds });
-    } else {
-      return res.status(400).json({ error: `Unsupported country: ${country}. Use CA or US.` });
-    }
-
-    return res.status(200).json({
-      count: listings.length,
-      city,
-      country,
-      listings,
-      checkedAt: new Date().toISOString(),
-    });
+    const result = await runAlertCheck({ city, country, maxPrice, minBeds });
+    return res.status(200).json(result);
   } catch (err) {
     console.error('check-alerts error:', err.message);
     return res.status(500).json({

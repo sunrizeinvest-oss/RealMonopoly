@@ -22,11 +22,14 @@
 
 const PREFIX = "b64:";
 
-// ── URL-safe base64 ────────────────────────────────────────────────────────
+// ── URL-safe base64 (handles multi-byte chars like Montréal, Zürich) ──
+// TextEncoder/TextDecoder replaces deprecated escape/unescape — those
+// mangled non-BMP codepoints and are removed in modern browsers per Annex B.
 function utf8ToB64(str) {
-  // Handle multi-byte chars (addresses with é, ô etc.)
-  const utf8 = unescape(encodeURIComponent(str));
-  return btoa(utf8)
+  const bytes = new TextEncoder().encode(str);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin)
     .replace(/\+/g, "-")
     .replace(/\//g, "_")
     .replace(/=+$/, "");
@@ -36,7 +39,10 @@ function b64ToUtf8(b64) {
   // Restore standard base64 and re-pad
   let std = b64.replace(/-/g, "+").replace(/_/g, "/");
   while (std.length % 4) std += "=";
-  return decodeURIComponent(escape(atob(std)));
+  const bin = atob(std);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
 }
 
 // ── Public API ─────────────────────────────────────────────────────────────
