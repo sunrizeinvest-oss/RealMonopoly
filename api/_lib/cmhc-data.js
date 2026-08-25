@@ -12,6 +12,38 @@
 export const CMHC_DATA_YEAR = 2023;
 export const CMHC_DATA_SOURCE = "CMHC Rental Market Survey — October 2023";
 
+// Since CMHC's next survey publishes annually in Q4, our 2023 base data ages
+// out fast. Rather than shipping stale rents, we project forward at a
+// conservative 4.5%/yr compound (Statistics Canada rent CPI has averaged
+// ~5-7% since 2022 — 4.5% is deliberately below to avoid over-projecting).
+// Refresh CMHC_DATA_YEAR and the RENTAL_DATA rows to real 2026 numbers when
+// CMHC publishes the next report.
+export const CMHC_ANNUAL_INFLATION = 0.045;
+
+/**
+ * Multiplier applied to CMHC's 2023 rents to project to the current year.
+ * Compounded annually from CMHC_DATA_YEAR. Deterministic per fiscal year so
+ * two lookups on the same day return identical numbers.
+ */
+export function getCmhcInflationMultiplier(now = new Date()) {
+  const currentYear = now.getUTCFullYear();
+  const yearsElapsed = Math.max(0, currentYear - CMHC_DATA_YEAR);
+  return Math.pow(1 + CMHC_ANNUAL_INFLATION, yearsElapsed);
+}
+
+/**
+ * Apply the inflation multiplier to a raw CMHC rents object and round.
+ * Preserves null / missing fields as-is (they're unavailable, not stale-zero).
+ */
+export function inflateAvgRents(avgRents, multiplier = getCmhcInflationMultiplier()) {
+  if (!avgRents) return null;
+  const out = {};
+  for (const [k, v] of Object.entries(avgRents)) {
+    out[k] = (typeof v === "number" && isFinite(v)) ? Math.round(v * multiplier) : v;
+  }
+  return out;
+}
+
 export const RENTAL_DATA = [
   {
     city: "Vancouver", province: "BC", cma: "Vancouver CMA",
@@ -262,5 +294,20 @@ export function lookupCMHC(cityOrAlias, province = null) {
     match = RENTAL_DATA.find(d => d.city.toLowerCase().startsWith(search.slice(0, 4)));
   }
 
-  return match || null;
+  if (!match) return null;
+
+  // Inflate the raw 2023 rents to current year using the compound multiplier
+  // above. Base rents are preserved on the returned object so callers can
+  // audit / display "as of Oct 2023" if they want. `dataYear` still reflects
+  // 2023 (the source snapshot year); we also expose `projectedTo` for the UI.
+  const multiplier = getCmhcInflationMultiplier();
+  return {
+    ...match,
+    avgRentsBase: match.avgRents,
+    avgRents:     inflateAvgRents(match.avgRents, multiplier),
+    dataYear:     CMHC_DATA_YEAR,
+    projectedTo:  new Date().getUTCFullYear(),
+    inflationMultiplier: +multiplier.toFixed(4),
+    inflationNote: `Projected forward from Oct ${CMHC_DATA_YEAR} at ${(CMHC_ANNUAL_INFLATION * 100).toFixed(1)}%/yr compound. Refresh RENTAL_DATA when CMHC publishes the next survey.`,
+  };
 }

@@ -2943,6 +2943,23 @@ export default function PropertyIntelligence() {
                 {ca && (caComps || cmhcData) && (
                   <div className="pi-ca-section">
                     <div className="pi-ca-title">🍁 Canadian Market Data</div>
+                    {/* Surface Realtor.ca degraded state — without this, an empty
+                        listings array looks identical to "no comps in area"
+                        when it actually means "MLS blocked our scrape today". */}
+                    {caComps?.degraded && (
+                      <div style={{
+                        padding: "8px 12px",
+                        background: "rgba(251,146,60,0.10)",
+                        border: "1px solid rgba(251,146,60,0.35)",
+                        borderRadius: 6,
+                        color: "#fb923c",
+                        fontSize: 12,
+                        fontFamily: "'Geist Mono',ui-monospace,monospace",
+                        marginBottom: 10,
+                      }}>
+                        ⚠ {caComps.degradedReason || "Realtor.ca comps unavailable — try refreshing in a moment"}
+                      </div>
+                    )}
                     {caComps?.listings?.length > 0 && (
                       <>
                         <div style={{ fontSize: 12, fontWeight: 600, color: "var(--sub)", marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.4 }}>

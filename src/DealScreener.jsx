@@ -227,7 +227,10 @@ function parseCSV(raw) {
 
   const num = (s) => {
     if (s == null) return null;
-    const m = String(s).replace(/[$,\s]/g, "").match(/-?\d+\.?\d*/);
+    // Handle both "123.45" and ".50" — the original regex required a digit
+    // before the decimal point, silently returning null for values like ".50"
+    // (e.g. a repair budget entered as ".50" meaning $500K in thousands).
+    const m = String(s).replace(/[$,\s]/g, "").match(/-?(?:\d+\.?\d*|\.\d+)/);
     return m ? parseFloat(m[0]) : null;
   };
 
