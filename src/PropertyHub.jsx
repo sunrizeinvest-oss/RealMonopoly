@@ -7,6 +7,7 @@ import { getXrayPrefill, clearXrayPrefill } from "./lib/xrayPrefill";
 import { detectCitySlug, getCapRateBenchmark, getDscrThresholds } from "./lib/benchmarks";
 import OnboardingTour from "./components/OnboardingTour";
 import LossToLeasePanel from "./components/LossToLeasePanel";
+import { authedFetch } from "./lib/authedFetch";
 
 const num = v => parseFloat(v) || 0;
 const fmt = (n, cur = "USD") => new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(n || 0);
@@ -369,7 +370,9 @@ export default function PropertyHub() {
       for (const [c,p] of m) {
         if (addr.includes(c)) { city = c; province = p; break; }
       }
-      const r = await fetch("/api/ai-chat", {
+      // authedFetch attaches the Supabase session JWT; server gates this mode
+      // to Scale-tier subscribers via api/_lib/auth.js requireTier("scale").
+      const r = await authedFetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

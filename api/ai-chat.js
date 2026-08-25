@@ -2210,6 +2210,16 @@ function buildBuildingGradeTemplate({ zoning, assessment, cmhc }) {
 //
 // All four steps in one server call so the client gets a single object back.
 async function handleRentRollLossToLease(req, res) {
+  // Tier gate: Scale-only feature. Was previously client-only via freeTier.js
+  // (canRentRoll) which any DevTools user could bypass, hitting this endpoint
+  // for free. Now enforced server-side.
+  try {
+    const { requireTier } = await import("./_lib/auth.js");
+    await requireTier(req, "scale");
+  } catch (e) {
+    return res.status(e.status || 401).json({ error: e.message });
+  }
+
   const { document, mediaType = "application/pdf", city, province } = req.body || {};
   if (!document || typeof document !== "string") {
     return res.status(400).json({ error: "Missing 'document' (base64 PDF)." });

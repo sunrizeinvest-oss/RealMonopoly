@@ -6,6 +6,7 @@ import { useDocMeta } from "./lib/seo";
 import { celebrateFirstSave } from "./lib/celebrate";
 import DealCoach from "./components/DealCoach";
 import DealReadout from "./components/DealReadout";
+import { authedFetch } from "./lib/authedFetch";
 import { compareToHistory } from "./lib/dealHistory";
 import { getSmartDefaults } from "./lib/smartDefaults";
 import { useDraftSync } from "./lib/draftSync";
@@ -492,7 +493,9 @@ export default function CommercialAnalyzer() {
         if (addr.includes(c)) { city = c; province = p; break; }
       }
 
-      const r = await fetch("/api/ai-chat", {
+      // authedFetch attaches the Supabase session JWT; server gates this mode
+      // to Scale-tier subscribers.
+      const r = await authedFetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
