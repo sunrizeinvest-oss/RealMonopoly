@@ -20,8 +20,10 @@
  * Caller supplies the calculated tiles + rows. tier1Memo only formats. This
  * keeps the underwriting math in the calculator components where it belongs
  * and avoids duplicating it inside a PDF library.
+ *
+ * jsPDF is dynamically imported inside generateTier1Memo so the ~370KB
+ * library only ships when the user actually triggers a PDF export.
  */
-import { jsPDF } from "jspdf";
 
 const C = {
   bg:    "#ffffff",
@@ -59,7 +61,8 @@ const TYPE_ACCENT = {
   rental: C.blue,
 };
 
-export function generateTier1Memo({ type = "rental", deal = {}, summary = {} }) {
+export async function generateTier1Memo({ type = "rental", deal = {}, summary = {} }) {
+  const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
@@ -209,7 +212,7 @@ export function generateTier1Memo({ type = "rental", deal = {}, summary = {} }) 
 
   const drawPageFooter = (pageNum) => {
     doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(C.dim);
-    doc.text(`Generated ${today} · rizeai.co · Report ID ${reportId}`, W/2, H - 32, { align: "center" });
+    doc.text(`Generated ${today} · realdealestate.app · Report ID ${reportId}`, W/2, H - 32, { align: "center" });
     doc.text("Estimates only. Not financial advice. Verify all assumptions before committing capital.", W/2, H - 20, { align: "center" });
     if (totalPages > 1) {
       doc.text(`p. ${pageNum} / ${totalPages}`, W - M, H - 32, { align: "right" });

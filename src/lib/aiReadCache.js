@@ -1,5 +1,5 @@
 /**
- * AI Read cache — persist Claude thesis responses to localStorage so
+ * AI Read cache — persist AI thesis responses to localStorage so
  * revisiting a page doesn't re-cost the API call.
  *
  * Used by all 7 AI Read surfaces (property hero, dev potential, risk sim,

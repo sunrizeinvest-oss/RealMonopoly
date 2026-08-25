@@ -2,8 +2,8 @@
  * api/ai-analyze.js — Institutional AI Deal Analyst v2
  *
  * Upgrades over v1:
- *  - Sonnet 4.6 (was Haiku) — institutional-grade reasoning vs. brief takes
- *  - Server-side context enrichment: pulls zoning + comps before sending to Claude
+ *  - High-tier AI (was fast-AI) — institutional-grade reasoning vs. brief takes
+ *  - Server-side context enrichment: pulls zoning + comps before sending to the AI
  *  - 7-section structured output (Executive Summary, Metrics, Market, Zoning, Risks, Exit, Verdict)
  *  - Specific numeric projections (cap rate, IRR scenarios, DSCR)
  *  - max_tokens 4096 (was 1024)
@@ -20,9 +20,9 @@
 import { checkRateLimit } from "./_lib/rate-limit.js";
 
 const ANTHROPIC_API = "https://api.anthropic.com/v1/messages";
-// Sonnet 4.6 for institutional memo quality — matches the 10-section prompt,
+// High-tier AI for institutional memo quality — matches the 10-section prompt,
 // produces 600-900 word memos with quantified risks + 3-scenario exits.
-// Haiku follows complex prompts less reliably for this format.
+// Fast AI follows complex prompts less reliably for this format.
 const MODEL = "claude-sonnet-4-6";
 const ANON_DAILY_LIMIT = 3;
 
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
   const deal = req.body;
   if (!deal) return res.status(400).json({ error: "Deal data required" });
 
-  // ── Rate limit: anonymous users get 3 free Sonnet calls per IP per day.
+  // ── Rate limit: anonymous users get 3 free high-tier AI calls per IP per day.
   // Authed users (Bearer header present) bypass. Protects Anthropic spend.
   const rl = await checkRateLimit(req, { limit: ANON_DAILY_LIMIT, name: "ai-analyze" });
   if (!rl.ok) {
@@ -53,7 +53,7 @@ export default async function handler(req, res) {
   // This makes the AI analysis MASSIVELY better — real data > heuristics.
   const context = await enrichContext(deal, req);
 
-  // ── Use Claude if key is set ──────────────────────────────────────────────
+  // ── Use AI if key is set ──────────────────────────────────────────────
   if (apiKey && apiKey !== "YOUR_ANTHROPIC_API_KEY") {
     try {
       const anthropicRes = await fetch(ANTHROPIC_API, {
@@ -70,7 +70,7 @@ export default async function handler(req, res) {
             { role: "user", content: buildInstitutionalPrompt(deal, context) },
           ],
         }),
-        // 45s timeout — Sonnet 4.6 at max_tokens 4096 typically returns in
+        // 45s timeout — AI at max_tokens 4096 typically returns in
         // 15-30s for a full institutional memo. Longer than 45s indicates
         // a stuck request; we'd rather fall through to the rule-based memo
         // than block the serverless slot. Vercel Pro timeout is 60s, so this
@@ -107,7 +107,7 @@ export default async function handler(req, res) {
     analysis: rule.text,
     parsed: rule.parsed,
     enrichedContext: context.summary,
-    note: apiKey ? "Claude API call failed — see logs." : "Add ANTHROPIC_API_KEY to Vercel env to enable Claude AI analysis.",
+    note: apiKey ? "AI API call failed — see logs." : "Add ANTHROPIC_API_KEY to Vercel env to enable AI analysis.",
   });
 }
 

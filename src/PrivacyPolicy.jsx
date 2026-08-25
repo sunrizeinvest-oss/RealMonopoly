@@ -46,11 +46,11 @@ export default function PrivacyPolicy() {
         <div className="lp-date">Last updated: April 5, 2026 · Effective immediately</div>
 
         <div className="lp-highlight">
-          <p>The short version: we collect only what we need to run the service, we don't sell your data, and you can delete your account and data at any time by emailing <a href="mailto:kaelan@chmic.ca">kaelan@chmic.ca</a>.</p>
+          <p>The short version: we collect only what we need to run the service, we don't sell your data, and you can delete your account and data at any time by emailing <a href="mailto:sunni@rizedevelopments.com">sunni@rizedevelopments.com</a>.</p>
         </div>
 
         <div className="lp-h2">1. Who we are</div>
-        <div className="lp-p">RizeAI Estate App ("RizeAI", "we", "us", "our") operates the website rizeai.co and the deal analysis tools available on it. Our primary contact is <a href="mailto:kaelan@chmic.ca">kaelan@chmic.ca</a>.</div>
+        <div className="lp-p">RizeAI Estate App ("RizeAI", "we", "us", "our") operates the website realdealestate.app and the deal analysis tools available on it. Our primary contact is <a href="mailto:sunni@rizedevelopments.com">sunni@rizedevelopments.com</a>.</div>
 
         <div className="lp-h2">2. Information we collect</div>
         <div className="lp-p">We collect information you provide directly and information generated as you use the service:</div>
@@ -73,13 +73,13 @@ export default function PrivacyPolicy() {
 
         <div className="lp-h2">4. Data storage and security</div>
         <div className="lp-p">Your account and saved deal data is stored on Supabase, which hosts data on AWS infrastructure with encryption at rest and in transit. Supabase is SOC 2 Type II compliant. We use Vercel to serve the application and Stripe for payment processing — both maintain their own security programs.</div>
-        <div className="lp-p">We take reasonable steps to protect your data but cannot guarantee absolute security. If you become aware of a security issue, please contact us immediately at <a href="mailto:kaelan@chmic.ca">kaelan@chmic.ca</a>.</div>
+        <div className="lp-p">We take reasonable steps to protect your data but cannot guarantee absolute security. If you become aware of a security issue, please contact us immediately at <a href="mailto:sunni@rizedevelopments.com">sunni@rizedevelopments.com</a>.</div>
 
         <div className="lp-h2">5. Cookies</div>
         <div className="lp-p">We use only essential cookies required for authentication (session tokens managed by Supabase). We do not use advertising cookies, tracking pixels, or third-party analytics cookies.</div>
 
         <div className="lp-h2">6. Your rights</div>
-        <div className="lp-p">You have the right to access, correct, or delete your personal data at any time. To exercise these rights, email <a href="mailto:kaelan@chmic.ca">kaelan@chmic.ca</a> and we will respond within 30 days. You can also delete your saved deals directly from your dashboard.</div>
+        <div className="lp-p">You have the right to access, correct, or delete your personal data at any time. To exercise these rights, email <a href="mailto:sunni@rizedevelopments.com">sunni@rizedevelopments.com</a> and we will respond within 30 days. You can also delete your saved deals directly from your dashboard.</div>
 
         <div className="lp-h2">7. Data retention</div>
         <div className="lp-p">We retain your account and deal data for as long as your account is active. If you cancel your subscription, your account and saved deals remain accessible on the free tier. If you request account deletion, we will permanently delete your data within 30 days.</div>
@@ -91,15 +91,15 @@ export default function PrivacyPolicy() {
         <div className="lp-p">We may update this policy from time to time. We will notify you of material changes by email or by posting a notice on the app. Continued use of the service after changes take effect constitutes acceptance of the updated policy.</div>
 
         <div className="lp-h2">10. Contact</div>
-        <div className="lp-p">Questions about this policy? Email us at <a href="mailto:kaelan@chmic.ca">kaelan@chmic.ca</a> or call <a href="tel:5875854571">587-585-4571</a>.</div>
+        <div className="lp-p">Questions about this policy? Email us at <a href="mailto:sunni@rizedevelopments.com">sunni@rizedevelopments.com</a>.</div>
       </div>
 
       <footer>
-        <span className="f-logo"><span>Real</span> Deal — rizeai.co</span>
+        <span className="f-logo"><span>Real</span> Deal — realdealestate.app</span>
         <div className="f-links">
           <a href="/privacy" className="f-link">Privacy</a>
           <a href="/terms" className="f-link">Terms</a>
-          <a href="mailto:kaelan@chmic.ca" className="f-link">Contact</a>
+          <a href="mailto:sunni@rizedevelopments.com" className="f-link">Contact</a>
         </div>
       </footer>
     </div>

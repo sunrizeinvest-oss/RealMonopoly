@@ -62,7 +62,7 @@ export default function MarketTriggers() {
 
   // Auto-fire when triggers land (≥3 needed to make a "scan" meaningful).
   // Aggregate distress signal: status mix, DOM range, price-drop count,
-  // top redev scores → Claude condenses into 1-2 sentences.
+  // top redev scores → AI condenses into 1-2 sentences.
   useEffect(() => {
     if (!triggers || triggers.length < 3) return;
     let cancelled = false;
@@ -538,7 +538,7 @@ export default function MarketTriggers() {
             </div>
             {scanThesisLoading && !scanThesis ? (
               <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>
-                Claude is reading the distress signals…
+                AI is reading the distress signals…
               </div>
             ) : (
               <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>

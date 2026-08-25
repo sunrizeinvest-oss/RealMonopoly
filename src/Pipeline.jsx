@@ -43,6 +43,52 @@ const BLANK = {
   arv:"", purchasePrice:"", repairCosts:"",
 };
 
+// Realistic sample deals for pitch/demo purposes. Loaded via the "Load
+// sample deals" CTA that appears on empty-pipeline state. Prices, ROIs,
+// and profits are believable-Canadian-broker numbers.
+const SAMPLE_DEALS = [
+  {
+    id: 9001, address: "2424 Westmount Rd NW", city: "Calgary, AB", type: "brrrr", stage: "lead", source: "MLS",
+    askingPrice: "607000", projectedProfit: "243000", projectedROI: "40.0", grade: "A",
+    arv: "1050000", purchasePrice: "607000", repairCosts: "250000",
+    notes: "R-CG · 5,500 sqft lot. Fourplex play. RizeAI verdict: STRONG on 4-plex build (22% IRR).",
+    addedDate: new Date(Date.now() - 2*86400000).toISOString().slice(0,10),
+    stageDate: new Date(Date.now() - 2*86400000).toISOString().slice(0,10),
+  },
+  {
+    id: 9002, address: "17 Sunrise Blvd", city: "Toronto, ON", type: "multifamily", stage: "analyzing", source: "Off-Market",
+    askingPrice: "1400000", projectedProfit: "180000", projectedROI: "22.0", grade: "A",
+    arv: "1750000", purchasePrice: "1400000", repairCosts: "220000",
+    notes: "RD · 3,800 sqft lot. 2023 Multiplex Bylaw — 4 units as-of-right. Client wants to see side-by-side vs SFH.",
+    addedDate: new Date(Date.now() - 5*86400000).toISOString().slice(0,10),
+    stageDate: new Date(Date.now() - 3*86400000).toISOString().slice(0,10),
+  },
+  {
+    id: 9003, address: "10456 82 Ave NW", city: "Edmonton, AB", type: "multifamily", stage: "offer", source: "Direct Mail",
+    askingPrice: "685000", projectedProfit: "215000", projectedROI: "25.0", grade: "A",
+    arv: "1750000", purchasePrice: "665000", repairCosts: "620000",
+    notes: "RS corner lot · Bylaw 20001 · 8-plex build. Offer at $665K sent Thursday.",
+    addedDate: new Date(Date.now() - 8*86400000).toISOString().slice(0,10),
+    stageDate: new Date(Date.now() - 1*86400000).toISOString().slice(0,10),
+  },
+  {
+    id: 9004, address: "334 Oak Ave", city: "Ottawa, ON", type: "flip", stage: "contract", source: "Wholesaler",
+    askingPrice: "480000", projectedProfit: "62000", projectedROI: "13.0", grade: "B",
+    arv: "610000", purchasePrice: "465000", repairCosts: "70000",
+    notes: "R1 · Under contract. Closing in 21 days. Contractor booked · 6-week reno target.",
+    addedDate: new Date(Date.now() - 14*86400000).toISOString().slice(0,10),
+    stageDate: new Date(Date.now() - 4*86400000).toISOString().slice(0,10),
+  },
+  {
+    id: 9005, address: "903 Elm St", city: "Vancouver, BC", type: "brrrr", stage: "dead", source: "MLS",
+    askingPrice: "1290000", projectedProfit: "-32000", projectedROI: "-2.8", grade: "D",
+    arv: "1350000", purchasePrice: "1290000", repairCosts: "150000",
+    notes: "RS · Passed. RizeAI verdict CAUTION. Rents don't support the refi math even at CMHC upper bound.",
+    addedDate: new Date(Date.now() - 21*86400000).toISOString().slice(0,10),
+    stageDate: new Date(Date.now() - 18*86400000).toISOString().slice(0,10),
+  },
+];
+
 // ─── Days since date ──────────────────────────────────────────────────────────
 function daysSince(dateStr) {
   if (!dateStr) return null;
@@ -153,6 +199,20 @@ export default function Pipeline() {
   function save(updated) {
     setDeals(updated);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  }
+
+  // Load sample-deal set for demo purposes. Idempotent — checks IDs so
+  // repeated clicks don't create duplicates.
+  function loadSamples() {
+    const existingIds = new Set(deals.map(d => d.id));
+    const fresh = SAMPLE_DEALS.filter(s => !existingIds.has(s.id));
+    if (fresh.length === 0) return;
+    save([...fresh, ...deals]);
+  }
+
+  function clearSamples() {
+    const sampleIds = new Set(SAMPLE_DEALS.map(s => s.id));
+    save(deals.filter(d => !sampleIds.has(d.id)));
   }
 
   // ── Modal helpers ──────────────────────────────────────────────────────────
@@ -273,6 +333,81 @@ export default function Pipeline() {
           <div className="pl-stat-lbl">All Time Deals</div>
         </div>
       </div>
+
+      {/* Load-samples CTA (empty state or user has cleared) */}
+      {deals.length === 0 && (
+        <div style={{
+          margin: "16px 20px 0",
+          padding: "22px 24px",
+          background: "linear-gradient(135deg, rgba(212,175,55,0.06), rgba(33,85,205,0.04))",
+          border: "1px solid rgba(212,175,55,0.30)",
+          borderRadius: 12,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 16,
+          flexWrap: "wrap",
+        }}>
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <div style={{
+              fontFamily: "'Geist Mono', ui-monospace, monospace",
+              fontSize: 10.5, fontWeight: 800, letterSpacing: 1.4,
+              color: "var(--gold, #d4af37)", textTransform: "uppercase",
+              marginBottom: 6,
+            }}>
+              ▸ EMPTY PIPELINE · DEMO MODE
+            </div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: "var(--text)", letterSpacing: -0.3, marginBottom: 4 }}>
+              Load 5 realistic sample deals to see the board in action.
+            </div>
+            <div style={{ fontSize: 12.5, color: "var(--sub)", lineHeight: 1.5 }}>
+              Calgary R-CG, Toronto multiplex, Edmonton 8-plex, Ottawa flip, Vancouver pass. Distributed across pipeline stages. Clear anytime.
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+            <button
+              onClick={loadSamples}
+              style={{
+                background: "var(--gold, #d4af37)", color: "#0a1128", border: "1px solid var(--gold, #d4af37)",
+                borderRadius: 6, padding: "11px 20px",
+                fontFamily: "'Geist Mono', monospace", fontSize: 12, fontWeight: 800,
+                letterSpacing: 0.8, textTransform: "uppercase", cursor: "pointer",
+              }}
+            >
+              Load 5 sample deals →
+            </button>
+            <button
+              onClick={() => openAdd("lead")}
+              style={{
+                background: "transparent", color: "var(--sub)", border: "1px solid var(--borderf)",
+                borderRadius: 6, padding: "11px 18px",
+                fontFamily: "'Geist Mono', monospace", fontSize: 11.5, fontWeight: 700,
+                letterSpacing: 0.6, textTransform: "uppercase", cursor: "pointer",
+              }}
+            >
+              Start empty
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Reset-samples button (only shows when samples are loaded) */}
+      {deals.some(d => SAMPLE_DEALS.some(s => s.id === d.id)) && (
+        <div style={{ padding: "8px 20px 0", textAlign: "right" }}>
+          <button
+            onClick={clearSamples}
+            style={{
+              background: "transparent", color: "var(--dim)", border: "1px dashed var(--borderf)",
+              borderRadius: 4, padding: "5px 11px",
+              fontFamily: "'Geist Mono', monospace", fontSize: 10.5, fontWeight: 700,
+              letterSpacing: 0.4, textTransform: "uppercase", cursor: "pointer",
+            }}
+            title="Remove all 5 sample deals from the board"
+          >
+            ✕ Clear sample deals
+          </button>
+        </div>
+      )}
 
       {/* Board */}
       <div className="pl-board-wrap">

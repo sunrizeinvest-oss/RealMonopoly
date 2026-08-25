@@ -8,7 +8,7 @@ import AIReadShareButton from "./AIReadShareButton";
  * Stacks the target deal against N comparable sales/leases. Best value in
  * each row is highlighted green (✓), worst red (✗). The Average column
  * normalises each metric. Add comps manually or click "🤖 GENERATE WITH AI"
- * to pull 4 plausible starter comps from Claude.
+ * to pull 4 plausible starter comps from AI.
  *
  * Architecture is ready to plug in real CoStar / Reonomy / MLS data in
  * future — same component, just different source for the comps prop.
@@ -72,7 +72,7 @@ const numericForRow = (row, comp) => {
 export default function CommercialLeaseMatrix({ target, onCompsChange, persistKey }) {
   // persistKey (typically the deal address) keys this matrix's comps in
   // localStorage so coming back to the same deal restores prior comps without
-  // having to re-generate from Claude. Empty / falsy persistKey disables it.
+  // having to re-generate from AI. Empty / falsy persistKey disables it.
   const storageKey = persistKey ? `rde_matrix_comps_${persistKey.trim().toLowerCase()}` : null;
   const [comps, setComps] = useState(() => {
     if (!storageKey) return [];
@@ -593,7 +593,7 @@ export default function CommercialLeaseMatrix({ target, onCompsChange, persistKe
           </div>
           {compsThesisLoading && !compsThesis ? (
             <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>
-              Claude is comparing the comps…
+              AI is comparing the comps…
             </div>
           ) : (
             <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>

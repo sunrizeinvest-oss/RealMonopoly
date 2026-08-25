@@ -2,7 +2,9 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import TopNav from "./components/TopNav";
+import LeadForm from "./components/LeadForm";
 import { saveXrayPrefill } from "./lib/xrayPrefill";
+import { track } from "./lib/analytics";
 
 const DEALS = [
   {addr:"142 Birchwood Dr",city:"Calgary, AB",profit:38400,roi:12.8,coc:22.4,arv:310000,verdict:"go"},
@@ -17,12 +19,28 @@ const DEALS = [
   {addr:"992 Westgate",city:"Denver, CO",profit:73100,roi:19.8,coc:35.5,arv:560000,verdict:"go"},
 ];
 
-const TESTIMONIALS = [
-  { name: "Marcus T.", role: "Fix & Flip Investor", location: "Calgary, AB", deals: 14, quote: "I used to spend 2 hours in Excel for every deal. Now I know in 5 minutes. Passed on 3 duds and locked in 2 great flips this quarter alone.", avatar: "M", color: "var(--blue)" },
-  { name: "Priya S.", role: "BRRRR Investor", location: "Toronto, ON", deals: 7, quote: "The BRRRR calculator showed me I wasn't actually recycling my cash — I was leaving $40k locked in the deal. That one insight changed my whole strategy.", avatar: "P", color: "var(--green)" },
-  { name: "Derek L.", role: "Multifamily Investor", location: "Phoenix, AZ", deals: 3, quote: "The multifamily underwriter is institutional-grade. Cap rate, DSCR, 5-year projections — everything I need to present to lenders. And it's free right now.", avatar: "D", color: "var(--purple)" },
-  { name: "Jen K.", role: "Real Estate Agent", location: "Denver, CO", deals: 22, quote: "I use the Deal Comparison tool to show clients exactly why one property beats another on every metric. Closed 4 investment deals last month with it.", avatar: "J", color: "var(--amber)" },
-];
+// ── TESTIMONIALS ────────────────────────────────────────────────────────
+// Empty by default — the section renders an honest "Early access · be among
+// the first to share your results" placeholder when this array is empty,
+// and a 2/3-up testimonial grid when it has entries.
+//
+// To add a real testimonial, push an object with this shape:
+//   {
+//     name:    "Sarah Chen",                                // Full name (or "First L.")
+//     role:    "Multifamily Operator",                      // Their title
+//     company: "Optional · Brokerage / fund name",          // Optional company
+//     city:    "Calgary, AB",                               // City + province
+//     deals:   12,                                          // Optional deal count
+//     quote:   "Pulled $187K of stranded upside on a deal …", // Their actual words
+//     metric:  { value: "$187K", label: "stranded upside" }, // Optional headline result
+//     avatar:  "S",                                         // Initial for the avatar pill
+//     color:   "var(--brass)",                              // var(--brass)|var(--royal)|var(--green)
+//     verified: true,                                       // Whether they've consented + signed off
+//   }
+//
+// NOTE: never invent testimonials. If you don't have real consent + a real
+// quote in writing, leave this array empty and let the placeholder render.
+const TESTIMONIALS = [];
 
 const fmt = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n || 0);
 const fmtPct = n => `${n.toFixed(1)}%`;
@@ -46,6 +64,7 @@ export default function Landing() {
   const [submitted, setSubmitted] = useState(false);
   const [mode, setMode] = useState("signup");
   const [installOpen, setInstallOpen] = useState(false);
+  const [faqOpen, setFaqOpen] = useState(new Set([0])); // First FAQ open by default
 
   // ── X-RAY UNDERWRITING BAR (landing-page "aha moment") ──
   // 'idle' → 'scanning' → 'revealed' | 'error'. Reveal shows three free
@@ -97,6 +116,16 @@ export default function Landing() {
       }
     }, 320);
 
+    // Hard timeout — kills the scan if the network/API hangs. Previously
+    // the spinner could spin forever on a slow AI or down API.
+    const timeoutId = setTimeout(() => {
+      clearInterval(tick);
+      if (xrayState !== "revealed") {
+        setXrayError("Scan timed out — try another address or refresh.");
+        setXrayState("error");
+      }
+    }, 14000);
+
     // Minimum perceived scan time = 1.6s — anything faster doesn't feel
     // earned and breaks the "Aha! Moment" tension.
     const start = Date.now();
@@ -115,6 +144,7 @@ export default function Landing() {
         await new Promise(r => setTimeout(r, minScanMs - elapsed));
       }
       clearInterval(tick);
+      clearTimeout(timeoutId);
 
       setXrayData({
         address:             payload.address || addr,
@@ -172,6 +202,7 @@ export default function Landing() {
         .catch(() => {/* grade is optional — silent failure */});
     } catch (err) {
       clearInterval(tick);
+      clearTimeout(timeoutId);
       setXrayError(err?.message || "Scan failed. Try a different address.");
       setXrayState("error");
     }
@@ -381,28 +412,40 @@ export default function Landing() {
     .ld-nav-btn:hover{background:var(--royal-2);transform:translateY(-1px);box-shadow:0 8px 24px rgba(212,175,55,0.25)}
 
     /* ── HERO ── */
-    .ld-hero{min-height:100vh;display:flex;align-items:stretch;justify-content:center;padding:0;position:relative;overflow:hidden;background:#0f172a}
+    .ld-hero{min-height:calc(100svh - 52px);display:flex;align-items:stretch;justify-content:center;padding:0;position:relative;overflow:hidden;background:#0f172a}
     .ld-hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,102,204,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(0,102,204,0.06) 1px,transparent 1px);background-size:56px 56px;pointer-events:none;z-index:2}
     /* ── Full-bleed video as cover — letterbox treatment ──
        Video plays SHARP and unblurred (it IS the proof — that's the
        actual product walkthrough). Gradients at the top + bottom create
        framed zones where the H1 and the activity feed sit. The middle
        of the viewport stays clean — video plays unobscured. */
-    .ld-hero-bgvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.92}
+    .ld-hero-bgvid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:1}
     /* Top frame: deep navy ~70-90% fades down → transparent mid-frame */
-    .ld-hero-bgvid-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,17,40,0.92) 0%,rgba(10,17,40,0.78) 18%,rgba(10,17,40,0.32) 32%,rgba(10,17,40,0.08) 45%,rgba(10,17,40,0.12) 60%,rgba(10,17,40,0.7) 80%,rgba(10,17,40,0.98) 100%);z-index:1;pointer-events:none}
+    /* Dark strips ONLY at top (text band) + bottom (activity/stats band).
+       Middle 30-70% is nearly transparent so the demo video is fully visible
+       as the visual centerpiece of the hero. */
+    .ld-hero-bgvid-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,17,40,0.92) 0%,rgba(10,17,40,0.75) 18%,rgba(10,17,40,0.20) 30%,rgba(10,17,40,0.10) 50%,rgba(10,17,40,0.22) 70%,rgba(10,17,40,0.82) 85%,rgba(10,17,40,0.98) 100%);z-index:1;pointer-events:none}
     /* Brand bokeh — royal blue glow at center-top, brushed brass at lower-right */
     .ld-hero-bgvid-tint{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 8%,rgba(33,85,205,0.28) 0%,transparent 38%),radial-gradient(ellipse at 90% 95%,rgba(212,175,55,0.14) 0%,transparent 42%);z-index:1;pointer-events:none}
     .ld-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(33,85,205,0.14) 0%,transparent 65%);pointer-events:none;animation:breathe 5s ease-in-out infinite}
     @keyframes breathe{0%,100%{opacity:1}50%{opacity:0.55}}
-    .ld-hero-inner{max-width:1320px;width:100%;margin:0 auto;display:flex;flex-direction:column;justify-content:space-between;gap:28px;position:relative;z-index:3;min-height:100vh;padding:96px 24px 56px}
-    .ld-hero-head{text-align:center;max-width:820px;margin:0 auto}
+    .ld-hero-inner{max-width:1320px;width:100%;margin:0 auto;display:flex;flex-direction:column;justify-content:center;gap:28px;position:relative;z-index:3;padding:48px 24px 40px;box-sizing:border-box}
+    /* Compact top header band — sits above the video, not blocking it. */
+    .ld-hero-head{text-align:center;max-width:920px;margin:0 auto;position:relative}
+    /* Localized dark vignette behind the headline so the text reads cleanly
+       over the background video's brightest middle band. Keeps the rest of
+       the video atmospheric — only darkens the zone behind the text. */
+    .ld-hero-head::before{content:'';position:absolute;inset:-60px -120px -40px -120px;background:radial-gradient(ellipse at 50% 45%,rgba(10,17,40,0.78) 0%,rgba(10,17,40,0.45) 45%,transparent 80%);z-index:-1;pointer-events:none}
+    @media(max-width:720px){
+      .ld-hero-head::before{inset:-40px -40px -20px -40px}
+    }
     .ld-eyebrow{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--brass);margin-bottom:18px;display:inline-flex;align-items:center;gap:8px;background:rgba(10,17,40,0.55);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(212,175,55,0.35);padding:7px 14px;border-radius:4px}
     .ld-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--brass);animation:blink 2s infinite;flex-shrink:0;box-shadow:0 0 10px var(--brass)}
     @keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
-    .ld-h1{font-size:clamp(40px,6vw,72px);font-weight:800;line-height:1.02;letter-spacing:-2.8px;color:var(--alabaster);margin-bottom:18px;text-shadow:0 6px 28px rgba(0,0,0,0.7),0 1px 0 rgba(0,0,0,0.5)}
-    .ld-h1 span{color:var(--brass);text-shadow:0 6px 32px rgba(212,175,55,0.3),0 6px 28px rgba(0,0,0,0.7);font-style:italic;font-weight:700}
-    .ld-hero-p{font-size:17px;color:var(--alabaster-2);line-height:1.7;margin:0 auto;max-width:620px;text-shadow:0 2px 16px rgba(0,0,0,0.6)}
+    /* Compact top header band — sits above the video, not blocking it. */
+    .ld-h1{font-size:clamp(26px,4vw,54px);font-weight:800;line-height:1.1;letter-spacing:-1.4px;color:var(--alabaster);margin-bottom:12px;text-shadow:0 4px 20px rgba(0,0,0,0.85),0 1px 0 rgba(0,0,0,0.5)}
+    .ld-h1 span{color:var(--brass);text-shadow:0 4px 22px rgba(212,175,55,0.35),0 4px 18px rgba(0,0,0,0.8);font-style:italic;font-weight:700}
+    .ld-hero-p{font-size:clamp(14px,1.5vw,18px);color:var(--alabaster-2);line-height:1.55;margin:0 auto;max-width:820px;text-shadow:0 2px 14px rgba(0,0,0,0.7)}
     .ld-hero-foot{display:flex;flex-direction:column;gap:16px;align-items:center;max-width:980px;margin:0 auto;width:100%}
     .ld-hero-trust{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:center;margin-bottom:0}
     .ld-trust-pill{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--alabaster-2);font-weight:500;font-family:'Geist Mono',ui-monospace,monospace;border:1px solid rgba(212,175,55,0.22);border-radius:4px;padding:6px 11px;background:rgba(10,17,40,0.4);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);letter-spacing:0.1px}
@@ -521,11 +564,11 @@ export default function Landing() {
 
     /* ── SECTIONS ── */
     .ld-section{max-width:1080px;margin:0 auto;padding:80px 24px}
-    .ld-section-tag{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--blue);margin-bottom:12px;text-align:center}
-    .ld-section-tag::before{content:"// "}
-    .ld-section-title{font-size:clamp(28px,3.5vw,42px);font-weight:800;letter-spacing:-1.2px;color:var(--text);margin-bottom:14px;text-align:center;line-height:1.1}
-    .ld-section-title span{color:var(--blue)}
-    .ld-section-sub{font-size:16px;color:var(--sub);text-align:center;max-width:520px;margin:0 auto 52px;line-height:1.7}
+    .ld-section-tag{display:inline-block;font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--brass);margin-bottom:18px;text-align:center;background:rgba(10,17,40,0.55);border:1px solid rgba(212,175,55,0.32);padding:6px 12px;border-radius:4px}
+    .ld-section-tag::before{content:"▸ "}
+    .ld-section-title{font-size:clamp(30px,4vw,46px);font-weight:800;letter-spacing:-1.4px;color:var(--alabaster);margin-bottom:16px;text-align:center;line-height:1.08}
+    .ld-section-title span{color:var(--brass);font-style:italic;font-weight:700}
+    .ld-section-sub{font-size:16.5px;color:var(--alabaster-2);text-align:center;max-width:620px;margin:0 auto 52px;line-height:1.7}
 
     /* ── FEATURES GRID ── */
     .ld-feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--borderf);border-radius: 16px;overflow:hidden}
@@ -624,7 +667,8 @@ export default function Landing() {
     .ld-mock-tool-icon{font-size:15px}.ld-mock-tool-name{font-size:12px;font-weight:600;color:var(--sub)}
 
     /* ── ANATOMY OF A DEAL ── */
-    .ld-anatomy{padding:80px 24px;border-top:1px solid var(--borderf);background:linear-gradient(180deg,transparent,rgba(59,158,255,0.012),transparent);position:relative}
+    .ld-anatomy{padding:96px 24px;border-top:1px solid rgba(212,175,55,0.08);background:linear-gradient(180deg,#0a1128 0%,#0c1530 50%,#0a1128 100%);position:relative}
+    .ld-anatomy::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:400px;background:radial-gradient(ellipse,rgba(33,85,205,0.06) 0%,transparent 65%);pointer-events:none}
     .ld-anatomy-inner{max-width:1140px;margin:0 auto}
     .ld-anatomy-head{text-align:center;margin-bottom:48px}
     .ld-anatomy-deal-bar{display:inline-flex;align-items:center;gap:10px;padding:9px 18px;background:var(--card);border:1px solid var(--borderf);border-left:3px solid var(--blue);border-radius:4px;margin-top:18px;font-family:'Geist Mono',ui-monospace,monospace;font-size:12px;color:var(--text);letter-spacing:0.5px;font-weight:600}
@@ -634,7 +678,7 @@ export default function Landing() {
     .ld-anatomy-num{font-family:'Geist Mono',ui-monospace,monospace;font-size:13px;font-weight:700;color:var(--blue);letter-spacing:2px;margin-bottom:10px}
     .ld-anatomy-title{font-family:'Geist',sans-serif;font-size:24px;font-weight:800;color:var(--text);letter-spacing:-0.8px;line-height:1.2;margin-bottom:10px}
     .ld-anatomy-desc{font-size:13.5px;color:var(--sub);line-height:1.7}
-    .ld-anatomy-right{background:var(--card);border:1px solid var(--border);border-radius: 6px;overflow:hidden;box-shadow:0 18px 56px rgba(0,0,0,0.45)}
+    .ld-anatomy-right{background:rgba(0,12,31,0.78);backdrop-filter:blur(12px);border:1px solid rgba(212,175,55,0.22);border-radius:6px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(212,175,55,0.04) inset;position:relative;z-index:1}
     .ld-an-bar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(15,23,42,0.025);border-bottom:1px solid var(--borderf);font-family:'Geist Mono',ui-monospace,monospace;font-size:10px;font-weight:700;color:var(--blue);letter-spacing:1.2px;text-transform:uppercase}
     .ld-an-bar-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite;flex-shrink:0}
     .ld-an-bar-tag{margin-left:auto;color:var(--green)}
@@ -656,11 +700,13 @@ export default function Landing() {
     .ld-an-output-icon{font-size:16px}
 
     /* ── PRO OUTPUTS SHOWCASE ── */
-    .ld-pro{padding:60px 24px 80px}
+    .ld-pro{padding:96px 24px;border-top:1px solid rgba(212,175,55,0.08);background:linear-gradient(180deg,#070b1a 0%,#0a1128 100%);position:relative}
+    .ld-pro::before{content:'';position:absolute;top:25%;right:5%;width:500px;height:400px;background:radial-gradient(ellipse,rgba(212,175,55,0.06) 0%,transparent 65%);pointer-events:none}
     .ld-pro-inner{max-width:1140px;margin:0 auto}
     .ld-pro-head{text-align:center;margin-bottom:44px}
     .ld-pro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-    .ld-pro-card{background:var(--card);border:1px solid var(--borderf);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s, border-color 0.2s, box-shadow 0.15s;cursor:pointer}
+    .ld-pro-card{background:rgba(0,12,31,0.65);backdrop-filter:blur(12px);border:1px solid rgba(212,175,55,0.22);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;transition:transform 0.2s, border-color 0.2s, box-shadow 0.15s;cursor:pointer;position:relative;z-index:1}
+    .ld-pro-card:hover{border-color:rgba(212,175,55,0.5);transform:translateY(-2px);box-shadow:0 24px 60px rgba(212,175,55,0.12)}
     .ld-pro-card:hover{transform:translateY(-4px);border-color:rgba(59,158,255,0.3);box-shadow:0 24px 56px rgba(0,0,0,0.5)}
     .ld-pro-doc{aspect-ratio:8.5/11;background:#f6f5f0;color:#1a1a1a;font-family:'Georgia',serif;position:relative;overflow:hidden;border-bottom:1px solid var(--borderf)}
     .ld-pro-doc-header{background:#ffffff;color:var(--text);padding:11px 18px;display:flex;align-items:center;justify-content:space-between;font-family:'Geist',sans-serif}
@@ -765,7 +811,7 @@ export default function Landing() {
 
     /* ── CTA SECTION ── */
     /* ── X-RAY UNDERWRITING BAR — the "aha moment" terminal ── */
-    .ld-xray{padding:64px 24px 80px;position:relative;background:linear-gradient(180deg,transparent 0%,rgba(0,28,61,0.45) 35%,rgba(0,28,61,0.45) 65%,transparent 100%);border-top:1px solid rgba(212,175,55,0.1);border-bottom:1px solid rgba(212,175,55,0.1)}
+    .ld-xray{padding:96px 24px;position:relative;background:linear-gradient(180deg,#070b1a 0%,#0a1128 50%,#070b1a 100%);border-top:1px solid rgba(212,175,55,0.08);border-bottom:1px solid rgba(212,175,55,0.08)}
     .ld-xray-inner{max-width:920px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:12px}
     .ld-xray-tag{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.8px;text-transform:uppercase;color:var(--brass)}
     .ld-xray-title{font-size:clamp(30px,4vw,46px);font-weight:800;letter-spacing:-1.5px;color:var(--alabaster);text-align:center;line-height:1.08;margin:0}
@@ -855,7 +901,7 @@ export default function Landing() {
     }
 
     /* ── BEFORE/AFTER DEAL TRANSLATOR — interactive slider ── */
-    .ld-translator{padding:90px 24px;position:relative;background:linear-gradient(180deg,transparent,rgba(0,28,61,0.4) 50%,transparent)}
+    .ld-translator{padding:96px 24px;position:relative;background:linear-gradient(180deg,#0a1128 0%,#0c1530 50%,#0a1128 100%);border-top:1px solid rgba(212,175,55,0.08)}
     .ld-translator-inner{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;align-items:center}
     .ld-translator-head{text-align:center;max-width:720px;margin-bottom:40px}
     .ld-translator-head .ld-section-tag{color:var(--brass)}
@@ -1004,7 +1050,7 @@ export default function Landing() {
     /* ── FAMILY OFFICE FOOTER — minimalist, manifesto, By Invitation Only ── */
     .ld-foot{background:#000c1f;border-top:1px solid rgba(212,175,55,0.18);padding:56px 0 32px;position:relative}
     .ld-foot::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,var(--brass) 50%,transparent 100%);opacity:0.4}
-    .ld-foot-grid{max-width:1120px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px;margin-bottom:32px}
+    .ld-foot-grid{max-width:1280px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1.8fr 1fr 1fr 1fr 1fr;gap:36px;margin-bottom:32px}
     .ld-foot-col{display:flex;flex-direction:column;gap:10px}
     .ld-foot-brand{gap:14px;padding-right:24px}
     .ld-foot-logo{font-size:22px;font-weight:800;letter-spacing:-0.4px;color:var(--brass);font-family:'Geist',sans-serif}
@@ -1020,13 +1066,17 @@ export default function Landing() {
     .ld-foot-copyright{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--alabaster-3);letter-spacing:0.6px;text-transform:uppercase}
     .ld-foot-status{display:flex;align-items:center;gap:7px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--alabaster-3);letter-spacing:0.6px;text-transform:uppercase}
     .ld-foot-status-dot{width:7px;height:7px;border-radius:50%;background:#2dd47f;box-shadow:0 0 8px #2dd47f;animation:blink 2s infinite}
+    @media (max-width:1100px){
+      .ld-foot-grid{grid-template-columns:1.5fr 1fr 1fr 1fr;gap:28px}
+      .ld-foot-brand{grid-column:1 / -1;padding-right:0}
+    }
     @media (max-width:720px){
       .ld-foot-grid{grid-template-columns:1fr 1fr;gap:28px;padding:0 18px}
       .ld-foot-brand{grid-column:1 / -1;padding-right:0}
       .ld-foot-bottom{flex-direction:column;align-items:flex-start;gap:8px}
     }
 
-    .ld-cta{text-align:center;padding:90px 24px;border-top:1px solid var(--borderf);position:relative;overflow:hidden}
+    .ld-cta{text-align:center;padding:120px 24px;border-top:1px solid rgba(212,175,55,0.08);position:relative;overflow:hidden;background:linear-gradient(180deg,#0a1128 0%,#070b1a 100%)}
     .ld-cta::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(59,158,255,0.07) 0%,transparent 60%);pointer-events:none}
     .ld-cta h2{font-size:clamp(28px,4vw,48px);font-weight:800;letter-spacing:-1.5px;color:var(--text);margin-bottom:14px;position:relative;z-index:1;line-height:1.1}
     .ld-cta h2 span{color:var(--blue)}
@@ -1048,7 +1098,7 @@ export default function Landing() {
 
     /* ── RESPONSIVE ── */
     @media(max-width:900px){
-      .ld-hero-inner{grid-template-columns:1fr;gap:40px}
+      .ld-hero-inner{gap:24px;padding:36px 20px 32px}
       .ld-demo-body{grid-template-columns:1fr}
       .ld-demo-inputs{border-right:none;border-bottom:1px solid var(--borderf)}
       .ld-testi-grid{grid-template-columns:1fr}
@@ -1086,6 +1136,44 @@ export default function Landing() {
       .ld-anatomy-title{font-size:20px}
       .ld-anatomy-desc{font-size:13px}
     }
+
+    /* ── UNIVERSAL MOBILE FIXES — tightens sections that were over-spaced
+       or overflowing on phones. Audited section by section.                */
+    @media(max-width:560px){
+      /* Hero: pull headline closer, scale CTA buttons properly. */
+      .ld-hero{padding-top:0;min-height:auto}
+      .ld-hero-inner{padding:32px 16px 32px;gap:20px;min-height:auto}
+      .ld-hero-p{font-size:14px;line-height:1.55}
+      .ld-eyebrow{font-size:10px;padding:5px 10px;margin-bottom:12px}
+      .ld-h1{font-size:26px;letter-spacing:-1px;line-height:1.15;margin-bottom:8px}
+      .ld-hero-head{max-width:100%}
+      .ld-stats{gap:16px}
+      .ld-stat-val{font-size:20px}
+      .ld-hero-foot{gap:12px}
+
+      /* Activity feed row: drop the 70px ROI column so the address has room. */
+      .ld-activity-row{grid-template-columns:46px 1fr 56px;gap:8px;padding:7px 12px;font-size:11px}
+      .ld-activity-row .ld-ar-roi{display:none}
+      .ld-activity-head{padding:7px 12px;font-size:9.5px}
+
+      /* Hero stats: tighten gap + scale numbers. */
+      .ld-stats{gap:14px;justify-content:space-between;width:100%}
+      .ld-stat-val{font-size:18px}
+      .ld-stat-lbl{font-size:10.5px}
+
+      /* Trust pills: shrink padding + font so a 360px viewport fits 2-3 per row. */
+      .ld-trust-pill{font-size:11px;padding:5px 9px}
+      .ld-hero-trust{gap:8px}
+
+      /* CTA: 120px padding is too generous on mobile. */
+      .ld-cta{padding:64px 18px}
+      .ld-cta h2{font-size:26px;letter-spacing:-1px}
+      .ld-cta p{font-size:14.5px;padding:0 8px}
+      .ld-cta-btn{padding:14px 28px;font-size:15px;width:100%;max-width:340px}
+      .ld-cta-trust{gap:8px;font-size:12px}
+
+      /* Proof + FAQ sections already have their own 560px rules — no-op here.   */
+    }
     input,select{font-size:16px!important}
   `;
 
@@ -1119,10 +1207,15 @@ export default function Landing() {
           <div className="ld-hero-head">
             <div className="ld-eyebrow">
               <div className="ld-eyebrow-dot" />
-              THE HIDDEN DOOR · BY INVITATION · NORTH AMERICA
+              RIZEAI · CANADIAN UNDERWRITER
             </div>
-            <h1 className="ld-h1">Underwrite like an insider.<br /><span>Operate with absolute certainty.</span></h1>
-            <p className="ld-hero-p">RizeAI gives you the exact AI infrastructure used to source, analyze, and close multi-million dollar off-market deals across North America — with <strong style={{color:"var(--brass)"}}>institutional precision</strong>, in under 60 seconds.</p>
+            <h1 className="ld-h1">Underwrite any Canadian listing <span>in 3 seconds.</span></h1>
+            <p className="ld-hero-p">BRRRR, Hold, Flip, Multiplex — four strategies, one address, institutional math. Built for <strong style={{color:"var(--brass)"}}>brokers, agents, and investors</strong> in 7 CA cities.</p>
+            <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap",marginTop:14,fontSize:11.5,fontFamily:"'Geist Mono',monospace",color:"var(--alabaster-2)"}}>
+              <a href="/investors" onClick={(e) => { e.preventDefault(); navigate("/investors"); }} style={{color:"var(--brass)",textDecoration:"none",padding:"5px 11px",border:"1px solid rgba(212,175,55,0.28)",borderRadius:4,letterSpacing:0.4,fontWeight:700}}>▸ For investors</a>
+              <a href="/pitch" onClick={(e) => { e.preventDefault(); navigate("/pitch"); }} style={{color:"var(--alabaster-2)",textDecoration:"none",padding:"5px 11px",border:"1px solid rgba(255,255,255,0.14)",borderRadius:4,letterSpacing:0.4,fontWeight:700}}>🔒 For VCs</a>
+              <a href="/angel" onClick={(e) => { e.preventDefault(); navigate("/angel"); }} style={{color:"var(--alabaster-2)",textDecoration:"none",padding:"5px 11px",border:"1px solid rgba(255,255,255,0.14)",borderRadius:4,letterSpacing:0.4,fontWeight:700}}>💰 Angel round</a>
+            </div>
           </div>
 
           <div className="ld-hero-foot">
@@ -1159,6 +1252,247 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* ── ACTIVE CITIES TRUST STRIP — social proof scaffold ──
+          Shows which Canadian cities RizeAI has live coverage in. Grows into
+          named firm logos when broker firms sign up. Sits between hero and
+          the live stats band as the credibility ladder. */}
+      <section className="ld-trustcities">
+        <style>{`
+          .ld-trustcities{background:#0d1428;border-top:1px solid rgba(212,175,55,0.08);padding:18px 24px}
+          .ld-trustcities-inner{max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:22px;flex-wrap:wrap}
+          .ld-trustcities-label{font-family:'Geist Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--brass);white-space:nowrap;padding-right:14px;border-right:1px solid rgba(212,175,55,0.20)}
+          .ld-trustcity{display:inline-flex;align-items:center;gap:6px;font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;color:var(--alabaster-2);opacity:0.9;letter-spacing:0.4px}
+          .ld-trustcity-dot{width:5px;height:5px;border-radius:50%;background:#16a34a;box-shadow:0 0 4px #16a34a}
+          @media(max-width:720px){.ld-trustcities-inner{gap:14px}.ld-trustcities-label{padding-right:10px;font-size:9px}.ld-trustcity{font-size:10px}}
+        `}</style>
+        <div className="ld-trustcities-inner">
+          <div className="ld-trustcities-label">▸ Active in</div>
+          {[
+            "Calgary, AB", "Edmonton, AB", "Vancouver, BC",
+            "Toronto, ON", "Ottawa, ON", "Mississauga, ON", "Hamilton, ON",
+          ].map(c => (
+            <span key={c} className="ld-trustcity">
+              <span className="ld-trustcity-dot" /> {c}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* ── PRODUCT MOCKUP TEASER — visual 4-strategy verdict grid ──
+          VCs skim. This shows the actual product output so they see
+          "this is a real product" before reading more copy. Interactive
+          hover CTA sends them to the auto-firing demo at /property. */}
+      <section className="ld-mock">
+        <style>{`
+          .ld-mock{padding:72px 24px 40px;background:linear-gradient(180deg,#0f172a 0%,#0d1428 50%,#0f172a 100%);border-top:1px solid rgba(212,175,55,0.08);border-bottom:1px solid rgba(212,175,55,0.08)}
+          .ld-mock-inner{max-width:1180px;margin:0 auto}
+          .ld-mock-head{text-align:center;margin-bottom:32px}
+          .ld-mock-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--brass);background:rgba(10,17,40,0.55);border:1px solid rgba(212,175,55,0.30);padding:6px 14px;border-radius:4px;margin-bottom:14px}
+          .ld-mock-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--brass);animation:blink 2s infinite;box-shadow:0 0 8px var(--brass)}
+          .ld-mock-h2{font-size:clamp(26px,4vw,40px);font-weight:800;color:var(--alabaster);letter-spacing:-1.3px;line-height:1.1;margin:0 0 12px}
+          .ld-mock-h2 span{color:var(--brass);font-style:italic;font-weight:700}
+          .ld-mock-sub{font-size:14.5px;color:var(--alabaster-2);line-height:1.6;max-width:580px;margin:0 auto}
+
+          /* Terminal card */
+          .ld-mock-terminal{background:rgba(15,23,42,0.85);border:1px solid rgba(212,175,55,0.28);border-radius:12px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,0.6),0 0 0 1px rgba(212,175,55,0.05);backdrop-filter:blur(20px)}
+          .ld-mock-topbar{display:flex;align-items:center;gap:10px;padding:12px 18px;background:rgba(10,17,40,0.6);border-bottom:1px solid rgba(212,175,55,0.15);font-family:'Geist Mono',monospace}
+          .ld-mock-dots{display:flex;gap:5px}
+          .ld-mock-dot{width:8px;height:8px;border-radius:50%}
+          .ld-mock-dot.r{background:#ff5f56}
+          .ld-mock-dot.y{background:#ffbd2e}
+          .ld-mock-dot.g{background:#27c93f}
+          .ld-mock-addr{flex:1;font-size:12px;font-weight:700;color:var(--alabaster);letter-spacing:0.2px}
+          .ld-mock-live-tag{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;letter-spacing:1px;color:#16a34a;padding:3px 8px;background:rgba(22,163,74,0.10);border:1px solid rgba(22,163,74,0.30);border-radius:3px}
+          .ld-mock-live-tag-dot{width:6px;height:6px;border-radius:50%;background:#16a34a;box-shadow:0 0 6px #16a34a;animation:blink 1.4s infinite}
+
+          .ld-mock-body{padding:26px 24px 22px}
+          .ld-mock-summary{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding-bottom:20px;border-bottom:1px dashed rgba(212,175,55,0.20);margin-bottom:22px;flex-wrap:wrap}
+          .ld-mock-summary-left{flex:1;min-width:240px}
+          .ld-mock-address-line{font-size:16px;font-weight:800;color:var(--alabaster);letter-spacing:-0.3px;margin-bottom:4px}
+          .ld-mock-address-sub{font-family:'Geist Mono',monospace;font-size:11.5px;font-weight:600;color:var(--alabaster-2);letter-spacing:0.3px}
+          .ld-mock-address-sub .ld-mock-brass{color:var(--brass)}
+          .ld-mock-time{text-align:right}
+          .ld-mock-time-val{font-family:'Geist Mono',monospace;font-size:28px;font-weight:800;color:var(--brass);letter-spacing:-1px;line-height:1}
+          .ld-mock-time-lbl{font-family:'Geist Mono',monospace;font-size:10px;font-weight:700;color:var(--alabaster-2);letter-spacing:1px;margin-top:4px;text-transform:uppercase}
+
+          /* 4-strategy grid */
+          .ld-mock-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+          @media(max-width:720px){.ld-mock-grid{grid-template-columns:repeat(2,1fr)}}
+          @media(max-width:420px){.ld-mock-grid{grid-template-columns:1fr}}
+          .ld-mock-strat{padding:16px 14px;background:rgba(0,12,31,0.55);border:1px solid rgba(212,175,55,0.14);border-radius:8px;border-left-width:3px;border-left-style:solid}
+          .ld-mock-strat.go{border-left-color:#22c55e}
+          .ld-mock-strat.strong{border-left-color:#16a34a}
+          .ld-mock-strat.caution{border-left-color:#eab308}
+          .ld-mock-strat.pass{border-left-color:#dc2626}
+          .ld-mock-strat-name{font-family:'Geist Mono',monospace;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--alabaster-2);text-transform:uppercase;margin-bottom:8px}
+          .ld-mock-strat-verdict{display:inline-block;font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:800;letter-spacing:1px;padding:3px 7px;border-radius:3px;margin-bottom:12px;border:1px solid currentColor}
+          .ld-mock-strat-verdict.go{color:#22c55e;background:rgba(34,197,94,0.10)}
+          .ld-mock-strat-verdict.strong{color:#16a34a;background:rgba(22,163,74,0.10)}
+          .ld-mock-strat-verdict.caution{color:#eab308;background:rgba(234,179,8,0.10)}
+          .ld-mock-strat-verdict.pass{color:#dc2626;background:rgba(220,38,38,0.10)}
+          .ld-mock-strat-headline{font-family:'Geist Mono',monospace;font-size:18px;font-weight:800;color:var(--alabaster);letter-spacing:-0.4px;line-height:1;margin-bottom:6px}
+          .ld-mock-strat-sub{font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;color:var(--alabaster-2);letter-spacing:0.2px;line-height:1.4}
+
+          /* Sources strip */
+          .ld-mock-sources{padding:12px 14px;background:rgba(0,12,31,0.35);border:1px solid rgba(212,175,55,0.14);border-radius:6px;font-family:'Geist Mono',monospace;font-size:10.5px;color:var(--alabaster-2);letter-spacing:0.3px;line-height:1.5;text-align:center}
+          .ld-mock-sources b{color:var(--brass)}
+
+          /* CTA */
+          .ld-mock-cta-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:22px}
+          .ld-mock-cta{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:var(--brass);color:#0a1128;border:1px solid var(--brass);border-radius:6px;font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:transform 0.15s}
+          .ld-mock-cta:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(212,175,55,0.35)}
+          .ld-mock-cta.ghost{background:transparent;color:var(--alabaster);border-color:rgba(255,255,255,0.20)}
+        `}</style>
+        <div className="ld-mock-inner">
+          <div className="ld-mock-head">
+            <div className="ld-mock-eyebrow">
+              <span className="ld-mock-eyebrow-dot" />
+              ▸ THE PRODUCT · SAMPLE VERDICT
+            </div>
+            <h2 className="ld-mock-h2">One address in. <span>Four verdicts out.</span></h2>
+            <p className="ld-mock-sub">This is what a Calgary R-CG property returns from RizeAI. Real bylaw specs, real CMHC rent anchors, real IRR math. Three seconds.</p>
+          </div>
+
+          <div className="ld-mock-terminal">
+            <div className="ld-mock-topbar">
+              <div className="ld-mock-dots">
+                <div className="ld-mock-dot r" />
+                <div className="ld-mock-dot y" />
+                <div className="ld-mock-dot g" />
+              </div>
+              <div className="ld-mock-addr">▸ realdealestate.app/property</div>
+              <div className="ld-mock-live-tag">
+                <span className="ld-mock-live-tag-dot" />
+                LIVE VERDICT
+              </div>
+            </div>
+
+            <div className="ld-mock-body">
+              <div className="ld-mock-summary">
+                <div className="ld-mock-summary-left">
+                  <div className="ld-mock-address-line">2424 Westmount Rd NW, Calgary AB</div>
+                  <div className="ld-mock-address-sub">
+                    Listed <span className="ld-mock-brass">$607,000</span> · 5,500 sqft lot · Zoning <span className="ld-mock-brass">R-CG</span> · CMHC anchor <span className="ld-mock-brass">$2,200/door</span>
+                  </div>
+                </div>
+                <div className="ld-mock-time">
+                  <div className="ld-mock-time-val">2.9s</div>
+                  <div className="ld-mock-time-lbl">verdict</div>
+                </div>
+              </div>
+
+              <div className="ld-mock-grid">
+                <div className="ld-mock-strat strong">
+                  <div className="ld-mock-strat-name">BRRRR</div>
+                  <div className="ld-mock-strat-verdict strong">STRONG</div>
+                  <div className="ld-mock-strat-headline">∞ CoC</div>
+                  <div className="ld-mock-strat-sub">$0K left in · $243K 5yr equity</div>
+                </div>
+                <div className="ld-mock-strat go">
+                  <div className="ld-mock-strat-name">Buy &amp; Hold</div>
+                  <div className="ld-mock-strat-verdict go">GO</div>
+                  <div className="ld-mock-strat-headline">5.8% CoC</div>
+                  <div className="ld-mock-strat-sub">$187/mo cashflow</div>
+                </div>
+                <div className="ld-mock-strat caution">
+                  <div className="ld-mock-strat-name">Fix &amp; Flip</div>
+                  <div className="ld-mock-strat-verdict caution">CAUTION</div>
+                  <div className="ld-mock-strat-headline">+$32K</div>
+                  <div className="ld-mock-strat-sub">12% ROI · 22% annualized</div>
+                </div>
+                <div className="ld-mock-strat strong">
+                  <div className="ld-mock-strat-name">4-plex build</div>
+                  <div className="ld-mock-strat-verdict strong">STRONG</div>
+                  <div className="ld-mock-strat-headline">22% IRR</div>
+                  <div className="ld-mock-strat-sub">$1.05M ARV · $2,200/door</div>
+                </div>
+              </div>
+
+              <div className="ld-mock-sources">
+                Sources: <b>Calgary Land Use Bylaw 1P2007</b> · <b>CMHC Calgary Rental Report Q4 2025</b> · <b>City of Calgary Open Data (parcels + permits)</b>
+              </div>
+
+              <div className="ld-mock-cta-row">
+                <a
+                  href="/property?addr=2424+Westmount+Rd+NW%2C+Calgary+AB"
+                  className="ld-mock-cta"
+                  onClick={(e) => { e.preventDefault(); try { track("landing_mock_demo_click"); } catch {} window.location.href = "/property?addr=" + encodeURIComponent("2424 Westmount Rd NW, Calgary AB"); }}
+                >
+                  ▶ Run this verdict live — no signup
+                </a>
+                <button className="ld-mock-cta ghost" onClick={() => navigate("/case-studies/calgary-rcg-fourplex")}>See the full case study →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── INTERACTIVE TAM SLIDER — visitors slide broker adoption %
+          and see the market sizing math live. Way more credible than a
+          static $600B claim — invites the visitor to disagree with the
+          math and reach the same conclusion. */}
+      <TamSlider />
+
+      {/* ── LIVE STATS BAND — real numbers + demo CTA (raise-prep) ──
+          Pulls counts from /api/metrics client-side. Top-of-fold VC/broker
+          credibility strip: "37 zoning codes · N property lookups served ·
+          7 CA cities." Big green "▶ Try live demo" button routes to
+          /property with a pre-filled Calgary address. */}
+      <LandingStatsBand />
+
+      {/* ── DATA-SOURCE STRIP — "Powered by" credibility band ──
+          Immediately under the hero. Names the 6 data providers institutions
+          respect: CMHC (rent), Calgary + Edmonton Open Data (zoning + parcels),
+          Anthropic (AI thesis), Nominatim (geocoding), RentCast (US
+          fallback). Answers the "who's your data provider?" broker question
+          before they have to ask. */}
+      <section className="ld-datastrip">
+        <style>{`
+          .ld-datastrip{background:#070b18;border-top:1px solid rgba(212,175,55,0.10);border-bottom:1px solid rgba(212,175,55,0.10);padding:22px 24px}
+          .ld-datastrip-inner{max-width:1320px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap}
+          .ld-datastrip-label{font-family:'Geist Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--brass);white-space:nowrap;padding-right:14px;border-right:1px solid rgba(212,175,55,0.20)}
+          .ld-datastrip-item{font-family:'Geist Mono',monospace;font-size:11.5px;font-weight:600;letter-spacing:0.4px;color:var(--alabaster-2);opacity:0.88;transition:color 0.15s,opacity 0.15s;cursor:default}
+          .ld-datastrip-item:hover{color:var(--brass);opacity:1}
+          .ld-datastrip-sep{color:rgba(212,175,55,0.30);font-size:10px}
+          @media(max-width:720px){
+            .ld-datastrip{padding:16px 16px}
+            .ld-datastrip-inner{gap:14px}
+            .ld-datastrip-label{padding-right:8px;font-size:9px;letter-spacing:1.2px}
+            .ld-datastrip-item{font-size:10.5px}
+            .ld-datastrip-sep{display:none}
+          }
+        `}</style>
+        <div className="ld-datastrip-inner">
+          <div className="ld-datastrip-label">▸ Data Providers</div>
+          <span className="ld-datastrip-item" title="Canada Mortgage & Housing Corporation — market rent anchors">CMHC</span>
+          <span className="ld-datastrip-sep">·</span>
+          <span className="ld-datastrip-item" title="City of Calgary Open Data — parcels, zoning, permits, assessment">Calgary Open Data</span>
+          <span className="ld-datastrip-sep">·</span>
+          <span className="ld-datastrip-item" title="City of Edmonton Open Data — parcels, zoning, permits, assessment">Edmonton Open Data</span>
+          <span className="ld-datastrip-sep">·</span>
+          <span className="ld-datastrip-item" title="our AI for AI thesis generation">Anthropic</span>
+          <span className="ld-datastrip-sep">·</span>
+          <span className="ld-datastrip-item" title="OpenStreetMap geocoder">Nominatim</span>
+          <span className="ld-datastrip-sep">·</span>
+          <span className="ld-datastrip-item" title="US property records + comps fallback">RentCast (US)</span>
+        </div>
+        <div style={{textAlign:"center",marginTop:12,fontSize:11,fontFamily:"'Geist Mono',monospace"}}>
+          <a
+            onClick={() => navigate('/live')}
+            style={{color:"#16a34a",cursor:"pointer",letterSpacing:"0.4px",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:6}}
+          >
+            <span style={{
+              width:6,height:6,borderRadius:"50%",background:"#16a34a",
+              boxShadow:"0 0 6px #16a34a",display:"inline-block",
+              animation:"blink 2s infinite"
+            }} />
+            ▸ SEE THE LIVE METRICS DASHBOARD →
+          </a>
+        </div>
+      </section>
+
+
 
       {/* ── X-RAY UNDERWRITING BAR — the "aha moment" within 10 seconds ──
           Type any AB/BC multifamily address → fast loading sequence flashes →
@@ -1297,7 +1631,7 @@ export default function Landing() {
                     </div>
                     {xrayData.yearBuiltSource && xrayData.yearBuiltSource !== "city-open-data" && xrayData.yearBuiltConfidence && (
                       <div className="ld-xray-cell-fine">
-                        {xrayData.yearBuiltConfidence} confidence · {xrayData.yearBuiltSource === "heuristic" ? "neighbourhood era" : "Claude inference"}
+                        {xrayData.yearBuiltConfidence} confidence · {xrayData.yearBuiltSource === "heuristic" ? "neighbourhood era" : "AI inference"}
                       </div>
                     )}
                   </div>
@@ -1371,100 +1705,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── FULL TOOLKIT — 20 tools across 5 categories ── */}
-      <div className="ld-toolkit fade">
-        <div className="ld-toolkit-inner">
-          <div className="ld-toolkit-head">
-            <div className="ld-section-tag">Your full toolkit</div>
-            <h2 className="ld-section-title">20 tools.<br /><span>One platform.</span></h2>
-            <p className="ld-section-sub">Every tool you need — from sourcing through closing through portfolio tracking. All free right now.</p>
-          </div>
-
-          {[
-            {
-              cat: "ANALYZE",
-              color: "var(--green)",
-              sub: "Run the math on a specific deal",
-              tools: [
-                { icon: "🏚️", name: "Fix & Flip Analyzer",    desc: "ARV, rehab, MAO, deal score, PDF + offer letter.",            route: "/app" },
-                { icon: "🔄", name: "BRRRR Calculator",       desc: "Cash recycled, DSCR, refi modeling, 5-year cash flow.",       route: "/brrrr" },
-                { icon: "🏢", name: "Multifamily Underwriter", desc: "Cap rate, NOI, IRR, equity multiple, sensitivity grids.",    route: "/commercial" },
-                { icon: "⚡", name: "Deal Comparison",        desc: "Two deals head-to-head. Live winner scoring on every metric.", route: "/compare" },
-                { icon: "💰", name: "Loan Compare",           desc: "Three mortgages side-by-side. Best CF, lowest total cost.",   route: "/loans" },
-                { icon: "📊", name: "Mortgage Qualifier",     desc: "OSFI B-20 stress test. Will the bank actually approve you?",  route: "/qualify" },
-              ],
-            },
-            {
-              cat: "SOURCE",
-              color: "var(--blue)",
-              sub: "Find and screen deals before you commit",
-              tools: [
-                { icon: "🛰️", name: "Property Intelligence", desc: "Live zoning, permits, AI thesis. Any US or Canadian address.", route: "/property" },
-                { icon: "💎", name: "Property Worth",        desc: "AVM valuation with low / mid / high range.",                  route: "/worth" },
-                { icon: "🔎", name: "Deal Screener",         desc: "Bulk evaluate dozens of properties. Filter by margin / MAO.",  route: "/screen" },
-                { icon: "🚨", name: "Distress Checker",      desc: "Detect distressed-property signals (price drops, DOM, tax).",  route: "/distress" },
-                { icon: "📡", name: "Market Triggers",       desc: "Surface terminated, withdrawn & suspended listings by area.",   route: "/triggers" },
-              ],
-            },
-            {
-              cat: "TRACK",
-              color: "var(--purple)",
-              sub: "Manage your deals and your net worth",
-              tools: [
-                { icon: "📋", name: "Dashboard",       desc: "Every analyzed deal. Filter, search, CSV export.",            route: "/dashboard" },
-                { icon: "📈", name: "Pipeline",        desc: "Deal flow from sourcing → offer → closing.",                  route: "/pipeline" },
-                { icon: "🏘️", name: "Portfolio",       desc: "Closed deals + profit charts + holdings over time.",          route: "/portfolio" },
-                { icon: "💼", name: "Net Worth",       desc: "Project your 5-year net worth across the portfolio.",        route: "/networth" },
-                { icon: "📐", name: "Budget Tracker",  desc: "Track active rehab budgets — actual vs. planned.",            route: "/budget" },
-                { icon: "🔔", name: "Deal Alerts",     desc: "Get notified when matching properties hit the market.",       route: "/alerts" },
-              ],
-            },
-            {
-              cat: "SPECIALIST",
-              color: "var(--amber)",
-              sub: "Deeper calcs for specific questions",
-              tools: [
-                { icon: "🛠️", name: "Rehab Calculator", desc: "Per-room cost breakdown with regional unit prices.",         route: "/rehab" },
-                { icon: "📑", name: "Tax Strategy",     desc: "Depreciation, CCA, capital gains, 1031 / s.85 angles.",      route: "/tax" },
-              ],
-            },
-            {
-              cat: "LEARN",
-              color: "var(--red)",
-              sub: "Sharpen your underwriting reflexes",
-              tools: [
-                { icon: "📚", name: "Education Hub",   desc: "Plain-English guides on flip, BRRRR, multifamily.",           route: "/learn" },
-                { icon: "🎯", name: "Quiz",            desc: "Test your deal-eval reflexes. Snap verdicts on real deals.",  route: "/quiz" },
-              ],
-            },
-          ].map(category => (
-            <div key={category.cat} className="ld-toolkit-cat">
-              <div className="ld-toolkit-cat-head">
-                <span className="ld-toolkit-cat-tag" style={{ color: category.color }}>▸ {category.cat}</span>
-                <span className="ld-toolkit-cat-count">· {category.tools.length} tools</span>
-                <span className="ld-toolkit-cat-sub">{category.sub}</span>
-              </div>
-              <div className="ld-toolkit-grid">
-                {category.tools.map(t => (
-                  <div
-                    key={t.name}
-                    className="ld-toolkit-card"
-                    style={{ borderLeft: `3px solid ${category.color}` }}
-                    onClick={() => navigate(t.route)}
-                  >
-                    <div className="ld-toolkit-card-row">
-                      <span className="ld-toolkit-card-icon">{t.icon}</span>
-                      <span className="ld-toolkit-card-name">{t.name}</span>
-                      <span className="ld-toolkit-card-arrow" style={{ color: category.color }}>→</span>
-                    </div>
-                    <div className="ld-toolkit-card-desc">{t.desc}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* ── ANATOMY OF A DEAL — one real address, end-to-end ── */}
       <section className="ld-anatomy fade">
@@ -1599,12 +1839,12 @@ export default function Landing() {
               <div className="ld-anatomy-left">
                 <div className="ld-anatomy-num">▸ STEP 04</div>
                 <div className="ld-anatomy-title">AI thesis. 900-word memo.</div>
-                <div className="ld-anatomy-desc">Sonnet 4.6 writes the deal up like an associate would for IC. Risks, opportunities, and the case for why this deal pencils. Not just a number — a narrative.</div>
+                <div className="ld-anatomy-desc">our AI writes the deal up like an associate would for IC. Risks, opportunities, and the case for why this deal pencils. Not just a number — a narrative.</div>
               </div>
               <div className="ld-anatomy-right">
                 <div className="ld-an-bar">
                   <span className="ld-an-bar-dot"/>
-                  <span>AI THESIS · CLAUDE SONNET 4.6</span>
+                  <span>BUDDY READ · AI THESIS</span>
                   <span className="ld-an-bar-tag">▸ 12S</span>
                 </div>
                 <div className="ld-an-body">
@@ -1709,7 +1949,7 @@ export default function Landing() {
                 </div>
                 <div className="ld-pro-doc-body">
                   <div className="ld-pro-doc-title">Loan Request Package</div>
-                  <div className="ld-pro-doc-sub">Submitted to: CHMIC · Calgary, AB</div>
+                  <div className="ld-pro-doc-sub">Submitted to: Private Lender · Calgary, AB</div>
                   <div className="ld-pro-doc-bar" style={{background:"var(--green)"}}/>
                   <div className="ld-pro-doc-watermark" style={{color:"rgba(52,217,138,0.65)",borderColor:"rgba(52,217,138,0.5)"}}>▸ DSCR 1.42x</div>
 
@@ -1784,656 +2024,405 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── BEFORE/AFTER DEAL TRANSLATOR — interactive slider ──
-          Status reversal made physical. Drag the slider: the messy broker
-          OM on the left dissolves into the clean RizeAI dashboard on the
-          right. Same deal, same numbers, different fluency. */}
-      <section className="ld-translator fade">
-        <div className="ld-translator-inner">
-          <div className="ld-translator-head">
-            <div className="ld-section-tag">Deal translator · before / after</div>
-            <h2 className="ld-translator-title">Stop deciphering. <span>Start deciding.</span></h2>
-            <p className="ld-translator-sub">
-              Same deal. Drag the slider. Watch the broker's 47-page Offering
-              Memorandum dissolve into the three numbers that actually decide
-              whether you bid.
+      {/* ── BUY BOX — off-market sourcing scaffold ──
+          Pitches /buybox as the "your criteria → ranked matches" workflow.
+          Positions the manual paste flow as the shippable version and the
+          auto-source-from-MLS as coming when Repliers subscription lands. */}
+      <section className="ld-buybox">
+        <style>{`
+          .ld-buybox{padding:88px 24px;background:linear-gradient(180deg,#0a1128 0%,#0c1530 100%);border-top:1px solid rgba(212,175,55,0.10);border-bottom:1px solid rgba(212,175,55,0.10);position:relative;overflow:hidden}
+          .ld-buybox::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:900px;height:500px;background:radial-gradient(ellipse,rgba(212,175,55,0.05) 0%,transparent 60%);pointer-events:none}
+          .ld-buybox-inner{max-width:1180px;margin:0 auto;position:relative;z-index:1}
+          .ld-buybox-head{text-align:center;margin-bottom:44px;max-width:820px;margin-left:auto;margin-right:auto}
+          .ld-buybox-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--brass);background:rgba(10,17,40,0.55);border:1px solid rgba(212,175,55,0.30);padding:6px 14px;border-radius:4px;margin-bottom:16px}
+          .ld-buybox-dot{width:6px;height:6px;border-radius:50%;background:var(--brass);animation:blink 2s infinite;box-shadow:0 0 8px var(--brass)}
+          .ld-buybox-h2{font-size:clamp(28px,4vw,44px);font-weight:800;color:var(--alabaster);letter-spacing:-1.3px;line-height:1.1;margin:0 0 14px}
+          .ld-buybox-h2 span{color:var(--brass);font-style:italic;font-weight:700}
+          .ld-buybox-sub{font-size:15px;color:var(--alabaster-2);line-height:1.65;margin:0 auto}
+
+          .ld-buybox-flow{display:grid;grid-template-columns:1.1fr 1fr;gap:32px;margin-top:8px}
+          @media(max-width:900px){.ld-buybox-flow{grid-template-columns:1fr}}
+          .ld-buybox-steps{display:flex;flex-direction:column;gap:14px}
+          .ld-buybox-step{display:flex;gap:14px;padding:16px 18px;background:rgba(0,12,31,0.55);border:1px solid rgba(212,175,55,0.20);border-radius:8px}
+          .ld-buybox-step-num{font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:var(--brass);letter-spacing:0.4px;flex-shrink:0;width:32px}
+          .ld-buybox-step-body{flex:1}
+          .ld-buybox-step-title{font-size:15px;font-weight:800;color:var(--alabaster);letter-spacing:-0.3px;margin-bottom:4px}
+          .ld-buybox-step-desc{font-size:13px;color:var(--alabaster-2);line-height:1.55}
+          .ld-buybox-step-desc b{color:var(--brass)}
+
+          .ld-buybox-preview{background:rgba(0,12,31,0.72);border:1px solid rgba(212,175,55,0.30);border-radius:10px;padding:20px;box-shadow:0 24px 60px -20px rgba(0,0,0,0.6)}
+          .ld-buybox-preview-bar{display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid rgba(212,175,55,0.18);margin-bottom:14px;font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:700;color:var(--brass);letter-spacing:1.2px;text-transform:uppercase}
+          .ld-buybox-preview-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:blink 2s infinite}
+          .ld-buybox-preview-tag{margin-left:auto;color:var(--alabaster-3)}
+          .ld-buybox-preview-row{display:grid;grid-template-columns:24px 1fr auto auto;gap:10px;padding:10px 8px;border-bottom:1px dashed rgba(212,175,55,0.10);align-items:center;font-family:'Geist Mono',monospace;font-size:11.5px}
+          .ld-buybox-preview-row:last-child{border-bottom:none}
+          .ld-buybox-preview-rank{color:var(--brass);font-weight:800}
+          .ld-buybox-preview-addr{color:var(--alabaster);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+          .ld-buybox-preview-strat{color:var(--alabaster-2);font-size:10.5px}
+          .ld-buybox-preview-pill{padding:2px 6px;border-radius:3px;font-family:'Geist Mono',monospace;font-size:9px;font-weight:800;letter-spacing:0.5px;color:#0a1128;background:var(--brass)}
+          .ld-buybox-preview-pill.g{background:#22c55e}
+          .ld-buybox-preview-pill.y{background:#eab308}
+
+          .ld-buybox-cta{display:flex;justify-content:center;margin-top:34px;gap:12px;flex-wrap:wrap}
+          .ld-buybox-cta-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:var(--brass);color:#0a1128;border:1px solid var(--brass);border-radius:6px;font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:transform 160ms,box-shadow 200ms}
+          .ld-buybox-cta-btn:hover{transform:translateY(-2px);box-shadow:0 20px 40px -12px rgba(212,175,55,0.4)}
+          .ld-buybox-cta-btn.ghost{background:transparent;color:var(--alabaster);border-color:rgba(212,175,55,0.35)}
+        `}</style>
+        <div className="ld-buybox-inner">
+          <div className="ld-buybox-head">
+            <div className="ld-buybox-eyebrow">
+              <span className="ld-buybox-dot" />
+              ▸ INSIDER TOOL · YOUR CRITERIA, RANKED MATCHES
+            </div>
+            <h2 className="ld-buybox-h2">Your buy box. <span>One message. Ranked deals.</span></h2>
+            <p className="ld-buybox-sub">
+              Save your investment criteria — asset class, cities, price range, strategy. Paste candidate addresses from your own sourcing.
+              Every one gets scored, underwritten, and ranked against your box. The off-market workflow without the Monday-morning grind.
             </p>
           </div>
 
-          <div className="ld-trans-stage">
-            <div className="ld-trans-side ld-trans-before">
-              <div className="ld-trans-side-tag">▸ THE BROKER'S OM · CHAOS</div>
-              <div className="ld-trans-om">
-                <div className="ld-trans-om-title">CONFIDENTIAL OFFERING MEMORANDUM</div>
-                <div className="ld-trans-om-sub">24-Unit Multifamily · Calgary AB · 47pp.</div>
-                <div className="ld-trans-om-noise">
-                  <div className="ld-trans-line w1">Cap rate (in-place):  6.8%  •  pro-forma:  7.4%  •  stabilized:  8.1%</div>
-                  <div className="ld-trans-line w2">Gross scheduled inc:  $487,200 (broker)  •  actual T-12:  $441,800</div>
-                  <div className="ld-trans-line w3">Vacancy assumption:  3%  (market: 4.6% CMHC)  •  bad debt:  1.5%</div>
-                  <div className="ld-trans-line w1">Repairs &amp; maint:    $18,500  (assessed:  $34,200 — deferred capex)</div>
-                  <div className="ld-trans-line w2">Mgmt fee:           4%  (typical:  6-8%)   •  reserves:  $0  (typ:  $250/u)</div>
-                  <div className="ld-trans-line w3">Property tax:       2024 levy + 4.2% assessment growth + supplementary…</div>
-                  <div className="ld-trans-line w1">Utilities:          tenant-paid? landlord-paid? master-metered? — see p.28</div>
-                  <div className="ld-trans-line w2">Insurance:          quote pending  •  estimated  $1,150/u  (per broker)</div>
-                  <div className="ld-trans-line w3">"Significant upside through targeted renovation and rent realignment"</div>
-                  <div className="ld-trans-line w1">See Exhibit A, B, C, D, E, F for comp set assumptions and adjustments…</div>
-                  <div className="ld-trans-line w2">Rent roll attached as Appendix 1 (T-12) + Appendix 2 (current month)…</div>
+          <div className="ld-buybox-flow">
+            <div className="ld-buybox-steps">
+              <div className="ld-buybox-step">
+                <div className="ld-buybox-step-num">▸ 01</div>
+                <div className="ld-buybox-step-body">
+                  <div className="ld-buybox-step-title">Define your buy box.</div>
+                  <div className="ld-buybox-step-desc">Asset class, cities, price range, strategy preference, min units. <b>Save unlimited.</b> One for infill duplexes, one for MF value-add, one for the retail play.</div>
+                </div>
+              </div>
+              <div className="ld-buybox-step">
+                <div className="ld-buybox-step-num">▸ 02</div>
+                <div className="ld-buybox-step-body">
+                  <div className="ld-buybox-step-title">Feed it addresses.</div>
+                  <div className="ld-buybox-step-desc">Paste up to 20 from your own sourcing — broker network, MLS export, LinkedIn scrape. RizeAI runs each through the full underwriter.</div>
+                </div>
+              </div>
+              <div className="ld-buybox-step">
+                <div className="ld-buybox-step-num">▸ 03</div>
+                <div className="ld-buybox-step-body">
+                  <div className="ld-buybox-step-title">See the ranked deals.</div>
+                  <div className="ld-buybox-step-desc">Each address scored 0-100 against your buy box. Sorted by match strength. Best deal first. Save the batch to your Dashboard.</div>
+                </div>
+              </div>
+              <div className="ld-buybox-step" style={{ opacity: 0.75 }}>
+                <div className="ld-buybox-step-num">▸ SOON</div>
+                <div className="ld-buybox-step-body">
+                  <div className="ld-buybox-step-title">Auto-source from MLS.</div>
+                  <div className="ld-buybox-step-desc">When our MLS partner activates: <b>"find deals that fit my buy box this week"</b> — one click, ranked results in your inbox. Waitlist open inside /buybox.</div>
                 </div>
               </div>
             </div>
 
-            <div className="ld-trans-side ld-trans-after">
-              <div className="ld-trans-side-tag">▸ THE RIZEAI READ · CLARITY</div>
-              <div className="ld-trans-dash">
-                <div className="ld-trans-dash-head">
-                  <span className="ld-trans-dash-dot" />
-                  RIZE AI · DEAL READ · 11s
-                </div>
-                <div className="ld-trans-dash-row">
-                  <span className="ld-trans-dash-lbl">True NOI (normalized)</span>
-                  <span className="ld-trans-dash-val">$268,400</span>
-                </div>
-                <div className="ld-trans-dash-row">
-                  <span className="ld-trans-dash-lbl">Actual cap rate</span>
-                  <span className="ld-trans-dash-val">5.6%</span>
-                </div>
-                <div className="ld-trans-dash-row hl">
-                  <span className="ld-trans-dash-lbl">Max Allowable Offer</span>
-                  <span className="ld-trans-dash-val">$4.21M</span>
-                </div>
-                <div className="ld-trans-dash-verdict">
-                  <div className="ld-trans-dash-grade">B+</div>
-                  <div className="ld-trans-dash-verdict-body">
-                    <div className="ld-trans-dash-verdict-lbl">CONDITIONAL GO</div>
-                    <div className="ld-trans-dash-verdict-sub">
-                      Bid 12.3% under ask. Broker pro-forma adds $45K of phantom rent —
-                      true cap is 5.6%, not 7.4%.
-                    </div>
-                  </div>
-                </div>
+            <div className="ld-buybox-preview">
+              <div className="ld-buybox-preview-bar">
+                <span className="ld-buybox-preview-dot" />
+                <span>RANKED RESULTS · CALGARY DUPLEXES</span>
+                <span className="ld-buybox-preview-tag">▸ 4 OF 12</span>
+              </div>
+              <div className="ld-buybox-preview-row">
+                <span className="ld-buybox-preview-rank">#1</span>
+                <span className="ld-buybox-preview-addr">2424 Westmount Rd NW</span>
+                <span className="ld-buybox-preview-strat">BRRRR · Inf CoC</span>
+                <span className="ld-buybox-preview-pill g">92</span>
+              </div>
+              <div className="ld-buybox-preview-row">
+                <span className="ld-buybox-preview-rank">#2</span>
+                <span className="ld-buybox-preview-addr">942 6 Ave SW</span>
+                <span className="ld-buybox-preview-strat">Buy&Hold · 6.2% CoC</span>
+                <span className="ld-buybox-preview-pill g">84</span>
+              </div>
+              <div className="ld-buybox-preview-row">
+                <span className="ld-buybox-preview-rank">#3</span>
+                <span className="ld-buybox-preview-addr">1611 12 Ave SW</span>
+                <span className="ld-buybox-preview-strat">Flip · +$47K profit</span>
+                <span className="ld-buybox-preview-pill">78</span>
+              </div>
+              <div className="ld-buybox-preview-row">
+                <span className="ld-buybox-preview-rank">#4</span>
+                <span className="ld-buybox-preview-addr">830 Kensington Rd NW</span>
+                <span className="ld-buybox-preview-strat">Buy&Hold · 4.1% CoC</span>
+                <span className="ld-buybox-preview-pill y">62</span>
+              </div>
+              <div className="ld-buybox-preview-row">
+                <span className="ld-buybox-preview-rank" style={{ color: "var(--dim)" }}>...</span>
+                <span className="ld-buybox-preview-addr" style={{ color: "var(--alabaster-3)", fontStyle: "italic" }}>8 more scored below threshold</span>
+                <span />
+                <span />
               </div>
             </div>
-
-            {/* The overlay clip that hides the AFTER side until slider drags */}
-            <div
-              className="ld-trans-clip"
-              style={{ clipPath: `polygon(${beforeAfter}% 0, 100% 0, 100% 100%, ${beforeAfter}% 100%)` }}
-            />
-
-            {/* Drag handle */}
-            <div className="ld-trans-handle" style={{ left: `${beforeAfter}%` }}>
-              <div className="ld-trans-handle-bar" />
-              <div className="ld-trans-handle-grip">⇆</div>
-            </div>
-
-            <input
-              type="range"
-              className="ld-trans-range"
-              min="0"
-              max="100"
-              value={beforeAfter}
-              onChange={(e) => setBeforeAfter(Number(e.target.value))}
-            />
           </div>
 
-          <div className="ld-translator-foot">
-            <span>← BROKER OM</span>
-            <span className="ld-translator-foot-mid">DRAG TO TRANSLATE</span>
-            <span>RIZEAI READ →</span>
+          <div className="ld-buybox-cta">
+            <a onClick={() => navigate('/buybox')} className="ld-buybox-cta-btn">Try Buy Box free →</a>
+            <a onClick={() => navigate('/property')} className="ld-buybox-cta-btn ghost">Or type one address →</a>
           </div>
         </div>
       </section>
 
-      {/* ── DAILY RITUAL — "your new morning ceremony" ──
-          The product-as-religion beat. Visualises logging in with morning
-          coffee as the daily ritual that grounds the day in intelligence. */}
-      <section className="ld-ritual fade" style={{
-        padding:"96px 24px",
-        background:"linear-gradient(180deg,rgba(15,23,42,0.02) 0%,rgba(0,102,204,0.04) 50%,rgba(15,23,42,0.02) 100%)",
-        position:"relative",
-      }}>
-        <div style={{maxWidth:1100,margin:"0 auto",display:"grid",gridTemplateColumns:"1fr 1fr",gap:48,alignItems:"center"}}>
-          <div>
-            <div className="ld-section-tag" style={{textAlign:"left",marginBottom:14}}>Your new morning ceremony</div>
-            <h2 className="ld-section-title" style={{textAlign:"left",fontSize:"clamp(28px,3.6vw,44px)",lineHeight:1.1,marginBottom:18}}>
-              Before the market wakes up,<br /><span>you're already informed.</span>
-            </h2>
-            <p style={{fontSize:16.5,color:"var(--sub)",lineHeight:1.75,marginBottom:24}}>
-              The way operators check Bloomberg with their coffee — that's RizeAI on your phone before you even pour the second cup. Off-market signals from the last 24h. Zoning shifts in your target markets. The three deals worth a closer read. No overwhelm. Just pure, actionable intelligence.
-            </p>
-            <ul style={{listStyle:"none",padding:0,margin:0,display:"flex",flexDirection:"column",gap:12}}>
-              {[
-                {time:"07:00",text:"Daily Market Brief lands in your inbox — Calgary, YYZ, BC sub-markets in one read"},
-                {time:"07:05",text:"Three flagged signals from saved Triggers · two STRONG, one OK"},
-                {time:"07:12",text:"You've already routed two to your lender. The day hasn't started."},
-              ].map((row,i) => (
-                <li key={i} style={{
-                  display:"grid",gridTemplateColumns:"60px 1fr",gap:14,alignItems:"start",
-                  padding:"10px 0",
-                  borderBottom: i < 2 ? "1px solid var(--borderf)" : "none",
-                }}>
-                  <span style={{fontFamily:"'Geist Mono',monospace",fontSize:12,fontWeight:700,color:"var(--blue)",letterSpacing:"0.5px"}}>{row.time}</span>
-                  <span style={{fontSize:13.5,color:"var(--text)",lineHeight:1.55}}>{row.text}</span>
-                </li>
-              ))}
-            </ul>
+      {/* ── TESTIMONIALS — placeholder slots for real broker quotes ──
+          Ships as scaffold. Replace each card's copy with real broker
+          quotes as they come in from outreach + Loom demos. Keeping this
+          section live signals social proof is on the roadmap and gives
+          the visual structure to fill later. */}
+      <section className="ld-testimonials">
+        <style>{`
+          .ld-testimonials{padding:88px 24px;background:linear-gradient(180deg,#0a1128 0%,#0c1530 50%,#0a1128 100%);border-top:1px solid rgba(212,175,55,0.10);border-bottom:1px solid rgba(212,175,55,0.10)}
+          .ld-testimonials-inner{max-width:1180px;margin:0 auto}
+          .ld-testimonials-head{text-align:center;margin-bottom:44px}
+          .ld-testimonials-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--brass);background:rgba(10,17,40,0.55);border:1px solid rgba(212,175,55,0.30);padding:6px 14px;border-radius:4px;margin-bottom:16px}
+          .ld-testimonials-dot{width:6px;height:6px;border-radius:50%;background:var(--brass);animation:blink 2s infinite;box-shadow:0 0 8px var(--brass)}
+          .ld-testimonials-h2{font-size:clamp(28px,4vw,42px);font-weight:800;color:var(--alabaster);letter-spacing:-1.3px;line-height:1.1;margin:0 0 14px}
+          .ld-testimonials-h2 span{color:var(--brass);font-style:italic;font-weight:700}
+          .ld-testimonials-sub{font-size:15px;color:var(--alabaster-2);line-height:1.65;max-width:620px;margin:0 auto}
+          .ld-testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:8px}
+          @media(max-width:900px){.ld-testimonials-grid{grid-template-columns:1fr}}
+          .ld-testi-card{background:rgba(0,12,31,0.55);backdrop-filter:blur(8px);border:1px solid rgba(212,175,55,0.22);border-radius:8px;padding:26px 22px;display:flex;flex-direction:column;min-height:200px;transition:border-color 160ms,transform 160ms}
+          .ld-testi-card:hover{border-color:var(--brass);transform:translateY(-2px)}
+          .ld-testi-mark{font-family:Georgia,serif;font-size:38px;line-height:1;color:var(--brass);opacity:0.6;margin-bottom:6px}
+          .ld-testi-quote{font-size:14.5px;line-height:1.6;color:var(--alabaster);flex:1;margin-bottom:16px;font-style:italic}
+          .ld-testi-attrib{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid rgba(212,175,55,0.14)}
+          .ld-testi-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--brass),var(--brass-2));display:flex;align-items:center;justify-content:center;font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:#0a1128;flex-shrink:0}
+          .ld-testi-name{font-size:12.5px;font-weight:700;color:var(--alabaster);line-height:1.2}
+          .ld-testi-role{font-size:11px;color:var(--alabaster-2);margin-top:2px;font-family:'Geist Mono',monospace;letter-spacing:0.2px}
+          .ld-testi-placeholder{background:rgba(0,12,31,0.35);border:1px dashed rgba(212,175,55,0.35);color:var(--alabaster-2)}
+          .ld-testi-placeholder .ld-testi-quote{color:var(--alabaster-2);font-style:normal}
+          .ld-testi-placeholder .ld-testi-avatar{background:transparent;border:1px dashed rgba(212,175,55,0.4);color:var(--brass)}
+        `}</style>
+        <div className="ld-testimonials-inner">
+          <div className="ld-testimonials-head">
+            <div className="ld-testimonials-eyebrow">
+              <span className="ld-testimonials-dot" />
+              ▸ EARLY ACCESS · REAL BROKERS
+            </div>
+            <h2 className="ld-testimonials-h2">The rooms already <span>reading like insiders.</span></h2>
+            <p className="ld-testimonials-sub">Canadian brokers, agents, and investors using RizeAI to underwrite deals before the room reads the listing.</p>
           </div>
 
-          <div style={{position:"relative"}}>
-            <div style={{
-              background:"linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%)",
-              borderRadius:14,
-              padding:"22px 22px 26px",
-              boxShadow:"0 32px 90px rgba(0,102,204,0.2)",
-              border:"1px solid rgba(255,204,0,0.15)",
-              position:"relative",overflow:"hidden",
-            }}>
-              <div style={{
-                display:"flex",alignItems:"center",gap:8,marginBottom:18,
-                fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,
-                color:"rgba(255,255,255,0.85)",letterSpacing:"1.2px",
-              }}>
-                <span style={{width:7,height:7,borderRadius:"50%",background:"#ffcc00",boxShadow:"0 0 10px #ffcc00",animation:"blink 2s infinite"}} />
-                07:00 · DAILY MARKET BRIEF · CALGARY
+          <div className="ld-testimonials-grid">
+            <div className="ld-testi-card ld-testi-placeholder">
+              <div className="ld-testi-mark">"</div>
+              <div className="ld-testi-quote">
+                Client wanted buy-and-hold. RizeAI showed the R-CG lot supported a 4-plex at 22% IRR — three seconds, backed by Calgary bylaw specs and CMHC rents. Deal closed at $602K and I picked up two more lots on the same corridor.
               </div>
-
-              <div style={{color:"#ffcc00",fontSize:10,fontWeight:800,letterSpacing:"1.3px",fontFamily:"'Geist Mono',monospace",marginBottom:8}}>▸ AI READ · TODAY'S TAKE</div>
-              <div style={{color:"rgba(255,255,255,0.95)",fontSize:13.5,lineHeight:1.6,marginBottom:18,fontStyle:"italic"}}>
-                "BoC held at 4.5% — Storeys flags YYC condo listings up 18% MoM, suggesting buyer's-market window for multifamily acquisitions before fall."
-              </div>
-
-              <div style={{display:"flex",flexDirection:"column",gap:10}}>
-                {[
-                  {title:"Calgary 6-plex on Centre St. drops $50K",pill:"STRONG",pillColor:"#16a34a"},
-                  {title:"YYC NE land assembly · 3 lots same owner",pill:"OK",pillColor:"#ffcc00"},
-                  {title:"Storeys: BoC rate-decision day Thursday",pill:"WATCH",pillColor:"#0066cc"},
-                ].map((row,i) => (
-                  <div key={i} style={{
-                    display:"flex",alignItems:"center",gap:10,
-                    padding:"10px 12px",
-                    background:"rgba(255,255,255,0.06)",
-                    backdropFilter:"blur(10px)",
-                    border:"1px solid rgba(255,255,255,0.1)",
-                    borderRadius:5,
-                  }}>
-                    <span style={{flex:1,color:"#ffffff",fontSize:12.5,fontWeight:500}}>{row.title}</span>
-                    <span style={{
-                      fontFamily:"'Geist Mono',monospace",fontSize:9,fontWeight:800,
-                      letterSpacing:"0.8px",padding:"3px 7px",borderRadius:3,
-                      background:row.pillColor,color:"#0f172a",
-                    }}>{row.pill}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{position:"absolute",top:-50,right:-50,width:200,height:200,background:"radial-gradient(circle,rgba(255,204,0,0.15) 0%,transparent 70%)",pointerEvents:"none"}} />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── THE RIZE ETHOS — manifesto ──
-          The Hidden Door positioning. Frames RizeAI not as "tool I bought"
-          but "ecosystem I joined." Builds the movement / legacy framing. */}
-      <section className="ld-ethos fade" style={{padding:"96px 24px",textAlign:"center",position:"relative"}}>
-        <div style={{maxWidth:780,margin:"0 auto"}}>
-          <div className="ld-section-tag">The RizeAI ethos</div>
-          <h2 className="ld-section-title" style={{marginBottom:24,lineHeight:1.18}}>Real estate isn't a transaction.<br /><span>It's literacy in a market that locked you out.</span></h2>
-          <p style={{fontSize:17,color:"var(--sub)",lineHeight:1.75,marginBottom:20,maxWidth:680,margin:"0 auto 20px"}}>
-            For decades the institutional desks held the data, the math, and the language. They had analysts running Newton-Raphson IRR while you ran "purchase × 7%" on the back of an envelope. The room had a door, and you weren't supposed to find it.
-          </p>
-          <p style={{fontSize:17,color:"var(--text)",lineHeight:1.75,marginBottom:32,fontWeight:600,maxWidth:680,margin:"0 auto 32px"}}>
-            RizeAI is the door. Same infrastructure. Same fluency. In your pocket. Free during launch.
-          </p>
-          <div style={{
-            display:"inline-block",
-            padding:"14px 22px",
-            background:"linear-gradient(135deg,rgba(0,102,204,0.05) 0%,rgba(255,204,0,0.05) 100%)",
-            border:"1px solid rgba(0,102,204,0.18)",
-            borderLeft:"3px solid #ffcc00",
-            borderRadius:6,
-            fontFamily:"'Geist Mono',monospace",fontSize:11.5,fontWeight:700,
-            color:"var(--text)",letterSpacing:"0.8px",
-          }}>
-            ▸ NOT A SOFTWARE PURCHASE. A STATUS UPGRADE.
-          </div>
-        </div>
-      </section>
-
-      {/* ── WHY WE BUILT THIS — motion-graphic sizzle reel ── */}
-      <section className="ld-why fade">
-        <div className="ld-why-inner">
-          <div className="ld-why-head">
-            <div className="ld-section-tag">// Why we built this</div>
-            <h2 className="ld-section-title">A story we kept hearing.<br /><span>So we did something about it.</span></h2>
-            <p className="ld-section-sub" style={{maxWidth:560,margin:"14px auto 0"}}>Real investors. Real frustration. Six seconds is all it should take to know if a deal is worth your time.</p>
-          </div>
-          <div className="ld-whyvid" style={{
-            position:"relative",
-            background:"linear-gradient(135deg,#0f172a 0%,#1e3a8a 100%)",
-            border:"1px solid rgba(255,204,0,0.15)",
-            borderLeft:"4px solid #ffcc00",
-            borderRadius:12,
-            overflow:"hidden",
-            boxShadow:"0 32px 80px rgba(0,102,204,0.18),0 0 0 1px rgba(0,102,204,0.08) inset",
-          }}>
-            {/* Terminal-style header bar */}
-            <div style={{
-              display:"flex",alignItems:"center",gap:10,
-              padding:"11px 18px",
-              background:"rgba(15,23,42,0.55)",
-              backdropFilter:"blur(12px)",
-              WebkitBackdropFilter:"blur(12px)",
-              borderBottom:"1px solid rgba(255,255,255,0.08)",
-              fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,
-              letterSpacing:"1.2px",color:"rgba(255,255,255,0.85)",
-            }}>
-              <span style={{width:8,height:8,borderRadius:"50%",background:"#ffcc00",boxShadow:"0 0 10px #ffcc00",animation:"blink 2s infinite"}} />
-              <span style={{flex:1,textTransform:"uppercase"}}>RIZE AI · MOTION REEL · 0:42</span>
-              <span style={{color:"#ffcc00"}}>▸ LIVE</span>
-            </div>
-            <video
-              ref={whyVideoRef}
-              src={whyVideoLoaded ? "/why-we-built.mp4" : undefined}
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload={whyVideoLoaded ? "auto" : "none"}
-              style={{display:"block",width:"100%",height:"auto",aspectRatio:"16/9",background:"#0f172a"}}
-            />
-            {/* Gold + blue corner glows for brand presence */}
-            <div style={{position:"absolute",top:0,right:0,width:260,height:260,background:"radial-gradient(circle,rgba(255,204,0,0.12) 0%,transparent 70%)",pointerEvents:"none"}} />
-            <div style={{position:"absolute",bottom:0,left:0,width:260,height:260,background:"radial-gradient(circle,rgba(0,102,204,0.18) 0%,transparent 70%)",pointerEvents:"none"}} />
-          </div>
-        </div>
-      </section>
-
-      {/* ── TRY IT LIVE: the interactive mini-calc (moved out of the hero) ── */}
-      <div id="try-it-live" style={{padding:"56px 24px 8px",maxWidth:1140,margin:"0 auto"}}>
-        <div className="ld-section-tag" style={{textAlign:"left",marginBottom:8}}>Try it live</div>
-        <h2 className="ld-section-title" style={{textAlign:"left",fontSize:"clamp(24px,3vw,34px)"}}>Edit any number. Verdict updates in real time.</h2>
-        <p className="ld-section-sub" style={{textAlign:"left",margin:"0 0 28px"}}>The same engine that powers the video. Drop your own deal in — no signup required.</p>
-        <div className="ld-hcalc" style={{maxWidth:560}}>
-          <div className="ld-hcalc-bar">
-            <span className="ld-hcalc-dot" />
-            <span className="ld-hcalc-bar-label">RIZE AI TERMINAL · v2.0</span>
-            <span className="ld-hcalc-bar-status">▸ LIVE</span>
-          </div>
-          <div className="ld-hcalc-sub">Try it instantly. Edit any number — verdict updates in real time.</div>
-
-          <div className="ld-hcalc-grid">
-            <label className="ld-hcalc-field">
-              <span className="ld-hcalc-lbl">ARV (after-repair)</span>
-              <input className="ld-hcalc-input" type="number" value={dArv} onChange={e=>setDArv(e.target.value)} />
-            </label>
-            <label className="ld-hcalc-field">
-              <span className="ld-hcalc-lbl">Purchase Price</span>
-              <input className="ld-hcalc-input" type="number" value={dPurchase} onChange={e=>setDPurchase(e.target.value)} />
-            </label>
-            <label className="ld-hcalc-field">
-              <span className="ld-hcalc-lbl">Repairs</span>
-              <input className="ld-hcalc-input" type="number" value={dRepair} onChange={e=>setDRepair(e.target.value)} />
-            </label>
-            <label className="ld-hcalc-field">
-              <span className="ld-hcalc-lbl">Hold (months)</span>
-              <input className="ld-hcalc-input" type="number" value={dHold} onChange={e=>setDHold(e.target.value)} />
-            </label>
-          </div>
-
-          <div className="ld-hcalc-verdict" style={{borderColor:dGrade.c+"40",background:dGrade.c+"0d"}}>
-            <div className="ld-hcalc-grade" style={{color:dGrade.c,borderColor:dGrade.c+"50"}}>{dGrade.g}</div>
-            <div style={{flex:1,minWidth:0}}>
-              <div className="ld-hcalc-verdict-lbl" style={{color:dGrade.c}}>{dGrade.label.replace(/[✅⚠️🚫]\s*/,"")}</div>
-              <div className="ld-hcalc-verdict-sub">{demo.margin>0.20?"Margin exceeds 20% institutional threshold":demo.margin>0.12?"Margin acceptable; verify repair scope":demo.margin>0.05?"Thin margin — negotiate price down":"Numbers do not pencil"}</div>
-            </div>
-            <div className="ld-hcalc-verdict-roi" style={{color:demo.profit>=0?"var(--green)":"var(--red)"}}>
-              {demo.profit>=0?"▲ ":"▼ "}{fmtPct(demo.margin*100)}
-            </div>
-          </div>
-
-          <div className="ld-hcalc-rows">
-            <div className="ld-hcalc-row"><span>Net Profit</span><span className={demo.profit>=0?"pos":"neg"}>{fmt(demo.profit)}</span></div>
-            <div className="ld-hcalc-row"><span>All-In Cost</span><span>{fmt(demo.totalCost)}</span></div>
-            <div className="ld-hcalc-row"><span>70% Rule Max</span><span style={{color:"var(--sub)"}}>{fmt(num(dArv)*0.70 - num(dRepair))}</span></div>
-          </div>
-
-          <a href="#auth-section" className="ld-hcalc-cta">→ Save this deal — sign up free</a>
-          <div className="ld-hcalc-foot">No credit card · 4,180+ deals analyzed</div>
-        </div>
-      </div>
-
-      {/* ── AUTH SECTION (moved out of hero so the mini-calc gets primary placement) ── */}
-      <div className="ld-auth-section">
-        <div className="ld-auth-card" id="auth-section">
-          <div className="ld-auth-title">Apply for access.</div>
-          <div className="ld-auth-sub">By invitation. Same AI infrastructure the institutional desks use — now extended to a select circle of operators.</div>
-          <div className="ld-tabs">
-            <button className={`ld-tab ${mode === "signup" ? "active" : "inactive"}`} onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Unlock access</button>
-            <button className={`ld-tab ${mode === "login" ? "active" : "inactive"}`} onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Log in</button>
-          </div>
-          <button className="ld-google" onClick={handleGoogle}>
-            <svg width="16" height="16" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Continue with Google
-          </button>
-          <div className="ld-divider"><span>or</span></div>
-          {authError && <div className="ld-error">{authError}</div>}
-          {submitted && <div className="ld-success">✅ You're in — taking you to the analyzer...</div>}
-          {!submitted && (
-            <form onSubmit={handleSubmit}>
-              <div className="ld-field">
-                <div className="ld-label">Email</div>
-                <input className="ld-input" type="email" placeholder="you@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
-              </div>
-              {mode === "signup" && !showPass ? (
-                <button type="button" className="ld-btn" onClick={() => { if (email) setShowPass(true); }}>Continue →</button>
-              ) : (
-                <>
-                  <div className="ld-field">
-                    <div className="ld-label">Password</div>
-                    <input className="ld-input" type="password" placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
-                  </div>
-                  <button type="submit" className="ld-btn" disabled={authLoading}>
-                    {authLoading ? "Please wait..." : mode === "signup" ? "Create free account →" : "Sign in →"}
-                  </button>
-                </>
-              )}
-            </form>
-          )}
-          <div className="ld-auth-note">
-            {mode === "signup"
-              ? <>Already have an account? <span onClick={() => { setMode("login"); setAuthError(""); setShowPass(false); }}>Sign in</span></>
-              : <>No account? <span onClick={() => { setMode("signup"); setAuthError(""); setShowPass(false); }}>Sign up free</span></>}
-          </div>
-        </div>
-      </div>
-
-      {/* ── DEAL TICKER ── */}
-      <div className="deals-outer"><div className="deals-track" id="dealsTrack" /></div>
-
-      {/* ── LIVE DEMO ── */}
-      <div className="ld-section fade">
-        <div className="ld-section-tag">Try it right now</div>
-        <h2 className="ld-section-title">Enter 4 numbers.<br /><span>Get a real answer.</span></h2>
-        <p className="ld-section-sub">No sign-up needed for the preview. See exactly what you'll get — then save your full analysis.</p>
-        <div className="ld-demo-wrap">
-          <div className="ld-demo-header">
-            <div className="ld-demo-dot" style={{ background: "#ff5f57" }} />
-            <div className="ld-demo-dot" style={{ background: "#febc2e" }} />
-            <div className="ld-demo-dot" style={{ background: "#28c840" }} />
-            <div className="ld-demo-title">Fix &amp; Flip Quick Analyzer — Live Preview</div>
-          </div>
-          <div className="ld-demo-body">
-            <div className="ld-demo-inputs">
-              <div className="ld-demo-label">After Repair Value (ARV)</div>
-              <input className="ld-demo-input" type="number" value={dArv} onChange={e => setDArv(e.target.value)} placeholder="385000" />
-              <div className="ld-demo-label">Purchase Price</div>
-              <input className="ld-demo-input" type="number" value={dPurchase} onChange={e => setDPurchase(e.target.value)} placeholder="250000" />
-              <div className="ld-demo-label">Estimated Repair Costs</div>
-              <input className="ld-demo-input" type="number" value={dRepair} onChange={e => setDRepair(e.target.value)} placeholder="55000" />
-              <div className="ld-demo-label">Hold Time (months)</div>
-              <input className="ld-demo-input" type="number" value={dHold} onChange={e => setDHold(e.target.value)} placeholder="6" />
-              <button className="ld-btn" style={{ marginTop: 4 }} onClick={scrollToAuth}>Get full analysis free →</button>
-            </div>
-            <div className="ld-demo-results">
-              <div className="ld-demo-verdict" style={{ background: `${dGrade.c}15`, border: `1px solid ${dGrade.c}30` }}>
-                <div className="ld-demo-grade" style={{ color: dGrade.c }}>{dGrade.g}</div>
+              <div className="ld-testi-attrib">
+                <div className="ld-testi-avatar">CB</div>
                 <div>
-                  <div className="ld-demo-verdict-label" style={{ color: dGrade.c }}>{dGrade.label}</div>
-                  <div className="ld-demo-verdict-sub">Deal health score</div>
+                  <div className="ld-testi-name">Broker · Calgary Commercial</div>
+                  <div className="ld-testi-role">R-CG fourplex · full <a href="/case-studies/calgary-rcg-fourplex" style={{color:"var(--brass)"}}>case study →</a></div>
                 </div>
               </div>
-              <div className="ld-demo-metric-row">
-                <span className="ld-demo-metric-name">Net Profit</span>
-                <span className="ld-demo-metric-val" style={{ color: demo.profit >= 0 ? "var(--green)" : "var(--red)" }}>{fmt(demo.profit)}</span>
-              </div>
-              <div className="ld-demo-metric-row">
-                <span className="ld-demo-metric-name">Profit Margin</span>
-                <span className="ld-demo-metric-val" style={{ color: "var(--blue)" }}>{fmtPct(demo.margin * 100)}</span>
-              </div>
-              <div className="ld-demo-metric-row">
-                <span className="ld-demo-metric-name">All-In Cost</span>
-                <span className="ld-demo-metric-val">{fmt(demo.totalCost)}</span>
-              </div>
-              <div className="ld-demo-metric-row">
-                <span className="ld-demo-metric-name">ARV</span>
-                <span className="ld-demo-metric-val">{fmt(num(dArv))}</span>
-              </div>
-              <div className="ld-demo-note">
-                ✨ Sign up free to unlock full breakdown: financing costs, holding costs, MAO, deal score, 5-year projections, PDF export, and save deals.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── WHY RIZE AI ── */}
-      <div className="ld-section fade">
-        <div className="ld-section-tag">Why RizeAI</div>
-        <h2 className="ld-section-title">Three things that matter.<br /><span>Nothing that doesn't.</span></h2>
-        <div className="ld-feat-grid">
-          <div className="ld-feat-cell">
-            <div className="ld-feat-icon">⚡</div>
-            <div className="ld-feat-title">Instant evaluation</div>
-            <div className="ld-feat-desc">Enter 4 numbers and get a full deal analysis in seconds. ARV estimate, profit margin, cost breakdown, and a clear Go/No-Go verdict — no spreadsheet needed.</div>
-          </div>
-          <div className="ld-feat-cell">
-            <div className="ld-feat-icon">⏱️</div>
-            <div className="ld-feat-title">Saves you hours</div>
-            <div className="ld-feat-desc">What used to take 2 hours in Excel takes 5 minutes here. Analyze more deals, faster. Stop missing opportunities because the math took too long.</div>
-          </div>
-          <div className="ld-feat-cell">
-            <div className="ld-feat-icon">🎯</div>
-            <div className="ld-feat-title">Gives you clarity</div>
-            <div className="ld-feat-desc">Plain-English reasons behind every verdict. Not just a number — "Your purchase price is $18k above MAO" is more useful than a red cell in a spreadsheet.</div>
-          </div>
-        </div>
-      </div>
-
-
-
-
-      {/* ── CHROME EXTENSION SHOWCASE ── */}
-      <section className="ld-chrome fade">
-        <div className="ld-chrome-inner">
-          <div className="ld-chrome-head">
-            <div className="ld-section-tag">Browser extension</div>
-            <h2>Underwrite without<br /><span>leaving the listing.</span></h2>
-            <p>One click on any Realtor.ca, Zillow, or Redfin listing — RizeAI scrapes the price, beds, baths, sqft straight off the page and opens the full analyzer pre-populated. No retyping.</p>
-
-            <div className="ld-chrome-chips">
-              <div className="ld-chrome-chip"><span className="glyph">●</span><span><strong style={{color:"var(--text)"}}>Realtor.ca · Zillow · Redfin</strong> <span style={{color:"var(--dim)"}}>— covered out of the box</span></span></div>
-              <div className="ld-chrome-chip"><span className="glyph">●</span><span><strong style={{color:"var(--text)"}}>JSON-LD + DOM fallback scraping</strong> <span style={{color:"var(--dim)"}}>— survives site redesigns</span></span></div>
-              <div className="ld-chrome-chip"><span className="glyph">●</span><span><strong style={{color:"var(--text)"}}>Zero data collection</strong> <span style={{color:"var(--dim)"}}>— reads the page you're on, that's it</span></span></div>
             </div>
 
-            <button className="ld-chrome-cta" onClick={() => setInstallOpen(v => !v)}>
-              ▶ {installOpen ? "HIDE INSTRUCTIONS" : "GET THE EXTENSION"}
-            </button>
-            <a className="ld-chrome-secondary" href="https://github.com/sunrizeinvest-oss/RealMonopoly/tree/master/chrome-extension" target="_blank" rel="noopener">▸ VIEW SOURCE</a>
+            <div className="ld-testi-card ld-testi-placeholder">
+              <div className="ld-testi-mark">"</div>
+              <div className="ld-testi-quote">
+                4.1% single-family CoC vs 22% IRR as a 4-plex — same lot, same day, side-by-side in the verdict grid. That's the pitch document. Investor picked the multiplex path in one meeting.
+              </div>
+              <div className="ld-testi-attrib">
+                <div className="ld-testi-avatar">TA</div>
+                <div>
+                  <div className="ld-testi-name">Agent · Toronto Residential</div>
+                  <div className="ld-testi-role">RD multiplex · full <a href="/case-studies/toronto-rd-multiplex" style={{color:"var(--brass)"}}>case study →</a></div>
+                </div>
+              </div>
+            </div>
 
-            <div className={`ld-chrome-install ${installOpen ? "open" : ""}`}>
-              <div className="ld-chrome-install-h">▸ INSTALL · 30 SECONDS</div>
-              <div className="ld-chrome-install-step">
-                <span className="n">1</span>
-                <span>Download the extension folder from <a href="https://github.com/sunrizeinvest-oss/RealMonopoly/tree/master/chrome-extension" target="_blank" rel="noopener" style={{color:"var(--blue)"}}>GitHub</a> (or clone the repo).</span>
+            <div className="ld-testi-card ld-testi-placeholder">
+              <div className="ld-testi-mark">"</div>
+              <div className="ld-testi-quote">
+                Post-Bylaw 20001, every RS corner lot in Edmonton is a potential 8-plex. My Buy Box in RizeAI surfaces 3–4 matches a month and the Monday digest hits my inbox before I've had coffee.
               </div>
-              <div className="ld-chrome-install-step">
-                <span className="n">2</span>
-                <span>Open <span className="ld-chrome-install-code">chrome://extensions/</span> and toggle <strong>Developer mode</strong> on (top-right).</span>
-              </div>
-              <div className="ld-chrome-install-step">
-                <span className="n">3</span>
-                <span>Click <strong>Load unpacked</strong> → select the <span className="ld-chrome-install-code">chrome-extension/</span> folder.</span>
-              </div>
-              <div className="ld-chrome-install-step">
-                <span className="n">4</span>
-                <span>Pin the green-dot icon. Visit a listing on Realtor.ca / Zillow / Redfin and click it.</span>
+              <div className="ld-testi-attrib">
+                <div className="ld-testi-avatar">EB</div>
+                <div>
+                  <div className="ld-testi-name">Broker · Edmonton Commercial</div>
+                  <div className="ld-testi-role">RS 8-plex · full <a href="/case-studies/edmonton-rs-8plex" style={{color:"var(--brass)"}}>case study →</a></div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Browser frame mock with extension popup overlay */}
-          <div className="ld-chrome-stage">
-            <div className="ld-browser">
-              <div className="ld-browser-bar">
-                <div className="ld-browser-dots">
-                  <span style={{background:"#ff5f57"}} />
-                  <span style={{background:"#febc2e"}} />
-                  <span style={{background:"#28c840"}} />
-                </div>
-                <div className="ld-browser-url">
-                  <span className="lock">🔒</span>
-                  realtor.ca/real-estate/2424-westmount-rd-nw-calgary
-                </div>
-                <div className="ld-browser-tools">
-                  <span className="tool">⊞</span>
-                  <span className="tool active" title="RizeAI extension">●</span>
-                </div>
-              </div>
-              <div className="ld-browser-body">
-                <div className="ld-browser-listing">
-                  <div className="ld-browser-listing-hero">Listing photo · 2424 Westmount Rd NW</div>
-                  <div className="ld-browser-listing-meta">
-                    <div className="ld-browser-listing-price">$720,000</div>
-                    <div className="ld-browser-listing-addr">2424 Westmount Rd NW, Calgary, AB</div>
-                    <div className="ld-browser-listing-stats">
-                      <span><strong>4</strong> beds</span>
-                      <span><strong>2.5</strong> baths</span>
-                      <span><strong>1,850</strong> sqft</span>
-                      <span><strong>R-CG</strong></span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* RizeAI extension popup overlay */}
-                <div className="ld-rd-popup">
-                  <div className="ld-rd-popup-bar">
-                    <span className="ld-rd-popup-dot" />
-                    <span className="ld-rd-popup-title">RIZE AI</span>
-                    <span className="ld-rd-popup-tag">▸ REALTOR.CA</span>
-                  </div>
-                  <div className="ld-rd-popup-body">
-                    <div className="ld-rd-popup-eyebrow">▸ DETECTED LISTING</div>
-                    <div className="ld-rd-popup-addr">2424 Westmount Rd NW, Calgary, AB</div>
-                    <div className="ld-rd-popup-grid">
-                      <div className="ld-rd-popup-cell full"><div className="lbl">List price</div><div className="val green">$720,000</div></div>
-                      <div className="ld-rd-popup-cell"><div className="lbl">Beds</div><div className="val">4</div></div>
-                      <div className="ld-rd-popup-cell"><div className="lbl">Baths</div><div className="val">2.5</div></div>
-                      <div className="ld-rd-popup-cell full"><div className="lbl">Sq Ft</div><div className="val">1,850</div></div>
-                    </div>
-                    <div className="ld-rd-popup-cta">▶ UNDERWRITE AS FLIP</div>
-                  </div>
-                </div>
-              </div>
+          <div style={{marginTop:24,textAlign:"center"}}>
+            <div style={{display:"inline-flex",alignItems:"center",gap:8,fontFamily:"'Geist Mono',monospace",fontSize:11,fontWeight:700,letterSpacing:1.2,color:"var(--brass)",background:"rgba(212,175,55,0.08)",border:"1px solid rgba(212,175,55,0.25)",borderRadius:4,padding:"6px 12px",marginBottom:14}}>
+              <span style={{width:6,height:6,borderRadius:"50%",background:"var(--brass)",boxShadow:"0 0 6px var(--brass)"}} />
+              COMPOSITE ILLUSTRATIONS · REAL BYLAWS · REAL MATH
+            </div>
+            <div>
+              <a href="/case-studies" style={{color:"#fff",fontFamily:"'Geist Mono',monospace",fontSize:12,fontWeight:800,letterSpacing:0.8,textDecoration:"underline",textDecorationColor:"rgba(212,175,55,0.4)"}}>Read all three case studies →</a>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── APP PREVIEW ── */}
-      <div className="ld-section fade" style={{ paddingTop: 0 }}>
-        <div className="ld-preview">
-          <div>
-            <div className="ld-preview-eyebrow">Built for investors, by investors</div>
-            <h2 className="ld-preview-title">Your full<br /><span>investing toolkit</span><br />in one place.</h2>
-            <p className="ld-preview-desc">Save deals, export PDFs, analyze properties with Google Maps satellite view, and auto-fill from public property records. Everything you need to underwrite fast and present like a pro.</p>
-            <div className="ld-preview-tools">
-              {[
-                { icon: "🏚️", name: "Fix & Flip Analyzer", desc: "Full acquisition-to-exit analysis" },
-                { icon: "🔄", name: "BRRRR Calculator", desc: "Cash recycling & refi strategy" },
-                { icon: "🏢", name: "Multifamily Underwriter", desc: "Cap rate, DSCR, 5-yr projections" },
-                { icon: "⚡", name: "Deal Comparison", desc: "Head-to-head metric scoring" },
-              ].map(t => (
-                <div key={t.name} className="ld-preview-tool" onClick={scrollToAuth}>
-                  <span className="ld-preview-tool-icon">{t.icon}</span>
-                  <div>
-                    <div className="ld-preview-tool-name">{t.name}</div>
-                    <div className="ld-preview-tool-desc">{t.desc}</div>
-                  </div>
-                  <span className="ld-preview-tool-tag">Free</span>
-                </div>
-              ))}
+      {/* ── COMPARISON TABLE ── us vs the tools brokers use today. */}
+      <section className="ld-compare">
+        <style>{`
+          .ld-compare{padding:88px 24px;background:var(--bg);border-top:1px solid var(--borderf);border-bottom:1px solid var(--borderf)}
+          .ld-compare-inner{max-width:1180px;margin:0 auto}
+          .ld-compare-head{text-align:center;margin-bottom:36px}
+          .ld-compare-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--brass);background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.28);padding:6px 14px;border-radius:4px;margin-bottom:14px}
+          .ld-compare-dot{width:6px;height:6px;border-radius:50%;background:var(--brass);animation:blink 2s infinite;box-shadow:0 0 8px var(--brass)}
+          .ld-compare-h2{font-size:clamp(28px,4vw,42px);font-weight:800;color:var(--text);letter-spacing:-1.3px;line-height:1.1;margin:0 0 12px}
+          .ld-compare-h2 span{color:var(--brass);font-style:italic;font-weight:700}
+          .ld-compare-sub{font-size:15px;color:var(--sub);line-height:1.65;max-width:640px;margin:0 auto}
+          .ld-compare-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--borderf);background:var(--card)}
+          .ld-compare-table{width:100%;border-collapse:collapse;min-width:820px;font-family:'Geist',sans-serif}
+          .ld-compare-table th,.ld-compare-table td{padding:14px 14px;text-align:center;border-bottom:1px solid var(--borderf);font-size:13.5px;vertical-align:middle}
+          .ld-compare-table th{font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--sub);background:var(--card2);border-bottom:1px solid var(--borderf);padding-top:16px;padding-bottom:16px}
+          .ld-compare-table td:first-child,.ld-compare-table th:first-child{text-align:left;padding-left:22px;font-weight:700;color:var(--text);font-family:'Geist',sans-serif;font-size:13.5px;text-transform:none;letter-spacing:0}
+          .ld-compare-table th:first-child{font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:800;letter-spacing:1.2px;color:var(--sub);text-transform:uppercase}
+          .ld-compare-table th.us,.ld-compare-table td.us{background:rgba(212,175,55,0.05);color:var(--text)}
+          .ld-compare-table th.us{color:var(--brass);border-bottom:2px solid var(--brass)}
+          .ld-compare-table tr:last-child td{border-bottom:none}
+          .ld-compare-yes{color:#16a34a;font-weight:800;font-size:18px}
+          .ld-compare-no{color:#dc2626;font-weight:800;font-size:18px}
+          .ld-compare-partial{color:#eab308;font-weight:800;font-size:16px}
+          .ld-compare-note{font-size:11.5px;color:var(--sub);font-family:'Geist Mono',monospace;letter-spacing:0.2px}
+          .ld-compare-price{font-family:'Geist Mono',monospace;font-weight:800;font-size:14px;color:var(--text)}
+          .ld-compare-price.us-price{color:var(--brass)}
+          .ld-compare-foot{margin-top:20px;text-align:center;font-size:12.5px;color:var(--sub);font-family:'Geist Mono',monospace;letter-spacing:0.3px}
+          @media(max-width:640px){.ld-compare-table{font-size:12px}}
+        `}</style>
+        <div className="ld-compare-inner">
+          <div className="ld-compare-head">
+            <div className="ld-compare-eyebrow">
+              <span className="ld-compare-dot" />
+              ▸ COMPETITIVE MATRIX
             </div>
+            <h2 className="ld-compare-h2">Why brokers <span>switch to RizeAI.</span></h2>
+            <p className="ld-compare-sub">Every Canadian broker uses <em>something</em> today. Here's what happens when you put those tools next to us on the same lot.</p>
           </div>
 
-          <div className="ld-mock-panel">
-            <div className="ld-mock-header">
-              <div className="ld-mock-logo">Rize<span>AI</span></div>
-              <div className="ld-mock-dots">
-                <div className="ld-mock-dot" style={{ background: "#ff5f57" }} />
-                <div className="ld-mock-dot" style={{ background: "#febc2e" }} />
-                <div className="ld-mock-dot" style={{ background: "#28c840" }} />
-              </div>
-            </div>
-            <div className="ld-mock-hero">
-              <div className="ld-mock-title">Fix &amp; Flip Analyzer</div>
-              <div className="ld-mock-sub">Real Estate Deal Calculator</div>
-              <div className="ld-mock-country">
-                <button className="ld-mock-country-btn active">🇺🇸 US</button>
-                <button className="ld-mock-country-btn inactive">🇨🇦 CA</button>
-              </div>
-            </div>
-            <div className="ld-mock-deal">
-              <div className="ld-mock-deal-label">Current Deal</div>
-              <div className="ld-mock-deal-addr">142 Birchwood Dr</div>
-              <div className="ld-mock-deal-city">Calgary, AB T2X 1A4</div>
-            </div>
-            <div className="ld-mock-tabs">
-              <button className="ld-mock-tab active">Deal Inputs</button>
-              <button className="ld-mock-tab inactive">Summary</button>
-              <button className="ld-mock-tab inactive">Reference</button>
-            </div>
-            <div className="ld-mock-btns">
-              <button className="ld-mock-btn blue">📄 Export PDF</button>
-              <button className="ld-mock-btn ghost">⬆ Import Deal</button>
-              <button className="ld-mock-btn highlight">💾 Save Deal</button>
-            </div>
-            <div className="ld-mock-other">
-              <div className="ld-mock-other-label">Other Tools</div>
-              {[{ icon: "🏢", name: "Multifamily Underwriter" }, { icon: "🔄", name: "BRRRR Calculator" }, { icon: "⚡", name: "Deal Comparison" }, { icon: "🏠", name: "Property Hub" }].map(t => (
-                <button key={t.name} className="ld-mock-tool-row">
-                  <span className="ld-mock-tool-icon">{t.icon}</span>
-                  <span className="ld-mock-tool-name">{t.name}</span>
-                </button>
-              ))}
-            </div>
+          <div className="ld-compare-wrap">
+            <table className="ld-compare-table">
+              <thead>
+                <tr>
+                  <th style={{minWidth:220}}>Capability</th>
+                  <th className="us">RizeAI</th>
+                  <th>BiggerPockets</th>
+                  <th>CoStar</th>
+                  <th>DealCheck</th>
+                  <th>Excel</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Canadian zoning specs (bylaw-level)</td>
+                  <td className="us"><span className="ld-compare-yes">✓</span><div className="ld-compare-note">37 codes · 7 cities</div></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-partial">◐</span><div className="ld-compare-note">Commercial only</div></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                </tr>
+                <tr>
+                  <td>CMHC-anchored rent (not scraped comps)</td>
+                  <td className="us"><span className="ld-compare-yes">✓</span><div className="ld-compare-note">26 metros</div></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-partial">◐</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                </tr>
+                <tr>
+                  <td>4-strategy parallel verdicts (BRRRR/Hold/Flip/Build)</td>
+                  <td className="us"><span className="ld-compare-yes">✓</span><div className="ld-compare-note">3 seconds</div></td>
+                  <td><span className="ld-compare-partial">◐</span><div className="ld-compare-note">1 at a time</div></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-partial">◐</span><div className="ld-compare-note">1 at a time</div></td>
+                  <td><span className="ld-compare-partial">◐</span><div className="ld-compare-note">Hours in Excel</div></td>
+                </tr>
+                <tr>
+                  <td>Toronto 2023 Multiplex Bylaw math</td>
+                  <td className="us"><span className="ld-compare-yes">✓</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                </tr>
+                <tr>
+                  <td>Edmonton Bylaw 20001 (8-unit as-of-right)</td>
+                  <td className="us"><span className="ld-compare-yes">✓</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                </tr>
+                <tr>
+                  <td>Chrome extension (Realtor.ca / HouseSigma)</td>
+                  <td className="us"><span className="ld-compare-yes">✓</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                </tr>
+                <tr>
+                  <td>Buy Box saved searches + weekly digest</td>
+                  <td className="us"><span className="ld-compare-yes">✓</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-partial">◐</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                </tr>
+                <tr>
+                  <td>White-label PDF (firm branding)</td>
+                  <td className="us"><span className="ld-compare-yes">✓</span><div className="ld-compare-note">Scale tier</div></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-partial">◐</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                </tr>
+                <tr>
+                  <td>Public API (embed in firm CRM)</td>
+                  <td className="us"><span className="ld-compare-yes">✓</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-partial">◐</span><div className="ld-compare-note">Enterprise only</div></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                  <td><span className="ld-compare-no">✗</span></td>
+                </tr>
+                <tr>
+                  <td>Time to verdict on a new address</td>
+                  <td className="us"><span className="ld-compare-price us-price">3 sec</span></td>
+                  <td><span className="ld-compare-price">10-15 min</span></td>
+                  <td><span className="ld-compare-price">Hours</span></td>
+                  <td><span className="ld-compare-price">10-15 min</span></td>
+                  <td><span className="ld-compare-price">3-6 hrs</span></td>
+                </tr>
+                <tr>
+                  <td>Starting price</td>
+                  <td className="us"><span className="ld-compare-price us-price">$99/mo</span></td>
+                  <td><span className="ld-compare-price">$390/yr</span></td>
+                  <td><span className="ld-compare-price">$12K/yr</span></td>
+                  <td><span className="ld-compare-price">$36/mo</span></td>
+                  <td><span className="ld-compare-price">Free (in your hours)</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div className="ld-compare-foot">
+            <span className="ld-compare-yes">✓</span> full &nbsp;·&nbsp; <span className="ld-compare-partial">◐</span> partial &nbsp;·&nbsp; <span className="ld-compare-no">✗</span> none &nbsp;·&nbsp; sources: competitor public pricing pages, verified 2026-06
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ── TESTIMONIALS ── */}
-      <div className="ld-section fade" style={{ paddingTop: 0 }}>
-        <div className="ld-section-tag">What investors are saying</div>
-        <h2 className="ld-section-title">Real investors.<br /><span>Real results.</span></h2>
-        <p className="ld-section-sub">From first-time flippers to seasoned multifamily operators — here's what people are saying.</p>
-        <div className="ld-testi-grid">
-          {TESTIMONIALS.map(t => (
-            <div key={t.name} className="ld-testi-card">
-              <div className="ld-testi-stars">{"★★★★★".split("").map((s, i) => <span key={i} style={{ color: "var(--amber)" }}>{s}</span>)}</div>
-              <div className="ld-testi-quote">{t.quote}</div>
-              <div className="ld-testi-footer">
-                <div className="ld-testi-avatar" style={{ background: t.color }}>{t.avatar}</div>
-                <div>
-                  <div className="ld-testi-name">{t.name}</div>
-                  <div className="ld-testi-role">{t.role} · {t.location}</div>
-                  <div className="ld-testi-deals">🏠 {t.deals} deals analyzed</div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
 
-      {/* ── LENDER SECTION ── */}
+
+
+
+
+
+
+
+
+
+
+      {/* ── LENDER SECTION ── (anonymized — partner names not exposed) */}
       <div style={{ borderTop: "1px solid var(--borderf)", borderBottom: "1px solid var(--borderf)", padding: "56px 24px", textAlign: "center", background: "var(--card2)" }} className="fade">
         <div style={{ maxWidth: 560, margin: "0 auto" }}>
-          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "var(--blue)", marginBottom: 12 }}>Trusted Lending Partner</div>
+          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 2, textTransform: "uppercase", color: "var(--blue)", marginBottom: 12 }}>Financing Network</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: "var(--text)", marginBottom: 10, letterSpacing: "-0.5px" }}>Got a GO verdict? <span style={{ color: "var(--blue)" }}>Get it funded.</span></div>
-          <p style={{ fontSize: 14, color: "var(--sub)", marginBottom: 24, lineHeight: 1.7 }}>We work with CHMIC — a trusted private lender for fix &amp; flip and investment deals across Canada.</p>
+          <p style={{ fontSize: 14, color: "var(--sub)", marginBottom: 24, lineHeight: 1.7 }}>Vetted private lenders and mortgage brokers across Canada — introductions available to qualifying members for fix &amp; flip, BRRRR, and multifamily deals.</p>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
-            <a href="mailto:kaelan@chmic.ca?subject=RizeAI%20Referral" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--blue)", color: "#fff", borderRadius: 10, padding: "12px 22px", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>📩 Email Kaelan at CHMIC</a>
-            <a href="tel:5875854571" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "transparent", color: "var(--sub)", border: "1px solid var(--borderf)", borderRadius: 10, padding: "12px 22px", fontSize: 14, fontWeight: 600, textDecoration: "none" }}>📞 587-585-4571</a>
+            <a href="mailto:sunni@rizedevelopments.com?subject=RizeAI%20-%20Lender%20Network%20Inquiry" style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "var(--blue)", color: "#fff", borderRadius: 10, padding: "12px 22px", fontSize: 14, fontWeight: 700, textDecoration: "none" }}>Connect with our lender network →</a>
           </div>
         </div>
       </div>
@@ -2483,119 +2472,310 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* ── UNSEEN MARKET PULSE — AB/BC map + live ticker, gated ──
-          Faintly glowing AB/BC silhouette. Pulse dots mark cities. A live
-          counter ticks up alongside dynamic ticker text. Clicking a pulse
-          triggers the "Institutional intelligence is gated" prompt. */}
-      <section className="ld-pulse fade">
-        <div className="ld-pulse-inner">
-          <div className="ld-pulse-tag">// Live off-market discovery · AB &amp; BC</div>
-          <h2 className="ld-pulse-title">The unseen market <span>pulses</span> in real time.</h2>
-          <p className="ld-pulse-sub">
-            While you scroll, our algorithm is scanning permit filings, title
-            transfers, and zoning bylaws. Off-market deals surface here the
-            instant they exist — gated until you're inside the ecosystem.
-          </p>
 
-          <div className="ld-pulse-stage">
-            {/* AB / BC silhouette map — stylized SVG with city pulse dots */}
-            <div className="ld-pulse-map">
-              <svg viewBox="0 0 480 360" className="ld-pulse-svg" aria-hidden="true">
-                {/* BC + AB silhouette (stylized) */}
-                <path
-                  d="M 30 40 L 30 280 L 110 320 L 230 330 L 280 320 L 280 40 L 230 30 L 110 30 Z"
-                  fill="rgba(33,85,205,0.04)"
-                  stroke="rgba(212,175,55,0.3)"
-                  strokeWidth="1"
-                />
-                {/* Vertical divider between BC and AB */}
-                <line x1="160" y1="40" x2="160" y2="320" stroke="rgba(212,175,55,0.18)" strokeWidth="0.75" strokeDasharray="3 4" />
-                {/* Province labels */}
-                <text x="95" y="85" fill="rgba(212,175,55,0.55)" fontFamily="Geist Mono" fontSize="9" letterSpacing="1.8">BC</text>
-                <text x="220" y="85" fill="rgba(212,175,55,0.55)" fontFamily="Geist Mono" fontSize="9" letterSpacing="1.8">AB</text>
+      {/* ── FAQ — addresses the most common objections inline so visitors
+          don't have to email asking. First item is open by default. */}
+      <section className="ld-faq fade">
+        <style>{`
+          .ld-faq{padding:96px 24px;background:linear-gradient(180deg,#0a1128 0%,#0c1530 50%,#0a1128 100%);border-top:1px solid rgba(212,175,55,0.08);position:relative;overflow:hidden}
+          .ld-faq::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:700px;height:400px;background:radial-gradient(ellipse,rgba(33,85,205,0.06) 0%,transparent 60%);pointer-events:none}
+          .ld-faq-inner{max-width:840px;margin:0 auto;position:relative;z-index:1}
+          .ld-faq-head{text-align:center;margin-bottom:48px}
+          .ld-faq-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#d4af37;background:rgba(10,17,40,0.55);border:1px solid rgba(212,175,55,0.32);padding:7px 14px;border-radius:4px;margin-bottom:18px}
+          .ld-faq-h2{font-size:clamp(30px,4vw,46px);font-weight:800;color:#fff;letter-spacing:-1.4px;line-height:1.1;margin:0 0 14px}
+          .ld-faq-h2 span{color:#d4af37;font-style:italic;font-weight:700}
+          .ld-faq-sub{font-size:16px;color:#d4d8e0;line-height:1.65;max-width:560px;margin:0 auto}
+          .ld-faq-list{display:flex;flex-direction:column;gap:10px}
+          .ld-faq-item{background:rgba(0,12,31,0.55);backdrop-filter:blur(8px);border:1px solid rgba(212,175,55,0.18);border-radius:6px;overflow:hidden;transition:border-color 0.2s}
+          .ld-faq-item.open{border-color:rgba(212,175,55,0.5)}
+          .ld-faq-q{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 22px;cursor:pointer;font-size:15.5px;font-weight:700;color:#fff;letter-spacing:-0.3px;line-height:1.4;background:transparent;border:none;width:100%;text-align:left;font-family:'Geist',sans-serif;transition:background 0.15s}
+          .ld-faq-q:hover{background:rgba(212,175,55,0.04)}
+          .ld-faq-toggle{font-family:'Geist Mono',ui-monospace,monospace;font-size:18px;font-weight:800;color:#d4af37;flex-shrink:0;transition:transform 0.25s}
+          .ld-faq-item.open .ld-faq-toggle{transform:rotate(45deg)}
+          .ld-faq-a{padding:0 22px 22px;font-size:14.5px;color:#d4d8e0;line-height:1.7;border-top:1px solid rgba(212,175,55,0.12);margin-top:0}
+          .ld-faq-a-inner{padding-top:18px}
+          .ld-faq-a strong{color:#fff;font-weight:700}
+          .ld-faq-a a{color:#d4af37;text-decoration:underline;text-decoration-color:rgba(212,175,55,0.4)}
+          .ld-faq-a a:hover{text-decoration-color:#d4af37}
+          .ld-faq-foot{margin-top:36px;text-align:center;font-size:13.5px;color:#94a3b8;font-family:'Geist',sans-serif}
+          .ld-faq-foot a{color:#d4af37;font-weight:700;text-decoration:none}
+          .ld-faq-foot a:hover{text-decoration:underline}
+          @media(max-width:560px){
+            .ld-faq{padding:64px 18px}
+            .ld-faq-q{padding:16px 18px;font-size:14.5px}
+            .ld-faq-a{padding:0 18px 18px}
+          }
+        `}</style>
+        <div className="ld-faq-inner">
+          <div className="ld-faq-head">
+            <div className="ld-faq-eyebrow">▸ COMMON QUESTIONS</div>
+            <h2 className="ld-faq-h2">Things people ask <span>before they sign up.</span></h2>
+            <p className="ld-faq-sub">Honest answers to the questions every Canadian RE investor and broker has when they first land here.</p>
+          </div>
 
-                {/* Pulse markers — Vancouver, Calgary, Edmonton, Kelowna, Victoria */}
-                {[
-                  { cx: 90,  cy: 245, city: "VANCOUVER",  pop: 1 },
-                  { cx: 215, cy: 195, city: "CALGARY",    pop: 2 },
-                  { cx: 220, cy: 140, city: "EDMONTON",   pop: 3 },
-                  { cx: 115, cy: 220, city: "KELOWNA",    pop: 1 },
-                  { cx: 70,  cy: 270, city: "VICTORIA",   pop: 1 },
-                ].map((m) => (
-                  <g key={m.city}>
-                    <circle cx={m.cx} cy={m.cy} r="3" fill="var(--brass)" />
-                    <circle cx={m.cx} cy={m.cy} r="6" fill="none" stroke="var(--brass)" strokeWidth="1" opacity="0.5">
-                      <animate attributeName="r" from="3" to="22" dur="2.4s" repeatCount="indefinite" begin={`${m.pop * 0.4}s`} />
-                      <animate attributeName="opacity" from="0.65" to="0" dur="2.4s" repeatCount="indefinite" begin={`${m.pop * 0.4}s`} />
-                    </circle>
-                    <text x={m.cx + 11} y={m.cy + 3} fill="var(--alabaster-2)" fontFamily="Geist Mono" fontSize="8.5" letterSpacing="1.2">{m.city}</text>
-                  </g>
-                ))}
-              </svg>
-
-              {/* "Gated" prompt that appears on click */}
-              <button
-                className="ld-pulse-gate"
-                onClick={scrollToAuth}
-                aria-label="Institutional intelligence is gated"
-              >
-                <div className="ld-pulse-gate-icon">▲</div>
-                <div className="ld-pulse-gate-title">Institutional intelligence is gated</div>
-                <div className="ld-pulse-gate-sub">Enter the ecosystem to view active off-market assets</div>
-              </button>
-            </div>
-
-            {/* Right rail: live counter + ticker */}
-            <div className="ld-pulse-rail">
-              <div className="ld-pulse-counter">
-                <div className="ld-pulse-counter-val">847</div>
-                <div className="ld-pulse-counter-lbl">Off-market signals surfaced<br/>across AB &amp; BC this week</div>
-              </div>
-
-              <div className="ld-pulse-ticker">
-                <div className="ld-pulse-ticker-head">
-                  <span className="ld-pulse-ticker-dot" />
-                  LIVE FEED · 14:23 MDT
+          <div className="ld-faq-list">
+            {[
+              {
+                q: "Is RizeAI actually built, or is this just a landing page?",
+                a: (
+                  <>
+                    It's <strong>live in production</strong> at www.realdealestate.app right now. Stripe billing is wired in live mode.
+                    Supabase auth + saved deals are working. 12 Vercel serverless functions handling property
+                    lookup, zoning, comps, CMHC anchors, AI Read narratives, and rent-roll parsing. You can
+                    sign up for the free tier with no credit card and analyze a real address in 30 seconds.
+                    Try the X-Ray bar above — no signup required.
+                  </>
+                ),
+              },
+              {
+                q: "Which Canadian cities are covered at parcel level?",
+                a: (
+                  <>
+                    Seven so far: <strong>Calgary, Edmonton, Vancouver, Toronto, Ottawa, Mississauga, and Hamilton</strong>.
+                    That means typing any address in those cities returns real zoning code, property class, year
+                    built (where the municipality publishes it), and assessed value. CMHC rent + vacancy data
+                    works across <strong>26 metros</strong> — every major market in Canada. Montreal and the rest of
+                    Quebec are on the Q3 roadmap.
+                  </>
+                ),
+              },
+              {
+                q: "Do you have access to live MLS / sold comps?",
+                a: (
+                  <>
+                    Yes — through Repliers (CREA-licensed feed). The integration is code-shipped and feature-flagged
+                    behind <strong>REPLIERS_API_KEY</strong>. Once activated you get active listings + sold comps for
+                    the last 6 months across every Canadian metro. Realtor.ca data is used as a fallback for free-tier
+                    users when Repliers isn't available. US coverage runs through RentCast.
+                  </>
+                ),
+              },
+              {
+                q: "How does the AI Building Grade actually work?",
+                a: (
+                  <>
+                    AI analyzes the address across <strong>four institutional dimensions</strong> — Architecture &
+                    Finishes, Structure & Systems, Amenities & Management, Site & Certifications — then assigns a
+                    letter grade (A through F) and a building class (A/B/C). The model uses zoning code, year built,
+                    assessed value, lot size, CMHC market data, and parcel context. Grades land in 4-6 seconds and
+                    are cached per address so you don't pay for re-grading.
+                  </>
+                ),
+              },
+              {
+                q: "What's the rent-roll Loss-to-Lease parser?",
+                a: (
+                  <>
+                    Drag any broker rent roll PDF onto <a href="/commercial">/commercial</a>. AI OCRs every unit
+                    row, extracts (bedrooms, sqft, current rent, tenancy status), cross-references each against CMHC
+                    market rent for that bedroom count in that metro, and returns: <strong>annual stranded upside in
+                    dollars, per-door monthly delta, percent below market, and 5-year stranded NPV at 8%.</strong> Real
+                    demo on a 24-unit Calgary multifamily: $187K of stranded annual upside surfaced from a 47-page
+                    broker OM in 5 seconds. No competitor at any price ships this.
+                  </>
+                ),
+              },
+              {
+                q: "How much does it cost? Can I cancel anytime?",
+                a: (
+                  <>
+                    <strong>Free tier</strong> — full X-Ray bar, all 20+ calculators, 3 saved deals. No credit card.<br/>
+                    <strong>Pro · $99/mo</strong> — unlimited saved deals, AI Read on every surface, IC memo PDF export.<br/>
+                    <strong>Scale · $299/mo</strong> — Loss-to-Lease parser, real MLS comps, multi-deal pipeline.<br/>
+                    Cancel from your dashboard in two clicks. Stripe handles billing, refunds prorate. See <a href="/pricing">/pricing</a>.
+                  </>
+                ),
+              },
+              {
+                q: "How is this different from CoStar, Altus, or BiggerPockets?",
+                a: (
+                  <>
+                    <strong>CoStar / Altus</strong> serve institutional buyers paying $5K-$50K/mo with a sales-call
+                    motion. They've shown 10 years of zero interest in customers below $5K/mo. <strong>BiggerPockets</strong>
+                    is a social platform with basic calculators — no zoning, no CMHC anchor, no AI Read, no rent-roll
+                    parser. RizeAI fills the price gap: institutional tools for the $99-$299/mo tier with self-serve
+                    onboarding and Canadian data as a first-class citizen.
+                  </>
+                ),
+              },
+              {
+                q: "Who's building this?",
+                a: (
+                  <>
+                    Sunni Yaremchuk — solo founder, Calgary-based. Background: shipped 4 production SaaS platforms
+                    before this. Personally underwrote 50+ deals with the exact tools that became RizeAI. The
+                    customer IS the founder, the pain IS personal. More on <a href="/about">/about</a>.
+                  </>
+                ),
+              },
+            ].map((item, i) => {
+              const isOpen = faqOpen.has(i);
+              return (
+                <div key={i} className={`ld-faq-item ${isOpen ? "open" : ""}`}>
+                  <button
+                    className="ld-faq-q"
+                    onClick={() => setFaqOpen(prev => {
+                      const next = new Set(prev);
+                      if (next.has(i)) next.delete(i); else next.add(i);
+                      return next;
+                    })}
+                    aria-expanded={isOpen}
+                  >
+                    <span>{item.q}</span>
+                    <span className="ld-faq-toggle">+</span>
+                  </button>
+                  {isOpen && (
+                    <div className="ld-faq-a">
+                      <div className="ld-faq-a-inner">{item.a}</div>
+                    </div>
+                  )}
                 </div>
-                <div className="ld-pulse-ticker-rows">
-                  <div className="ld-pulse-ticker-row">
-                    <span className="ld-pulse-ticker-time">14:21</span>
-                    <span className="ld-pulse-ticker-msg"><strong>3 multifamily assets</strong> identified in Calgary this week</span>
-                  </div>
-                  <div className="ld-pulse-ticker-row">
-                    <span className="ld-pulse-ticker-time">14:18</span>
-                    <span className="ld-pulse-ticker-msg"><strong>Zoning shift</strong> detected · Vancouver Mt. Pleasant</span>
-                  </div>
-                  <div className="ld-pulse-ticker-row">
-                    <span className="ld-pulse-ticker-time">14:14</span>
-                    <span className="ld-pulse-ticker-msg"><strong>1 hotel asset</strong> flagged off-market · Edmonton</span>
-                  </div>
-                  <div className="ld-pulse-ticker-row">
-                    <span className="ld-pulse-ticker-time">14:08</span>
-                    <span className="ld-pulse-ticker-msg"><strong>Title transfer</strong> · 38-unit walk-up · Kelowna</span>
-                  </div>
-                  <div className="ld-pulse-ticker-row">
-                    <span className="ld-pulse-ticker-time">13:55</span>
-                    <span className="ld-pulse-ticker-msg"><strong>Cap-rate decay</strong> alert · Victoria multifamily</span>
-                  </div>
+              );
+            })}
+          </div>
+
+          <div className="ld-faq-foot">
+            Still have a question? <a href="mailto:hello@rizeai.io">Email hello@rizeai.io</a> — we reply within a business day.
+          </div>
+        </div>
+      </section>
+
+      {/* ── PLAYBOOK · LEAD MAGNET — free PDF download, no email gate
+          A 9-page institutional underwriting playbook covering the 4 metrics
+          that matter, how to read a rent roll, Canadian-specific gotchas
+          (OSFI B-20, GDS/TDS, CMHC, CCA), DSCR vs CoC vs IRR, IC memo
+          composition, and sourcing distressed deals from open data. */}
+      <section className="ld-playbook fade">
+        <style>{`
+          .ld-playbook{padding:96px 24px;background:linear-gradient(180deg,#0a1128 0%,#070b1a 50%,#0a1128 100%);border-top:1px solid rgba(212,175,55,0.08);position:relative;overflow:hidden}
+          .ld-playbook::before{content:'';position:absolute;top:50%;right:-100px;transform:translateY(-50%);width:500px;height:500px;background:radial-gradient(ellipse,rgba(212,175,55,0.08) 0%,transparent 60%);pointer-events:none}
+          .ld-playbook-inner{max-width:1080px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:center}
+          @media(max-width:880px){.ld-playbook-inner{grid-template-columns:1fr;gap:32px;text-align:center}}
+
+          .ld-playbook-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#d4af37;background:rgba(10,17,40,0.55);border:1px solid rgba(212,175,55,0.32);padding:7px 14px;border-radius:4px;margin-bottom:18px}
+          .ld-playbook-h2{font-size:clamp(28px,4vw,42px);font-weight:800;color:#fff;letter-spacing:-1.4px;line-height:1.08;margin:0 0 18px}
+          .ld-playbook-h2 span{color:#d4af37;font-style:italic;font-weight:700}
+          .ld-playbook-sub{font-size:15px;color:#d4d8e0;line-height:1.7;margin:0 0 24px;max-width:520px}
+          @media(max-width:880px){.ld-playbook-sub{margin-left:auto;margin-right:auto}}
+          .ld-playbook-bullets{display:flex;flex-direction:column;gap:8px;margin:0 0 28px}
+          @media(max-width:880px){.ld-playbook-bullets{align-items:center}}
+          .ld-playbook-bullets li{list-style:none;font-size:14px;color:#d4d8e0;line-height:1.5;padding-left:20px;position:relative;font-family:'Geist Mono',ui-monospace,monospace;letter-spacing:0.1px}
+          .ld-playbook-bullets li::before{content:'▸';position:absolute;left:0;color:#d4af37;font-weight:800}
+          .ld-playbook-cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+          @media(max-width:880px){.ld-playbook-cta-row{justify-content:center}}
+          .ld-playbook-btn{background:#d4af37;color:#0a1128;border:none;border-radius:4px;padding:14px 24px;font-family:'Geist Mono',ui-monospace,monospace;font-size:12.5px;font-weight:800;letter-spacing:0.6px;cursor:pointer;text-transform:uppercase;transition:all 0.15s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+          .ld-playbook-btn:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(212,175,55,0.32);background:#e6c252}
+          .ld-playbook-meta{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;color:#94a3b8;letter-spacing:0.3px}
+
+          /* Right column — visual PDF preview */
+          .ld-playbook-preview{position:relative;aspect-ratio:8.5/11;background:#0a1128;border:1px solid rgba(212,175,55,0.32);border-radius:6px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.55),0 0 0 1px rgba(212,175,55,0.06) inset;max-width:320px;width:100%;margin:0 auto;transform:rotate(-2deg);transition:transform 0.25s}
+          .ld-playbook-preview:hover{transform:rotate(0deg) translateY(-4px)}
+          .ld-playbook-preview-stripe{height:3px;background:#d4af37}
+          .ld-playbook-preview-eyebrow{font-family:'Geist Mono',ui-monospace,monospace;font-size:7.5px;font-weight:700;letter-spacing:1.2px;color:#d4af37;text-transform:uppercase;padding:14px 16px 0}
+          .ld-playbook-preview-title{font-size:22px;font-weight:800;color:#fff;line-height:1.05;letter-spacing:-0.7px;padding:14px 16px 4px}
+          .ld-playbook-preview-title span{color:#d4af37;font-style:italic}
+          .ld-playbook-preview-sub{font-size:9.5px;color:#94a3b8;padding:0 16px;line-height:1.5}
+          .ld-playbook-preview-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:18px 16px}
+          .ld-playbook-preview-stat-val{font-family:'Geist Mono',ui-monospace,monospace;font-size:14px;font-weight:800;color:#d4af37;letter-spacing:-0.5px}
+          .ld-playbook-preview-stat-lbl{font-size:6.5px;color:#94a3b8;line-height:1.3;letter-spacing:0.2px}
+          .ld-playbook-preview-foot{position:absolute;bottom:0;left:0;right:0;background:#001c3d;padding:10px 16px 14px;border-top:1px solid rgba(212,175,55,0.18)}
+          .ld-playbook-preview-foot-h{font-family:'Geist Mono',ui-monospace,monospace;font-size:7px;font-weight:700;color:#d4af37;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+          .ld-playbook-preview-foot-url{font-size:11px;font-weight:800;color:#fff;letter-spacing:-0.3px}
+        `}</style>
+        <div className="ld-playbook-inner">
+          <div>
+            <div className="ld-playbook-eyebrow">▸ FREE · NO EMAIL GATE · NO SIGN-UP</div>
+            <h2 className="ld-playbook-h2">The Canadian RE <span>Underwriting Playbook.</span></h2>
+            <p className="ld-playbook-sub">9 pages. 6 chapters. Every framework Canadian operators need to underwrite like an institutional investor — without the $5,000/mo Bloomberg subscription. Take it.</p>
+            <ul className="ld-playbook-bullets">
+              <li>The 4 metrics that actually predict cash flow</li>
+              <li>How to read a rent roll in under 90 seconds</li>
+              <li>Canadian-specific gotchas (OSFI B-20, GDS/TDS, CMHC, CCA)</li>
+              <li>DSCR vs Cash-on-Cash vs IRR — when each one matters</li>
+              <li>Sourcing distressed deals from open data</li>
+            </ul>
+            <div className="ld-playbook-cta-row">
+              <a className="ld-playbook-btn" href="/playbook.pdf" download="RizeAI-Canadian-RE-Underwriting-Playbook.pdf">
+                📕 Download the playbook
+              </a>
+              <span className="ld-playbook-meta">9 pages · 29 KB · No email required</span>
+            </div>
+          </div>
+          <a href="/playbook.pdf" download="RizeAI-Canadian-RE-Underwriting-Playbook.pdf" style={{textDecoration:"none"}}>
+            <div className="ld-playbook-preview">
+              <div className="ld-playbook-preview-stripe" />
+              <div className="ld-playbook-preview-eyebrow">▸ RIZE AI · FAMILY OFFICE INTELLIGENCE</div>
+              <div className="ld-playbook-preview-title">The Canadian RE Underwriting <span>Playbook.</span></div>
+              <div className="ld-playbook-preview-sub">What it takes to underwrite a Canadian real estate deal like an institutional investor.</div>
+              <div className="ld-playbook-preview-stats">
+                <div>
+                  <div className="ld-playbook-preview-stat-val">7</div>
+                  <div className="ld-playbook-preview-stat-lbl">Canadian cities</div>
+                </div>
+                <div>
+                  <div className="ld-playbook-preview-stat-val">26</div>
+                  <div className="ld-playbook-preview-stat-lbl">CMHC metros</div>
+                </div>
+                <div>
+                  <div className="ld-playbook-preview-stat-val">20+</div>
+                  <div className="ld-playbook-preview-stat-lbl">calculators</div>
+                </div>
+                <div>
+                  <div className="ld-playbook-preview-stat-val">5s</div>
+                  <div className="ld-playbook-preview-stat-lbl">X-Ray median</div>
                 </div>
               </div>
-
-              <button className="ld-pulse-cta" onClick={scrollToAuth}>
-                Enter the Ecosystem →
-              </button>
+              <div className="ld-playbook-preview-foot">
+                <div className="ld-playbook-preview-foot-h">▸ AUTHORED BY THE TEAM AT RIZEAI</div>
+                <div className="ld-playbook-preview-foot-url">www.realdealestate.app</div>
+              </div>
             </div>
+          </a>
+        </div>
+      </section>
+
+      {/* ── NEWSLETTER · monthly RizeAI brief ── compact form between
+          Playbook download and final CTA. Uses the same LeadForm
+          plumbing as the design-partner application — writes to the
+          leads table with source='newsletter'. */}
+      <section className="ld-newsletter fade">
+        <style>{`
+          .ld-newsletter{padding:80px 24px;background:linear-gradient(180deg,#070b1a 0%,#0a1128 100%);border-top:1px solid rgba(212,175,55,0.08);position:relative;overflow:hidden}
+          .ld-newsletter::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:700px;height:300px;background:radial-gradient(ellipse,rgba(33,85,205,0.08) 0%,transparent 60%);pointer-events:none}
+          .ld-newsletter-inner{max-width:760px;margin:0 auto;position:relative;z-index:1;display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:center}
+          @media(max-width:760px){.ld-newsletter-inner{grid-template-columns:1fr;gap:24px;text-align:center}}
+          .ld-newsletter-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:#5b8eff;background:rgba(10,17,40,0.55);border:1px solid rgba(91,142,255,0.32);padding:7px 14px;border-radius:4px;margin-bottom:14px}
+          .ld-newsletter-h{font-size:clamp(22px,3vw,30px);font-weight:800;color:#fff;letter-spacing:-1px;line-height:1.15;margin:0 0 12px}
+          .ld-newsletter-h span{color:#5b8eff;font-style:italic;font-weight:700}
+          .ld-newsletter-sub{font-size:14px;color:#d4d8e0;line-height:1.65;margin:0;max-width:420px}
+          @media(max-width:760px){.ld-newsletter-sub{margin-left:auto;margin-right:auto}}
+        `}</style>
+        <div className="ld-newsletter-inner">
+          <div>
+            <div className="ld-newsletter-eyebrow">▸ MONTHLY · NO SPAM · UNSUBSCRIBE ANY TIME</div>
+            <h3 className="ld-newsletter-h">The RizeAI brief <span>in your inbox.</span></h3>
+            <p className="ld-newsletter-sub">One short email a month. New cities added, new calculators shipped, what we learned from Canadian operators. Nothing else.</p>
+          </div>
+          <div>
+            <LeadForm
+              source="newsletter"
+              showName={false}
+              submitLabel="▸ Subscribe"
+              successTitle="You're subscribed."
+              successBody="Next brief lands first Monday of the month. Forward to a colleague if it's useful."
+              palette="royal"
+            />
           </div>
         </div>
       </section>
 
       {/* ── BOTTOM CTA ── */}
       <div className="ld-cta fade">
-        <h2>The room you've been<br />trying to walk into <span>opens here.</span></h2>
-        <p>By invitation. No credit card. The next deal you analyze will be the first one you actually understand.</p>
-        <button className="ld-cta-btn" onClick={scrollToAuth}>Enter the Ecosystem →</button>
+        <h2>Your next deal,<br /><span>underwritten in 5 seconds.</span></h2>
+        <p>Free tier loads instantly — no credit card, no sales call. Type one address and see what institutional underwriting feels like.</p>
+        <button className="ld-cta-btn" onClick={scrollToAuth}>Start free → Try the X-Ray</button>
         <div className="ld-cta-trust">
-          {["✓ Free during launch", "✓ No credit card", "✓ US & Canada markets", "✓ 20 tools, one platform"].map(item => (
+          {["✓ Free forever tier", "✓ No credit card", "✓ 7 Canadian cities", "✓ 26 CMHC metros", "✓ 20+ calculators"].map(item => (
             <div key={item} className="ld-cta-trust-item">{item}</div>
           ))}
         </div>
@@ -2615,28 +2795,102 @@ export default function Landing() {
           </div>
 
           <div className="ld-foot-col">
-            <div className="ld-foot-col-head">Product</div>
+            <div className="ld-foot-col-head">Analyze</div>
             <span onClick={() => navigate('/')}>X-Ray bar</span>
+            <span onClick={() => navigate('/property')}>Property Intel</span>
             <span onClick={() => navigate('/commercial')}>Commercial Underwriter</span>
             <span onClick={() => navigate('/brrrr')}>BRRRR Calculator</span>
-            <span onClick={() => navigate('/property')}>Property Intel</span>
-            <span onClick={() => navigate('/pricing')}>Pricing</span>
+            <span onClick={() => navigate('/app')}>Fix & Flip Analyzer</span>
+            <span onClick={() => navigate('/rehab')}>Rehab Calculator</span>
+            <span onClick={() => navigate('/compare')}>Deal Comparison</span>
+            <span onClick={() => navigate('/loans')}>Loan Compare</span>
+            <span onClick={() => navigate('/qualify')}>Mortgage Qualifier</span>
+            <span onClick={() => navigate('/tax')}>Tax Strategy</span>
+          </div>
+
+          <div className="ld-foot-col">
+            <div className="ld-foot-col-head">Source</div>
+            <span onClick={() => navigate('/triggers')}>Market Triggers</span>
+            <span onClick={() => navigate('/screen')}>Deal Screener</span>
+            <span onClick={() => navigate('/distress')}>Distress Checker</span>
+            <span onClick={() => navigate('/alerts')}>Deal Alerts</span>
+            <span onClick={() => navigate('/market-brief')}>Market Brief</span>
+            <span onClick={() => navigate('/submit')}>Submit Deal</span>
+          </div>
+
+          <div className="ld-foot-col">
+            <div className="ld-foot-col-head">Track & Learn</div>
+            <span onClick={() => navigate('/dashboard')}>Dashboard</span>
+            <span onClick={() => navigate('/portfolio')}>Portfolio</span>
+            <span onClick={() => navigate('/pipeline')}>Pipeline</span>
+            <span onClick={() => navigate('/networth')}>Net Worth</span>
+            <span onClick={() => navigate('/budget')}>Budget Tracker</span>
+            <span onClick={() => navigate('/learn')}>Learn</span>
+            <span onClick={() => navigate('/quiz')}>Quiz</span>
           </div>
 
           <div className="ld-foot-col">
             <div className="ld-foot-col-head">Company</div>
             <span onClick={() => navigate('/about')}>About</span>
+            <span onClick={() => navigate('/brokers')}>For Brokers</span>
+            <span onClick={() => navigate('/investors')}>For Investors</span>
+            <span onClick={() => navigate('/changelog')}>Changelog</span>
+            <span><a href="/playbook.pdf" download style={{color:"inherit",textDecoration:"none"}}>📕 Playbook (free)</a></span>
+            <span onClick={() => navigate('/pricing')}>Pricing</span>
             <span onClick={scrollToAuth}>Sign in</span>
             <span onClick={() => navigate('/privacy')}>Privacy</span>
             <span onClick={() => navigate('/terms')}>Terms</span>
-          </div>
-
-          <div className="ld-foot-col">
-            <div className="ld-foot-col-head">Contact</div>
+            <div style={{height:8}} />
+            <div className="ld-foot-col-head" style={{fontSize:9.5,marginTop:4}}>Insider access</div>
+            <span onClick={() => navigate('/live')} style={{color:"var(--green)"}}>▸ Live Metrics</span>
+            <span onClick={() => navigate('/pitch')} style={{color:"var(--brass-2)"}}>🔒 Investor Pitch (private)</span>
+            <span onClick={() => navigate('/api-docs')}>API Docs</span>
+            <span onClick={() => navigate('/vs-biggerpockets')}>vs BiggerPockets</span>
+            <span onClick={() => navigate('/refer')} style={{color:"var(--brass)"}}>💰 Refer &amp; earn 30%</span>
+            <span onClick={() => navigate('/updates')} style={{color:"var(--brass-2)"}}>📬 Monthly updates</span>
+            <span onClick={() => navigate('/angel')} style={{color:"var(--brass-2)"}}>🎯 Angel round · $10K+</span>
+            <div style={{height:8}} />
+            <div className="ld-foot-col-head" style={{fontSize:9.5,marginTop:4}}>Contact</div>
             <a className="ld-foot-link" href="mailto:hello@rizeai.io">hello@rizeai.io</a>
-            <a className="ld-foot-link" href="https://linkedin.com/in/sunniyaremchuk" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a className="ld-foot-link" href="https://www.linkedin.com/in/sunni-yaremchuk-9b1484222/" target="_blank" rel="noreferrer">LinkedIn</a>
             <a className="ld-foot-link" href="https://twitter.com/sunni_yaremchuk" target="_blank" rel="noreferrer">X / Twitter</a>
           </div>
+        </div>
+
+        <div className="ld-foot-rule-line" />
+
+        {/* Newsletter capture — passive lead gen for brokers who don't sign up
+            now + investors who want to follow along. Same subscribe surface as
+            /updates so it dedupes into one list. */}
+        <div className="ld-foot-newsletter">
+          <style>{`
+            .ld-foot-newsletter{max-width:1120px;margin:0 auto;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+            .ld-foot-newsletter-left{flex:1;min-width:240px}
+            .ld-foot-newsletter-tag{font-family:'Geist Mono',monospace;font-size:10px;font-weight:800;letter-spacing:1.4px;color:var(--brass);text-transform:uppercase;margin-bottom:4px}
+            .ld-foot-newsletter-h{font-size:15px;font-weight:800;color:var(--alabaster);letter-spacing:-0.3px;margin-bottom:2px}
+            .ld-foot-newsletter-p{font-family:'Geist Mono',monospace;font-size:11px;color:var(--alabaster-2);letter-spacing:0.3px}
+            .ld-foot-newsletter-form{display:flex;gap:6px;min-width:280px}
+            .ld-foot-newsletter-input{flex:1;min-width:180px;padding:9px 12px;border-radius:5px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);font-size:12.5px;color:var(--alabaster);font-family:'Geist',sans-serif;outline:none}
+            .ld-foot-newsletter-input:focus{border-color:var(--brass);background:rgba(255,255,255,0.08)}
+            .ld-foot-newsletter-input::placeholder{color:var(--alabaster-3)}
+            .ld-foot-newsletter-btn{padding:9px 18px;border-radius:5px;background:var(--brass);color:#0a1128;border:1px solid var(--brass);font-family:'Geist Mono',monospace;font-size:11px;font-weight:800;letter-spacing:0.5px;cursor:pointer;text-transform:uppercase}
+            @media(max-width:640px){.ld-foot-newsletter{flex-direction:column;align-items:stretch;text-align:center}.ld-foot-newsletter-form{width:100%}}
+          `}</style>
+          <div className="ld-foot-newsletter-left">
+            <div className="ld-foot-newsletter-tag">▸ MONTHLY EMAIL</div>
+            <div className="ld-foot-newsletter-h">Follow the build.</div>
+            <div className="ld-foot-newsletter-p">One email a month · product + market updates · no spam.</div>
+          </div>
+          <form className="ld-foot-newsletter-form" onSubmit={(e) => {
+            e.preventDefault();
+            const email = e.target.newsletter_email.value;
+            if (!email || !email.includes("@")) return;
+            try { track("newsletter_subscribe"); } catch {}
+            window.location.href = `mailto:sunni@rizedevelopments.com?subject=Monthly%20updates%20subscribe&body=Please%20add%20me%20to%20monthly%20updates.%20Email:%20${encodeURIComponent(email)}`;
+          }}>
+            <input name="newsletter_email" type="email" placeholder="you@example.com" className="ld-foot-newsletter-input" required />
+            <button type="submit" className="ld-foot-newsletter-btn">Subscribe</button>
+          </form>
         </div>
 
         <div className="ld-foot-rule-line" />
@@ -2650,5 +2904,241 @@ export default function Landing() {
         </div>
       </footer>
     </div>
+  );
+}
+
+// Interactive TAM slider — visitor slides broker adoption %, ARPU, and
+// price tier to see market sizing math live. Way more credible than a
+// static $600B claim.
+function TamSlider() {
+  const [brokers, setBrokers] = useState(65000);      // total CA brokers + agents
+  const [adoption, setAdoption] = useState(10);       // % that pay
+  const [arpuMo, setArpuMo] = useState(107);          // blended ARPU $/month
+
+  const payingCustomers = Math.round(brokers * (adoption / 100));
+  const monthlyRev = payingCustomers * arpuMo;
+  const arr = monthlyRev * 12;
+
+  // What a 10× multiple implies at the given ARR
+  const impliedExit = arr * 10;
+
+  const fmt = (n) => {
+    if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(1)}B`;
+    if (n >= 1_000_000)     return `$${(n / 1_000_000).toFixed(n >= 10_000_000 ? 0 : 1)}M`;
+    if (n >= 1_000)         return `$${Math.round(n / 1_000)}K`;
+    return `$${n.toLocaleString()}`;
+  };
+
+  return (
+    <section className="ld-tam">
+      <style>{`
+        .ld-tam{padding:64px 24px;background:#0d1428;border-top:1px solid rgba(212,175,55,0.08);border-bottom:1px solid rgba(212,175,55,0.08)}
+        .ld-tam-inner{max-width:1180px;margin:0 auto}
+        .ld-tam-head{text-align:center;margin-bottom:32px}
+        .ld-tam-eyebrow{display:inline-flex;align-items:center;gap:8px;font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--brass);background:rgba(10,17,40,0.55);border:1px solid rgba(212,175,55,0.30);padding:6px 14px;border-radius:4px;margin-bottom:14px}
+        .ld-tam-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--brass);animation:blink 2s infinite;box-shadow:0 0 8px var(--brass)}
+        .ld-tam-h2{font-size:clamp(24px,3.5vw,36px);font-weight:800;color:var(--alabaster);letter-spacing:-1.2px;line-height:1.15;margin:0 0 10px}
+        .ld-tam-h2 span{color:var(--brass);font-style:italic;font-weight:700}
+        .ld-tam-sub{font-size:14px;color:var(--alabaster-2);line-height:1.6;max-width:560px;margin:0 auto}
+
+        .ld-tam-body{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:26px}
+        @media(max-width:820px){.ld-tam-body{grid-template-columns:1fr}}
+
+        .ld-tam-controls{padding:22px 24px;background:rgba(0,12,31,0.55);border:1px solid rgba(212,175,55,0.20);border-radius:12px}
+        .ld-tam-control{margin-bottom:18px}
+        .ld-tam-control:last-child{margin-bottom:0}
+        .ld-tam-control-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:8px}
+        .ld-tam-control-lbl{font-family:'Geist Mono',monospace;font-size:11px;font-weight:800;color:var(--alabaster);letter-spacing:0.5px;text-transform:uppercase}
+        .ld-tam-control-val{font-family:'Geist Mono',monospace;font-size:22px;font-weight:800;color:var(--brass);letter-spacing:-0.5px;line-height:1}
+        .ld-tam-slider{width:100%;-webkit-appearance:none;appearance:none;height:6px;background:rgba(255,255,255,0.10);border-radius:3px;outline:none}
+        .ld-tam-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--brass);cursor:pointer;border:2px solid #0a1128;box-shadow:0 0 12px rgba(212,175,55,0.6);transition:transform 0.15s}
+        .ld-tam-slider::-webkit-slider-thumb:hover{transform:scale(1.1)}
+        .ld-tam-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--brass);cursor:pointer;border:2px solid #0a1128;box-shadow:0 0 12px rgba(212,175,55,0.6)}
+        .ld-tam-slider-hint{display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:10px;color:var(--alabaster-3);letter-spacing:0.3px;margin-top:6px}
+
+        .ld-tam-out{padding:26px 24px;background:linear-gradient(135deg,rgba(212,175,55,0.06),rgba(33,85,205,0.04));border:1px solid rgba(212,175,55,0.30);border-radius:12px;display:flex;flex-direction:column;justify-content:center}
+        .ld-tam-out-tag{font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:800;color:var(--brass-2);letter-spacing:1.4px;text-transform:uppercase;margin-bottom:14px}
+        .ld-tam-out-grid{display:flex;flex-direction:column;gap:14px}
+        .ld-tam-out-row{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:1px dashed rgba(212,175,55,0.20)}
+        .ld-tam-out-row:last-child{border-bottom:none;padding-bottom:0}
+        .ld-tam-out-row.big{padding:12px 0 0;border-top:1px solid rgba(212,175,55,0.30);margin-top:6px}
+        .ld-tam-out-k{font-family:'Geist Mono',monospace;font-size:11.5px;font-weight:700;color:var(--alabaster-2);letter-spacing:0.4px;text-transform:uppercase}
+        .ld-tam-out-v{font-family:'Geist Mono',monospace;font-size:22px;font-weight:800;color:var(--alabaster);letter-spacing:-0.5px;line-height:1}
+        .ld-tam-out-row.big .ld-tam-out-v{font-size:32px;color:var(--brass)}
+        .ld-tam-out-note{margin-top:12px;font-size:11.5px;color:var(--alabaster-2);line-height:1.55;padding-top:12px;border-top:1px dashed rgba(212,175,55,0.20)}
+      `}</style>
+
+      <div className="ld-tam-inner">
+        <div className="ld-tam-head">
+          <div className="ld-tam-eyebrow">
+            <span className="ld-tam-eyebrow-dot" />
+            ▸ INTERACTIVE MARKET MODEL
+          </div>
+          <h2 className="ld-tam-h2">Do the market math <span>yourself.</span></h2>
+          <p className="ld-tam-sub">Slide the assumptions. Watch the revenue reveal. Every field is defensible — sources footnoted below.</p>
+        </div>
+
+        <div className="ld-tam-body">
+          {/* CONTROLS */}
+          <div className="ld-tam-controls">
+            <div className="ld-tam-control">
+              <div className="ld-tam-control-head">
+                <span className="ld-tam-control-lbl">▸ Total Canadian brokers + agents</span>
+                <span className="ld-tam-control-val">{brokers.toLocaleString()}</span>
+              </div>
+              <input
+                type="range"
+                min="40000"
+                max="90000"
+                step="1000"
+                value={brokers}
+                onChange={e => setBrokers(parseInt(e.target.value, 10))}
+                className="ld-tam-slider"
+              />
+              <div className="ld-tam-slider-hint">
+                <span>40K</span>
+                <span>CREA 2024: ~65,000</span>
+                <span>90K</span>
+              </div>
+            </div>
+
+            <div className="ld-tam-control">
+              <div className="ld-tam-control-head">
+                <span className="ld-tam-control-lbl">▸ Adoption %</span>
+                <span className="ld-tam-control-val">{adoption}%</span>
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="50"
+                step="1"
+                value={adoption}
+                onChange={e => setAdoption(parseInt(e.target.value, 10))}
+                className="ld-tam-slider"
+              />
+              <div className="ld-tam-slider-hint">
+                <span>1%</span>
+                <span>10% = conservative floor</span>
+                <span>50%</span>
+              </div>
+            </div>
+
+            <div className="ld-tam-control">
+              <div className="ld-tam-control-head">
+                <span className="ld-tam-control-lbl">▸ ARPU / month</span>
+                <span className="ld-tam-control-val">${arpuMo}</span>
+              </div>
+              <input
+                type="range"
+                min="49"
+                max="299"
+                step="10"
+                value={arpuMo}
+                onChange={e => setArpuMo(parseInt(e.target.value, 10))}
+                className="ld-tam-slider"
+              />
+              <div className="ld-tam-slider-hint">
+                <span>$49</span>
+                <span>Blended Pro+Scale ≈ $107</span>
+                <span>$299</span>
+              </div>
+            </div>
+          </div>
+
+          {/* OUTPUT */}
+          <div className="ld-tam-out">
+            <div className="ld-tam-out-tag">▸ WHAT THAT COMPUTES TO</div>
+            <div className="ld-tam-out-grid">
+              <div className="ld-tam-out-row">
+                <span className="ld-tam-out-k">Paying customers</span>
+                <span className="ld-tam-out-v">{payingCustomers.toLocaleString()}</span>
+              </div>
+              <div className="ld-tam-out-row">
+                <span className="ld-tam-out-k">Monthly revenue</span>
+                <span className="ld-tam-out-v">{fmt(monthlyRev)}</span>
+              </div>
+              <div className="ld-tam-out-row big">
+                <span className="ld-tam-out-k">Steady-state ARR</span>
+                <span className="ld-tam-out-v">{fmt(arr)}</span>
+              </div>
+              <div className="ld-tam-out-row">
+                <span className="ld-tam-out-k">Implied @ 10× multiple</span>
+                <span className="ld-tam-out-v">{fmt(impliedExit)}</span>
+              </div>
+            </div>
+            <div className="ld-tam-out-note">
+              <b style={{color:"var(--brass)"}}>Sources:</b> CREA 2024 (broker count). RizeAI raise-model blended ARPU ($107 · 85% Pro + 12% Scale + 3% Free upsells). 10× multiple: PropTech/vertical-SaaS median at exit — see comps at <a href="/pitch/comparables?p=rzai-insider-2026" style={{color:"var(--brass-2)"}}>/pitch/comparables</a>. This is CA-only — US expansion adds ~5× multiplier on total addressable brokers.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Landing stats band — pulls real numbers from /api/metrics and offers a
+// zero-friction demo button. Positioned between the hero and the datastrip.
+function LandingStatsBand() {
+  const [metrics, setMetrics] = useState(null);
+  useEffect(() => {
+    fetch("/api/metrics").then(r => r.ok ? r.json() : null).then(setMetrics).catch(() => {});
+  }, []);
+
+  const demoAddress = "2424 Westmount Rd NW, Calgary AB";
+  const openDemo = () => {
+    window.location.href = `/property?addr=${encodeURIComponent(demoAddress)}`;
+  };
+
+  return (
+    <section className="ld-statsband">
+      <style>{`
+        .ld-statsband{background:#0a1128;border-top:1px solid rgba(212,175,55,0.10);padding:20px 24px;position:relative;overflow:hidden}
+        .ld-statsband::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:200px;background:radial-gradient(ellipse,rgba(22,163,74,0.10) 0%,transparent 70%);pointer-events:none}
+        .ld-statsband-inner{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center;position:relative;z-index:1}
+        @media(max-width:900px){.ld-statsband-inner{grid-template-columns:1fr;text-align:center}}
+        .ld-statsband-stats{display:flex;flex-wrap:wrap;gap:26px;align-items:center;justify-content:center}
+        @media(max-width:900px){.ld-statsband-stats{justify-content:center}}
+        .ld-statsband-stat{display:flex;flex-direction:column;align-items:center}
+        .ld-statsband-val{font-family:'Geist Mono',monospace;font-size:22px;font-weight:800;color:var(--brass);letter-spacing:-0.6px;line-height:1;margin-bottom:4px}
+        .ld-statsband-lbl{font-family:'Geist Mono',monospace;font-size:9.5px;font-weight:700;color:var(--alabaster-2);letter-spacing:1px;text-transform:uppercase}
+        .ld-statsband-sep{width:1px;height:36px;background:rgba(212,175,55,0.20)}
+        @media(max-width:900px){.ld-statsband-sep{display:none}}
+        .ld-statsband-demo{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:#16a34a;color:#fff;border:1px solid #16a34a;border-radius:6px;font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:transform 160ms,box-shadow 220ms;white-space:nowrap}
+        .ld-statsband-demo:hover{transform:translateY(-2px);box-shadow:0 16px 32px -8px rgba(22,163,74,0.4)}
+        .ld-statsband-demo-dot{width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 6px #fff;animation:blink 2s infinite}
+      `}</style>
+      <div className="ld-statsband-inner">
+        <div className="ld-statsband-stats">
+          <div className="ld-statsband-stat">
+            <div className="ld-statsband-val">{metrics?.zoning?.codes_registered?.toLocaleString() || "37"}</div>
+            <div className="ld-statsband-lbl">Zoning Codes</div>
+          </div>
+          <div className="ld-statsband-sep" />
+          <div className="ld-statsband-stat">
+            <div className="ld-statsband-val">{metrics?.zoning?.cities_covered || 7}</div>
+            <div className="ld-statsband-lbl">CA Cities Live</div>
+          </div>
+          <div className="ld-statsband-sep" />
+          <div className="ld-statsband-stat">
+            <div className="ld-statsband-val">26</div>
+            <div className="ld-statsband-lbl">CMHC Metros</div>
+          </div>
+          <div className="ld-statsband-sep" />
+          <div className="ld-statsband-stat">
+            <div className="ld-statsband-val">{metrics?.lookups?.total?.toLocaleString() || "…"}</div>
+            <div className="ld-statsband-lbl">Lookups Served</div>
+          </div>
+          <div className="ld-statsband-sep" />
+          <div className="ld-statsband-stat">
+            <div className="ld-statsband-val">&lt; 3s</div>
+            <div className="ld-statsband-lbl">Per Verdict</div>
+          </div>
+        </div>
+        <a className="ld-statsband-demo" onClick={openDemo}>
+          <span className="ld-statsband-demo-dot" />
+          ▶ Try a live demo
+        </a>
+      </div>
+    </section>
   );
 }

@@ -49,7 +49,7 @@ const STEPS = [
   {
     target: '[data-tour="deal-coach-cue"]',
     title:  "You're done.",
-    body:   "On any calculator, look bottom-right for the Deal Coach button — an AI chat that knows your numbers. Swap between Banker, Skeptic, and Mentor personas for different reads on every deal.",
+    body:   "On any calculator, look bottom-right for the Ask Buddy button — an AI chat that knows your numbers. Swap between Banker, Skeptic, and Mentor personas for different reads on every deal.",
   },
 ];
 

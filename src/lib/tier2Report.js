@@ -8,8 +8,10 @@
  *
  * Build with: generateTier2Report({ deal, calc, monteCarloResults })
  * Returns a jsPDF instance; caller calls .save("realdeal-ic-report.pdf").
+ *
+ * jsPDF is dynamically imported inside generateTier2Report so this 370KB
+ * library is only fetched when a user actually exports the IC report.
  */
-import { jsPDF } from "jspdf";
 
 const C = {
   bg:    "#ffffff",
@@ -37,7 +39,8 @@ const fmtPct = n => n == null || isNaN(n) ? "—" : `${(n*100).toFixed(1)}%`;
 const fmtX   = n => n == null || isNaN(n) ? "—" : `${n.toFixed(2)}x`;
 
 // Build the PDF — accepts { deal, calc, monteCarloResults, presetName }
-export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = null, presetName = "BASE", priors = {}, comps = [], memo = null }) {
+export async function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = null, presetName = "BASE", priors = {}, comps = [], memo = null }) {
+  const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
@@ -60,7 +63,7 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   }
   function pageFooter() {
     doc.setFont("helvetica", "normal").setFontSize(8).setTextColor(C.dim);
-    doc.text(`Generated ${today} · rizeai.co · Confidential — do not distribute without authorisation`, W/2, H - 24, { align: "center" });
+    doc.text(`Generated ${today} · realdealestate.app · Confidential — do not distribute without authorisation`, W/2, H - 24, { align: "center" });
   }
   // Subtle terminal-style grid in background
   function pageGrid() {
@@ -121,7 +124,7 @@ export function generateTier2Report({ deal = {}, calc = {}, monteCarloResults = 
   // Cover footer — date + URL + report ID
   doc.setFont("helvetica", "normal").setFontSize(10).setTextColor(C.dim);
   doc.text(`Generated ${today}`, M, H - 80);
-  doc.text(`rizeai.co`, M, H - 64);
+  doc.text(`realdealestate.app`, M, H - 64);
   const reportId = `RD-${today.replace(/-/g, "")}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
   doc.text(`Report ID · ${reportId}`, W - M, H - 80, { align: "right" });
   doc.text(`CONFIDENTIAL — do not distribute without authorisation`, W - M, H - 64, { align: "right" });

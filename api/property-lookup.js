@@ -23,6 +23,9 @@ import { geocode } from "./_lib/geocode.js";
 import { lookupCMHC, CMHC_DATA_SOURCE } from "./_lib/cmhc-data.js";
 import { predictRent } from "./_lib/rent-model.js";
 import { estimateYearBuilt } from "./_lib/yearBuiltEstimator.js";
+import { getNeighborhoodProfile } from "./_lib/enrich/wikipedia.js";
+import { getNearbyAmenities } from "./_lib/enrich/overpass.js";
+import { getBankOfCanadaRates } from "./_lib/enrich/bocRates.js";
 
 // Canadian-address heuristic. Province code anywhere in the string, OR
 // a Canadian postal code anywhere.
@@ -115,23 +118,43 @@ async function lookupCanadian({ address, res }) {
   const assess  = assessR.status === "fulfilled" ? assessR.value : null;
   const zoning  = zoningR.status === "fulfilled" ? zoningR.value : null;
 
-  // ── AI year-built estimator ──
-  // Fires only when city open-data left yearBuilt null AND we have enough
-  // context (zoning + assessed value + an address) for a defensible guess.
-  // Today this is the rule rather than the exception for Edmonton + Ontario
-  // cities (MPAC) — those datasets don't publish year_of_construction.
-  let yearBuiltEst = null;
-  if (!assess?.yearBuilt && (zoning?.found || assess?.assessedValue)) {
-    yearBuiltEst = await estimateYearBuilt({
-      address,
-      neighbourhood: assess?.neighbourhood || assess?.raw?.NEIGHBOURHOOD || null,
-      zoning:        zoning?.zone || null,
-      assessedValue: assess?.assessedValue || null,
-      sqft:          assess?.squareFootage || null,
-      propertyType:  assess?.buildingClass || null,
-      taxClass:      assess?.taxClass || null,
-    });
-  }
+  // ── Second-stage enrichments (depend on assess/zoning results) ──
+  // AI year-built estimator: fires when city open-data left yearBuilt null AND
+  // we have enough context. Today this is the rule for Edmonton + Ontario MPAC.
+  // Wikipedia neighborhood profile: adds public context on the surrounding
+  // community (population, history, boundaries) when we have a name from EITHER
+  // the city assessment (Edmonton, Vancouver) OR the OSM reverse-geocode
+  // (Calgary, Toronto, Hamilton, Mississauga, Ottawa — city datasets don't
+  // publish a neighborhood field so OSM is the fallback).
+  const neighbourhoodName = assess?.neighbourhood
+    || assess?.raw?.NEIGHBOURHOOD
+    || geo.neighbourhood
+    || null;
+  const cityForWiki = geo.citySlug ? geo.citySlug.charAt(0).toUpperCase() + geo.citySlug.slice(1) : null;
+
+  const [yearBuiltR, wikiR, amenitiesR, ratesR] = await Promise.allSettled([
+    !assess?.yearBuilt && (zoning?.found || assess?.assessedValue)
+      ? estimateYearBuilt({
+          address,
+          neighbourhood: neighbourhoodName,
+          zoning:        zoning?.zone || null,
+          assessedValue: assess?.assessedValue || null,
+          sqft:          assess?.squareFootage || null,
+          propertyType:  assess?.buildingClass || null,
+          taxClass:      assess?.taxClass || null,
+        })
+      : Promise.resolve(null),
+    neighbourhoodName && cityForWiki
+      ? getNeighborhoodProfile(neighbourhoodName, cityForWiki)
+      : Promise.resolve(null),
+    getNearbyAmenities({ lat: geo.lat, lng: geo.lng }),
+    getBankOfCanadaRates(),
+  ]);
+
+  const yearBuiltEst         = yearBuiltR.status === "fulfilled" ? yearBuiltR.value : null;
+  const neighbourhoodProfile = wikiR.status      === "fulfilled" ? wikiR.value      : null;
+  const nearbyAmenities      = amenitiesR.status === "fulfilled" ? amenitiesR.value : null;
+  const rates                = ratesR.status     === "fulfilled" ? ratesR.value     : null;
 
   const attribution = [];
   if (assess)              attribution.push(`${geo.citySlug} open data`);
@@ -139,6 +162,9 @@ async function lookupCanadian({ address, res }) {
   if (cmhc?.dataYear)      attribution.push(`CMHC ${cmhc.dataYear}`);
   if (rent?.ok)            attribution.push("Predict-rent (CMHC-anchored)");
   if (yearBuiltEst?.estimatedYear) attribution.push(`AI year-built estimator (${yearBuiltEst.source})`);
+  if (neighbourhoodProfile) attribution.push("Wikipedia neighborhood profile");
+  if (nearbyAmenities)      attribution.push("OpenStreetMap amenities");
+  if (rates?.prime?.rate)   attribution.push("Bank of Canada rates");
 
   // Calgary's lot size is sqm — convert to sqft for the unified shape.
   const sqmToSqft = sm => (sm == null ? null : Math.round(sm * 10.7639));
@@ -197,6 +223,11 @@ async function lookupCanadian({ address, res }) {
       vacancyRate: cmhc.vacancyRate,
       avgRents:    cmhc.avgRents,
     } : null,
+
+    neighbourhood: neighbourhoodName || null,
+    neighbourhoodProfile: neighbourhoodProfile || null,
+    nearbyAmenities: nearbyAmenities || null,
+    rates: rates || null,
 
     geocode: { lat: geo.lat, lng: geo.lng, citySlug: geo.citySlug, province: geo.province },
     attribution,

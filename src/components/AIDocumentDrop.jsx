@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 
 /**
  * AIDocumentDrop — drop a PDF (listing sheet, rent roll, lease, MLS export,
- * appraisal, BPO, assessment notice) and Claude Sonnet 4.6 reads it back as
+ * appraisal, BPO, assessment notice) and our AI reads it back as
  * structured deal data ready to apply to the calculator.
  *
  * Props:
@@ -36,7 +36,7 @@ const fmtVal = (kind, v) => {
 };
 
 // Concurrency cap for parallel parse calls. Each parse-document call is
-// heavy (~10-30 sec Claude vision pass); 2 in flight is a safe ceiling
+// heavy (~10-30 sec AI vision pass); 2 in flight is a safe ceiling
 // before we'd risk hitting Anthropic rate limits on small org accounts.
 const PARSE_CONCURRENCY = 2;
 const MAX_QUEUE = 8;
@@ -301,7 +301,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
           fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 600,
           color: "var(--dim)", letterSpacing: "0.6px",
         }}>
-          · CLAUDE SONNET 4.6 · {target.toUpperCase()} · MULTI-FILE
+          · AI THESIS · {target.toUpperCase()} · MULTI-FILE
         </div>
         {files.length > 0 && (
           <div style={{
@@ -449,7 +449,7 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
                   {(row.size / 1024).toFixed(0)} KB · {
                     row.stage === "queued"     ? "QUEUED"            :
                     row.stage === "uploading"  ? "READING…"          :
-                    row.stage === "parsing"    ? "CLAUDE EXTRACTING…":
+                    row.stage === "parsing"    ? "AI EXTRACTING…":
                     row.stage === "done"       ? `${fieldsWithData.length} FIELDS${hasRentRoll ? " · RENT ROLL" : ""}` :
                     row.stage === "error"      ? "FAILED"            : ""
                   }

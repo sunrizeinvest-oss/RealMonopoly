@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
+import MetricTip from "./components/MetricTip";
+import QuickAutoFillWidget from "./components/QuickAutoFillWidget";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const num = (v) => parseFloat(v) || 0;
@@ -329,17 +331,42 @@ export default function TaxCalculator() {
 
   const set = (k) => (val) => setV((p) => ({ ...p, [k]: val }));
 
-  // Prefill from localStorage
+  // Prefill from localStorage OR URL params. PropertyHub writes the prefill
+  // key as `estimatedValue` (not `purchasePrice`) — read both for back-compat.
   useEffect(() => {
+    // Priority 0: Strategy Verdicts handoff — /property "Tools" chip → /tax
     try {
+      const raw = sessionStorage.getItem("rde_strategy_prefill");
+      if (raw) {
+        const pf = JSON.parse(raw);
+        const isFresh = pf.ts && Date.now() - pf.ts < 5 * 60 * 1000;
+        if (isFresh && pf.strategy === "tax") {
+          sessionStorage.removeItem("rde_strategy_prefill");
+          setV((prev) => ({
+            ...prev,
+            ...(pf.purchasePrice && { purchasePrice: Number(pf.purchasePrice) }),
+            ...(pf.monthlyRent   && { monthlyRent:   Number(pf.monthlyRent) }),
+            ...(pf.propertyType  && { propertyType:  pf.propertyType === "commercial" ? "commercial" : "residential" }),
+          }));
+          return; // authoritative
+        }
+      }
+    } catch {}
+
+    try {
+      const url = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
       const raw = localStorage.getItem("rde_prefill");
-      if (!raw) return;
-      const pf = JSON.parse(raw);
-      if (Date.now() - pf.timestamp > 5 * 60 * 1000) return;
+      const pf = raw ? JSON.parse(raw) : {};
+      const fresh = pf.timestamp && (Date.now() - pf.timestamp <= 5 * 60 * 1000);
+
+      const price = (fresh && (pf.estimatedValue || pf.purchasePrice))
+        || (url.get("purchase") ? Number(url.get("purchase")) : null);
+      const ptype = (fresh && pf.propertyType) || url.get("type");
+
       setV((prev) => ({
         ...prev,
-        ...(pf.purchasePrice && { purchasePrice: pf.purchasePrice }),
-        ...(pf.propertyType && { propertyType: pf.propertyType === "commercial" ? "commercial" : "residential" }),
+        ...(price && { purchasePrice: price }),
+        ...(ptype && { propertyType: ptype === "commercial" ? "commercial" : "residential" }),
       }));
     } catch {}
   }, []);
@@ -400,6 +427,14 @@ export default function TaxCalculator() {
       </div>
 
       <div className="tc-body">
+        {/* Quick auto-fill from address — fills purchase price */}
+        <QuickAutoFillWidget
+          hint="Paste an address and we'll fill in the purchase price from public records."
+          computePatch={(d) => d.assessedValue && !num(v.purchasePrice) ? { purchasePrice: 1 } : {}}
+          onFill={(d) => {
+            if (d.assessedValue && !num(v.purchasePrice)) set("purchasePrice")(String(Math.round(d.assessedValue)));
+          }}
+        />
         {/* ── LEFT COLUMN: Inputs ── */}
         <div>
 
@@ -630,25 +665,25 @@ export default function TaxCalculator() {
               {/* Summary Cards */}
               <div className="tc-summary-grid">
                 <Metric
-                  label="Annual Depreciation"
+                  label={<>Annual Depreciation <MetricTip metric="cca" /></>}
                   value={fmt(c.annualDepreciation)}
                   sub={`${fmt(c.monthlyDepreciation)}/month · over ${c.schedule} years`}
                   color="blue"
                 />
                 <Metric
-                  label="Annual Tax Savings"
+                  label={<>Annual Tax Savings <MetricTip metric="paperLoss" /></>}
                   value={fmt(c.annualTaxSavings)}
                   sub={`Combined rate: ${(c.combinedRate * 100).toFixed(1)}%`}
                   color="green"
                 />
                 <Metric
-                  label="Monthly Tax Savings"
+                  label={<>Monthly Tax Savings <MetricTip metric="paperLoss" /></>}
                   value={fmt(c.monthlyTaxSavings)}
                   sub="Equivalent monthly benefit"
                   color="green"
                 />
                 <Metric
-                  label="10-Year Cumulative Savings"
+                  label={<>10-Year Cumulative Savings <MetricTip metric="ccaRecapture" /></>}
                   value={fmtShort(c.tenYearCumSavings)}
                   sub={`${fmt(c.annualTaxSavings)}/yr × 10 years`}
                   color="purple"

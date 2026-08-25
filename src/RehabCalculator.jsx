@@ -2,6 +2,9 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import AddressAutocomplete from "./AddressAutocomplete";
 import TopNav from "./components/TopNav";
+import MetricTip from "./components/MetricTip";
+import AddressAutoFillBanner from "./components/AddressAutoFillBanner";
+import { useAddressAutoFill } from "./lib/addressAutoFill";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const fmt = (n) =>
@@ -792,27 +795,70 @@ export default function RehabCalculator() {
   const [address, setAddress] = useState("");
   const [sqft, setSqft] = useState("");
   const [notes, setNotes] = useState("");
+
+  // Auto-fill from public records when address is typed
+  const rehabAutoLookup = useAddressAutoFill(address, { minLength: 8 });
+  const rehabAutoPatch = useMemo(() => {
+    const d = rehabAutoLookup.data;
+    if (!d) return {};
+    const p = {};
+    if (d.squareFootage && !sqft) p.sqft = String(d.squareFootage);
+    return p;
+  }, [rehabAutoLookup.data, sqft]);
+  const applyRehabPatch = () => {
+    if (rehabAutoPatch.sqft != null) setSqft(rehabAutoPatch.sqft);
+  };
   const [toast, setToast] = useState(false);
   const toastTimer = useRef(null);
 
   // Initialize items from categories
   const [items, setItems] = useState(() => buildInitialItems(""));
 
-  // Load from localStorage on mount
+  // Load from localStorage on mount — fall back to URL params if no prefill.
+  // URL params let PropertyHub deep-link us with ?addr=&sqft=&year= so a
+  // share link or back-button retains the full context, not just same-tab nav.
   useEffect(() => {
+    // Priority 0: Strategy Verdicts handoff — /property "Tools" chip → /rehab
     try {
+      const raw = sessionStorage.getItem("rde_strategy_prefill");
+      if (raw) {
+        const pf = JSON.parse(raw);
+        const isFresh = pf.ts && Date.now() - pf.ts < 5 * 60 * 1000;
+        if (isFresh && pf.strategy === "rehab") {
+          sessionStorage.removeItem("rde_strategy_prefill");
+          if (pf.address) setAddress(pf.address);
+          if (pf.sqft) {
+            const sf = Number(pf.sqft);
+            setSqft(String(sf));
+            setItems((prev) =>
+              prev.map((item) => {
+                const cat = CATEGORIES.find((c) => c.id === item.id);
+                if (cat && cat.qtyType === "sqft") return { ...item, qty: sf };
+                return item;
+              })
+            );
+          }
+          return; // authoritative — skip other prefill sources
+        }
+      }
+    } catch {}
+
+    try {
+      const url = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
       const raw = localStorage.getItem("rde_prefill");
-      if (!raw) return;
-      const pf = JSON.parse(raw);
-      if (pf.address) setAddress(pf.address);
-      if (pf.squareFootage) {
-        setSqft(String(pf.squareFootage));
-        // Pre-fill sqft qty for flooring items
+      const pf = raw ? JSON.parse(raw) : {};
+
+      const addr = pf.address      || url.get("addr") || "";
+      const sf   = pf.squareFootage || (url.get("sqft") ? Number(url.get("sqft")) : null);
+
+      if (addr) setAddress(addr);
+      if (sf) {
+        setSqft(String(sf));
         setItems((prev) =>
           prev.map((item) => {
             const cat = CATEGORIES.find((c) => c.id === item.id);
             if (cat && cat.qtyType === "sqft") {
-              return { ...item, qty: pf.squareFootage };
+              return { ...item, qty: sf };
             }
             return item;
           })
@@ -922,8 +968,100 @@ export default function RehabCalculator() {
     }, 900);
   };
 
-  const exportPDF = () => {
-    alert("PDF export coming soon");
+  const exportPDF = async () => {
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ unit: "pt", format: "letter" });
+      const W = doc.internal.pageSize.getWidth();
+      const left = 40, right = W - 40;
+      let y = 50;
+
+      // Header
+      doc.setFillColor(10, 17, 40);
+      doc.rect(0, 0, W, 28, "F");
+      doc.setTextColor(212, 175, 55);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.text("RIZE AI · REHAB BUDGET ESTIMATE", left, 18);
+      doc.setTextColor(255, 255, 255);
+      doc.text(new Date().toLocaleDateString("en-CA"), right, 18, { align: "right" });
+
+      y = 60;
+      doc.setTextColor(15, 23, 42);
+      doc.setFontSize(18);
+      doc.setFont("helvetica", "bold");
+      doc.text(address || "Rehab Budget", left, y);
+      y += 22;
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(71, 85, 105);
+      doc.text(`${sqft || "—"} sqft · ${items.filter(i => i.checked).length} line items selected`, left, y);
+      y += 26;
+
+      // Totals box
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(212, 175, 55);
+      doc.rect(left, y, right - left, 80, "FD");
+      doc.setFontSize(11);
+      doc.setTextColor(71, 85, 105);
+      doc.setFont("helvetica", "bold");
+      doc.text("BUDGET RANGE", left + 12, y + 18);
+      doc.setFontSize(20);
+      doc.setTextColor(22, 163, 74);
+      doc.text(`${fmt(totals.grandLow)} - ${fmt(totals.grandHigh)}`, left + 12, y + 44);
+      doc.setFontSize(10);
+      doc.setTextColor(71, 85, 105);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Midpoint: ${fmt(totals.midpoint)} · Includes 10-15% contingency`, left + 12, y + 64);
+      y += 100;
+
+      // Line items
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(15, 23, 42);
+      doc.text("LINE ITEMS", left, y);
+      y += 14;
+
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      items.filter(i => i.checked).forEach((item) => {
+        if (y > 740) { doc.addPage(); y = 50; }
+        const cat = CATEGORIES.find(c => c.id === item.id);
+        if (!cat) return;
+        const { low, high } = computeItem(cat, item, sqft);
+        doc.setTextColor(15, 23, 42);
+        doc.text(cat.name, left, y);
+        doc.setTextColor(71, 85, 105);
+        doc.text(`${fmt(low)} - ${fmt(high)}`, right, y, { align: "right" });
+        y += 14;
+      });
+
+      // Footer
+      y += 18;
+      doc.setDrawColor(226, 232, 240);
+      doc.line(left, y, right, y);
+      y += 16;
+      doc.setFontSize(8);
+      doc.setTextColor(148, 163, 184);
+      doc.text("Generated by RizeAI · www.realdealestate.app · Estimate only — verify with contractor quotes", left, y);
+      if (notes) {
+        y += 14;
+        doc.setTextColor(71, 85, 105);
+        doc.setFontSize(9);
+        doc.text("Notes:", left, y);
+        y += 12;
+        const noteLines = doc.splitTextToSize(notes, right - left);
+        doc.text(noteLines, left, y);
+      }
+
+      const safeAddr = (address || "rehab-budget").replace(/[^a-z0-9]+/gi, "-").slice(0, 48);
+      doc.save(`RizeAI-rehab-${safeAddr}.pdf`);
+    } catch (e) {
+      console.error("[rehab] PDF export failed:", e);
+      alert(`PDF export failed: ${e?.message || "unknown error"}. Try again or take a screenshot instead.`);
+    }
+    return;
   };
 
   const checkedCount = items.filter((i) => i.checked).length;
@@ -967,6 +1105,13 @@ export default function RehabCalculator() {
                 onChange={setAddress}
                 onSelect={(addr) => setAddress(addr)}
                 style={{ flex: 1 }}
+              />
+              <AddressAutoFillBanner
+                loading={rehabAutoLookup.loading}
+                data={rehabAutoLookup.data}
+                error={rehabAutoLookup.error}
+                patch={rehabAutoPatch}
+                onFill={applyRehabPatch}
               />
             </div>
             <div className="rc-propbar-field" style={{ flex: "0 1 180px", minWidth: 140 }}>
@@ -1288,7 +1433,7 @@ export default function RehabCalculator() {
 
         {/* Contingency */}
         <div className="rc-summary-col">
-          <div className="rc-summary-label">Contingency (10–15%)</div>
+          <div className="rc-summary-label">Contingency (10–15%) <MetricTip metric="contingency" /></div>
           <div className="rc-summary-value">
             {checkedCount > 0
               ? fmtRange(totals.contingencyLow, totals.contingencyHigh)
@@ -1300,7 +1445,7 @@ export default function RehabCalculator() {
 
         {/* Grand Total */}
         <div className="rc-summary-col">
-          <div className="rc-summary-label">Grand Total</div>
+          <div className="rc-summary-label">Grand Total <MetricTip metric="rehabPerSqft" /></div>
           <div className="rc-summary-value big">
             {checkedCount > 0
               ? fmtRange(totals.grandLow, totals.grandHigh)

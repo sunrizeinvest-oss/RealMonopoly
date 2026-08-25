@@ -315,7 +315,7 @@ export default function PropertyIntelCard({ address }) {
               fontFamily: "'Geist Mono',ui-monospace,monospace", fontSize: 9.5, fontWeight: 700,
               color: "var(--green, #34d98a)", letterSpacing: "0.7px", marginBottom: 4,
             }}>
-              AI THESIS HINT
+              BUDDY READ
               {zoningThesis.source && zoningThesis.source !== "template" && (
                 <span style={{ color: "var(--dim, #94a3b8)", fontWeight: 500, marginLeft: 6 }}>
                   · {zoningThesis.source}

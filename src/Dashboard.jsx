@@ -12,6 +12,7 @@ function typeLabel(type) {
   if (type === "flip") return { emoji: "🏚️", label: "Fix & Flip", color: "var(--blue)", bg: "rgba(59,158,255,0.1)" };
   if (type === "brrrr") return { emoji: "🔄", label: "BRRRR", color: "var(--purple)", bg: "rgba(167,130,255,0.1)" };
   if (type === "multifamily") return { emoji: "🏢", label: "Multifamily", color: "var(--green)", bg: "rgba(52,217,138,0.1)" };
+  if (type === "property") return { emoji: "🗺️", label: "Property + Verdicts", color: "var(--brass)", bg: "rgba(212,175,55,0.1)" };
   return { emoji: "🏠", label: "Deal", color: "var(--sub)", bg: "rgba(107,125,150,0.1)" };
 }
 
@@ -58,8 +59,41 @@ const CSS = `
 
   /* Deal cards */
   .db-deal-grid{display:flex;flex-direction:column;gap:10px}
-  .db-deal{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 20px;transition:all 0.15s;cursor:default}
+  .db-deal{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:18px 20px;transition:all 0.15s;cursor:default;position:relative}
   .db-deal:hover{border-color:rgba(59,158,255,0.35);box-shadow:0 6px 24px rgba(0,0,0,0.3)}
+  .db-deal-selected{border-color:var(--brass) !important;background:rgba(212,175,55,0.03);box-shadow:0 6px 24px rgba(212,175,55,0.15)}
+
+  /* Compare checkbox in the top-right of each deal card */
+  .db-select-check{
+    position:absolute;top:12px;right:14px;
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 8px;border-radius:5px;
+    background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.20);
+    font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;
+    color:var(--brass-2);cursor:pointer;user-select:none;
+  }
+  .db-select-check:hover{background:rgba(212,175,55,0.12);border-color:var(--brass)}
+  .db-select-check input{margin:0;accent-color:var(--brass);cursor:pointer}
+  .db-select-check input:disabled{cursor:not-allowed}
+
+  /* Floating "Compare" action bar */
+  .db-compare-bar{
+    position:sticky;top:12px;z-index:60;
+    display:flex;align-items:center;gap:14px;
+    padding:10px 16px;margin-bottom:14px;
+    background:linear-gradient(135deg,rgba(212,175,55,0.10),rgba(33,85,205,0.06));
+    border:1px solid var(--brass);border-radius:8px;
+    box-shadow:0 12px 28px -8px rgba(212,175,55,0.30);
+    animation:db-compare-in 220ms cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes db-compare-in{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+  .db-compare-count{font-family:'Geist Mono',monospace;font-size:12px;font-weight:800;color:var(--brass-2);letter-spacing:0.4px}
+  .db-compare-hint{font-size:12.5px;color:var(--sub);flex:1}
+  .db-compare-btn{padding:8px 18px;border-radius:6px;background:var(--brass);color:#0a1128;border:1px solid var(--brass);font-family:'Geist Mono',monospace;font-size:11.5px;font-weight:800;letter-spacing:0.6px;text-transform:uppercase;cursor:pointer}
+  .db-compare-btn:hover{background:var(--brass-2)}
+  .db-compare-btn:disabled{opacity:0.5;cursor:not-allowed}
+  .db-compare-clear{background:transparent;color:var(--sub);border:1px solid var(--borderf);padding:8px 12px;border-radius:5px;font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:700;cursor:pointer;text-transform:uppercase;letter-spacing:0.4px}
+  .db-compare-clear:hover{color:var(--text);border-color:var(--sub)}
   .db-deal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px;flex-wrap:wrap}
   .db-deal-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
   .db-type-pill{font-family:'Geist Mono',monospace;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:3px;letter-spacing:0.6px;text-transform:uppercase;border:1px solid currentColor}
@@ -116,10 +150,30 @@ export default function Dashboard() {
   const [localDeals, setLocalDeals] = useState([]);
   const [dealsLoading, setDealsLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+
+  // Multi-select for the /compare-deals workflow. Ids are numeric (local
+  // deals from localStorage) OR string UUIDs (Supabase deals) — Set handles
+  // both. Capped at 5 on toggle to match /compare-deals column max.
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const toggleSelect = (id) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else if (next.size < 5) next.add(id);
+      return next;
+    });
+  };
+  const clearSelection = () => setSelectedIds(new Set());
+  const openComparison = () => {
+    try {
+      sessionStorage.setItem("rde_compare_ids", JSON.stringify(Array.from(selectedIds)));
+    } catch {}
+    navigate("/compare-deals");
+  };
   const [deletingId, setDeletingId] = useState(null);
   const [copied, setCopied] = useState(null);
   // AI Read on the portfolio — fires once after deals load. Debounced 700ms
-  // so re-renders don't churn Claude. Same deal-thesis mode used elsewhere.
+  // so re-renders don't churn AI. Same deal-thesis mode used elsewhere.
   const [portfolioThesis, setPortfolioThesis] = useState(null);
   const [portfolioThesisLoading, setPortfolioThesisLoading] = useState(false);
 
@@ -184,10 +238,13 @@ export default function Dashboard() {
   const flipCount = allDeals.filter(d => d.type === "flip").length;
   const brrrrCount = allDeals.filter(d => d.type === "brrrr").length;
   const mfCount = allDeals.filter(d => d.type === "multifamily").length;
+  // Property-type saves come from /property → StrategyVerdicts "Save to Dashboard".
+  // They bundle the property blob + all 4 strategy verdicts in one row.
+  const propertyCount = allDeals.filter(d => d.type === "property").length;
 
   // Auto-fire portfolio AI Read when deals are loaded. ≥3 needed so a
   // single saved deal doesn't generate a weird "your portfolio is 1 deal"
-  // summary. Debounced 700ms so re-renders / refreshes don't churn Claude.
+  // summary. Debounced 700ms so re-renders / refreshes don't churn AI.
   useEffect(() => {
     if (dealsLoading || allDeals.length < 3) return;
     let cancelled = false;
@@ -336,7 +393,7 @@ export default function Dashboard() {
             </div>
             {portfolioThesisLoading && !portfolioThesis ? (
               <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>
-                Claude is reading your pipeline…
+                AI is reading your pipeline…
               </div>
             ) : (
               <div style={{ fontSize: 13.5, color: "var(--text)", lineHeight: 1.6 }}>
@@ -349,7 +406,7 @@ export default function Dashboard() {
         {/* ── Recent AI Reads — last 5 across all 9 surfaces ──
             Sourced from localStorage history (lib/aiReadCache pushes
             here every time a thesis is written). Shows the user the
-            arc of how Claude has read their work over time. */}
+            arc of how AI has read their work over time. */}
         <RecentReadsPanel />
 
         {/* Stats */}
@@ -380,6 +437,7 @@ export default function Dashboard() {
             <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
               {[
                 { key: "all", label: `All (${totalDeals})` },
+                { key: "property", label: `🗺️ Properties (${propertyCount})` },
                 { key: "flip", label: `🏚️ Flip (${flipCount})` },
                 { key: "brrrr", label: `🔄 BRRRR (${brrrrCount})` },
                 { key: "multifamily", label: `🏢 Multifamily (${mfCount})` },
@@ -432,6 +490,25 @@ export default function Dashboard() {
             <a href="/analyze" className="db-nav-primary" style={{ display: "inline-flex", marginBottom: 12 }}>+ Analyze a deal →</a>
           </div>
         ) : (
+          <>
+          {selectedIds.size > 0 && (
+            <div className="db-compare-bar">
+              <div className="db-compare-count">▸ {selectedIds.size}/5 SELECTED</div>
+              <div className="db-compare-hint">
+                {selectedIds.size < 2
+                  ? "Pick 1 more to run the side-by-side matrix."
+                  : "Ready to compare · verdict, cashflow, cap rate, DSCR, IRR side-by-side."}
+              </div>
+              <button className="db-compare-clear" onClick={clearSelection}>Clear</button>
+              <button
+                className="db-compare-btn"
+                onClick={openComparison}
+                disabled={selectedIds.size < 2}
+              >
+                Compare ({selectedIds.size}) →
+              </button>
+            </div>
+          )}
           <div className="db-deal-grid">
             {filtered.map(deal => {
               const tl = typeLabel(deal.type);
@@ -440,8 +517,18 @@ export default function Dashboard() {
               const hasScore = deal.score && !isNaN(deal.score);
               const scoreNum = typeof deal.score === "string" ? deal.score : deal.score;
 
+              const isSelected = selectedIds.has(deal.id);
               return (
-                <div key={`${deal.source}-${deal.id}`} className="db-deal">
+                <div key={`${deal.source}-${deal.id}`} className={`db-deal ${isSelected ? "db-deal-selected" : ""}`}>
+                  <label className="db-select-check" onClick={e => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleSelect(deal.id)}
+                      disabled={!isSelected && selectedIds.size >= 5}
+                    />
+                    <span>Compare</span>
+                  </label>
                   <div className="db-deal-top">
                     <div style={{ flex: 1 }}>
                       <div className="db-deal-meta">
@@ -553,6 +640,7 @@ export default function Dashboard() {
               );
             })}
           </div>
+          </>
         )}
 
         {/* Bottom CTA */}

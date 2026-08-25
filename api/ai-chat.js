@@ -11,8 +11,8 @@
  * Falls back to smart rule-based answers if no API key.
  */
 
-// Tolerant JSON extractor for Claude responses. Strips ```json fences AND
-// extracts the first balanced {...} object when Claude prepends a sentence
+// Tolerant JSON extractor for AI responses. Strips ```json fences AND
+// extracts the first balanced {...} object when the AI prepends a sentence
 // like "Here are the triggers I found:". Returns parsed object or null.
 function extractJSON(text) {
   if (!text) return null;
@@ -25,6 +25,21 @@ function extractJSON(text) {
     try { return JSON.parse(stripped.slice(start, end + 1)); } catch {}
   }
   return null;
+}
+
+// Shared rate-limit helper for expensive AI modes. Anon users get N/day,
+// authed users (Bearer header) bypass. Returns true if request should proceed,
+// false if the handler should bail with a 429.
+async function enforceAnonLimit(req, res, { limit, name }) {
+  const { checkRateLimit } = await import("./_lib/rate-limit.js");
+  const check = await checkRateLimit(req, { limit, name });
+  if (check.ok) return true;
+  res.status(429).json({
+    error: `Free-tier daily limit reached (${limit}/day on ${name}). Sign in to remove the cap.`,
+    rateLimited: true,
+    isAuthed: false,
+  });
+  return false;
 }
 
 export default async function handler(req, res) {
@@ -41,6 +56,23 @@ export default async function handler(req, res) {
   if (req.method === "GET" && req.query?.mode === "cron-market-brief") {
     return handleCronMarketBrief(req, res);
   }
+  if (req.method === "GET" && req.query?.mode === "cron-daily-alerts") {
+    return handleCronDailyAlerts(req, res);
+  }
+  if (req.method === "GET" && req.query?.mode === "cron-monthly-brief") {
+    return handleCronMonthlyBrief(req, res);
+  }
+  if (req.method === "GET" && req.query?.mode === "cron-onboarding") {
+    return handleCronOnboarding(req, res);
+  }
+  if (req.method === "GET" && req.query?.mode === "cron-weekly-buybox-digest") {
+    return handleCronWeeklyBuyBoxDigest(req, res);
+  }
+  if (req.method === "GET" && req.query?.mode === "health") {
+    return handleHealth(req, res);
+  }
+  // Public metrics — GET, no auth. Powers /live + /pitch traction stats.
+  if (req.query?.mode === "metrics") return handleMetrics(req, res);
   if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
   // Multi-mode: this endpoint handles both the conversational chat AND the
@@ -55,6 +87,21 @@ export default async function handler(req, res) {
   if (req.body?.mode === "parse-document") {
     return handleParseDocument(req, res);
   }
+  if (req.body?.mode === "parse-buybox") {
+    return handleParseBuyBox(req, res);
+  }
+  if (req.body?.mode === "verdict-memo") {
+    return handleVerdictMemo(req, res);
+  }
+  if (req.body?.mode === "voice-parse-property") {
+    return handleVoiceParseProperty(req, res);
+  }
+  // v1 public API — routed here via vercel.json rewrites so we stay under
+  // the Hobby 12-function cap. Public URLs stay clean:
+  //   /api/v1/verdict  → /api/ai-chat?mode=v1-verdict
+  //   /api/v1/keys     → /api/ai-chat?mode=v1-keys
+  if (req.query?.mode === "v1-verdict") return handleV1Verdict(req, res);
+  if (req.query?.mode === "v1-keys")    return handleV1Keys(req, res);
   if (req.body?.mode === "find-comps") {
     return handleFindComps(req, res);
   }
@@ -86,11 +133,16 @@ export default async function handler(req, res) {
     return handleAdminDashboard(req, res);
   }
 
-  const { messages = [], property = {}, calcs = {}, persona = null } = req.body || {};
+  const {
+    messages = [], property = {}, calcs = {}, persona = null,
+    strategyVerdicts = null, zoningSpecs = null,
+  } = req.body || {};
   const apiKey = process.env.ANTHROPIC_API_KEY;
 
   // ── Build system prompt with full property context + persona ─────────────
-  const systemPrompt = buildSystemPrompt(property, calcs, persona);
+  // Now includes the pre-computed 4-strategy verdicts and dimensional zoning
+  // specs when the client passes them — makes Buddy verdict-aware.
+  const systemPrompt = buildSystemPrompt(property, calcs, persona, { strategyVerdicts, zoningSpecs });
 
   if (apiKey && apiKey !== "YOUR_ANTHROPIC_API_KEY") {
     try {
@@ -114,7 +166,7 @@ export default async function handler(req, res) {
         return res.status(200).json({
           role:    "assistant",
           content: data.content?.[0]?.text || "I couldn't generate a response.",
-          source:  "claude",
+          source: "ai",
         });
       }
     } catch (e) {
@@ -130,7 +182,7 @@ export default async function handler(req, res) {
     role:    "assistant",
     content: reply,
     source:  "rules",
-    note:    "Add ANTHROPIC_API_KEY to Vercel for Claude AI responses.",
+    note:    "Add ANTHROPIC_API_KEY to Vercel for AI responses.",
   });
 }
 
@@ -164,12 +216,49 @@ Voice: ${p.voice}`;
 }
 
 // ── System prompt builder ─────────────────────────────────────────────────────
-function buildSystemPrompt(p, c, persona = null) {
+function buildSystemPrompt(p, c, persona = null, extras = {}) {
   const fmt = n => n != null ? `$${Math.round(n).toLocaleString()}` : "not available";
   const pct = n => n != null ? `${(n * 100).toFixed(1)}%` : "not available";
 
   const intro = buildPersonaIntro(persona) ||
-    `You are an expert real estate investment advisor integrated into the RizeAI platform. You have deep knowledge of Canadian and US real estate markets, investment strategies (fix & flip, BRRRR, multifamily, commercial), financing, and market analysis.`;
+    `You are Buddy, RizeAI's institutional-grade real estate advisor. You speak with Canadian brokers, agents, and investors about specific deals — knowledgeable, direct, no filler. Reference the LIVE property data below when answering. If numbers are missing, name what's missing rather than guessing.`;
+
+  // ── Extension: verdict-aware context. When the client passes strategyVerdicts
+  //    and/or zoningSpecs, we render extra prompt blocks so Buddy answers from
+  //    what RizeAI already computed (not just the raw property blob). ──
+  let verdictBlock = "";
+  if (Array.isArray(extras.strategyVerdicts) && extras.strategyVerdicts.length) {
+    const rows = extras.strategyVerdicts
+      .filter(v => v?.viable !== false)
+      .map(v => `- ${v.name || v.key}: ${v.verdict?.label || v.verdict || "?"} · ${v.headline || ""} · ${v.subhead || ""}`)
+      .join("\n") || "None viable given the data.";
+    verdictBlock = `
+
+FOUR-STRATEGY VERDICT PANEL (pre-computed by RizeAI):
+${rows}
+
+Use these as anchors — reference "the BRRRR verdict shows X" or "the Buy&Hold headline is Y" rather than re-deriving. If a user asks "which strategy?" name the strongest verdict here and justify it with the property specifics.`;
+  }
+
+  let zoningBlock = "";
+  if (extras.zoningSpecs && (extras.zoningSpecs.code || extras.zoningSpecs.maxHeightM)) {
+    const z = extras.zoningSpecs;
+    const s = z.setbacks || {};
+    zoningBlock = `
+
+DIMENSIONAL ZONING SPECS (from ${z.city || "city"} bylaw, code ${z.code || "?"}):
+- Name: ${z.name || "?"}
+- Max height: ${z.maxHeightM ? `${z.maxHeightM}m` : "?"}
+- Max FAR: ${z.maxFAR ?? "?"}
+- Max coverage: ${z.maxCoverage != null ? `${Math.round(z.maxCoverage * 100)}%` : "?"}
+- Max units per lot: ${z.maxUnits ?? "?"}
+- Min lot area: ${z.minLotAreaM2 ? `${z.minLotAreaM2}m²` : "?"}
+- Setbacks (F/R/S): ${s.front ?? "?"}/${s.rear ?? "?"}/${s.side ?? "?"}m
+- Permitted uses: ${z.permittedUses || "?"}
+- Practitioner note: ${z.note || "?"}
+
+When users ask about zoning, buildable envelope, or "what can I build here" — use these exact numbers.`;
+  }
 
   return `${intro}
 
@@ -214,18 +303,19 @@ CALCULATOR RESULTS (if user has run analysis):
 - Cap Rate: ${pct(c.capRate)}
 - Monthly Cash Flow: ${fmt(c.monthlyCF)}
 - DSCR: ${c.dscr ? c.dscr.toFixed(2) + "x" : "Not calculated"}
-- Deal Grade: ${c.grade || "Not run yet"}
+- Deal Grade: ${c.grade || "Not run yet"}${verdictBlock}${zoningBlock}
 
 INSTRUCTIONS:
 - Answer questions directly and specifically using the property data above
 - Give dollar amounts and percentages, not vague advice
-- Be direct: say "this is a good deal" or "pass on this one" with specific reasons
-- If asked about strategy (flip vs BRRRR vs rental), recommend based on the actual numbers
-- If data is missing, say so and explain what the user needs to find out
+- Be direct: say "this pencils" or "pass" with specific reasons
+- If asked "which strategy?", name the top-verdict strategy from the panel above and justify
+- If asked "what can I build?", use the dimensional zoning specs above verbatim
+- If data is missing, name what's missing rather than guessing
 - Keep responses concise: 3-5 sentences max unless the question requires detail
-- You are an advisor to individual investors and buyers — not agents or institutions
-- Always base your answer on the specific property data, not generic advice
-- Use Canadian dollar amounts for Canadian properties, USD for US`;
+- Use Canadian dollar amounts for Canadian properties, USD for US
+- Never refer to yourself as "AI" — you are Buddy
+- Speak to brokers and investors as peers, not customers`;
 }
 
 // ── Fallback rule-based responses ─────────────────────────────────────────────
@@ -277,7 +367,7 @@ function generateFallbackReply(msg, p, c) {
 
 // ─── Zoning Thesis Mode ────────────────────────────────────────────────────
 // One-shot 1-2 sentence institutional thesis hint over zoning + assessment +
-// permits data. Powered by Haiku (cheap + fast). Template fallback if no key
+// permits data. Powered by AI (cheap + fast). Template fallback if no key
 // or API error. Folded into this file (vs. a separate endpoint) to stay
 // under Vercel's 12-function Hobby plan cap.
 async function handleZoningThesis(req, res) {
@@ -312,7 +402,7 @@ async function handleZoningThesis(req, res) {
     const data = await r.json();
     const text = data.content?.[0]?.text?.trim();
     if (!text) return res.status(200).json({ thesis: templateThesis, source: "template" });
-    return res.status(200).json({ thesis: text, source: "claude-haiku-4-5" });
+    return res.status(200).json({ thesis: text, source: "ai-fast" });
   } catch (e) {
     return res.status(200).json({ thesis: templateThesis, source: "template", note: `AI timeout/error: ${e.message}` });
   }
@@ -360,7 +450,7 @@ function buildTemplateThesis({ zoning, assessment, permits }) {
 
 // ─── Deal Thesis Mode ──────────────────────────────────────────────────────
 // One-shot 1-2 sentence institutional read on a deal's metrics. Used by
-// BRRRR + Commercial verdict cards. Same Haiku + template-fallback pattern
+// BRRRR + Commercial verdict cards. Same fast-AI + template-fallback pattern
 // as the zoning thesis. Folded into this file to stay under Vercel's
 // 12-function Hobby plan cap.
 async function handleDealThesis(req, res) {
@@ -397,7 +487,7 @@ async function handleDealThesis(req, res) {
     const data = await r.json();
     const text = data.content?.[0]?.text?.trim();
     if (!text) return res.status(200).json({ thesis: templateThesis, source: "template" });
-    return res.status(200).json({ thesis: text, source: "claude-haiku-4-5" });
+    return res.status(200).json({ thesis: text, source: "ai-fast" });
   } catch (e) {
     return res.status(200).json({ thesis: templateThesis, source: "template", note: `AI timeout/error: ${e.message}` });
   }
@@ -451,7 +541,7 @@ function buildDealTemplateThesis({ strategy, metrics, verdict }) {
 }
 
 // ─── Parse Document Mode (AI Document Drop) ────────────────────────────────
-// Accepts a base64-encoded PDF and asks Claude Sonnet 4.6 to extract the
+// Accepts a base64-encoded PDF and asks the AI to extract the
 // fields a residential or multifamily underwriter needs to populate a calc:
 // address, price, ARV, repair budget, monthly rent, taxes, unit count, etc.
 //
@@ -464,7 +554,7 @@ function buildDealTemplateThesis({ strategy, metrics, verdict }) {
 // Response:
 //   { extracted: { address, city, purchasePrice, arv, repairCosts,
 //                  monthlyRent, propertyTaxes, unitCount, bedrooms,
-//                  bathrooms, sqft, yearBuilt, notes }, source: "claude-sonnet-4-6" }
+//                  bathrooms, sqft, yearBuilt, notes }, source: "ai-thesis" }
 async function handleParseDocument(req, res) {
   const { document, mediaType = "application/pdf", target = "residential" } = req.body || {};
   if (!document || typeof document !== "string") {
@@ -537,7 +627,7 @@ Output STRICT JSON only — no preamble, no markdown code fences, no commentary.
 
     if (!r.ok) {
       const errBody = await r.text().catch(() => "");
-      console.error("[parse-document] Claude API error:", r.status, errBody.slice(0, 200));
+      console.error("[parse-document] AI API error:", r.status, errBody.slice(0, 200));
       return res.status(502).json({ error: `AI parsing failed (${r.status})`, detail: errBody.slice(0, 200) });
     }
 
@@ -550,19 +640,311 @@ Output STRICT JSON only — no preamble, no markdown code fences, no commentary.
       return res.status(502).json({ error: "AI returned non-JSON response", raw: text.slice(0, 400) });
     }
 
-    return res.status(200).json({ extracted, source: "claude-sonnet-4-6" });
+    return res.status(200).json({ extracted, source: "ai-thesis" });
   } catch (e) {
     console.error("[parse-document] timeout or fetch error:", e.message);
     return res.status(504).json({ error: `Parsing failed: ${e.message}` });
   }
 }
 
+// ─── Parse Buy Box (natural language → structured criteria) ──────────────
+// Cheap fast-AI call — takes broker text describing their buy box and returns
+// structured fields the /buybox editor auto-fills. Powers the "Buddy Chat"
+// entry point on /buybox where users describe criteria naturally instead of
+// clicking through a 15-field form.
+async function handleParseBuyBox(req, res) {
+  const { text } = req.body || {};
+  if (!text || typeof text !== "string" || text.trim().length < 4) {
+    return res.status(400).json({ error: "Missing 'text' (min 4 chars)." });
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") {
+    return res.status(503).json({ error: "AI parsing is not configured." });
+  }
+
+  const SCHEMA_PROMPT = `You are extracting structured Buy Box criteria from a real estate broker or investor's description of what they want to buy.
+
+Return ONLY a JSON object with these fields — omit any field the user didn't mention. Do NOT guess.
+
+Schema:
+{
+  "name":         string — 4-8 word label for this buy box, generated from the description,
+  "assetClasses": array of one or more from: "sfh" (single family), "duplex" (duplex/triplex), "small_mf" (4-19 units), "large_mf" (20+ units), "retail", "mixed_use", "land", "industrial",
+  "cities":       array of one or more Canadian city slugs from: "calgary","edmonton","vancouver","toronto","ottawa","mississauga","hamilton",
+  "priceMin":     number in CAD (integer),
+  "priceMax":     number in CAD (integer),
+  "capRateMin":   number as percent (e.g. 5.5 for 5.5%),
+  "unitsMin":     integer,
+  "strategy":     one of "hold","brrrr","flip","mf",
+  "notes":        string — any thesis/context that doesn't fit the structured fields
+}
+
+Rules:
+- If the user says "Calgary" or "Alberta duplexes", cities=["calgary"]
+- If the user says "GTA" or "Toronto area", cities=["toronto"]
+- If the user says "duplex" or "triplex", assetClasses=["duplex"]
+- If the user says "6+ units" or "small MF", assetClasses=["small_mf"], unitsMin=4
+- If the user says "BRRRR", strategy="brrrr"
+- If the user says "buy and hold" or "long-term rental", strategy="hold"
+- If the user says "flip", strategy="flip"
+- If the user says "value-add" or "cap rate", strategy="mf"
+- Price ranges: convert "under 1M" → priceMax=1000000. "500K-1.5M" → priceMin=500000, priceMax=1500000.
+- Cap rate: "5% cap or better" → capRateMin=5
+
+Output STRICT JSON only — no preamble, no markdown fences, no commentary. Just the JSON object.
+
+User's buy box description:
+"""
+${text.slice(0, 4000)}
+"""`;
+
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 600,
+        messages: [{ role: "user", content: SCHEMA_PROMPT }],
+      }),
+      signal: AbortSignal.timeout(20_000),
+    });
+
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      console.error("[parse-buybox] AI API error:", r.status, errBody.slice(0, 200));
+      return res.status(502).json({ error: `AI parsing failed (${r.status})` });
+    }
+
+    const data = await r.json();
+    const textOut = data.content?.[0]?.text?.trim() || "";
+    const extracted = extractJSON(textOut);
+    if (!extracted) {
+      console.error("[parse-buybox] JSON parse failed:", textOut.slice(0, 200));
+      return res.status(502).json({ error: "AI returned non-JSON response", raw: textOut.slice(0, 400) });
+    }
+
+    return res.status(200).json({ extracted, source: "ai-fast" });
+  } catch (e) {
+    console.error("[parse-buybox] error:", e.message);
+    return res.status(504).json({ error: `Parsing failed: ${e.message}` });
+  }
+}
+
+// ─── Voice-to-Verdict — parse broker's spoken property description ─────────
+// Powers the /voice mobile flow: broker at a lockbox describes a property
+// out loud ("1234 Kensington Rd NW, 4 units, 3200 sqft, asking $1.4M, RM
+// zoning"), we transcribe via browser SpeechRecognition and pipe the text
+// here for structured extraction. Fast AI for speed + cost. Returns fields
+// mapped to /property URL params so the client can deep-link with prefill.
+async function handleVoiceParseProperty(req, res) {
+  const { transcript } = req.body || {};
+  if (!transcript || typeof transcript !== "string" || transcript.trim().length < 8) {
+    return res.status(400).json({ error: "Missing 'transcript' (min 8 chars)." });
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") {
+    return res.status(503).json({ error: "AI parsing is not configured." });
+  }
+
+  const SCHEMA = `You are extracting structured property data from a broker's spoken description of a real estate deal. They're often at a lockbox, dictating quickly, so speech may be informal and terse.
+
+Return ONLY a JSON object with these fields — omit any field the broker didn't mention. Do NOT guess.
+
+Schema:
+{
+  "address":       "full street address if mentioned (no city)",
+  "city":          "City name",
+  "province":      "2-letter province/state code",
+  "purchasePrice": integer (dollars, no commas or symbols),
+  "sqft":          integer,
+  "beds":          integer,
+  "baths":         number (0.5 for half),
+  "units":         integer (1 for SFH, 2+ for multiplex),
+  "monthlyRent":   integer,
+  "yearBuilt":     4-digit year,
+  "zoning":        "zoning code like R-C2 or RM if mentioned",
+  "propertyType":  "residential" | "commercial" | "mixed_use" | "land",
+  "notes":         "1-2 sentence gist of anything else (condition, comps, distress signals, etc)"
+}
+
+Common patterns:
+- "asking 1.4M" or "1 point 4 million" → purchasePrice: 1400000
+- "3200 square feet" → sqft: 3200
+- "four unit walkup" → units: 4
+- "3 bed 2 bath" → beds: 3, baths: 2
+- "R-CG zoning" or "our-cee-gee zoning" → zoning: "R-CG"
+- Canadian cities preferred: Calgary, Edmonton, Vancouver, Toronto, Ottawa, Mississauga, Hamilton
+
+Output STRICT JSON only — no preamble, no markdown fences, no commentary.
+
+Transcript:
+"""
+${transcript.slice(0, 3000)}
+"""`;
+
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 500,
+        messages: [{ role: "user", content: SCHEMA }],
+      }),
+      signal: AbortSignal.timeout(20_000),
+    });
+
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      console.error("[voice-parse] AI error:", r.status, errBody.slice(0, 200));
+      return res.status(502).json({ error: `Voice parsing failed (${r.status})` });
+    }
+
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim() || "";
+    const extracted = extractJSON(text);
+    if (!extracted) {
+      console.error("[voice-parse] JSON parse failed:", text.slice(0, 200));
+      return res.status(502).json({ error: "AI returned non-JSON response" });
+    }
+
+    return res.status(200).json({ extracted, source: "ai-fast" });
+  } catch (e) {
+    console.error("[voice-parse] error:", e.message);
+    return res.status(504).json({ error: `Voice parsing failed: ${e.message}` });
+  }
+}
+
+// ─── Verdict Memo — 1-page investment memo from property + strategy results ─
+// The high-tier AI writes a structured investment memo for a
+// single property based on the property blob + the four-strategy verdict
+// results. Output is Markdown-ish plain text that the client turns into a
+// branded PDF via jsPDF. Pro-gated on the client via freeTier.canExportPDF.
+async function handleVerdictMemo(req, res) {
+  const { property, strategyResults, buyBoxContext } = req.body || {};
+  if (!property || !property.address) {
+    return res.status(400).json({ error: "Missing property + address." });
+  }
+
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || apiKey === "YOUR_ANTHROPIC_API_KEY") {
+    return res.status(503).json({ error: "AI memo generation is not configured." });
+  }
+
+  const propBlurb = [
+    `Address: ${property.address}`,
+    property.city && `City: ${property.city}${property.province ? `, ${property.province}` : ""}`,
+    property.purchasePrice && `Purchase / List: $${Math.round(property.purchasePrice).toLocaleString()}`,
+    property.estimatedValue && `AVM / Est. Value: $${Math.round(property.estimatedValue).toLocaleString()}`,
+    property.rentEstimate && `Est. Monthly Rent: $${Math.round(property.rentEstimate).toLocaleString()}`,
+    property.sqft && `Sqft: ${property.sqft.toLocaleString()}`,
+    (property.beds || property.baths) && `Beds/Baths: ${property.beds || "?"}/${property.baths || "?"}`,
+    property.units && `Units: ${property.units}`,
+    property.zoning && `Zoning: ${property.zoning}`,
+    property.propertyTaxAnnual && `Annual Property Tax: $${Math.round(property.propertyTaxAnnual).toLocaleString()}`,
+    property.lotSize && `Lot Size: ${property.lotSize.toLocaleString()} sqft`,
+  ].filter(Boolean).join("\n");
+
+  const stratBlurb = (strategyResults || [])
+    .filter(s => s?.viable)
+    .map(s => `- ${s.name}: ${s.verdict?.label || "?"} · ${s.headline || ""} · ${s.subhead || ""}`)
+    .join("\n") || "No viable strategies flagged.";
+
+  const buyBoxBlurb = buyBoxContext
+    ? `\nBUY BOX CONTEXT (broker's saved criteria):\n${JSON.stringify(buyBoxContext, null, 2)}`
+    : "";
+
+  const PROMPT = `You are an institutional real estate analyst writing a 1-page investment memo for a Canadian broker. Use the property + strategy verdict data below to write a structured memo.
+
+PROPERTY:
+${propBlurb}
+
+STRATEGY VERDICTS:
+${stratBlurb}
+${buyBoxBlurb}
+
+Write a memo with these EXACT section headers (use them verbatim so the PDF renderer can parse them):
+
+## THESIS
+2-3 sentences on why this deal warrants attention (or why it doesn't). Institutional voice — no hype.
+
+## HIGHLIGHTS
+3-4 bulleted numeric or structural highlights. Lead each with the number/fact, then interpret.
+
+## RISKS
+3-4 bulleted risks. Be specific — no generic "market risk". Use the property's actual data.
+
+## THE STRATEGY
+1-2 sentences naming the strongest-fit strategy and why. Reference specific verdict data.
+
+## NEXT STEPS
+3 concrete next steps in order — verify X, model Y, walk-through Z.
+
+Rules:
+- Keep the whole memo under 350 words.
+- No filler. No "this deal has potential" hedging. Take a position.
+- Reference specific numbers from the data — don't be generic.
+- Use Canadian conventions (CAD dollars, CMHC as rent anchor, provincial zoning terminology).
+- Do NOT invent numbers not in the data.
+
+Return the memo as plain text with the section headers verbatim. No preamble, no closing signature.`;
+
+  try {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1200,
+        messages: [{ role: "user", content: PROMPT }],
+      }),
+      signal: AbortSignal.timeout(45_000),
+    });
+
+    if (!r.ok) {
+      const errBody = await r.text().catch(() => "");
+      console.error("[verdict-memo] AI error:", r.status, errBody.slice(0, 200));
+      return res.status(502).json({ error: `Memo generation failed (${r.status})` });
+    }
+
+    const data = await r.json();
+    const text = data.content?.[0]?.text?.trim() || "";
+    if (!text || text.length < 100) {
+      return res.status(502).json({ error: "AI returned an unusually short memo." });
+    }
+
+    return res.status(200).json({ memo: text, source: "ai-thesis" });
+  } catch (e) {
+    console.error("[verdict-memo] error:", e.message);
+    return res.status(504).json({ error: `Memo generation failed: ${e.message}` });
+  }
+}
+
 // ─── Find Comparable Properties Mode ───────────────────────────────────────
-// Claude generates 3-4 plausible commercial comps for a given target address.
+// AI generates 3-4 plausible commercial comps for a given target address.
 // Returns structured JSON the UI can drop straight into the matrix table.
 // These are AI-suggested directional comps, not verified MLS data — meant as
 // a credible starting point an analyst can refine.
 async function handleFindComps(req, res) {
+  // Rate limit anon callers — AI @ 1500 tokens is ~$0.002/call. Without
+  // this an unauth visitor could trivially blast $50/day in Anthropic spend.
+  if (!(await enforceAnonLimit(req, res, { limit: 5, name: "find-comps" }))) return;
+
   const { address, propertyType = "multifamily", units, sqft } = req.body || {};
   if (!address) return res.status(400).json({ error: "Missing 'address'." });
 
@@ -650,7 +1032,7 @@ Output STRICT JSON only — no preamble, no markdown fences. Format:
 
     if (!r.ok) {
       const errBody = await r.text().catch(() => "");
-      console.error("[find-comps] Claude API error:", r.status, errBody.slice(0, 200));
+      console.error("[find-comps] AI API error:", r.status, errBody.slice(0, 200));
       return res.status(502).json({ error: `Comp generation failed (${r.status})` });
     }
 
@@ -682,6 +1064,9 @@ Output STRICT JSON only — no preamble, no markdown fences. Format:
 // directional signal layer the user reviews; replace the AI call with a
 // real feed when the data deal lands.
 async function handleFindTriggers(req, res) {
+  // AI @ 3000 tokens is ~$0.004/call — pricier than find-comps. Tighter cap.
+  if (!(await enforceAnonLimit(req, res, { limit: 5, name: "find-triggers" }))) return;
+
   const { area, propertyType = "any", minPrice, maxPrice } = req.body || {};
   if (!area) return res.status(400).json({ error: "Missing 'area' (city / neighbourhood)." });
 
@@ -771,7 +1156,7 @@ These are directional signals for analyst review. Make them plausible, not perfe
 
     if (!r.ok) {
       const errBody = await r.text().catch(() => "");
-      console.error("[find-triggers] Claude API error:", r.status, errBody.slice(0, 200));
+      console.error("[find-triggers] AI API error:", r.status, errBody.slice(0, 200));
       return res.status(502).json({ error: `Trigger generation failed (${r.status})` });
     }
 
@@ -804,6 +1189,9 @@ These are directional signals for analyst review. Make them plausible, not perfe
 //   or as standalone correspondence to LPs / lenders.
 // ──────────────────────────────────────────────────────────────────────
 async function handleDealMemo(req, res) {
+  // Most expensive mode (~$0.003/call, 2500 tokens, 60s high-tier AI). Tightest cap.
+  if (!(await enforceAnonLimit(req, res, { limit: 3, name: "deal-memo" }))) return;
+
   const { deal = {}, calc = {}, monteCarlo = {}, comps = [] } = req.body || {};
   if (!deal.address && !deal.purchasePrice) {
     return res.status(400).json({ error: "Missing deal context — provide deal.address and deal.purchasePrice." });
@@ -887,7 +1275,7 @@ CRITICAL:
 
     if (!r.ok) {
       const errBody = await r.text().catch(() => "");
-      console.error("[deal-memo] Claude API error:", r.status, errBody.slice(0, 200));
+      console.error("[deal-memo] AI API error:", r.status, errBody.slice(0, 200));
       return res.status(502).json({ error: `Memo generation failed (${r.status})` });
     }
 
@@ -898,7 +1286,7 @@ CRITICAL:
       console.error("[deal-memo] JSON parse failed:", text.slice(0, 200));
       return res.status(502).json({ error: "AI returned non-JSON response" });
     }
-    return res.status(200).json({ memo: parsed, source: "claude-sonnet-4-6" });
+    return res.status(200).json({ memo: parsed, source: "ai-thesis" });
   } catch (e) {
     console.error("[deal-memo] timeout or fetch error:", e.message);
     return res.status(504).json({ error: `Memo generation failed: ${e.message}` });
@@ -930,9 +1318,9 @@ async function handleSendDigest(req, res) {
   const fmtMoney = n => n == null ? "—" : `$${Math.round(Number(n)).toLocaleString()}`;
   const fmtDate  = s => { try { return new Date(s).toLocaleDateString("en-CA"); } catch { return s || "—"; } };
 
-  // ── AI Read for the email — same Claude haiku call MarketTriggers fires
+  // ── AI Read for the email — same fast-AI call MarketTriggers fires
   // in-app. Wrapped in try/catch + timeout so the email NEVER blocks on a
-  // Claude failure: missing AI key, slow API, anything — email still sends.
+  // AI failure: missing AI key, slow API, anything — email still sends.
   const aiThesis = await maybeGenerateScanThesis({ triggers, area, propertyType });
 
   // Brand colours mirror the in-app palette.
@@ -1060,10 +1448,13 @@ function escapeHtml(s) {
 //     ANTHROPIC_API_KEY          (same as find-triggers)
 // ──────────────────────────────────────────────────────────────────────
 async function handleCronDigest(req, res) {
+  const { recordCronStart, recordCronEnd } = await import("./_lib/cron-track.js");
+  const runId = await recordCronStart("cron-digest");
   // 1. Auth: Vercel cron sends Authorization: Bearer <CRON_SECRET>.
   const expected = process.env.CRON_SECRET;
   const auth = req.headers.authorization || "";
   if (!expected || auth !== `Bearer ${expected}`) {
+    await recordCronEnd(runId, "error", null, "Unauthorized");
     return res.status(401).json({ error: "Unauthorized" });
   }
 
@@ -1184,6 +1575,12 @@ async function handleCronDigest(req, res) {
     results,
   };
   console.log("[cron-digest] complete:", JSON.stringify(summary).slice(0, 800));
+  await recordCronEnd(
+    runId,
+    summary.errors === 0 ? "success" : "error",
+    { processed: summary.processed, sent: summary.sent, skipped: summary.skipped, errors: summary.errors },
+    summary.errors > 0 ? `${summary.errors} search(es) errored` : null
+  );
   return res.status(200).json(summary);
 }
 
@@ -1476,6 +1873,8 @@ async function deliverMarketBrief({ to, market, items, userId }) {
 //   then per (user, market) sends one email.
 // ──────────────────────────────────────────────────────────────────────
 async function handleCronMarketBrief(req, res) {
+  const { recordCronStart, recordCronEnd } = await import("./_lib/cron-track.js");
+  const runId = await recordCronStart("cron-market-brief");
   const expected = process.env.CRON_SECRET;
   const auth = req.headers.authorization || "";
   if (!expected || auth !== `Bearer ${expected}`) {
@@ -1565,6 +1964,12 @@ async function handleCronMarketBrief(req, res) {
     results,
   };
   console.log("[cron-market-brief] complete:", JSON.stringify(summary).slice(0, 800));
+  await recordCronEnd(
+    runId,
+    summary.errors === 0 ? "success" : "error",
+    { processed: summary.processed, sent: summary.sent, errors: summary.errors },
+    summary.errors > 0 ? `${summary.errors} subscription(s) errored` : null
+  );
   return res.status(200).json(summary);
 }
 
@@ -1676,7 +2081,7 @@ async function handleUnsubscribe(req, res) {
 // "first-pass institutional read" the same way a broker grades a
 // building from year-built + neighbourhood + assessed-value-per-sqft
 // before they ever step inside. Future work: accept user-uploaded
-// photos and refine via Claude vision.
+// photos and refine via AI vision.
 async function handleBuildingGrade(req, res) {
   const { address, zoning, assessment, cmhc } = req.body || {};
   if (!address) return res.status(400).json({ error: "address required" });
@@ -1710,12 +2115,12 @@ async function handleBuildingGrade(req, res) {
     const text = data.content?.[0]?.text?.trim();
     if (!text) return res.status(200).json({ ...template, source: "template" });
 
-    // Claude returns JSON inside the response. Extract the first balanced {...}.
+    // AI returns JSON inside the response. Extract the first balanced {...}.
     const m = text.match(/\{[\s\S]*\}/);
     if (!m) return res.status(200).json({ ...template, source: "template", note: "AI returned non-JSON" });
     try {
       const parsed = JSON.parse(m[0]);
-      return res.status(200).json({ ok: true, ...parsed, source: "claude-haiku-4-5" });
+      return res.status(200).json({ ok: true, ...parsed, source: "ai-fast" });
     } catch {
       return res.status(200).json({ ...template, source: "template", note: "AI JSON parse failed" });
     }
@@ -1760,7 +2165,7 @@ Be honest. Older buildings in suburban zones typically grade C-B-. New downtown 
 }
 
 function buildBuildingGradeTemplate({ zoning, assessment, cmhc }) {
-  // Heuristic fallback when Claude is unavailable. Grades from age + zone + psf.
+  // Heuristic fallback when AI is unavailable. Grades from age + zone + psf.
   const yr = assessment?.yearBuilt ? Math.floor(parseFloat(assessment.yearBuilt)) : null;
   const age = yr ? (2026 - yr) : null;
   const isDC = /^DC\b|^CD-/i.test(zoning?.code || "");           // mixed-use / comprehensive dev
@@ -1796,10 +2201,10 @@ function buildBuildingGradeTemplate({ zoning, assessment, cmhc }) {
 // One round trip: PDF rent roll + city → parsed unitMix + LTL math + AI Read.
 //
 // Pipeline:
-//   1. parse-document (Claude sonnet) extracts the unitMix array
+//   1. parse-document (AI) extracts the unitMix array
 //   2. lookupCMHC for the city resolves the market rent anchor
 //   3. computeLossToLease produces per-unit deltas + totals
-//   4. Claude haiku generates a 2-3 sentence institutional narrative
+//   4. AI generates a 2-3 sentence institutional narrative
 //
 // All four steps in one server call so the client gets a single object back.
 async function handleRentRollLossToLease(req, res) {
@@ -1826,7 +2231,7 @@ async function handleRentRollLossToLease(req, res) {
     });
   }
 
-  // ── Step 1: parse the rent roll via Claude sonnet ──
+  // ── Step 1: parse the rent roll via AI ──
   const b64 = document.replace(/^data:[^;]+;base64,/, "");
   const parsePrompt = `You are extracting a rent roll from a real estate document.
 
@@ -1960,8 +2365,8 @@ Lead with the annual upside dollar figure. Cite the per-door average. Close with
 // ──────────────────────────────────────────────────────────────────────
 //   maybeGenerateScanThesis — best-effort AI Read for the digest email
 //
-//   Mirrors the MarketTriggers in-app AI Read (same metrics, same Claude
-//   haiku call) but adds two email-friendly guarantees:
+//   Mirrors the MarketTriggers in-app AI Read (same metrics, same AI
+//   fast-AI call) but adds two email-friendly guarantees:
 //     1. Returns null on ANY failure — missing key, slow API, parse
 //        error — so the email render path always proceeds.
 //     2. Aggressive 6-second timeout so a flaky Anthropic API can't
@@ -2160,22 +2565,49 @@ async function handleAdminDashboard(req, res) {
     // 4. Aggregate.
     const now = Date.now();
     const DAY = 86_400_000;
-    let signupsLast24h = 0, signupsLast7d = 0;
+    let signupsLast24h = 0, signupsLast7d = 0, signupsLast30d = 0;
     let activeLast7d   = 0, activeLast30d = 0;
     let freeC = 0, proC = 0, scaleC = 0;
+    let confirmedCount = 0;
+    let dormantUsers = []; // confirmed but no sign-in in 30d
+    let neverSignedIn = []; // confirmed but never signed in at all
+    // Last 14 days of signups for the trend sparkline.
+    const signupBuckets = Array.from({ length: 14 }, () => 0);
     for (const u of users) {
       const signedUpAt   = u.created_at      ? new Date(u.created_at).getTime()      : 0;
       const lastSignInAt = u.last_sign_in_at ? new Date(u.last_sign_in_at).getTime() : 0;
+      if (u.email_confirmed_at) confirmedCount++;
       if (now - signedUpAt   < DAY)        signupsLast24h++;
       if (now - signedUpAt   < 7  * DAY)   signupsLast7d++;
+      if (now - signedUpAt   < 30 * DAY)   signupsLast30d++;
       if (lastSignInAt && now - lastSignInAt < 7  * DAY) activeLast7d++;
       if (lastSignInAt && now - lastSignInAt < 30 * DAY) activeLast30d++;
+
+      // Bucket signups by day-ago for sparkline.
+      if (signedUpAt) {
+        const daysAgo = Math.floor((now - signedUpAt) / DAY);
+        if (daysAgo >= 0 && daysAgo < 14) signupBuckets[13 - daysAgo]++;
+      }
+
+      // Dormant: confirmed, signed in at least once, but not in 30d.
+      if (u.email_confirmed_at && lastSignInAt && now - lastSignInAt >= 30 * DAY) {
+        dormantUsers.push({ id: u.id, email: u.email, lastSignInAt: u.last_sign_in_at });
+      }
+      // Never signed in: confirmed email but never logged in.
+      if (u.email_confirmed_at && !lastSignInAt && signedUpAt && now - signedUpAt > 2 * DAY) {
+        neverSignedIn.push({ id: u.id, email: u.email, signedUpAt: u.created_at });
+      }
+
       const p = planByUser.get(u.id) || "free";
       if      (p === "scale") scaleC++;
       else if (p === "pro")   proC++;
       else                    freeC++;
     }
     const mrr = proC * 99 + scaleC * 299;
+    const confirmationRate = users.length ? Math.round((confirmedCount / users.length) * 100) : 0;
+    // Sort dormant + never-signed-in by recency (most recently dormant first).
+    dormantUsers.sort((a, b) => new Date(b.lastSignInAt) - new Date(a.lastSignInAt));
+    neverSignedIn.sort((a, b) => new Date(b.signedUpAt) - new Date(a.signedUpAt));
 
     const recentUsers = users
       .slice()
@@ -2190,22 +2622,1382 @@ async function handleAdminDashboard(req, res) {
         confirmed:    !!u.email_confirmed_at,
       }));
 
+    // 5. Latest cron runs — fail-open so a missing cron_runs table never
+    // breaks the dashboard, just shows an empty crons object.
+    let crons = {};
+    try {
+      const { getLatestCronRuns } = await import("./_lib/cron-track.js");
+      crons = await getLatestCronRuns([
+        "cron-digest",
+        "cron-market-brief",
+        "cron-daily-alerts",
+      ]);
+    } catch {}
+
+    // 7. Recent errors — last 25 client-side JS errors captured by
+    // src/lib/errors.js. Fail-open if table is missing.
+    let errors = { recent: [], last24hCount: 0, topRoutes: [] };
+    try {
+      const errR = await fetch(`${supabaseUrl}/rest/v1/error_logs?select=id,mechanism,message,route,occurred_at,url&order=occurred_at.desc&limit=25`, { headers: sbHeaders });
+      if (errR.ok) {
+        errors.recent = await errR.json();
+        const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+        errors.last24hCount = errors.recent.filter(e => new Date(e.occurred_at).getTime() > cutoff).length;
+        // Group by route to find hotspots
+        const byRoute = {};
+        for (const r of errors.recent) {
+          byRoute[r.route || "?"] = (byRoute[r.route || "?"] || 0) + 1;
+        }
+        errors.topRoutes = Object.entries(byRoute)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, 5)
+          .map(([route, count]) => ({ route, count }));
+      }
+    } catch {}
+
+    // 6. Recent leads — last 25, with unread (status='new') count separately.
+    // Fail-open if the table is missing.
+    let leads = { recent: [], newCount: 0, totalCount: 0, bySource: {} };
+    try {
+      const leadsR = await fetch(`${supabaseUrl}/rest/v1/leads?select=id,email,name,intent,source,message,created_at,status&order=created_at.desc&limit=25`, { headers: sbHeaders });
+      if (leadsR.ok) {
+        const rows = await leadsR.json();
+        leads.recent = rows;
+        leads.newCount = rows.filter(r => r.status === "new").length;
+      }
+      const countR = await fetch(`${supabaseUrl}/rest/v1/leads?select=id`, { headers: { ...sbHeaders, Prefer: "count=exact" } });
+      if (countR.ok) {
+        const cr = countR.headers.get("content-range") || "";
+        const m = /\/(\d+)$/.exec(cr);
+        if (m) leads.totalCount = parseInt(m[1], 10);
+      }
+      // Aggregate by source for the breakdown chip row.
+      for (const r of leads.recent) {
+        leads.bySource[r.source || "unknown"] = (leads.bySource[r.source || "unknown"] || 0) + 1;
+      }
+    } catch {}
+
     return res.status(200).json({
       ok: true,
       stats: {
-        totalUsers:    users.length,
+        totalUsers:      users.length,
         signupsLast24h,
         signupsLast7d,
+        signupsLast30d,
         activeLast7d,
         activeLast30d,
+        confirmedCount,
+        confirmationRate,
+        signupSparkline: signupBuckets,
       },
       plans: { free: freeC, pro: proC, scale: scaleC, total: users.length, mrr },
+      churn: {
+        dormantCount:       dormantUsers.length,
+        neverSignedInCount: neverSignedIn.length,
+        dormantTop5:        dormantUsers.slice(0, 5),
+        neverSignedInTop5:  neverSignedIn.slice(0, 5),
+      },
       recentUsers,
       deals: { totalSavedDeals },
+      crons,
+      leads,
+      errors,
       generatedAt: new Date().toISOString(),
     });
   } catch (e) {
     console.error("[admin-dashboard] failed:", e.message);
     return res.status(502).json({ ok: false, error: e.message });
   }
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   mode: "cron-daily-alerts"
+//   Iterates every enabled deal_alerts row, runs the listing check, diffs
+//   new listings vs last_results, sends a Resend digest email to any user
+//   with new matches. Folded into ai-chat to stay under Vercel's 12-function
+//   Hobby plan cap (same pattern as cron-digest and cron-market-brief).
+//
+//   Schedule: vercel.json → 0 13 * * * (09:00 America/Toronto EDT)
+//   Auth:     Authorization: Bearer <CRON_SECRET>  or  ?token=<CRON_SECRET>
+//   Env:      CRON_SECRET, RESEND_API_KEY, RESEND_FROM_EMAIL,
+//             SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, PUBLIC_APP_URL
+// ──────────────────────────────────────────────────────────────────────
+
+import { getSupabaseAdmin } from "./_lib/supabase-admin.js";
+import { runAlertCheck } from "./check-alerts.js";
+
+const ALERTS_FROM_DEFAULT = "RizeAI <alerts@rizeai.io>";
+
+function isCronAuthorized(req) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) return false;
+  const header = req.headers.authorization || req.headers.Authorization || "";
+  if (header === `Bearer ${secret}`) return true;
+  return req.query?.token === secret;
+}
+
+function escapeAlertHtml(s) {
+  return String(s || "")
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+const fmtAlertMoney = (n) => (n == null ? "—" : `$${Math.round(Number(n)).toLocaleString()}`);
+
+function diffAlertListings(currentListings, previousListings) {
+  const prevKeys = new Set(
+    (previousListings || []).map(l => l.mlsNumber || l.listingUrl).filter(Boolean)
+  );
+  return (currentListings || []).filter(l => {
+    const k = l.mlsNumber || l.listingUrl;
+    return k && !prevKeys.has(k);
+  });
+}
+
+function buildAlertDigestHtml({ alertName, criteria, newListings, dashboardUrl, unsubUrl }) {
+  const C = {
+    bg: "#ffffff", card: "#f8fafc", text: "#0f172a", sub: "#475569",
+    dim: "#94a3b8", blue: "#0066cc", green: "#16a34a", brass: "#d4af37",
+  };
+  const today = new Date().toLocaleDateString("en-CA", {
+    weekday: "short", month: "short", day: "numeric", year: "numeric",
+  });
+
+  const rowsHtml = newListings.slice(0, 20).map(l => `
+    <tr style="border-top:1px solid #e2e8f0">
+      <td style="padding:14px 16px;font-family:'Geist',Inter,sans-serif;font-size:14px;color:${C.text};vertical-align:top">
+        <div style="font-weight:700;margin-bottom:4px">
+          <a href="${escapeAlertHtml(l.listingUrl || "#")}" style="color:${C.text};text-decoration:none">${escapeAlertHtml(l.address || "—")}</a>
+        </div>
+        <div style="font-size:11px;color:${C.dim};letter-spacing:0.5px;text-transform:uppercase">
+          ${l.bedrooms ? `${l.bedrooms} BD` : ""}${l.bathrooms ? ` · ${l.bathrooms} BA` : ""}${l.sqft ? ` · ${Number(l.sqft).toLocaleString()} sqft` : ""}
+        </div>
+        ${l.city ? `<div style="font-size:11px;color:${C.dim};margin-top:3px">${escapeAlertHtml(l.city)}</div>` : ""}
+      </td>
+      <td style="padding:14px 16px;text-align:right;vertical-align:top;font-family:'Geist Mono',ui-monospace,monospace;font-size:14px;color:${C.text};white-space:nowrap">
+        <div style="font-weight:700;color:${C.green}">${fmtAlertMoney(l.price)}</div>
+        ${l.daysOnMarket != null ? `<div style="font-size:11px;color:${C.dim};margin-top:5px">DOM ${l.daysOnMarket}</div>` : ""}
+      </td>
+      <td style="padding:14px 16px;text-align:right;vertical-align:top;font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;white-space:nowrap">
+        ${l.listingUrl ? `<a href="${escapeAlertHtml(l.listingUrl)}" style="color:${C.blue};text-decoration:none;font-weight:600">View →</a>` : ""}
+      </td>
+    </tr>
+  `).join("");
+
+  return `<!doctype html>
+<html><head><meta charset="utf-8"><title>RizeAI · ${escapeAlertHtml(alertName)}</title></head>
+<body style="margin:0;padding:0;background:${C.bg};font-family:'Geist',Inter,Segoe UI,Helvetica,Arial,sans-serif;color:${C.text}">
+  <div style="max-width:680px;margin:0 auto;padding:32px 16px">
+    <div style="background:${C.card};border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+      <div style="padding:24px 28px;border-bottom:1px solid #e2e8f0">
+        <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;color:${C.brass};letter-spacing:1.6px;margin-bottom:6px">▸ RIZE AI · DEAL DIGEST</div>
+        <div style="font-size:22px;font-weight:800;color:${C.text};letter-spacing:-0.5px">${newListings.length} new ${newListings.length === 1 ? "match" : "matches"}</div>
+        <div style="font-size:13px;color:${C.sub};margin-top:5px">${escapeAlertHtml(alertName)} · ${escapeAlertHtml(criteria)}</div>
+        <div style="font-size:11px;color:${C.dim};margin-top:8px;letter-spacing:0.5px;text-transform:uppercase">${today}</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse"><tbody>${rowsHtml}</tbody></table>
+      <div style="padding:20px 28px;background:#fff;border-top:1px solid #e2e8f0;text-align:center">
+        <a href="${escapeAlertHtml(dashboardUrl)}" style="display:inline-block;background:${C.blue};color:#fff;padding:11px 22px;border-radius:4px;text-decoration:none;font-weight:700;font-size:13px;font-family:'Geist Mono',ui-monospace,monospace;letter-spacing:0.5px;text-transform:uppercase">Open in RizeAI →</a>
+      </div>
+    </div>
+    <div style="margin-top:16px;text-align:center;font-size:11px;color:${C.dim};font-family:'Geist Mono',ui-monospace,monospace;letter-spacing:0.4px">
+      <a href="${escapeAlertHtml(unsubUrl)}" style="color:${C.dim};text-decoration:underline">Unsubscribe from this alert</a> · RizeAI · Built in Canada
+    </div>
+  </div>
+</body></html>`;
+}
+
+async function sendAlertDigest({ to, subject, html }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.RESEND_FROM_EMAIL || ALERTS_FROM_DEFAULT;
+  if (!apiKey) return { ok: false, error: "RESEND_API_KEY missing" };
+  const r = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from, to, subject, html }),
+  });
+  if (!r.ok) {
+    const errText = await r.text().catch(() => "");
+    return { ok: false, error: `Resend HTTP ${r.status}: ${errText.slice(0, 200)}` };
+  }
+  return { ok: true };
+}
+
+function summarizeAlertCriteria(alert) {
+  const parts = [];
+  if (alert.city) parts.push(alert.city);
+  if (alert.min_beds) parts.push(`${alert.min_beds}+ beds`);
+  if (alert.max_price) parts.push(`under $${Number(alert.max_price).toLocaleString()}`);
+  if (alert.prop_type && alert.prop_type !== "Any") parts.push(alert.prop_type);
+  return parts.join(" · ");
+}
+
+async function handleCronDailyAlerts(req, res) {
+  if (!isCronAuthorized(req)) return res.status(401).json({ error: "Unauthorized" });
+
+  const { recordCronStart, recordCronEnd } = await import("./_lib/cron-track.js");
+  const runId = await recordCronStart("cron-daily-alerts");
+
+  const startedAt = new Date().toISOString();
+  let supabase;
+  try { supabase = getSupabaseAdmin(); }
+  catch (e) {
+    await recordCronEnd(runId, "error", null, `Supabase init: ${e.message}`);
+    return res.status(500).json({ error: e.message });
+  }
+
+  const report = { startedAt, processed: 0, skipped: 0, emailed: 0, errors: [] };
+
+  let alerts;
+  try {
+    const { data, error } = await supabase
+      .from("deal_alerts")
+      .select("id, user_id, name, country, city, max_price, min_beds, prop_type, email, last_results, enabled")
+      .eq("enabled", true);
+    if (error) throw error;
+    alerts = data || [];
+  } catch (e) {
+    return res.status(500).json({ error: `DB query failed: ${e.message}` });
+  }
+
+  for (const alert of alerts) {
+    report.processed++;
+    if (!alert.city || !alert.email) { report.skipped++; continue; }
+
+    let result;
+    try {
+      result = await runAlertCheck({
+        city: alert.city,
+        country: alert.country || "CA",
+        maxPrice: alert.max_price,
+        minBeds: alert.min_beds || 1,
+      });
+    } catch (e) {
+      report.errors.push({ id: alert.id, stage: "check", error: e.message });
+      continue;
+    }
+
+    const newListings = diffAlertListings(result.listings, alert.last_results || []);
+    const checkedAt = result.checkedAt || new Date().toISOString();
+
+    try {
+      await supabase
+        .from("deal_alerts")
+        .update({
+          last_checked_at: checkedAt,
+          last_results: result.listings,
+          last_new_count: newListings.length,
+        })
+        .eq("id", alert.id);
+    } catch (e) {
+      report.errors.push({ id: alert.id, stage: "persist", error: e.message });
+    }
+
+    if (newListings.length === 0) continue;
+
+    const origin = process.env.PUBLIC_APP_URL || "https://www.realdealestate.app";
+    const html = buildAlertDigestHtml({
+      alertName: alert.name || "Deal Alert",
+      criteria: summarizeAlertCriteria(alert),
+      newListings,
+      dashboardUrl: `${origin}/alerts`,
+      unsubUrl: `${origin}/unsubscribe?alert=${encodeURIComponent(alert.id)}`,
+    });
+    const subject = `${newListings.length} new ${newListings.length === 1 ? "match" : "matches"} — ${alert.name || alert.city}`;
+    const send = await sendAlertDigest({ to: alert.email, subject, html });
+    if (send.ok) report.emailed++;
+    else report.errors.push({ id: alert.id, stage: "email", error: send.error });
+  }
+
+  const finishedAt = new Date().toISOString();
+  await recordCronEnd(
+    runId,
+    report.errors.length === 0 ? "success" : "error",
+    { processed: report.processed, emailed: report.emailed, skipped: report.skipped, errorCount: report.errors.length },
+    report.errors.length > 0 ? `${report.errors.length} alert(s) errored` : null
+  );
+
+  return res.status(200).json({ ...report, finishedAt });
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   mode: "health"
+//   Public-safe health check. No secrets exposed. Reports:
+//     - which env vars are configured (booleans, not values)
+//     - last run timestamp + status per cron
+//     - Supabase reachability (single round-trip)
+//   No auth required so a status page / uptime monitor can poll it.
+// ──────────────────────────────────────────────────────────────────────
+async function handleHealth(req, res) {
+  const env = {
+    ANTHROPIC:        !!(process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY !== "YOUR_ANTHROPIC_API_KEY"),
+    SUPABASE:         !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY),
+    STRIPE:           !!process.env.STRIPE_SECRET_KEY,
+    RESEND:           !!process.env.RESEND_API_KEY,
+    REPLIERS_MLS:     !!process.env.REPLIERS_API_KEY,
+    RENTCAST_US:      !!process.env.RENTCAST_API_KEY,
+    CRON_SECRET:      !!process.env.CRON_SECRET,
+  };
+
+  // Quick Supabase round-trip to confirm reachability.
+  let supabaseReachable = false;
+  if (env.SUPABASE) {
+    try {
+      const { getSupabaseAdmin } = await import("./_lib/supabase-admin.js");
+      const supabase = getSupabaseAdmin();
+      const { error } = await supabase
+        .from("cron_runs")
+        .select("id", { count: "exact", head: true })
+        .limit(1);
+      // Either "row exists" or "no rows" both prove reachability. Table-missing
+      // is also useful information.
+      supabaseReachable = !error || /relation.*does not exist/i.test(error.message);
+    } catch (e) {
+      supabaseReachable = false;
+    }
+  }
+
+  // Latest run per cron — only fetch if Supabase is up + cron_runs table is in.
+  let crons = {};
+  if (supabaseReachable) {
+    try {
+      const { getLatestCronRuns } = await import("./_lib/cron-track.js");
+      crons = await getLatestCronRuns([
+        "cron-digest",
+        "cron-market-brief",
+        "cron-daily-alerts",
+      ]);
+    } catch {}
+  }
+
+  // Roll up an overall status: green if essentials are up + no recent cron errors.
+  const essential = env.ANTHROPIC && env.SUPABASE && supabaseReachable;
+  const recentCronError = Object.values(crons || {}).some(r => r?.status === "error");
+  const overall = essential && !recentCronError ? "ok" : essential ? "degraded" : "down";
+
+  return res.status(200).json({
+    overall,
+    env,
+    supabaseReachable,
+    crons,
+    checkedAt: new Date().toISOString(),
+  });
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   mode: "cron-monthly-brief"
+//   First-Monday-of-month email to newsletter subscribers (leads with
+//   source='newsletter'). Content = last-30d shipped changelog entries
+//   pulled from a bundled MONTHLY_BRIEF_CONTENT array (edit + redeploy
+//   to change what ships this month).
+//
+//   Env: CRON_SECRET, RESEND_API_KEY, RESEND_FROM_EMAIL (optional),
+//        PUBLIC_APP_URL (optional), SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
+// ──────────────────────────────────────────────────────────────────────
+
+// Edit these entries each month before the cron fires. Newest first.
+const MONTHLY_BRIEF_CONTENT = [
+  {
+    title: "Universal address auto-fill across every calculator",
+    body: "Type an address on BRRRR, Commercial, Flip, Rehab, Tax, MortgageQualifier, or LoanCompare — RizeAI now looks up public records and auto-fills year built, sqft, beds/baths, property tax, CMHC rent, and assessed value. Fields you've already typed stay untouched.",
+  },
+  {
+    title: "Deal buddy: benchmarks + coaching + your history",
+    body: "Every calculator now surfaces a live 'buddy read' — verdict pill, per-metric coaching notes ('DSCR 1.18 is below the 1.20 lender floor'), city-aware benchmarks, and a comparison against your own past deals when you have 2+ saved.",
+  },
+  {
+    title: "Save & resume across devices",
+    body: "Half-finished analysis on your laptop? Continue on your phone. Draft state auto-saves every 700ms to your account so you never lose work.",
+  },
+  {
+    title: "The Canadian RE Underwriting Playbook (free PDF)",
+    body: "9-page playbook covering the 4 metrics that predict cash flow, how to read a rent roll in 90 seconds, OSFI B-20 / GDS / TDS / CMHC / CCA gotchas. Download at www.realdealestate.app/playbook.pdf. No email gate.",
+  },
+];
+
+async function handleCronMonthlyBrief(req, res) {
+  const { recordCronStart, recordCronEnd } = await import("./_lib/cron-track.js");
+  const runId = await recordCronStart("cron-monthly-brief");
+  if (!isCronAuthorized(req)) {
+    await recordCronEnd(runId, "error", null, "Unauthorized");
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  // Vercel cron fires every Monday (schedule "0 13 * * 1"). Only actually
+  // send on the FIRST Monday of the month — bail early otherwise. `force=1`
+  // query param bypasses the check for manual testing.
+  const dom = new Date().getUTCDate();
+  const isFirstMonday = dom <= 7;
+  if (!isFirstMonday && req.query?.force !== "1") {
+    await recordCronEnd(runId, "success", { skipped: true, reason: "not-first-monday", dom });
+    return res.status(200).json({ ok: true, skipped: true, note: `not the first Monday (day ${dom})` });
+  }
+
+  let supabase;
+  try { supabase = getSupabaseAdmin(); }
+  catch (e) {
+    await recordCronEnd(runId, "error", null, `Supabase init: ${e.message}`);
+    return res.status(500).json({ error: e.message });
+  }
+
+  // Pull newsletter subscribers — dedupe by email.
+  let subs = [];
+  try {
+    const { data, error } = await supabase
+      .from("leads")
+      .select("id, email, name")
+      .eq("source", "newsletter");
+    if (error) throw error;
+    const seen = new Set();
+    subs = (data || []).filter(l => {
+      const e = (l.email || "").toLowerCase().trim();
+      if (!e || seen.has(e)) return false;
+      seen.add(e);
+      return true;
+    });
+  } catch (e) {
+    await recordCronEnd(runId, "error", null, `Read subs: ${e.message}`);
+    return res.status(502).json({ error: `Could not read subscribers: ${e.message}` });
+  }
+
+  if (subs.length === 0) {
+    await recordCronEnd(runId, "success", { sent: 0, note: "no subscribers yet" });
+    return res.status(200).json({ ok: true, sent: 0, note: "no subscribers yet" });
+  }
+
+  const origin = process.env.PUBLIC_APP_URL || "https://www.realdealestate.app";
+  const html = buildMonthlyBriefHtml({ items: MONTHLY_BRIEF_CONTENT, origin });
+  const subject = `The RizeAI brief — what shipped in ${new Date().toLocaleString("en-CA", { month: "long", year: "numeric" })}`;
+
+  // Send one email per subscriber, capped at 5 concurrent.
+  const results = [];
+  const concurrency = 5;
+  async function sendOne(sub) {
+    try {
+      const r = await sendAlertDigest({ to: sub.email, subject, html });
+      return { email: sub.email, ok: r.ok, error: r.error || null };
+    } catch (e) {
+      return { email: sub.email, ok: false, error: e?.message || "send failed" };
+    }
+  }
+  for (let i = 0; i < subs.length; i += concurrency) {
+    const batch = subs.slice(i, i + concurrency);
+    const batchResults = await Promise.all(batch.map(sendOne));
+    results.push(...batchResults);
+  }
+
+  const summary = {
+    ok: true,
+    subscribers: subs.length,
+    sent: results.filter(r => r.ok).length,
+    errors: results.filter(r => !r.ok).length,
+    errorSamples: results.filter(r => !r.ok).slice(0, 3),
+  };
+  await recordCronEnd(
+    runId,
+    summary.errors === 0 ? "success" : "error",
+    { subscribers: summary.subscribers, sent: summary.sent, errors: summary.errors },
+    summary.errors > 0 ? `${summary.errors} sends failed` : null
+  );
+  return res.status(200).json(summary);
+}
+
+function buildMonthlyBriefHtml({ items, origin }) {
+  const C = {
+    bg: "#ffffff", card: "#f8fafc", text: "#0f172a",
+    sub: "#475569", dim: "#94a3b8", brass: "#d4af37", royal: "#2155cd",
+  };
+  const monthYear = new Date().toLocaleString("en-CA", { month: "long", year: "numeric" });
+
+  const itemsHtml = items.map(it => `
+    <div style="padding:18px 22px;border-top:1px solid #e2e8f0">
+      <div style="font-size:15px;font-weight:800;color:${C.text};letter-spacing:-0.3px;margin-bottom:6px;line-height:1.35">
+        ${escapeAlertHtml(it.title)}
+      </div>
+      <div style="font-size:13px;color:${C.sub};line-height:1.65">
+        ${escapeAlertHtml(it.body)}
+      </div>
+    </div>
+  `).join("");
+
+  return `<!doctype html>
+<html><head><meta charset="utf-8"><title>RizeAI · ${monthYear} brief</title></head>
+<body style="margin:0;padding:0;background:${C.bg};font-family:'Geist',Inter,Segoe UI,Helvetica,Arial,sans-serif;color:${C.text}">
+  <div style="max-width:600px;margin:0 auto;padding:32px 16px">
+    <div style="background:${C.card};border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+      <div style="padding:26px 28px;border-bottom:1px solid #e2e8f0">
+        <div style="font-family:'Geist Mono',ui-monospace,Menlo,monospace;font-size:11px;font-weight:700;color:${C.brass};letter-spacing:1.6px;margin-bottom:8px">▸ RIZE AI · MONTHLY BRIEF</div>
+        <div style="font-size:22px;font-weight:800;color:${C.text};letter-spacing:-0.5px">What we shipped in ${monthYear}.</div>
+        <div style="font-size:13px;color:${C.sub};margin-top:6px">One short email a month. No fluff.</div>
+      </div>
+      ${itemsHtml}
+      <div style="padding:22px 28px;background:#fff;border-top:1px solid #e2e8f0;text-align:center">
+        <a href="${origin}" style="display:inline-block;background:${C.royal};color:#fff;padding:12px 24px;border-radius:4px;text-decoration:none;font-weight:700;font-size:13px;font-family:'Geist Mono',ui-monospace,Menlo,monospace;letter-spacing:0.5px;text-transform:uppercase">Open RizeAI →</a>
+      </div>
+      <div style="padding:16px 28px;font-size:11px;color:${C.dim};text-align:center;font-family:'Geist Mono',ui-monospace,Menlo,monospace;letter-spacing:0.3px">
+        Full changelog · <a href="${origin}/changelog" style="color:${C.brass};text-decoration:none">${origin.replace(/^https?:\/\//,"")}/changelog</a><br>
+        <a href="${origin}/unsubscribe?type=newsletter" style="color:${C.dim};text-decoration:underline">Unsubscribe</a> · RizeAI · Built in Canada
+      </div>
+    </div>
+  </div>
+</body></html>`;
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//   mode: "cron-onboarding"
+//   Daily activation-email sequence for new signups.
+//
+//   Runs every day. For each confirmed user, computes days since signup
+//   and sends the appropriate email (Day 0, 1, 3, or 7) if not already
+//   sent. Idempotent via onboarding_emails table.
+//
+//   Env: CRON_SECRET, RESEND_API_KEY, RESEND_FROM_EMAIL, SUPABASE_URL,
+//        SUPABASE_SERVICE_ROLE_KEY, PUBLIC_APP_URL.
+// ──────────────────────────────────────────────────────────────────────
+
+const ONBOARDING_TEMPLATES = {
+  0: {
+    subject: "Welcome to RizeAI — here's how to get value in 5 minutes",
+    body: ({ origin, name }) => `<!doctype html>
+<html><body style="margin:0;padding:0;background:#0a1128;font-family:'Geist',Inter,sans-serif;color:#f0f0f0">
+<div style="max-width:600px;margin:0 auto;padding:32px 16px">
+  <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(212,175,55,0.28);border-left:3px solid #d4af37;border-radius:8px;overflow:hidden">
+    <div style="padding:26px 28px;border-bottom:1px solid rgba(212,175,55,0.18)">
+      <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;color:#d4af37;letter-spacing:1.4px;margin-bottom:6px">▸ WELCOME</div>
+      <div style="font-size:22px;font-weight:800;color:#fff;letter-spacing:-0.5px">You're in${name ? `, ${escapeAlertHtml(name)}` : ""}.</div>
+    </div>
+    <div style="padding:24px 28px 8px">
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#d4d8e0">Thanks for signing up. RizeAI is the AI underwriting layer for Canadian real estate — the segment CoStar and Altus refuse to call back at your price point.</p>
+      <p style="margin:0 0 20px;font-size:15px;line-height:1.7;color:#d4d8e0">Here's the fastest path to seeing what it does for your next deal:</p>
+      <ol style="margin:0 0 22px 20px;padding:0;font-size:14.5px;line-height:1.75;color:#d4d8e0">
+        <li>Type a Calgary or Toronto multifamily address into <a href="${origin}/analyze" style="color:#d4af37">the X-Ray bar</a> — 5 seconds to zoning + assessment + Building Grade</li>
+        <li>Drop a broker rent roll PDF onto <a href="${origin}/commercial" style="color:#d4af37">/commercial</a> — AI OCRs every unit, cross-references CMHC, surfaces the stranded upside in dollars</li>
+        <li>Save your first deal — it auto-syncs across devices</li>
+      </ol>
+    </div>
+    <div style="padding:0 28px 24px;text-align:center">
+      <a href="${origin}/analyze" style="display:inline-block;background:#d4af37;color:#0a1128;padding:13px 28px;border-radius:4px;text-decoration:none;font-weight:800;font-size:13px;font-family:'Geist Mono',ui-monospace,monospace;letter-spacing:0.6px;text-transform:uppercase">▸ Analyze your first deal</a>
+    </div>
+    <div style="padding:16px 28px 20px;background:rgba(0,0,0,0.25);font-size:11.5px;color:#94a3b8;text-align:center;font-family:'Geist Mono',ui-monospace,monospace;letter-spacing:0.3px">
+      Reply to this email with a question and I'll answer within 24 hrs.<br>Sunni · founder@rizeai.io
+    </div>
+  </div>
+</div>
+</body></html>`,
+  },
+  1: {
+    subject: "Did you get the X-Ray to work yet?",
+    body: ({ origin }) => `<!doctype html>
+<html><body style="margin:0;padding:0;background:#0a1128;font-family:'Geist',Inter,sans-serif;color:#f0f0f0">
+<div style="max-width:600px;margin:0 auto;padding:32px 16px">
+  <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(33,85,205,0.32);border-left:3px solid #2155cd;border-radius:8px;overflow:hidden">
+    <div style="padding:26px 28px 8px">
+      <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;color:#5b8eff;letter-spacing:1.4px;margin-bottom:6px">▸ DAY 1 · ACTIVATION</div>
+      <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-bottom:14px">Quick nudge on the X-Ray bar.</div>
+      <p style="margin:0 0 16px;font-size:14.5px;line-height:1.7;color:#d4d8e0">If yesterday got busy, no worries — 90 seconds is all you need.</p>
+      <p style="margin:0 0 16px;font-size:14.5px;line-height:1.7;color:#d4d8e0">Try this: paste any Canadian address you know into the X-Ray bar. If we cover the city (7 so far — Calgary, Edmonton, Vancouver, Toronto, Ottawa, Mississauga, Hamilton), you'll see parcel-level zoning, year built, assessed value, CMHC market rent, and an AI Building Grade — in 5 seconds.</p>
+    </div>
+    <div style="padding:0 28px 24px;text-align:center">
+      <a href="${origin}/analyze" style="display:inline-block;background:#2155cd;color:#fff;padding:12px 26px;border-radius:4px;text-decoration:none;font-weight:800;font-size:13px;font-family:'Geist Mono',ui-monospace,monospace;letter-spacing:0.6px;text-transform:uppercase">▸ Run an X-Ray now</a>
+    </div>
+    <div style="padding:14px 28px 18px;background:rgba(0,0,0,0.25);font-size:11px;color:#94a3b8;text-align:center;font-family:'Geist Mono',ui-monospace,monospace">
+      Not the right time? <a href="${origin}/unsubscribe?type=onboarding" style="color:#94a3b8">Unsubscribe from the onboarding sequence</a>
+    </div>
+  </div>
+</div>
+</body></html>`,
+  },
+  3: {
+    subject: "How Canadian brokers actually use RizeAI",
+    body: ({ origin }) => `<!doctype html>
+<html><body style="margin:0;padding:0;background:#0a1128;font-family:'Geist',Inter,sans-serif;color:#f0f0f0">
+<div style="max-width:600px;margin:0 auto;padding:32px 16px">
+  <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(212,175,55,0.32);border-left:3px solid #d4af37;border-radius:8px;overflow:hidden">
+    <div style="padding:26px 28px 8px">
+      <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;color:#d4af37;letter-spacing:1.4px;margin-bottom:6px">▸ DAY 3 · THE WEDGE</div>
+      <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-bottom:14px">The one feature brokers can't stop using.</div>
+      <p style="margin:0 0 16px;font-size:14.5px;line-height:1.7;color:#d4d8e0">Every broker I've onboarded uses one feature more than anything else on the platform:</p>
+      <p style="margin:0 0 16px;font-size:16.5px;font-weight:700;line-height:1.5;color:#d4af37;letter-spacing:-0.2px">The rent-roll → Loss-to-Lease parser.</p>
+      <p style="margin:0 0 16px;font-size:14.5px;line-height:1.7;color:#d4d8e0">Drag a broker rent roll PDF onto <a href="${origin}/commercial" style="color:#d4af37">/commercial</a>. AI OCRs every unit row, cross-references CMHC market rent for that bedroom count in that metro, and surfaces annual stranded upside in <strong style="color:#fff">dollars</strong>.</p>
+      <p style="margin:0 0 8px;font-size:14.5px;line-height:1.7;color:#d4d8e0">Real demo — 24-unit Calgary multifamily, 47-page broker OM:</p>
+      <div style="padding:14px 16px;background:rgba(212,175,55,0.08);border:1px solid rgba(212,175,55,0.28);border-radius:5px;margin-bottom:20px;font-family:'Geist Mono',ui-monospace,monospace;font-size:13px;color:#f0f0f0;letter-spacing:-0.2px">
+        $187K annual upside · $708/door/mo · 38% below market · $460K 5-yr NPV
+      </div>
+      <p style="margin:0 0 20px;font-size:14.5px;line-height:1.7;color:#d4d8e0">Surfaced in 5 seconds. No competitor at any price ships this. It's on the <strong style="color:#fff">$299/mo Scale tier</strong>.</p>
+    </div>
+    <div style="padding:0 28px 24px;text-align:center">
+      <a href="${origin}/commercial?demo=1" style="display:inline-block;background:#d4af37;color:#0a1128;padding:12px 26px;border-radius:4px;text-decoration:none;font-weight:800;font-size:13px;font-family:'Geist Mono',ui-monospace,monospace;letter-spacing:0.6px;text-transform:uppercase">▸ See the demo live</a>
+    </div>
+    <div style="padding:14px 28px 18px;background:rgba(0,0,0,0.25);font-size:11px;color:#94a3b8;text-align:center;font-family:'Geist Mono',ui-monospace,monospace">
+      Have a rent roll to test? Reply — I'll run it live on Zoom, no strings.
+    </div>
+  </div>
+</div>
+</body></html>`,
+  },
+  7: {
+    subject: "One week in — quick check",
+    body: ({ origin }) => `<!doctype html>
+<html><body style="margin:0;padding:0;background:#0a1128;font-family:'Geist',Inter,sans-serif;color:#f0f0f0">
+<div style="max-width:600px;margin:0 auto;padding:32px 16px">
+  <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(34,197,94,0.32);border-left:3px solid #22c55e;border-radius:8px;overflow:hidden">
+    <div style="padding:26px 28px 8px">
+      <div style="font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;font-weight:700;color:#22c55e;letter-spacing:1.4px;margin-bottom:6px">▸ DAY 7 · CHECK-IN</div>
+      <div style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-0.3px;margin-bottom:14px">One week. How's it going?</div>
+      <p style="margin:0 0 16px;font-size:14.5px;line-height:1.7;color:#d4d8e0">Two questions I want honest answers to:</p>
+      <ol style="margin:0 0 20px 20px;padding:0;font-size:14.5px;line-height:1.75;color:#d4d8e0">
+        <li>What's the one thing that would make this tool 10x more useful for your workflow?</li>
+        <li>What's the one thing that got in the way when you tried to use it this week?</li>
+      </ol>
+      <p style="margin:0 0 16px;font-size:14.5px;line-height:1.7;color:#d4d8e0"><strong style="color:#fff">Hit reply.</strong> These emails come to me directly and every reply shapes what ships next.</p>
+      <p style="margin:0 0 20px;font-size:14.5px;line-height:1.7;color:#d4d8e0">Also — if you haven't gone through <a href="${origin}/playbook.pdf" style="color:#22c55e">the Canadian RE Underwriting Playbook</a> yet, that's the fastest way to get the mental model that makes the rest of the platform click.</p>
+    </div>
+    <div style="padding:0 28px 24px;text-align:center">
+      <a href="mailto:hello@rizeai.io" style="display:inline-block;background:#22c55e;color:#0a1128;padding:12px 26px;border-radius:4px;text-decoration:none;font-weight:800;font-size:13px;font-family:'Geist Mono',ui-monospace,monospace;letter-spacing:0.6px;text-transform:uppercase">▸ Reply with feedback</a>
+    </div>
+    <div style="padding:14px 28px 18px;background:rgba(0,0,0,0.25);font-size:11px;color:#94a3b8;text-align:center;font-family:'Geist Mono',ui-monospace,monospace">
+      Last email in the onboarding sequence. Product updates land monthly if you subscribed.
+    </div>
+  </div>
+</div>
+</body></html>`,
+  },
+};
+
+async function sendOnboardingEmail({ to, day, name, origin }) {
+  const template = ONBOARDING_TEMPLATES[day];
+  if (!template) return { ok: false, error: "unknown day" };
+  const html = template.body({ origin, name });
+  const subject = template.subject;
+  return sendAlertDigest({ to, subject, html });
+}
+
+async function handleCronOnboarding(req, res) {
+  const { recordCronStart, recordCronEnd } = await import("./_lib/cron-track.js");
+  const runId = await recordCronStart("cron-onboarding");
+  if (!isCronAuthorized(req)) {
+    await recordCronEnd(runId, "error", null, "Unauthorized");
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  let supabase;
+  try { supabase = getSupabaseAdmin(); }
+  catch (e) {
+    await recordCronEnd(runId, "error", null, `Supabase init: ${e.message}`);
+    return res.status(500).json({ error: e.message });
+  }
+
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const sbHeaders = {
+    apikey: serviceKey,
+    Authorization: `Bearer ${serviceKey}`,
+    "Content-Type": "application/json",
+  };
+
+  // Pull confirmed users. Cap at 3 pages × 200 = 600 users. Above that
+  // this loop needs pagination-continuation support.
+  let users = [];
+  try {
+    for (let page = 1; page <= 3; page++) {
+      const r = await fetch(`${supabaseUrl}/auth/v1/admin/users?page=${page}&per_page=200`, { headers: sbHeaders });
+      if (!r.ok) break;
+      const data = await r.json();
+      const batch = (data?.users || []).filter(u => u.email_confirmed_at);
+      users.push(...batch);
+      if (batch.length < 200) break;
+    }
+  } catch (e) {
+    await recordCronEnd(runId, "error", null, `User list: ${e.message}`);
+    return res.status(502).json({ error: `Could not list users: ${e.message}` });
+  }
+
+  // Pull existing send-history so we know what NOT to re-send.
+  let alreadySent = new Set();
+  try {
+    const { data } = await supabase
+      .from("onboarding_emails")
+      .select("user_id, day");
+    for (const row of (data || [])) alreadySent.add(`${row.user_id}|${row.day}`);
+  } catch {}
+
+  const origin = process.env.PUBLIC_APP_URL || "https://www.realdealestate.app";
+  const now = Date.now();
+  const DAY = 86_400_000;
+  const MARKERS = [0, 1, 3, 7];
+
+  const results = { processed: 0, sent: 0, skipped: 0, errors: [] };
+
+  for (const u of users) {
+    if (!u.email) continue;
+    const anchor = u.email_confirmed_at ? new Date(u.email_confirmed_at).getTime()
+                                         : new Date(u.created_at).getTime();
+    const daysSince = Math.floor((now - anchor) / DAY);
+
+    let dueMarker = null;
+    for (const m of MARKERS) {
+      if (daysSince >= m && !alreadySent.has(`${u.id}|${m}`)) {
+        dueMarker = m;
+      }
+    }
+    if (dueMarker == null) { results.skipped++; continue; }
+
+    results.processed++;
+    const rawMeta = u.user_metadata || u.raw_user_meta_data || {};
+    const name = rawMeta.name || rawMeta.full_name || "";
+
+    const send = await sendOnboardingEmail({ to: u.email, day: dueMarker, name, origin });
+    if (send.ok) {
+      results.sent++;
+      try {
+        await supabase.from("onboarding_emails").insert({
+          user_id: u.id,
+          email:   u.email,
+          day:     dueMarker,
+          result_id: send.id || null,
+        });
+      } catch (e) {
+        results.errors.push({ user: u.email, day: dueMarker, stage: "insert", error: e?.message });
+      }
+    } else {
+      results.errors.push({ user: u.email, day: dueMarker, stage: "send", error: send.error });
+    }
+  }
+
+  await recordCronEnd(
+    runId,
+    results.errors.length === 0 ? "success" : "error",
+    { processed: results.processed, sent: results.sent, skipped: results.skipped, errorCount: results.errors.length },
+    results.errors.length > 0 ? `${results.errors.length} error(s)` : null
+  );
+  return res.status(200).json({ ok: true, ...results });
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// v1 PUBLIC API — routed via vercel.json rewrites so we stay under the 12
+// serverless-function cap. Public URLs:
+//   POST /api/v1/verdict → mode=v1-verdict (Scale-tier programmatic access)
+//   GET/POST/DELETE /api/v1/keys → mode=v1-keys (internal — key CRUD)
+// ═══════════════════════════════════════════════════════════════════════════
+
+
+const V1_PLAN_QUOTAS = { scale: 5000, enterprise: 100000, pro: 0, free: 0 };
+
+function v1Sha256(s) { return crypto.createHash("sha256").update(String(s)).digest("hex"); }
+function v1NewRequestId() { return "req_" + crypto.randomBytes(10).toString("hex"); }
+function v1Err(res, status, code, message) {
+  return res.status(status).json({ success: false, error: { code, message } });
+}
+function v1ExtractKey(req) {
+  const auth = req.headers["authorization"] || req.headers["Authorization"];
+  if (typeof auth === "string" && auth.toLowerCase().startsWith("bearer ")) return auth.slice(7).trim();
+  const x = req.headers["x-api-key"] || req.headers["X-API-Key"];
+  if (typeof x === "string") return x.trim();
+  return null;
+}
+function v1GenerateKey() {
+  const raw = crypto.randomBytes(20).toString("base64")
+    .replace(/\+/g, "").replace(/\//g, "").replace(/=/g, "").slice(0, 24);
+  return `rzai_live_${raw}`;
+}
+function v1RedactAddress(addr) {
+  if (!addr) return "";
+  const parts = String(addr).split(",");
+  return (parts[1] || parts[0] || "").trim().slice(0, 60);
+}
+
+async function v1GetSupabaseAdmin() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Supabase env missing");
+  const { createClient } = await import("@supabase/supabase-js");
+  return createClient(url, key, { auth: { persistSession: false } });
+}
+
+// ─── /api/v1/verdict ───────────────────────────────────────────────────────
+async function handleV1Verdict(req, res) {
+  const started = Date.now();
+
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-API-Key");
+  if (req.method === "OPTIONS") return res.status(200).end();
+
+  const requestId = v1NewRequestId();
+  res.setHeader("X-Request-ID", requestId);
+  if (req.method !== "POST" && req.method !== "GET") return v1Err(res, 405, "method_not_allowed", "Use POST or GET.");
+
+  let supa;
+  try { supa = await v1GetSupabaseAdmin(); }
+  catch (e) { console.error("[v1/verdict] supabase init:", e.message); return v1Err(res, 503, "backend_unavailable", "Auth backend unavailable."); }
+
+  // Authenticate
+  const rawKey = v1ExtractKey(req);
+  if (!rawKey || rawKey.length < 20) return v1Err(res, 401, "invalid_key", "Missing or malformed API key.");
+  const { data: keyRow, error: keyErr } = await supa
+    .from("api_keys")
+    .select("id, user_id, name, plan_tier, monthly_limit, revoked_at")
+    .eq("key_hash", v1Sha256(rawKey))
+    .maybeSingle();
+  if (keyErr) { console.error("[v1/verdict] key lookup:", keyErr.message); return v1Err(res, 500, "auth_lookup_failed", "Auth backend error."); }
+  if (!keyRow) return v1Err(res, 401, "invalid_key", "API key not recognized.");
+  if (keyRow.revoked_at) return v1Err(res, 401, "revoked_key", "This API key has been revoked.");
+
+  // Resolve tier + quota
+  let tier = keyRow.plan_tier || "free";
+  try {
+    const { data: sub } = await supa.from("subscriptions").select("plan, status").eq("user_id", keyRow.user_id).maybeSingle();
+    if (sub?.status === "active" && sub.plan) {
+      const rank = { free: 0, pro: 1, scale: 2, enterprise: 3 };
+      if ((rank[sub.plan] ?? 0) > (rank[tier] ?? 0)) tier = sub.plan;
+    }
+  } catch {}
+  const quota = keyRow.monthly_limit > 0 ? keyRow.monthly_limit : (V1_PLAN_QUOTAS[tier] ?? 0);
+  if (quota <= 0) return v1Err(res, 402, "no_api_access", `API access requires the Scale tier. Current tier: ${tier}.`);
+
+  // Monthly usage check
+  const monthStart = new Date(); monthStart.setUTCDate(1); monthStart.setUTCHours(0, 0, 0, 0);
+  const { count } = await supa.from("api_usage").select("id", { count: "exact", head: true })
+    .eq("user_id", keyRow.user_id).gte("occurred_at", monthStart.toISOString());
+  const used = count || 0;
+  if (used >= quota) return v1Err(res, 429, "monthly_quota_exceeded", `Monthly quota of ${quota} calls exceeded. Resets at UTC month boundary.`);
+
+  // Input
+  const address = req.method === "POST"
+    ? (req.body?.address || "").toString().trim()
+    : (req.query?.address || "").toString().trim();
+  if (!address || address.length < 6) return v1Err(res, 400, "missing_address", "Request must include a non-empty `address` field.");
+
+  // Call internal property-lookup
+  let propertyBlob = null;
+  try {
+    const proto = req.headers["x-forwarded-proto"] || "https";
+    const host  = req.headers["x-forwarded-host"] || req.headers.host;
+    const propUrl = `${proto}://${host}/api/property-lookup?address=${encodeURIComponent(address)}`;
+    const r = await fetch(propUrl);
+    if (r.ok) propertyBlob = await r.json();
+  } catch (e) { console.warn("[v1/verdict] property-lookup:", e.message); }
+
+  const property = {
+    address:           propertyBlob?.address        || address,
+    city:              propertyBlob?.city           || null,
+    province:          propertyBlob?.province       || null,
+    purchasePrice:     propertyBlob?.listPrice      || propertyBlob?.estimatedValue || null,
+    estimatedValue:    propertyBlob?.estimatedValue || null,
+    rentEstimate:      propertyBlob?.rentEstimate   || null,
+    sqft:              propertyBlob?.sqft           || null,
+    beds:              propertyBlob?.beds           || null,
+    baths:             propertyBlob?.baths          || null,
+    units:             propertyBlob?.units          || null,
+    propertyTaxAnnual: propertyBlob?.propertyTaxAnnual || null,
+    zoning:            propertyBlob?.zoning         || null,
+    lotSize:           propertyBlob?.lotSize        || null,
+    yearBuilt:         propertyBlob?.yearBuilt      || null,
+    source:            propertyBlob?.source         || "api-v1",
+  };
+
+  // Verdicts + zoning specs via dynamic import of shared frontend modules
+  let verdicts = [], zoningSpecs = null;
+  try {
+    const strategyMathUrl = new URL("../src/lib/strategyMath.js", import.meta.url);
+    const zoningSpecsUrl  = new URL("../src/lib/zoningSpecs.js",  import.meta.url);
+    const [{ runAllStrategies }, { getZoningSpecs }] = await Promise.all([
+      import(strategyMathUrl.href),
+      import(zoningSpecsUrl.href),
+    ]);
+    verdicts = runAllStrategies(property).map(v => ({
+      key: v.key, name: v.name || null, viable: !!v.viable,
+      verdict: v.verdict?.label || null, color: v.verdict?.color || null,
+      headline: v.headline || null, subhead: v.subhead || null,
+      metrics: v.metrics || null, route: v.route || null,
+    }));
+    if (property.zoning) {
+      const specs = getZoningSpecs(property.zoning, property.city || property.address);
+      if (specs) zoningSpecs = specs;
+    }
+  } catch (e) { console.warn("[v1/verdict] math import:", e.message); }
+
+  const durationMs = Date.now() - started;
+
+  // Fire-and-forget usage log
+  (async () => {
+    try {
+      await supa.from("api_usage").insert({
+        api_key_id: keyRow.id, user_id: keyRow.user_id,
+        endpoint: "/api/v1/verdict", status_code: 200,
+        duration_ms: durationMs, request_id: requestId,
+        address_hint: v1RedactAddress(address),
+      });
+      await supa.from("api_keys").update({ last_used_at: new Date().toISOString() }).eq("id", keyRow.id);
+    } catch (e) { console.warn("[v1/verdict] usage log:", e?.message); }
+  })();
+
+  return res.status(200).json({
+    success: true, request_id: requestId,
+    property, verdicts, zoning_specs: zoningSpecs,
+    credits: { used_this_month: used + 1, monthly_limit: quota, tier },
+    meta: { duration_ms: durationMs, api_version: "1.0" },
+  });
+}
+
+// ─── /api/v1/keys (internal — key CRUD via Supabase JWT auth) ──────────────
+async function handleV1Keys(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") return res.status(200).end();
+
+  let supa;
+  try { supa = await v1GetSupabaseAdmin(); }
+  catch (e) { console.error("[v1/keys] supabase init:", e.message); return v1Err(res, 503, "backend_unavailable", "Auth backend unavailable."); }
+
+  // Verify Supabase JWT
+  const auth = req.headers["authorization"] || req.headers["Authorization"];
+  if (typeof auth !== "string" || !auth.toLowerCase().startsWith("bearer ")) {
+    return v1Err(res, 401, "no_auth", "Missing Authorization: Bearer <jwt> header.");
+  }
+  const jwt = auth.slice(7).trim();
+  const { data: userRes, error: userErr } = await supa.auth.getUser(jwt);
+  if (userErr || !userRes?.user) return v1Err(res, 401, "invalid_jwt", "JWT could not be verified.");
+  const userId = userRes.user.id;
+
+  // Resolve tier
+  let tier = "free";
+  try {
+    const { data: sub } = await supa.from("subscriptions").select("plan, status").eq("user_id", userId).maybeSingle();
+    if (sub?.status === "active" && sub.plan) tier = sub.plan;
+  } catch {}
+
+  if (req.method === "GET") {
+    const { data, error } = await supa.from("api_keys")
+      .select("id, name, key_prefix, plan_tier, monthly_limit, created_at, last_used_at, revoked_at")
+      .eq("user_id", userId).order("created_at", { ascending: false });
+    if (error) return v1Err(res, 500, "list_failed", error.message);
+    return res.status(200).json({ success: true, keys: data || [], tier });
+  }
+
+  if (req.method === "POST") {
+    if (tier !== "scale" && tier !== "enterprise") {
+      return v1Err(res, 402, "upgrade_required", `API keys require Scale tier. Current tier: ${tier}.`);
+    }
+    const name = (req.body?.name || "").toString().trim();
+    if (!name || name.length > 60) return v1Err(res, 400, "invalid_name", "`name` required (1-60 chars).");
+    const rawKey = v1GenerateKey();
+    const { data, error } = await supa.from("api_keys").insert({
+      user_id: userId, key_hash: v1Sha256(rawKey), key_prefix: rawKey.slice(0, 14),
+      name, plan_tier: tier,
+    }).select("id, name, key_prefix, created_at").single();
+    if (error) return v1Err(res, 500, "insert_failed", error.message);
+    return res.status(200).json({
+      success: true, key: rawKey,
+      warning: "Copy this key now. You won't see the full value again — only the prefix.",
+      record: data,
+    });
+  }
+
+  if (req.method === "DELETE") {
+    const id = req.query?.id;
+    if (!id) return v1Err(res, 400, "missing_id", "?id query param required.");
+    const { error } = await supa.from("api_keys")
+      .update({ revoked_at: new Date().toISOString() })
+      .eq("id", id).eq("user_id", userId);
+    if (error) return v1Err(res, 500, "revoke_failed", error.message);
+    return res.status(200).json({ success: true, revoked: true });
+  }
+
+  return v1Err(res, 405, "method_not_allowed", "Use GET, POST, or DELETE.");
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// WEEKLY BUY BOX DIGEST — runs Monday 09:00 UTC via vercel.json cron.
+// For each user with weekly_digest_enabled=true buy boxes:
+//   1. Re-run each watchlist address through /api/property-lookup
+//   2. Score against buy box criteria (city fit, price fit, strategy fit)
+//   3. If any STRONG_FIT / GOOD_FIT matches → send branded email
+//   4. Record buy_box_digest_runs row + touch last_digest_run_at
+// ═══════════════════════════════════════════════════════════════════════════
+async function handleCronWeeklyBuyBoxDigest(req, res) {
+  if (!isCronAuthorized(req)) return res.status(401).json({ error: "Unauthorized" });
+
+  const { recordCronStart, recordCronEnd } = await import("./_lib/cron-track.js");
+  const runId = await recordCronStart("cron-weekly-buybox-digest");
+
+  const supabase = await v1GetSupabaseAdmin();
+  const origin = baseUrlFromReq(req);
+
+  // Only re-run boxes that either have never run OR ran > 6 days ago (dedup
+  // window slightly under 7d so cron drift doesn't skip a week).
+  const sixDaysAgo = new Date(Date.now() - 6 * 24 * 3600 * 1000).toISOString();
+
+  const { data: boxes, error: boxErr } = await supabase
+    .from("buy_boxes")
+    .select("id, user_id, name, cities, price_min, price_max, strategy, units_min, watchlist_addresses, last_digest_run_at")
+    .eq("weekly_digest_enabled", true)
+    .or(`last_digest_run_at.is.null,last_digest_run_at.lt.${sixDaysAgo}`)
+    .limit(200);
+
+  if (boxErr) {
+    await recordCronEnd(runId, "error", {}, boxErr.message);
+    return res.status(500).json({ error: boxErr.message });
+  }
+
+  const results = { processed: 0, sent: 0, no_matches: 0, errors: [] };
+
+  // Dynamic-import the shared math + zoning modules once at the top so we
+  // don't re-import inside the loop.
+  let runAllStrategies = null;
+  let scoreProperty = null;
+  try {
+    const strategyMathUrl = new URL("../src/lib/strategyMath.js", import.meta.url);
+    const buyBoxLibUrl    = new URL("../src/lib/buyBox.js",       import.meta.url);
+    const [sm, bb] = await Promise.all([import(strategyMathUrl.href), import(buyBoxLibUrl.href)]);
+    runAllStrategies = sm.runAllStrategies;
+    scoreProperty    = bb.scoreProperty;
+  } catch (e) {
+    console.error("[buybox-digest] module import failed:", e.message);
+    await recordCronEnd(runId, "error", {}, `module import: ${e.message}`);
+    return res.status(500).json({ error: "module import failed" });
+  }
+
+  // Batch users so we don't hammer Supabase.auth.admin.getUserById 200 times.
+  // Simpler: query auth.users once for all user_ids in this batch.
+  const userIds = [...new Set((boxes || []).map(b => b.user_id))];
+  const userEmails = new Map();
+  if (userIds.length) {
+    try {
+      const { data: users } = await supabase.auth.admin.listUsers({ perPage: 500 });
+      for (const u of users?.users || []) {
+        if (userIds.includes(u.id) && u.email) userEmails.set(u.id, u.email);
+      }
+    } catch (e) {
+      console.warn("[buybox-digest] listUsers failed:", e?.message);
+    }
+  }
+
+  for (const box of boxes || []) {
+    results.processed++;
+    const email = userEmails.get(box.user_id);
+    if (!email) {
+      results.errors.push({ box: box.name, error: "no email for user" });
+      continue;
+    }
+    const addresses = (box.watchlist_addresses || []).slice(0, 20);
+    if (addresses.length === 0) {
+      // No watchlist yet — just touch last_digest_run_at so we don't loop
+      await supabase.from("buy_boxes").update({ last_digest_run_at: new Date().toISOString() }).eq("id", box.id);
+      results.no_matches++;
+      continue;
+    }
+
+    // Score each address
+    const scored = [];
+    for (const addr of addresses) {
+      try {
+        const r = await fetch(`${origin}/api/property-lookup?address=${encodeURIComponent(addr)}`);
+        if (!r.ok) continue;
+        const propData = await r.json();
+        const property = {
+          address:           propData.address        || addr,
+          city:              propData.city           || "",
+          province:          propData.province       || "",
+          purchasePrice:     propData.listPrice      || propData.estimatedValue || null,
+          estimatedValue:    propData.estimatedValue || null,
+          rentEstimate:      propData.rentEstimate   || null,
+          sqft:              propData.sqft           || null,
+          beds:              propData.beds           || null,
+          baths:             propData.baths          || null,
+          units:             propData.units          || null,
+          propertyTaxAnnual: propData.propertyTaxAnnual || null,
+          zoning:            propData.zoning         || null,
+        };
+        const strategyResults = runAllStrategies(property);
+        const boxCriteria = {
+          cities:      box.cities || [],
+          priceMin:    box.price_min,
+          priceMax:    box.price_max,
+          strategy:    box.strategy,
+          unitsMin:    box.units_min,
+        };
+        const scoreBundle = scoreProperty(property, boxCriteria, strategyResults);
+        const bestStrategy = strategyResults.find(s => s.viable);
+        scored.push({
+          address:    addr,
+          score:      scoreBundle.score,
+          verdict:    scoreBundle.verdict,
+          bestStrategy: bestStrategy?.name || null,
+          bestHeadline: bestStrategy?.headline || null,
+        });
+      } catch (e) {
+        console.warn(`[buybox-digest] score fail for ${addr}:`, e?.message);
+      }
+    }
+
+    // Rank by score desc, keep top 5
+    scored.sort((a, b) => (b.score || 0) - (a.score || 0));
+    const top = scored.slice(0, 5);
+    const strongMatches = top.filter(s => s.verdict === "STRONG_FIT" || s.verdict === "GOOD_FIT");
+
+    let status = "no_matches";
+    let emailResultId = null;
+    if (strongMatches.length > 0) {
+      const html = buildBuyBoxDigestHTML({ boxName: box.name, top, strongCount: strongMatches.length, origin });
+      const send = await sendAlertDigest({
+        to: email,
+        subject: `▸ ${strongMatches.length} new match${strongMatches.length === 1 ? "" : "es"} · ${box.name}`,
+        html,
+      });
+      if (send.ok) {
+        status = "sent";
+        emailResultId = send.id || null;
+        results.sent++;
+      } else {
+        status = "error";
+        results.errors.push({ box: box.name, error: send.error });
+      }
+    } else {
+      results.no_matches++;
+    }
+
+    // Record run + update box
+    try {
+      await supabase.from("buy_box_digest_runs").insert({
+        user_id: box.user_id,
+        buy_box_id: box.id,
+        addresses_processed: addresses.length,
+        matches_found: strongMatches.length,
+        email_result_id: emailResultId,
+        status,
+        summary: { top: top.slice(0, 3) },
+      });
+      await supabase.from("buy_boxes").update({ last_digest_run_at: new Date().toISOString() }).eq("id", box.id);
+    } catch (e) {
+      console.warn(`[buybox-digest] audit write failed for ${box.name}:`, e?.message);
+    }
+  }
+
+  await recordCronEnd(
+    runId,
+    results.errors.length === 0 ? "success" : "error",
+    { processed: results.processed, sent: results.sent, no_matches: results.no_matches, errorCount: results.errors.length },
+    results.errors.length > 0 ? `${results.errors.length} error(s)` : null
+  );
+  return res.status(200).json({ ok: true, ...results });
+}
+
+/** Branded HTML email — insider-forward voice matching the RizeAI landing. */
+function buildBuyBoxDigestHTML({ boxName, top, strongCount, origin }) {
+  const boxUrl = `${origin}/buybox`;
+  const rows = top.map((m, i) => `
+    <tr>
+      <td style="padding:12px 14px;border-bottom:1px solid #eef2f7;vertical-align:top;font-family:monospace;color:#d4af37;font-weight:800;">#${i + 1}</td>
+      <td style="padding:12px 14px;border-bottom:1px solid #eef2f7;vertical-align:top;">
+        <div style="font-weight:700;color:#0f172a;font-size:14px;margin-bottom:3px;">${escapeHtml(m.address)}</div>
+        <div style="font-family:monospace;font-size:11.5px;color:#475569;">
+          ${m.bestStrategy || "—"} · ${escapeHtml(m.bestHeadline || "")}
+        </div>
+      </td>
+      <td style="padding:12px 14px;border-bottom:1px solid #eef2f7;vertical-align:top;text-align:right;font-family:monospace;">
+        <div style="font-size:20px;font-weight:800;color:${verdictColor(m.verdict)};line-height:1;margin-bottom:4px;">${m.score}</div>
+        <div style="display:inline-block;padding:2px 7px;border-radius:4px;background:${verdictColor(m.verdict)};color:#fff;font-size:9.5px;font-weight:800;letter-spacing:0.6px;">
+          ${(m.verdict || "").replace("_", " ")}
+        </div>
+      </td>
+    </tr>
+  `).join("");
+
+  return `<!doctype html>
+<html>
+<body style="margin:0;padding:0;background:#f8fafc;font-family:'Geist','Helvetica Neue',sans-serif;color:#0f172a;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;padding:32px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 20px 40px -18px rgba(15,23,42,0.12);">
+
+        <!-- Header stripe -->
+        <tr><td style="background:#0a1128;padding:22px 26px 20px;">
+          <div style="font-family:monospace;font-size:10px;font-weight:700;letter-spacing:1.6px;color:#d4af37;text-transform:uppercase;margin-bottom:6px;">
+            ▸ WEEKLY BUY BOX DIGEST
+          </div>
+          <div style="font-size:22px;font-weight:800;color:#ffffff;letter-spacing:-0.5px;line-height:1.2;">
+            ${strongCount} new match${strongCount === 1 ? "" : "es"} in ${escapeHtml(boxName)}
+          </div>
+        </td></tr>
+
+        <!-- Body -->
+        <tr><td style="padding:24px 26px 8px;">
+          <div style="font-size:14px;color:#475569;line-height:1.6;margin-bottom:18px;">
+            RizeAI re-ran your watchlist against current data. Here are the top matches for this week — sorted by fit score. Click through for the full 4-strategy verdict.
+          </div>
+        </td></tr>
+
+        <!-- Matches -->
+        <tr><td style="padding:0 26px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #eef2f7;border-radius:8px;overflow:hidden;">
+            ${rows}
+          </table>
+        </td></tr>
+
+        <!-- CTA -->
+        <tr><td style="padding:24px 26px 20px;text-align:center;">
+          <a href="${boxUrl}" style="display:inline-block;padding:12px 24px;background:#d4af37;color:#0a1128;text-decoration:none;font-family:monospace;font-size:12px;font-weight:800;letter-spacing:0.8px;text-transform:uppercase;border-radius:6px;">
+            Open your Buy Box →
+          </a>
+        </td></tr>
+
+        <!-- Footer -->
+        <tr><td style="padding:16px 26px 24px;border-top:1px solid #eef2f7;">
+          <div style="font-size:11.5px;color:#94a3b8;line-height:1.5;">
+            You're getting this because you enabled the weekly digest on your <b>${escapeHtml(boxName)}</b> Buy Box.
+            <br />
+            <a href="${boxUrl}" style="color:#d4af37;text-decoration:none;">Turn off in /buybox</a> · Not investment advice.
+          </div>
+        </td></tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+}
+
+function verdictColor(v) {
+  if (v === "STRONG_FIT") return "#16a34a";
+  if (v === "GOOD_FIT")   return "#22c55e";
+  if (v === "MAYBE")      return "#eab308";
+  return "#dc2626";
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PUBLIC METRICS — powers /live traction dashboard + /pitch investor page.
+// Returns aggregated counts from tables that exist. Missing tables (pending
+// migrations) return 0 gracefully. Cached 60s to prevent hammering Supabase.
+// ═══════════════════════════════════════════════════════════════════════════
+let METRICS_CACHE = { at: 0, payload: null };
+
+async function handleMetrics(req, res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Cache-Control", "public, max-age=30");
+
+  const now = Date.now();
+  if (METRICS_CACHE.payload && now - METRICS_CACHE.at < 60_000) {
+    return res.status(200).json({ ...METRICS_CACHE.payload, cached: true });
+  }
+
+  let supa;
+  try { supa = await v1GetSupabaseAdmin(); }
+  catch { return res.status(200).json(getFallbackMetrics()); }
+
+  const safeCount = async (table, filter = null) => {
+    try {
+      let q = supa.from(table).select("*", { count: "exact", head: true });
+      if (filter) q = filter(q);
+      const { count } = await q;
+      return count || 0;
+    } catch { return 0; }
+  };
+
+  const monthStart = new Date();
+  monthStart.setUTCDate(1);
+  monthStart.setUTCHours(0, 0, 0, 0);
+  const weekStart = new Date(Date.now() - 7 * 24 * 3600 * 1000);
+
+  const [
+    lookups_total,
+    lookups_month,
+    zoning_served,
+    api_calls_total,
+    api_calls_month,
+    buy_boxes_active,
+    onboarding_sent,
+    cron_runs_success,
+    leads_total,
+  ] = await Promise.all([
+    safeCount("geocode_cache"),
+    safeCount("geocode_cache", q => q.gte("cached_at", monthStart.toISOString())),
+    safeCount("zoning_cache"),
+    safeCount("api_usage"),
+    safeCount("api_usage", q => q.gte("occurred_at", monthStart.toISOString())),
+    safeCount("buy_boxes"),
+    safeCount("onboarding_emails"),
+    safeCount("cron_runs", q => q.eq("status", "success")),
+    safeCount("leads"),
+  ]);
+
+  // Recent lookup addresses (redacted to city only) — makes /live feel alive
+  let recent_lookups = [];
+  try {
+    const { data } = await supa
+      .from("geocode_cache")
+      .select("city, province, cached_at")
+      .order("cached_at", { ascending: false })
+      .limit(12);
+    recent_lookups = (data || []).map(r => ({
+      city: r.city || "",
+      province: r.province || "",
+      at: r.cached_at,
+    }));
+  } catch {}
+
+  // City coverage — hardcoded to match zoning specs registry (7 cities)
+  const city_coverage = [
+    { slug: "calgary",     name: "Calgary",     province: "AB", codes: 10 },
+    { slug: "edmonton",    name: "Edmonton",    province: "AB", codes: 6 },
+    { slug: "vancouver",   name: "Vancouver",   province: "BC", codes: 5 },
+    { slug: "toronto",     name: "Toronto",     province: "ON", codes: 5 },
+    { slug: "ottawa",      name: "Ottawa",      province: "ON", codes: 5 },
+    { slug: "mississauga", name: "Mississauga", province: "ON", codes: 4 },
+    { slug: "hamilton",    name: "Hamilton",    province: "ON", codes: 2 },
+  ];
+
+  const payload = {
+    generated_at: new Date().toISOString(),
+    lookups: {
+      total: lookups_total,
+      this_month: lookups_month,
+    },
+    zoning: {
+      served_total: zoning_served,
+      cities_covered: city_coverage.length,
+      codes_registered: city_coverage.reduce((a, c) => a + c.codes, 0),
+    },
+    api: {
+      calls_total: api_calls_total,
+      calls_this_month: api_calls_month,
+    },
+    engagement: {
+      buy_boxes_saved: buy_boxes_active,
+      onboarding_emails_sent: onboarding_sent,
+      leads_captured: leads_total,
+    },
+    ops: {
+      successful_cron_runs: cron_runs_success,
+    },
+    recent_lookups: recent_lookups.slice(0, 8),
+    city_coverage,
+    cached: false,
+  };
+
+  METRICS_CACHE = { at: now, payload };
+  return res.status(200).json(payload);
+}
+
+function getFallbackMetrics() {
+  return {
+    generated_at: new Date().toISOString(),
+    lookups: { total: 0, this_month: 0 },
+    zoning: { served_total: 0, cities_covered: 7, codes_registered: 37 },
+    api: { calls_total: 0, calls_this_month: 0 },
+    engagement: { buy_boxes_saved: 0, onboarding_emails_sent: 0, leads_captured: 0 },
+    ops: { successful_cron_runs: 0 },
+    recent_lookups: [],
+    city_coverage: [
+      { slug: "calgary",     name: "Calgary",     province: "AB", codes: 10 },
+      { slug: "edmonton",    name: "Edmonton",    province: "AB", codes: 6 },
+      { slug: "vancouver",   name: "Vancouver",   province: "BC", codes: 5 },
+      { slug: "toronto",     name: "Toronto",     province: "ON", codes: 5 },
+      { slug: "ottawa",      name: "Ottawa",      province: "ON", codes: 5 },
+      { slug: "mississauga", name: "Mississauga", province: "ON", codes: 4 },
+      { slug: "hamilton",    name: "Hamilton",    province: "ON", codes: 2 },
+    ],
+    cached: false,
+    fallback: true,
+  };
 }

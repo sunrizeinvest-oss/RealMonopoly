@@ -157,8 +157,8 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
     setPriors({ ...DEFAULT_DISTRIBUTIONS });
   }
 
-  function exportICReport() {
-    const doc = generateTier2Report({
+  async function exportICReport() {
+    const doc = await generateTier2Report({
       deal: {
         address: deal?.address || "Multifamily Property",
         propertyType: "Multifamily",
@@ -180,7 +180,7 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
     doc.save(fname);
   }
 
-  // AI Deal Memo — Claude reads full underwriting context and writes the
+  // AI Deal Memo — AI reads full underwriting context and writes the
   // executive narrative the IC / LP actually reads first. Stored in state so
   // the user can re-export the IC Report with the memo embedded as page 2.
   // persistKey (the deal address) keys the memo in localStorage so a Scale
@@ -564,9 +564,9 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
 function Results({ results, target }) {
   const { irr, eqMult, minDSCR, probabilities, distributions } = results;
 
-  // AI Read — 1-2 sentence Claude interpretation of P10/P50/P90. Debounced
+  // AI Read — 1-2 sentence AI interpretation of P10/P50/P90. Debounced
   // 400ms so rapid re-runs (user adjusts priors + re-clicks RUN twice in a
-  // row) only fire one Claude call for the latest result. Cleanup cancels
+  // row) only fire one AI call for the latest result. Cleanup cancels
   // the timer + flags any in-flight fetch as stale.
   const [thesis, setThesis] = useState(null);
   const [thesisLoading, setThesisLoading] = useState(false);
@@ -654,7 +654,7 @@ function Results({ results, target }) {
       </div>
       </div>
 
-      {/* AI Read — 1-2 sentence Claude interpretation of the percentile
+      {/* AI Read — 1-2 sentence AI interpretation of the percentile
           table above. Frames P10/P50/P90 in plain English so the user
           doesn't have to translate the stats themselves. */}
       {(thesisLoading || thesis?.thesis) && (
@@ -688,7 +688,7 @@ function Results({ results, target }) {
           </div>
           {thesisLoading ? (
             <div style={{ fontSize: 12, color: "var(--sub)", fontStyle: "italic" }}>
-              Claude is reading the distribution…
+              AI is reading the distribution…
             </div>
           ) : (
             <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.55 }}>
@@ -729,7 +729,7 @@ function Results({ results, target }) {
         For an institutional LP, the median should hit target and the P10 should stay above 0.
       </div>
 
-      {/* AI Deal Memo — Claude reads full underwriting + comps and writes a
+      {/* AI Deal Memo — AI reads full underwriting + comps and writes a
           1-page institutional narrative. The numbers above are the proof; the
           memo is the story a Scale user actually emails to LPs. */}
       {(memo || memoLoading || memoError) && (

@@ -73,6 +73,8 @@ export default function MarketBrief() {
   const [previewItems, setPreviewItems]   = useState(null)
   const [previewLoading, setPreviewLoading] = useState(false)
   const [sendingTest, setSendingTest] = useState(false)
+  const [lastSent, setLastSent] = useState(null)          // most recent last_sent_at across the user's subs
+  const [showDiag, setShowDiag] = useState(false)         // collapsed by default — only auto-open if a check fails
 
   // Setup diagnostic — probes each piece of the pipeline so the user can
   // see green checks land as they wire env vars tonight. Auto-runs once on
@@ -166,25 +168,51 @@ export default function MarketBrief() {
     }
 
     setDiag({ running: false, ran: true, checks })
+    // Auto-open the diagnostic only if something's broken. Healthy setups stay
+    // collapsed so the page leads with the subscription UI, not an ops panel.
+    if (checks.some(c => c.ok !== true && c.ok !== "skip")) setShowDiag(true)
   }
   useEffect(() => { runDiagnostic() }, [user?.id])
 
-  // Load existing subscriptions
+  // Load existing subscriptions + most-recent last_sent_at so users see
+  // "Last brief sent X hours ago" right at the top.
   useEffect(() => {
     if (!user) { setLoading(false); return }
     let cancelled = false
     ;(async () => {
       const { data, error } = await supabase
         .from("market_subscriptions")
-        .select("market, enabled")
+        .select("market, enabled, last_sent_at")
         .eq("enabled", true)
       if (cancelled) return
       if (error) { setStatus({ kind: "err", msg: error.message }); setLoading(false); return }
       setSelected(new Set((data || []).map(r => r.market)))
+      const latest = (data || [])
+        .map(r => r.last_sent_at)
+        .filter(Boolean)
+        .sort()
+        .pop();
+      setLastSent(latest || null)
       setLoading(false)
     })()
     return () => { cancelled = true }
   }, [user])
+
+  // Friendly "X hours ago" / "Yesterday" / "Mon at 8:00am" formatter for the
+  // last-sent badge. Avoids depending on date-fns.
+  function formatRelative(iso) {
+    if (!iso) return null
+    const then = new Date(iso)
+    const diffMs = Date.now() - then.getTime()
+    if (diffMs < 0) return then.toLocaleString("en-CA")
+    const hours = Math.floor(diffMs / 3_600_000)
+    const days = Math.floor(diffMs / 86_400_000)
+    if (hours < 1) return "Just now"
+    if (hours < 24) return `${hours}h ago`
+    if (days === 1) return "Yesterday"
+    if (days < 7) return `${days} days ago`
+    return then.toLocaleDateString("en-CA", { month: "short", day: "numeric" })
+  }
 
   function toggle(market) {
     setSelected(s => {
@@ -290,57 +318,37 @@ export default function MarketBrief() {
           </div>
         ) : (
           <>
-            {/* Setup Diagnostic — live probe of the full email pipeline */}
-            <div className="mb-card" style={{ borderLeft: "3px solid var(--amber)" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
-                <div className="mb-card-h" style={{ marginBottom: 0, color: "var(--amber)" }}>▸ SETUP DIAGNOSTIC</div>
-                <button
-                  onClick={runDiagnostic}
-                  disabled={diag.running}
-                  style={{
-                    marginLeft: "auto",
-                    background: "transparent", color: "var(--sub)",
-                    border: "1px solid var(--borderf)", borderRadius: 4,
-                    padding: "5px 11px",
-                    fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
-                    letterSpacing: "0.8px", cursor: diag.running ? "wait" : "pointer",
-                  }}
-                >
-                  {diag.running ? "PROBING…" : "↻ RE-RUN"}
-                </button>
+            {/* Subscription status banner — visible when user has any active sub */}
+            {!loading && selected.size > 0 && (
+              <div style={{
+                background: "linear-gradient(135deg,rgba(33,85,205,0.06),rgba(240,160,48,0.05))",
+                border: "1px solid var(--borderf)",
+                borderLeft: "3px solid var(--green, #16a34a)",
+                borderRadius: 6,
+                padding: "12px 16px",
+                marginBottom: 18,
+                display: "flex",
+                alignItems: "center",
+                gap: 14,
+                flexWrap: "wrap",
+              }}>
+                <div style={{
+                  width: 8, height: 8, borderRadius: "50%",
+                  background: "#22c55e",
+                  boxShadow: "0 0 8px #22c55e",
+                  flexShrink: 0,
+                }} />
+                <div style={{ fontSize: 13, color: "var(--text)", fontWeight: 600 }}>
+                  Subscribed to <strong>{selected.size} market{selected.size === 1 ? "" : "s"}</strong>
+                  {" · "}
+                  {lastSent
+                    ? <span style={{ color: "var(--sub)", fontWeight: 500 }}>Last brief sent <strong style={{ color: "var(--text)" }}>{formatRelative(lastSent)}</strong></span>
+                    : <span style={{ color: "var(--sub)", fontWeight: 500 }}>Next brief tomorrow 8am Pacific</span>}
+                </div>
               </div>
-              <div style={{ display: "grid", gap: 8 }}>
-                {diag.checks.map(c => {
-                  const color = c.ok === true ? "var(--green)" : c.ok === "partial" ? "var(--amber)" : c.ok === "skip" ? "var(--dim)" : "var(--red)"
-                  const glyph = c.ok === true ? "✓" : c.ok === "partial" ? "◐" : c.ok === "skip" ? "·" : "✗"
-                  return (
-                    <div key={c.key} style={{
-                      display: "grid", gridTemplateColumns: "20px 1fr auto", gap: 10,
-                      padding: "8px 12px",
-                      background: "var(--card2,#f1f5f9)",
-                      border: "1px solid var(--borderf)",
-                      borderLeft: `3px solid ${color}`,
-                      borderRadius: 4, alignItems: "start",
-                    }}>
-                      <div style={{ color, fontFamily: "'Geist Mono',monospace", fontSize: 14, fontWeight: 800, lineHeight: 1.4 }}>{glyph}</div>
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 2 }}>{c.label}</div>
-                        <div style={{ fontSize: 11.5, color: "var(--sub)", lineHeight: 1.4 }}>{c.detail}</div>
-                        {c.fix && (
-                          <div style={{ fontSize: 11, color: "var(--amber)", marginTop: 4, lineHeight: 1.4 }}>
-                            <strong>Fix:</strong> {c.fix}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )
-                })}
-                {diag.running && diag.checks.length === 0 && (
-                  <div style={{ fontSize: 12, color: "var(--sub)", padding: 8 }}>Running probes…</div>
-                )}
-              </div>
-            </div>
+            )}
 
+            {/* PICK YOUR MARKETS — the primary subscription UI (moved to top) */}
             <div className="mb-card">
               <div className="mb-card-h">▸ PICK YOUR MARKETS</div>
               <div className="mb-card-sub">Select one or more — "All Canada" includes every item; city markets filter by name + metro suburbs.</div>
@@ -420,6 +428,95 @@ export default function MarketBrief() {
 
             <div style={{ fontSize: 12, color: "var(--dim)", lineHeight: 1.6, marginTop: 18 }}>
               Sources: Bank of Canada · Storeys · Better Dwelling. All public RSS feeds — RizeAI aggregates and filters but does not modify content. Verify each item before acting.
+            </div>
+
+            {/* ── COLLAPSIBLE SETUP DIAGNOSTIC ── Hidden by default. Auto-opens
+                if a check fails on mount. Users see this as "Setup status"
+                rather than a wall of ops checks dominating the page. */}
+            <div style={{ marginTop: 32 }}>
+              <button
+                onClick={() => setShowDiag(v => !v)}
+                style={{
+                  background: "transparent",
+                  border: "1px solid var(--borderf)",
+                  borderRadius: 5,
+                  padding: "8px 14px",
+                  fontFamily: "'Geist Mono',monospace",
+                  fontSize: 10.5,
+                  fontWeight: 700,
+                  letterSpacing: "1.2px",
+                  color: "var(--sub)",
+                  cursor: "pointer",
+                  textTransform: "uppercase",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8,
+                }}
+              >
+                {(() => {
+                  const failing = diag.checks.filter(c => c.ok !== true && c.ok !== "skip").length
+                  const glyph = failing ? "▲" : "✓"
+                  const color = failing ? "var(--amber)" : "var(--green, #16a34a)"
+                  return (
+                    <>
+                      <span style={{ color, fontWeight: 800 }}>{glyph}</span>
+                      Setup status: {failing ? `${failing} check${failing === 1 ? "" : "s"} need attention` : "all systems wired"}
+                      <span style={{ color: "var(--dim)", marginLeft: 6 }}>{showDiag ? "[hide]" : "[show]"}</span>
+                    </>
+                  )
+                })()}
+              </button>
+              {showDiag && (
+                <div className="mb-card" style={{ borderLeft: "3px solid var(--amber)", marginTop: 12 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14, flexWrap: "wrap" }}>
+                    <div className="mb-card-h" style={{ marginBottom: 0, color: "var(--amber)" }}>▸ SETUP DIAGNOSTIC</div>
+                    <button
+                      onClick={runDiagnostic}
+                      disabled={diag.running}
+                      style={{
+                        marginLeft: "auto",
+                        background: "transparent", color: "var(--sub)",
+                        border: "1px solid var(--borderf)", borderRadius: 4,
+                        padding: "5px 11px",
+                        fontFamily: "'Geist Mono',monospace", fontSize: 10, fontWeight: 700,
+                        letterSpacing: "0.8px", cursor: diag.running ? "wait" : "pointer",
+                      }}
+                    >
+                      {diag.running ? "PROBING…" : "↻ RE-RUN"}
+                    </button>
+                  </div>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {diag.checks.map(c => {
+                      const color = c.ok === true ? "var(--green)" : c.ok === "partial" ? "var(--amber)" : c.ok === "skip" ? "var(--dim)" : "var(--red)"
+                      const glyph = c.ok === true ? "✓" : c.ok === "partial" ? "◐" : c.ok === "skip" ? "·" : "✗"
+                      return (
+                        <div key={c.key} style={{
+                          display: "grid", gridTemplateColumns: "20px 1fr auto", gap: 10,
+                          padding: "8px 12px",
+                          background: "var(--card2,#f1f5f9)",
+                          border: "1px solid var(--borderf)",
+                          borderLeft: `3px solid ${color}`,
+                          borderRadius: 4, alignItems: "start",
+                        }}>
+                          <div style={{ color, fontFamily: "'Geist Mono',monospace", fontSize: 14, fontWeight: 800, lineHeight: 1.4 }}>{glyph}</div>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text)", marginBottom: 2 }}>{c.label}</div>
+                            <div style={{ fontSize: 11.5, color: "var(--sub)", lineHeight: 1.4 }}>{c.detail}</div>
+                            {c.fix && (
+                              <div style={{ fontSize: 11, color: "var(--amber)", marginTop: 4, lineHeight: 1.4 }}>
+                                <strong>Fix:</strong> {c.fix}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })}
+                    {diag.running && diag.checks.length === 0 && (
+                      <div style={{ fontSize: 12, color: "var(--sub)", padding: 8 }}>Running probes…</div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}

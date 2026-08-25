@@ -3,7 +3,7 @@
  *
  * Headline trio (annual upside · per-door delta · % below market)
  * Per-unit table with status pills (below / above / vacant / ungraded)
- * AI Read narrative (2-3 sentences from Claude)
+ * AI Read narrative (2-3 sentences from AI)
  * Methodology footnote (CMHC anchor + capture curve + discount rate)
  *
  * Props:

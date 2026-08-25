@@ -91,7 +91,7 @@ export default function SharedDeal() {
       <div className="sd-body">
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"rgba(15,23,42,0.04)",border:"1px solid var(--borderf)",borderRadius:99,padding:"4px 12px",fontSize:11,color:"var(--sub)",marginBottom:8}}>🔗 Shared deal analysis</div>
-          <div style={{fontSize:13,color:"var(--dim)"}}>Analyzed with rizeai.co</div>
+          <div style={{fontSize:13,color:"var(--dim)"}}>Analyzed with realdealestate.app</div>
         </div>
         <div className="sd-card">
           <div className="sd-card-header">
@@ -184,7 +184,7 @@ function SharedB64Deal({ deal }) {
       <div className="sd-body">
         <div style={{textAlign:"center",marginBottom:24}}>
           <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"rgba(15,23,42,0.04)",border:"1px solid var(--borderf)",borderRadius:99,padding:"4px 12px",fontSize:11,color:"var(--sub)",marginBottom:8}}>🔗 Shared deal analysis</div>
-          <div style={{fontSize:13,color:"var(--dim)"}}>Analyzed with rizeai.co</div>
+          <div style={{fontSize:13,color:"var(--dim)"}}>Analyzed with realdealestate.app</div>
         </div>
         <div className="sd-card">
           <div className="sd-card-header">

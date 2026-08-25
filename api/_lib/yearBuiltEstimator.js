@@ -10,7 +10,7 @@
  *
  * INFERENCE BACKBONE:
  *   1. Heuristic table (fast, $0): Edmonton neighbourhood → typical era
- *   2. Claude haiku-4-5 fallback when the neighbourhood isn't in the table
+ *   2. AI fallback when the neighbourhood isn't in the table
  *      OR when the heuristic returns "uncertain"
  *
  * Returns null on insufficient signals or any error — caller treats the
@@ -23,7 +23,7 @@
  *     reasoning:     "Mature single-family neighbourhood; assessed PSF
  *                     consistent with 1960-1975 stock; zoning RF1 typical
  *                     of post-war infill.",
- *     source:        "heuristic" | "claude-haiku-4-5"
+ *     source:        "heuristic" | "ai-fast"
  *   }
  */
 
@@ -34,7 +34,7 @@
 //
 // Most reliable for residential neighbourhoods; commercial / industrial
 // parcels skew lopsidedly newer or vary wildly within a neighbourhood,
-// so we fall through to Claude for those.
+// so we fall through to AI for those.
 const EDMONTON_NEIGHBOURHOODS = {
   // ── Pre-WW1 / early streetcar suburbs (1900-1920) ──
   "central mcdougall":   { year: 1910, confidence: "medium" },
@@ -152,7 +152,7 @@ function heuristicGuess({ address, neighbourhood }) {
 }
 
 /**
- * Claude fallback. Cheap (<150 tokens out). Bounded 6s timeout. Returns
+ * AI fallback. Cheap (<150 tokens out). Bounded 6s timeout. Returns
  * null on parse failure, timeout, or missing API key.
  */
 async function claudeGuess({ address, zoning, assessedValue, sqft, propertyType, taxClass, neighbourhood }) {
@@ -208,7 +208,7 @@ Be honest. A typical Canadian core neighbourhood with $300-500/sqft assessed val
       estimatedYear: year,
       confidence:    parsed.confidence || "low",
       reasoning:     parsed.reasoning || "Inferred from civic + assessment signals.",
-      source:        "claude-haiku-4-5",
+      source:        "ai-fast",
     };
   } catch {
     return null;
@@ -231,7 +231,7 @@ export async function estimateYearBuilt({
   const heur = heuristicGuess({ address, neighbourhood });
   if (heur && heur.confidence !== "low") return heur;
 
-  // 2. Claude haiku fallback.
+  // 2. AI fallback.
   const ai = await claudeGuess({
     address, zoning, assessedValue, sqft, propertyType, taxClass, neighbourhood,
   });

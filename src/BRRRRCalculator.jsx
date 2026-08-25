@@ -1,10 +1,21 @@
 import { useState, useMemo, useEffect, lazy, Suspense } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { generateTier1Memo } from "./lib/tier1Memo";
 import { irr as solveIRR, withCumulative } from "./lib/finance";
 import { useDocMeta } from "./lib/seo";
 import { celebrateFirstSave } from "./lib/celebrate";
 import DealCoach from "./components/DealCoach";
+import DealReadout from "./components/DealReadout";
+import { compareToHistory } from "./lib/dealHistory";
+import { getSmartDefaults } from "./lib/smartDefaults";
+import { useDraftSync } from "./lib/draftSync";
+import { useAddressAutoFill, derivePatch } from "./lib/addressAutoFill";
+import MetricTip from "./components/MetricTip";
+import MetricWarning from "./components/MetricWarning";
+import SimilarDealsHint from "./components/SimilarDealsHint";
+import AddressContextCard from "./components/AddressContextCard";
+import BuddyLoading from "./components/BuddyLoading";
 import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
 import TopNav from "./components/TopNav";
@@ -140,6 +151,7 @@ const CSS = `
 `;
 
 export default function BRRRRCalculator() {
+  const navigate = useNavigate();
   useDocMeta({
     title: "BRRRR Calculator",
     description: "Model Buy/Rehab/Rent/Refi/Repeat deals with real DSCR, IRR, year-by-year cash flow, and AI deal thesis. Free for US + Canadian investors.",
@@ -235,6 +247,37 @@ export default function BRRRRCalculator() {
   }
 
   const [form, setForm] = useState(() => {
+    // Priority 0: Strategy Verdicts handoff (StrategyVerdicts.jsx → sessionStorage).
+    // Uses exact pre-computed purchase / repair / arv / rent from /property's
+    // verdict panel — no heuristic haircut, no AVM guessing. Consumed once
+    // then cleared. Only fires for the brrrr/hold strategies — flip has its
+    // own /flip → DealAnalyzer surface with its own prefill consumer.
+    try {
+      const raw = sessionStorage.getItem("rde_strategy_prefill");
+      if (raw) {
+        const pf = JSON.parse(raw);
+        const isFresh = pf.ts && Date.now() - pf.ts < 5 * 60 * 1000;
+        const isForUs = ["brrrr", "hold"].includes(pf.strategy);
+        if (isFresh && isForUs) {
+          sessionStorage.removeItem("rde_strategy_prefill");
+          return {
+            dealName: "",
+            address:        pf.address       || "",
+            purchasePrice:  pf.purchasePrice ? String(Math.round(pf.purchasePrice)) : "",
+            closingCostsPct: "2",
+            rehabBudget:    pf.repairCost    ? String(Math.round(pf.repairCost))    : "",
+            holdingMonths:  "3",
+            monthlyHoldingCost: "",
+            monthlyRent:    pf.monthlyRent   ? String(Math.round(pf.monthlyRent))   : "",
+            vacancyPct: "5", otherIncome: "0", propTax: "", insurance: "",
+            managementPct: "8", maintenancePct: "5", utilities: "0",
+            arv:            pf.arv           ? String(Math.round(pf.arv))            : "",
+            refinanceLTV: "75", refiRate: "6.5", refiAmort: "30", refiClosingCostsPct: "1.5",
+            holdYears: "5", rentGrowth: "3", opexGrowth: "2", appreciation: "3", exitSellingPct: "5",
+          };
+        }
+      }
+    } catch {}
     // Priority 1: URL params (Chrome extension, shareable links)
     try {
       const sp = new URLSearchParams(window.location.search);
@@ -364,6 +407,20 @@ export default function BRRRRCalculator() {
   }
 
   const setF = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  // Auto-fill from public records when address is typed
+  const autoLookup = useAddressAutoFill(form.address, { minLength: 8 });
+  const autoPatch = useMemo(
+    () => derivePatch(autoLookup.data, form, { strategy: "brrrr" }),
+    [autoLookup.data, form]
+  );
+
+  // Auto-save drafts (localStorage + Supabase for signed-in users)
+  const { restoredAt, lastSavedAt, status: draftStatus, clearDraft } = useDraftSync({
+    strategy: "brrrr",
+    form,
+    setForm,
+  });
 
   // X-Ray prefill — read on mount, pre-fill address only when empty.
   const [xrayPrefill, setXrayPrefill] = useState(null);
@@ -521,7 +578,7 @@ export default function BRRRRCalculator() {
   };
   const verdict = getVerdict();
 
-  // ── Deal Thesis Hint (Haiku) — debounced fetch on calc changes ─────────
+  // ── Deal Thesis Hint — debounced fetch on calc changes ─────────
   // Fires 600ms after calc settles, prevents spamming Anthropic while user types.
   useEffect(() => {
     if (!calc || !verdict) { setAiThesis(null); return; }
@@ -646,7 +703,17 @@ export default function BRRRRCalculator() {
                 <input className="br-input" type="text" placeholder="e.g. 142 Birchwood — BRRRR" value={form.dealName} onChange={e=>setF("dealName",e.target.value)} />
               </div>
               <div className="br-field">
-                <div className="br-label">Property Address</div>
+                <div className="br-label">
+                  Property Address
+                  {(draftStatus === "saving" || lastSavedAt) && (
+                    <span style={{
+                      marginLeft:10,fontFamily:"'Geist Mono',ui-monospace,monospace",
+                      fontSize:10,fontWeight:600,color:"var(--dim)",letterSpacing:"0.3px",
+                    }}>
+                      {draftStatus === "saving" ? "▸ saving…" : `▸ auto-saved`}
+                    </span>
+                  )}
+                </div>
                 <AddressAutocomplete
                   className="br-input"
                   placeholder="Start typing — Calgary, Edmonton, Toronto..."
@@ -656,13 +723,101 @@ export default function BRRRRCalculator() {
                 />
               </div>
             </div>
+
+            {/* ── Unified address-context card — replaces the earlier
+                separate AddressAutoFillBanner + SmartDefaults inline card. */}
+            {form.address && (() => {
+              const d = getSmartDefaults(form.address, "brrrr");
+              const cityLabel = d._smartDefaults.city === "default"
+                ? "Canadian"
+                : d._smartDefaults.city.charAt(0).toUpperCase() + d._smartDefaults.city.slice(1);
+              return (
+                <AddressContextCard
+                  address={form.address}
+                  strategy="brrrr"
+                  lookup={autoLookup}
+                  patch={autoPatch}
+                  onApplyLookup={() => setForm(prev => ({ ...prev, ...autoPatch }))}
+                  defaults={{
+                    cityLabel,
+                    previewText: `${d.vacancyPct}% vacancy · ${d.propTaxRatePct}% property tax · ${d.refiLTV}% refi LTV · ${d._smartDefaults.targetCapPct.toFixed(1)}% target cap`,
+                  }}
+                  onApplyDefaults={() => setForm(p => ({
+                    ...p,
+                    vacancyPct:      d.vacancyPct,
+                    managementPct:   "8",
+                    maintenancePct:  "5",
+                    refinanceLTV:    String(d.refiLTV),
+                    refiRate:        String(d.refiInterestPct),
+                    refiAmort:       String(d.refiAmortYears),
+                    closingCostsPct: "2",
+                    holdingMonths:   String(d.seasoningMonths),
+                  }))}
+                />
+              );
+            })()}
+
+            {/* ── Auto-suggest comparable past deals ──
+                When user enters an address that matches city + price band of
+                their saved BRRRR deals, surface 1-3 with a "Load values" CTA. */}
+            <SimilarDealsHint
+              address={form.address}
+              strategy="brrrr"
+              purchasePrice={Number(form.purchasePrice) || null}
+              onApply={(deal) => {
+                // Merge the past deal's inputs back into the form, but PRESERVE
+                // the user's currently-typed address.
+                const inputs = deal.inputs || {};
+                const currentAddr = form.address;
+                setForm(prev => ({
+                  ...prev,
+                  ...inputs,
+                  address: currentAddr || inputs.address || prev.address,
+                  dealName: prev.dealName, // keep their deal name fresh
+                }));
+              }}
+            />
+
+            {/* ── Restored-from-draft banner ── shown for the first 30s after
+                the form restored an auto-saved draft. Gives the user a
+                one-click "Start fresh" escape hatch. */}
+            {restoredAt && (
+              <div style={{
+                marginTop:10,padding:"9px 13px",
+                background:"rgba(33,85,205,0.06)",
+                border:"1px solid rgba(33,85,205,0.3)",
+                borderLeft:"3px solid #2155cd",
+                borderRadius:5,
+                display:"flex",alignItems:"center",justifyContent:"space-between",
+                gap:12,flexWrap:"wrap",
+              }}>
+                <div style={{fontSize:12.5,color:"var(--sub)",lineHeight:1.5,flex:1,minWidth:200}}>
+                  <strong style={{color:"#2155cd",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"0.3px"}}>▸ RESUMED YOUR DRAFT</strong>{" "}
+                  from {new Date(restoredAt).toLocaleString("en-CA", { month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" })} —
+                  your changes auto-save as you go.
+                </div>
+                <button
+                  onClick={() => { clearDraft(); window.location.reload(); }}
+                  style={{
+                    background:"transparent",color:"var(--sub)",border:"1px solid var(--borderf)",
+                    borderRadius:4,padding:"6px 12px",
+                    fontFamily:"'Geist Mono',ui-monospace,monospace",
+                    fontSize:10.5,fontWeight:700,letterSpacing:"0.5px",cursor:"pointer",
+                    textTransform:"uppercase",flexShrink:0,
+                  }}
+                >
+                  ↻ Start fresh
+                </button>
+              </div>
+            )}
+
           </div>
 
           {/* Drop a PDF, autofill the form — Scale tier */}
           <TierGate
             tier="scale"
             feature="AI Document Drop"
-            description="Drop a listing sheet, rent roll, lease, or appraisal — Claude Sonnet 4.6 reads it and the calculator fills in. Saves 5-10 minutes of typing per deal."
+            description="Drop a listing sheet, rent roll, lease, or appraisal — our AI reads it and the calculator fills in. Saves 5-10 minutes of typing per deal."
           >
             <AIDocumentDrop
               target="residential"
@@ -1166,7 +1321,7 @@ export default function BRRRRCalculator() {
                     <span style={{fontSize:14,lineHeight:1.4}}>🤖</span>
                     <div style={{flex:1}}>
                       <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:3}}>
-                        AI THESIS{aiThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:6}}>· {aiThesis.source}</span>}
+                        BUDDY READ{aiThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:6}}>· {aiThesis.source}</span>}
                       </div>
                       <div style={{fontSize:12.5,color:"var(--text)",lineHeight:1.55}}>
                         {aiThesis.thesis}
@@ -1221,19 +1376,21 @@ export default function BRRRRCalculator() {
                     <div className="br-metric-sub">After all expenses + new mortgage</div>
                   </div>
                   <div className={`br-metric ${calc.dscr>=1.25?"green":calc.dscr>=1?"amber":"red"}`}>
-                    <div className="br-metric-label">DSCR</div>
+                    <div className="br-metric-label">DSCR <MetricTip metric="dscr" /></div>
                     <div className="br-metric-val">{fmtX(calc.dscr)}</div>
                     <div className="br-metric-sub">NOI ÷ debt service · need ≥1.25</div>
+                    <MetricWarning metric="dscr" value={calc.dscr} compact />
                   </div>
                   <div className={`br-metric ${calc.isTrueBRRRR?"purple":"blue"}`}>
-                    <div className="br-metric-label">{calc.isTrueBRRRR ? "Cash Pulled Out" : "Cash Left In Deal"}</div>
+                    <div className="br-metric-label">{calc.isTrueBRRRR ? "Cash Pulled Out" : "Cash Left In Deal"} <MetricTip metric="ltv" /></div>
                     <div className="br-metric-val">{calc.isTrueBRRRR ? fmt(calc.cashPulledOut) : fmt(calc.cashLeftInDeal)}</div>
                     <div className="br-metric-sub">{calc.isTrueBRRRR ? "Recycled to next deal" : "Equity still in property"}</div>
                   </div>
                   <div className={`br-metric ${calc.coc===Infinity||calc.coc>=0.10?"green":calc.coc>=0.06?"amber":"red"}`}>
-                    <div className="br-metric-label">Cash-on-Cash</div>
+                    <div className="br-metric-label">Cash-on-Cash <MetricTip metric="coc" strategy="brrrr" /></div>
                     <div className="br-metric-val">{calc.coc===Infinity?"∞":fmtPct(calc.coc)}</div>
                     <div className="br-metric-sub">{calc.isTrueBRRRR?"Infinite — no money left in":"Annual CF ÷ cash remaining"}</div>
+                    {calc.coc !== Infinity && <MetricWarning metric="coc" value={calc.coc} ctx={{ strategy: "brrrr" }} compact />}
                   </div>
                   <div className="br-metric blue">
                     <div className="br-metric-label">New Monthly Payment</div>
@@ -1382,25 +1539,53 @@ export default function BRRRRCalculator() {
 
             {/* ── Visual Analytics (lazy-loaded — recharts is the heavy dep) ── */}
             <Suspense fallback={
-              <div className="br-card" style={{borderRadius:6,padding:"40px 14px",textAlign:"center"}}>
-                <div style={{fontFamily:"'Geist Mono',monospace",fontSize:11,color:"var(--dim)",letterSpacing:"0.6px"}}>
-                  ▸ LOADING CHARTS…
-                </div>
+              <div className="br-card" style={{borderRadius:6,padding:"40px 14px",textAlign:"center",display:"flex",justifyContent:"center"}}>
+                <BuddyLoading label="loading charts" tone="sub" size="sm" />
               </div>
             }>
               <BRRRRCharts calc={calc} />
             </Suspense>
 
+            {/* ── DealReadout — "your buddy read" — verdict + benchmarks + actions */}
+            {calc && calc.dscr != null && (() => {
+              const currentMetrics = {
+                dscr:     calc.dscr,
+                capRate:  calc.entryCap,
+                coc:      calc.coc === Infinity ? null : calc.coc,
+                irr:      calc.irr,
+              };
+              const history = compareToHistory(currentMetrics, { strategy: "brrrr" });
+              return (
+              <div style={{marginTop:18}}>
+                <DealReadout
+                  strategy="brrrr"
+                  address={form.address || form.dealName || ""}
+                  metrics={currentMetrics}
+                  history={history}
+                  compact={true}
+                  actions={[
+                    { label: "Save this deal", icon: "💾", primary: true,
+                      onClick: () => { saveDeal(); window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }); } },
+                    { label: "Compare to past deals", icon: "📊",
+                      onClick: () => navigate("/compare") },
+                    { label: "Run sensitivity / stress test", icon: "🎲",
+                      onClick: () => navigate("/commercial") },
+                  ]}
+                />
+              </div>
+              );
+            })()}
+
             {/* Export PDF */}
             <div className="br-card" style={{marginTop:4}}>
               <div className="br-card-body">
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (!calc) return;
                     const fmtM = n => n == null ? "—" : `$${Math.round(n).toLocaleString()}`;
                     const fmtK = n => n == null ? "—" : `$${Math.round(n/1000)}K`;
                     const fmtP = n => n == null || !isFinite(n) ? "—" : `${(n*100).toFixed(1)}%`;
-                    const doc = generateTier1Memo({
+                    const doc = await generateTier1Memo({
                       type: "brrrr",
                       deal: {
                         address: form.address || form.dealName || "BRRRR Deal",

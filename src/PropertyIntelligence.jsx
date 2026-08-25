@@ -6,6 +6,14 @@ import { celebrateFirstSave } from "./lib/celebrate"
 import { estimateARV } from "./lib/arv"
 import { cachedThesisFetch } from "./lib/aiReadCache"
 import AIReadShareButton from "./components/AIReadShareButton"
+import StrategyVerdicts from "./components/StrategyVerdicts"
+import ZoningSpecsCard from "./components/ZoningSpecsCard"
+import { FreeTierBanner, FreeTierUpgradeModal } from "./components/FreeTierBanner"
+import WelcomeModal from "./components/WelcomeModal"
+import { useFreeTier } from "./lib/freeTier"
+import { trackPropertyLookup, trackUpgradeModalOpen, track } from "./lib/analytics"
+import { runAllStrategies } from "./lib/strategyMath"
+import { getZoningSpecs } from "./lib/zoningSpecs"
 import TopNav from "./components/TopNav"
 
 // ─── Formatters ──────────────────────────────────────────────────────────────
@@ -520,15 +528,36 @@ const CSS = `
   .pi-cmhc-lbl { font-size: 10px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
   .pi-cmhc-val { font-size: 15px; font-weight: 800; color: var(--text); }
 
-  /* AI Sidebar */
+  /* Buddy Sidebar (rebranded from AI Property Advisor) */
   .pi-chat-header {
-    padding: 16px 18px 14px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--borderf);
+    background: linear-gradient(180deg, rgba(212,175,55,0.05), transparent);
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  .pi-chat-header-title { font-size: 14px; font-weight: 700; color: var(--text); flex: 1; }
+  .pi-buddy-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--brass), var(--brass-2));
+    color: #0a1128;
+    font-family: 'Geist Mono', monospace;
+    font-size: 15px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 0 2px rgba(212,175,55,0.20);
+    flex-shrink: 0;
+  }
+  .pi-chat-header-title { font-size: 15px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
+  .pi-chat-header-sub { font-size: 10.5px; color: var(--brass-2); font-family: 'Geist Mono', monospace; letter-spacing: 0.4px; text-transform: uppercase; margin-top: 2px; }
+  .pi-msg-ai-avatar {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--brass), var(--brass-2));
+    color: #0a1128;
+    font-family: 'Geist Mono', monospace;
+    font-size: 9px; font-weight: 800;
+    margin-right: 6px;
+  }
   .pi-online-dot {
     width: 8px;
     height: 8px;
@@ -756,7 +785,7 @@ function TerminalLoader({ query, ca }) {
     { label: ca ? "querying City Open Data (zoning, assessment, permits)..." : "looking up property record (RentCast)...", delay: 700 },
     { label: ca ? "running CMHC rent model + breakdown..." : "loading sale + rental comps...", delay: 600 },
     { label: ca ? "fetching active listings from realtor.ca..." : "computing market snapshot...", delay: 550 },
-    { label: "generating AI thesis (claude-haiku-4-5)...", delay: 800 },
+    { label: "generating AI thesis (AI model)...", delay: 800 },
   ]
   const [done, setDone] = useState(0) // index of last completed step
 
@@ -837,6 +866,8 @@ export default function PropertyIntelligence() {
   });
   const navigate = useNavigate()
   const { user, signOut, getAccessToken } = useAuth()
+  const freeTier = useFreeTier()
+  const [upgradeModal, setUpgradeModal] = useState(null)  // null | 'lookup' | 'save' | 'pdf' | 'rentroll'
 
   // Search
   const [query, setQuery] = useState("")
@@ -865,7 +896,7 @@ export default function PropertyIntelligence() {
   const [propertyThesisLoading, setPropertyThesisLoading] = useState(false)
 
   // Building Grade — 4-dimension institutional read fired when property loads.
-  // Same Claude haiku endpoint the X-Ray bar uses on the landing.
+  // Same AI endpoint the X-Ray bar uses on the landing.
   const [buildingGrade, setBuildingGrade] = useState(null)
   const [buildingGradeLoading, setBuildingGradeLoading] = useState(false)
 
@@ -927,9 +958,9 @@ export default function PropertyIntelligence() {
   }, [chatMessages, chatLoading])
 
   // ─── AI Property Read — auto-fires when property data lands ───────────────
-  // Sweeping 2-3 sentence Claude interpretation. Debounced 800ms so when
+  // Sweeping 2-3 sentence AI interpretation. Debounced 800ms so when
   // property data + zoning data land back-to-back (typical Canadian flow:
-  // RentCast/CMHC at T+800ms, zoning at T+1200ms), we don't fire two Claude
+  // RentCast/CMHC at T+800ms, zoning at T+1200ms), we don't fire two AI
   // calls — the latest land wins. Effect cleanup cancels any in-flight
   // timer + flags any in-flight fetch as cancelled.
   useEffect(() => {
@@ -988,7 +1019,7 @@ export default function PropertyIntelligence() {
   // ─── Building Grade — 4-dimension institutional read ──────────────────────
   // Fires once property + zoning land. Uses the same /api/ai-chat
   // ?mode=building-grade endpoint the landing X-Ray bar uses. Cached the same
-  // way as the property thesis so a re-render doesn't burn another Claude call.
+  // way as the property thesis so a re-render doesn't burn another AI call.
   useEffect(() => {
     if (!property || property.error) return
     if (!property.estimatedValue) return // need at least an assessed/estimated value
@@ -1044,12 +1075,27 @@ export default function PropertyIntelligence() {
   async function handleSearch(overrideAddr) {
     const addr = overrideAddr || query
     if (!addr.trim()) return
+
+    // Free-tier gate: block the 6th lookup of the month and open the upgrade
+    // modal instead. Pro/Scale users are `canLookup: true` unconditionally.
+    if (!freeTier.canLookup) {
+      trackUpgradeModalOpen("lookup")
+      setUpgradeModal("lookup")
+      return
+    }
+    // Track the lookup — helps measure city coverage + address success rate.
+    trackPropertyLookup(addr, isCanadian(addr) ? "CA" : "US")
+
     // Persist recent searches (dedupe, cap at 8). Used by the empty-state.
     try {
       const prior = JSON.parse(localStorage.getItem("rde_recent_searches") || "[]")
       const next = [addr.trim(), ...prior.filter(p => p !== addr.trim())].slice(0, 8)
       localStorage.setItem("rde_recent_searches", JSON.stringify(next))
     } catch {}
+    // Meter this lookup — no-op for paid tiers. Increment happens BEFORE the
+    // network calls so a mid-request abort still burns the counter (fair to
+    // free users since the API costs were incurred).
+    freeTier.incrementLookup()
     setLoading(true)
     setProperty(null)
     setSaleComps(null)
@@ -1102,7 +1148,7 @@ export default function PropertyIntelligence() {
         if (zonRes.status === "fulfilled") {
           setZoningData(zonRes.value)
           // Fire-and-forget AI thesis hint over the zoning data.
-          // 1-2 sentence insight, ~$0.0001/call on Haiku, doesn't block render.
+          // 1-2 sentence insight, ~$0.0001/call on AI, doesn't block render.
           if (zonRes.value?.zoning?.found) {
             fetch(`/api/ai-chat`, {
               method: "POST",
@@ -1294,6 +1340,43 @@ export default function PropertyIntelligence() {
       : activeTab === "rental" ? rentalCalc
       : commercialCalc
 
+    // Compute the same 4-strategy verdicts + zoning specs the visible panels
+    // show, so Buddy answers from the exact same picture the broker is looking
+    // at — not just the raw property blob.
+    const propertyForContext = {
+      address:          property?.address,
+      city:             property?.city,
+      province:         property?.province,
+      purchasePrice:    property?.listPrice || property?.estimatedValue,
+      estimatedValue:   property?.estimatedValue,
+      rentEstimate:     property?.rentEstimate,
+      sqft:             property?.sqft,
+      beds:             property?.beds,
+      baths:            property?.baths,
+      units:            property?.units,
+      propertyTaxAnnual: property?.propertyTaxAnnual,
+      zoning:            zoningData?.zoning?.code || property?.zoning,
+    }
+    let strategyVerdicts = null
+    let zoningSpecsContext = null
+    try {
+      strategyVerdicts = runAllStrategies(propertyForContext)
+        .filter(r => r.viable)
+        .map(r => ({
+          key:      r.key,
+          name:     r.name,
+          verdict:  r.verdict?.label,
+          headline: r.headline,
+          subhead:  r.subhead,
+        }))
+    } catch {}
+    try {
+      const specs = getZoningSpecs(propertyForContext.zoning, propertyForContext.city || propertyForContext.address)
+      if (specs) zoningSpecsContext = specs
+    } catch {}
+
+    track("property_chat_send", { hasVerdicts: !!strategyVerdicts, hasZoning: !!zoningSpecsContext })
+
     try {
       const token = await getAccessToken();
       const res = await fetch("/api/ai-chat", {
@@ -1313,6 +1396,8 @@ export default function PropertyIntelligence() {
             avgDaysOnMarket: marketSnapshot?.avgDaysOnMarket,
             activeTab,
           },
+          strategyVerdicts,
+          zoningSpecs: zoningSpecsContext,
         }),
       })
       const data = await res.json()
@@ -1375,6 +1460,9 @@ export default function PropertyIntelligence() {
                 )
               }
             </div>
+
+            {/* Free-tier usage pill — visible for free / anonymous users only. */}
+            <FreeTierBanner />
 
             {/* Terminal loading sequence — makes the 3s search feel intentional */}
             {loading && (
@@ -1486,7 +1574,7 @@ export default function PropertyIntelligence() {
                           {l:"COVERAGE",v:"US + Canada"},
                           {l:"ZONING LIVE",v:"YEG + YYC"},
                           {l:"CMHC CMAs",v:"26 cities"},
-                          {l:"AI MODEL",v:"Sonnet 4.6"},
+                          {l:"AI MODEL",v:"our AI"},
                         ].map(({l,v}) => (
                           <div key={l}>
                             <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9,fontWeight:700,color:"var(--dim)",letterSpacing:"0.7px"}}>{l}</div>
@@ -1788,7 +1876,7 @@ export default function PropertyIntelligence() {
                 })()}
 
                 {/* ── Top-level AI Read — auto-fires on property load ──
-                    Sweeping 2-3 sentence Claude take on what the property
+                    Sweeping 2-3 sentence AI take on what the property
                     IS and what the strongest play might be. Renders below
                     the SELL/LEASE hero so users get an institutional read
                     before scrolling to the detail cards. Hides silently if
@@ -1825,7 +1913,7 @@ export default function PropertyIntelligence() {
                     </div>
                     {propertyThesisLoading && !propertyThesis ? (
                       <div style={{ fontSize: 13, color: "var(--sub)", fontStyle: "italic" }}>
-                        Claude is reading the property…
+                        AI is reading the property…
                       </div>
                     ) : (
                       <div style={{ fontSize: 13.5, color: "var(--text)", lineHeight: 1.6 }}>
@@ -1835,8 +1923,28 @@ export default function PropertyIntelligence() {
                   </div>
                 )}
 
+                {/* ── Strategy Verdicts — same address, four strategies ───
+                    Runs Buy&Hold, BRRRR, Flip, Multifamily against the loaded
+                    property and shows the key returns side-by-side. Each card
+                    opens the full calculator with the property pre-populated
+                    via sessionStorage (see StrategyVerdicts.jsx). */}
+                <StrategyVerdicts property={{
+                  address:          property?.address,
+                  city:             property?.city,
+                  province:         property?.province,
+                  purchasePrice:    property?.listPrice || property?.estimatedValue,
+                  estimatedValue:   property?.estimatedValue,
+                  rentEstimate:     property?.rentEstimate,
+                  sqft:             property?.sqft,
+                  beds:             property?.beds,
+                  baths:            property?.baths,
+                  units:            property?.units,
+                  propertyTaxAnnual: property?.propertyTaxAnnual,
+                  zoning:           zoningData?.zoning?.code || property?.zoning,
+                }} />
+
                 {/* ── Building Grade — 4-dimension institutional read ───
-                    Same Claude grade the landing X-Ray bar produces, now on
+                    Same AI grade the landing X-Ray bar produces, now on
                     the post-signup research surface. Architecture & Finishes,
                     Structure & Systems, Amenities & Management, Site &
                     Certifications. */}
@@ -2239,7 +2347,17 @@ export default function PropertyIntelligence() {
                       {zoningData.nearbyPermits?.length > 0 && (
                         <div style={{padding:"12px 16px 14px",borderTop:"1px solid var(--borderf)"}}>
                           <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--dim)",letterSpacing:"0.6px",marginBottom:8,display:"flex",alignItems:"center",gap:6}}>
-                            <span>▸ NEARBY DEV PERMITS · {zoningData.nearbyPermits.length} IN 1KM / 2YR</span>
+                            <span>{(() => {
+                              // Adaptive heading based on record_type mix.
+                              // Ottawa returns development_application entries; other cities return building permits.
+                              // Mixed sets get the umbrella "dev activity" label.
+                              const rows = zoningData.nearbyPermits;
+                              const devApps = rows.filter(r => r.record_type === "development_application").length;
+                              const permits = rows.length - devApps;
+                              if (devApps > 0 && permits === 0) return `▸ NEARBY DEV APPLICATIONS · ${rows.length} IN 2YR`;
+                              if (devApps > 0 && permits > 0)  return `▸ NEARBY DEV ACTIVITY · ${permits} PERMITS + ${devApps} APPLICATIONS`;
+                              return `▸ NEARBY DEV PERMITS · ${rows.length} IN 1KM / 2YR`;
+                            })()}</span>
                           </div>
                           <div style={{display:"grid",gridTemplateColumns:"100px 1fr 1.4fr",gap:8,fontSize:10,fontWeight:700,color:"var(--dim)",letterSpacing:"0.5px",textTransform:"uppercase",paddingBottom:6,borderBottom:"1px solid var(--borderf)",fontFamily:"'Geist Mono',monospace"}}>
                             <span>Date</span><span>Work</span><span>Address</span>
@@ -2273,7 +2391,7 @@ export default function PropertyIntelligence() {
                           <span style={{fontSize:14,lineHeight:1.4}}>🤖</span>
                           <div style={{flex:1}}>
                             <div style={{fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,color:"var(--green)",letterSpacing:"0.7px",marginBottom:4}}>
-                              AI THESIS HINT {zoningThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:6}}>· {zoningThesis.source}</span>}
+                              BUDDY READ · ZONING {zoningThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:6}}>· {zoningThesis.source}</span>}
                             </div>
                             <div style={{fontSize:12.5,color:"var(--text)",lineHeight:1.55}}>
                               {zoningThesis.thesis}
@@ -2282,6 +2400,20 @@ export default function PropertyIntelligence() {
                         </div>
                       )}
                     </div>
+
+                    {/* ── Dimensional specs card — from verified bylaw registry ──
+                        Static, no LLM. Shows max height, FAR, coverage, setbacks,
+                        min lot area, permitted uses for the specific zoning code
+                        when we have it catalogued (Calgary + Edmonton residential
+                        + mixed-use most common codes as of 2025). Renders a
+                        "check the bylaw" placeholder for uncatalogued codes.
+                        Complements the runtime "Development Potential" widget
+                        below with hard bylaw numbers. */}
+                    <ZoningSpecsCard
+                      code={zoningData?.zoning?.code || property?.zoning}
+                      city={property?.city || property?.address}
+                      lotSize={property?.lotSizeM2 || (property?.lotSize ? property.lotSize / 10.7639 : null)}
+                    />
 
                     {/* ── Development Potential — buildable envelope math ──
                         Pure deterministic derivation from FAR / max storeys /
@@ -2400,7 +2532,7 @@ export default function PropertyIntelligence() {
                               already fetched for the zoning panel above.
                               Frames the math card with a 1-2 sentence
                               "strongest play" narrative. Falls back silently
-                              if Claude didn't respond. */}
+                              if the AI did not respond. */}
                           {zoningThesis?.thesis && (
                             <div style={{
                               marginTop: 14, padding: "12px 14px",
@@ -2920,34 +3052,42 @@ export default function PropertyIntelligence() {
             )}
           </div>
 
-          {/* ── RIGHT: AI Chat Sidebar ── */}
+          {/* ── RIGHT: Buddy Chat Sidebar ── */}
           <div className="pi-sidebar">
             <div className="pi-chat-header">
-              <div style={{ fontSize: 18 }}>🤖</div>
-              <div className="pi-chat-header-title">AI Property Advisor</div>
+              <div className="pi-buddy-avatar">B</div>
+              <div>
+                <div className="pi-chat-header-title">Ask Buddy</div>
+                <div className="pi-chat-header-sub">Verdict-aware · knows this property</div>
+              </div>
               <div className="pi-online-dot" title="Online" />
             </div>
 
             {!property ? (
               <div className="pi-chat-no-prop">
-                <div className="pi-chat-no-prop-icon">🏠</div>
+                <div className="pi-chat-no-prop-icon">🗺️</div>
                 <div className="pi-chat-no-prop-text">
-                  Search an address above to get AI analysis for that specific property
+                  Type an address above. Then ask Buddy anything about the verdict, the zoning envelope, or the numbers.
                 </div>
               </div>
             ) : chatMessages.length === 0 ? (
               <div className="pi-chat-starters">
                 <div style={{ fontSize: 12, color: "var(--sub)", fontWeight: 600, textAlign: "center", marginBottom: 6 }}>
-                  Ask me anything about this deal
+                  Insider questions to try
                 </div>
                 {[
-                  "Is this a good deal?",
-                  "What should I offer?",
-                  "Best strategy for this property?",
-                  "What's the cap rate?",
-                  "Would BRRRR work here?",
+                  "What's the biggest risk on this deal?",
+                  "Which of the four strategies fits best and why?",
+                  "What can I build here under this zoning?",
+                  "How would the numbers look at $50K under ask?",
+                  "Compare this zoning to the equivalent Toronto code.",
+                  "What would you ask the seller before writing an offer?",
                 ].map(q => (
-                  <button key={q} className="pi-starter-btn" onClick={() => sendChat(q)}>
+                  <button
+                    key={q}
+                    className="pi-starter-btn"
+                    onClick={() => { track("property_chat_starter_click", { starter: q.slice(0, 40) }); sendChat(q); }}
+                  >
                     {q}
                   </button>
                 ))}
@@ -2956,13 +3096,13 @@ export default function PropertyIntelligence() {
               <div className="pi-chat-messages">
                 {chatMessages.map((msg, i) => (
                   <div key={i} className={msg.role === "user" ? "pi-msg-user" : "pi-msg-ai"}>
-                    {msg.role === "assistant" && <div className="pi-msg-ai-label">🤖 AI Advisor</div>}
+                    {msg.role === "assistant" && <div className="pi-msg-ai-label"><span className="pi-msg-ai-avatar">B</span>Buddy</div>}
                     {msg.content}
                   </div>
                 ))}
                 {chatLoading && (
                   <div className="pi-msg-ai">
-                    <div className="pi-msg-ai-label">🤖 AI Advisor</div>
+                    <div className="pi-msg-ai-label"><span className="pi-msg-ai-avatar">B</span>Buddy</div>
                     <div className="pi-chat-dots">
                       <span /><span /><span />
                     </div>
@@ -2976,7 +3116,7 @@ export default function PropertyIntelligence() {
               <textarea
                 className="pi-chat-textarea"
                 rows={2}
-                placeholder={property ? "Ask anything about this deal…" : "Search a property first…"}
+                placeholder={property ? "Ask Buddy about this deal — verdict, zoning, numbers…" : "Type an address first…"}
                 value={chatInput}
                 onChange={e => setChatInput(e.target.value)}
                 disabled={!property}
@@ -2999,6 +3139,18 @@ export default function PropertyIntelligence() {
           </div>
         </div>
       </div>
+
+      {/* Free-tier upgrade modal — driven by upgradeModal state. Reason
+          determines which copy shows (lookup / save / pdf / rentroll). */}
+      <FreeTierUpgradeModal
+        open={!!upgradeModal}
+        reason={upgradeModal}
+        onClose={() => setUpgradeModal(null)}
+      />
+
+      {/* First-visit welcome modal — shows once per browser. Clicking a
+          demo address populates the search + fires the lookup. */}
+      <WelcomeModal onDemoAddress={(addr) => { setQuery(addr); handleSearch(addr); }} />
     </>
   )
 }

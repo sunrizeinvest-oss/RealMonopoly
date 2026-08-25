@@ -1,9 +1,17 @@
 /**
  * Geocode an address → { lat, lng, city, province } and identify which city adapter to use.
  *
- * Uses the free Nominatim (OpenStreetMap) API. For higher accuracy/quota, swap to
- * Mapbox or Google later — same interface.
+ * Uses the free Nominatim (OpenStreetMap) API with a 90-day Supabase cache
+ * in front of it. Repeat lookups for the same address return in <50ms
+ * instead of paying the ~500ms Nominatim roundtrip + 1 req/sec rate limit.
+ *
+ * Cache fail-opens to the live API call — never blocks the request.
+ *
+ * For higher accuracy/quota, swap Nominatim to Mapbox or Google later —
+ * same interface.
  */
+
+import { getCachedGeocode, cacheGeocode } from "./api-cache.js";
 
 const NOMINATIM = "https://nominatim.openstreetmap.org/search";
 const USER_AGENT = "rizeai.co/1.0 (sunni@rizeai.co)";
@@ -20,6 +28,11 @@ export const CITY_ADAPTERS = {
 };
 
 export async function geocode(address) {
+  // Cache-first. Returns the previously-stored payload if we've geocoded
+  // this address within the last 90 days. Fail-open → null on miss.
+  const cached = await getCachedGeocode(address);
+  if (cached) return cached;
+
   const url = `${NOMINATIM}?q=${encodeURIComponent(address)}&format=json&addressdetails=1&countrycodes=ca&limit=1`;
   const res = await fetch(url, { headers: { "User-Agent": USER_AGENT } });
   if (!res.ok) throw new Error(`geocode failed: ${res.status}`);
@@ -58,15 +71,36 @@ export async function geocode(address) {
     // zoning lookup even when the geocoder lands on the Gatineau side.
     citySlug = "ottawa";
   }
-  return {
+  // Neighborhood-level names from Nominatim's addressdetails hierarchy.
+  // Order matters: try the most specific admin unit first, fall back to broader.
+  // - suburb / neighbourhood / quarter: hyperlocal (Kitsilano, Gastown)
+  // - city_district: broader ward-level (South East, Downtown)
+  // - hamlet / village: rural equivalents
+  // Used as fallback for city adapters that don't publish a neighbourhood
+  // field (Calgary, Toronto, Hamilton, Mississauga, Ottawa). Also feeds the
+  // Wikipedia neighborhood-profile enricher.
+  const neighbourhood = addr.suburb
+    || addr.neighbourhood
+    || addr.quarter
+    || addr.city_district
+    || addr.hamlet
+    || addr.village
+    || null;
+
+  const result = {
     lat: parseFloat(r.lat),
     lng: parseFloat(r.lon),
     city: cityRaw,
     province,
     citySlug,           // null if we don't support this city yet
+    neighbourhood,      // hyperlocal name from OSM, null if OSM has no tag for this point
     displayName: r.display_name,
     raw: addr,
   };
+  // Fire-and-forget cache write — never awaits the response, so the
+  // caller isn't slowed down by the Supabase round-trip.
+  cacheGeocode(address, result).catch(() => {});
+  return result;
 }
 
 export function isSupported(citySlug) {

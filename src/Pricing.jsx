@@ -18,8 +18,15 @@ const CSS = `
   .pr-title span{color:var(--blue)}
   .pr-sub{font-size:16px;color:var(--sub);max-width:440px;margin:0 auto;line-height:1.7}
   .pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-  @media(max-width:640px){.pr-grid{grid-template-columns:1fr}}
+  @media(max-width:640px){.pr-grid{grid-template-columns:1fr;gap:14px}}
   .pr-card{background:var(--card);border:1px solid var(--borderf);border-radius:6px;padding:32px 28px;position:relative}
+  @media(max-width:480px){
+    .pr-card{padding:24px 20px}
+    .pr-title{font-size:32px;letter-spacing:-1.5px}
+    .pr-sub{font-size:14.5px}
+    .pr-price{font-size:38px}
+    .pr-badge{font-size:10px;padding:3px 10px;top:-10px}
+  }
   .pr-card.featured{border-color:var(--blue);box-shadow:0 0 0 1px rgba(59,158,255,0.3),0 20px 60px rgba(59,158,255,0.1)}
   .pr-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:3px;letter-spacing:0.5px;white-space:nowrap}
   .pr-plan{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
@@ -74,18 +81,38 @@ export default function Pricing() {
 
   async function handleUpgrade(plan = "pro") {
     if (!user) { navigate("/login"); return; }
+    if (loading) return; // double-click guard — any plan loading blocks all clicks
     setLoading(plan);
+
+    // 10s timeout on the Stripe checkout creation. If their API is down or
+    // slow we want to free the button + show a real error, not spin forever.
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 10000);
+
     try {
       const res = await fetch("/api/create-checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: user.id, email: user.email, plan }),
+        signal: ctrl.signal,
       });
-      const data = await res.json();
-      if (data.url) window.location.href = data.url;
-      else { alert("Something went wrong. Please try again."); setLoading(null); }
+      clearTimeout(t);
+      let data = null;
+      try { data = await res.json(); } catch {}
+      if (!res.ok) {
+        throw new Error((data && data.error) || `Checkout failed (HTTP ${res.status})`);
+      }
+      if (data?.url && /^https:\/\/(checkout\.)?stripe\.com\//.test(data.url)) {
+        window.location.href = data.url;
+        return; // page navigates away — leave loading state until unload
+      }
+      throw new Error("Stripe didn't return a valid checkout URL. Please try again.");
     } catch (err) {
-      alert("Something went wrong. Please try again.");
+      clearTimeout(t);
+      const msg = err?.name === "AbortError"
+        ? "Checkout timed out. Please try again."
+        : (err?.message || "Something went wrong. Please try again.");
+      alert(msg);
       setLoading(null);
     }
   }

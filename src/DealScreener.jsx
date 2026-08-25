@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
 import { estimateARV } from "./lib/arv";
@@ -297,7 +297,7 @@ export default function DealScreener() {
   const [lookupError, setLookupError] = useState(null);
   const [lookupSort, setLookupSort] = useState({ key: "cap", dir: -1 });
   // AI Read on the BATCH — fires when all rows finish loading. Debounced
-  // 500ms so re-running the same list doesn't churn Claude. Same deal-thesis
+  // 500ms so re-running the same list doesn't churn AI. Same deal-thesis
   // mode used elsewhere; aggregate stats packed in as metrics.
   const [batchThesis, setBatchThesis] = useState(null);
   const [batchThesisLoading, setBatchThesisLoading] = useState(false);
@@ -394,7 +394,7 @@ export default function DealScreener() {
 
   // Auto-fire AI Read on batch completion. Watches for the transition from
   // "running" → "not running" with rows present. 500ms debounce so flipping
-  // back and forth (e.g., user re-runs immediately) doesn't churn Claude.
+  // back and forth (e.g., user re-runs immediately) doesn't churn AI.
   useEffect(() => {
     if (lookupRunning) return;
     const okRows = lookupRows.filter(r => r.status === "ok");
@@ -753,7 +753,7 @@ export default function DealScreener() {
           </div>
 
           {/* ── AI Read on the batch — auto-fires when all rows finish.
-              Sweeping 1-2 sentence Claude summary of the 30-address list:
+              Sweeping 1-2 sentence AI summary of the 30-address list:
               "median cap 4.2%, only 3 hit the 6% bar, geographic clustering
               in YYC NE — your strong candidates are rows X, Y, Z." */}
           {(batchThesisLoading || batchThesis?.thesis) && (
@@ -788,7 +788,7 @@ export default function DealScreener() {
               </div>
               {batchThesisLoading && !batchThesis ? (
                 <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>
-                  Claude is reading the list…
+                  AI is reading the list…
                 </div>
               ) : (
                 <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>

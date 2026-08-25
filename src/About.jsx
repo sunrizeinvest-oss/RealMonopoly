@@ -202,7 +202,7 @@ export default function About() {
               <div className="ab-principle-num">▸ 04</div>
               <div className="ab-principle-h">AI Read, not AI replace.</div>
               <div className="ab-principle-body">
-                Claude translates data into institutional reads. We never claim to
+                AI translates data into institutional reads. We never claim to
                 replace your judgment — we cut the 3 hours of analyst work that
                 stands between you and the decision.
               </div>

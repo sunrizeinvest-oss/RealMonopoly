@@ -49,7 +49,7 @@ export default function Terms() {
         </div>
 
         <div className="lp-h2">1. Acceptance of terms</div>
-        <div className="lp-p">By creating an account or using rizeai.co ("RizeAI", "the Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service. We may update these terms from time to time — continued use of the Service after changes constitutes acceptance.</div>
+        <div className="lp-p">By creating an account or using realdealestate.app ("RizeAI", "the Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service. We may update these terms from time to time — continued use of the Service after changes constitutes acceptance.</div>
 
         <div className="lp-h2">2. Description of service</div>
         <div className="lp-p">RizeAI provides real estate deal analysis tools including single-family flip analysis, multi-family commercial analysis, deal scoring, PDF exports, and deal saving features. The Service is provided on a freemium basis — certain features require a paid Pro subscription.</div>
@@ -74,7 +74,7 @@ export default function Terms() {
         <div className="lp-p">The Pro plan is billed monthly at the rate displayed on our Pricing page. Payments are processed by Stripe. By subscribing, you authorize us to charge your payment method on a recurring monthly basis until you cancel.</div>
         <ul className="lp-ul">
           <li><strong>Cancellation:</strong> You may cancel your subscription at any time. Your Pro access continues until the end of the current billing period.</li>
-          <li><strong>Refunds:</strong> We offer a 7-day money-back guarantee for new Pro subscribers. Email <a href="mailto:kaelan@chmic.ca">kaelan@chmic.ca</a> within 7 days of your first charge to request a full refund.</li>
+          <li><strong>Refunds:</strong> We offer a 7-day money-back guarantee for new Pro subscribers. Email <a href="mailto:sunni@rizedevelopments.com">sunni@rizedevelopments.com</a> within 7 days of your first charge to request a full refund.</li>
           <li><strong>Price changes:</strong> We will notify you at least 30 days before any price increase takes effect.</li>
           <li><strong>Free tier:</strong> Free accounts are limited to 3 saved deals. We reserve the right to adjust free tier limits with reasonable notice.</li>
         </ul>
@@ -105,15 +105,15 @@ export default function Terms() {
         <div className="lp-p">These terms are governed by the laws of the Province of Alberta, Canada, without regard to conflict of law principles. Any disputes arising from these terms or the Service shall be resolved in the courts of Alberta.</div>
 
         <div className="lp-h2">12. Contact</div>
-        <div className="lp-p">Questions about these terms? Email us at <a href="mailto:kaelan@chmic.ca">kaelan@chmic.ca</a> or call <a href="tel:5875854571">587-585-4571</a>.</div>
+        <div className="lp-p">Questions about these terms? Email us at <a href="mailto:sunni@rizedevelopments.com">sunni@rizedevelopments.com</a>.</div>
       </div>
 
       <footer>
-        <span className="f-logo"><span>Real</span> Deal — rizeai.co</span>
+        <span className="f-logo"><span>Real</span> Deal — realdealestate.app</span>
         <div className="f-links">
           <a href="/privacy" className="f-link">Privacy</a>
           <a href="/terms" className="f-link">Terms</a>
-          <a href="mailto:kaelan@chmic.ca" className="f-link">Contact</a>
+          <a href="mailto:sunni@rizedevelopments.com" className="f-link">Contact</a>
         </div>
       </footer>
     </div>

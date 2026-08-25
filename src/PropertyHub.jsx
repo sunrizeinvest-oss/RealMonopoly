@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import XrayPrefillBanner from "./components/XrayPrefillBanner";
 import { getXrayPrefill, clearXrayPrefill } from "./lib/xrayPrefill";
+import { detectCitySlug, getCapRateBenchmark, getDscrThresholds } from "./lib/benchmarks";
+import OnboardingTour from "./components/OnboardingTour";
 import LossToLeasePanel from "./components/LossToLeasePanel";
 
 const num = v => parseFloat(v) || 0;
@@ -248,6 +250,7 @@ export default function PropertyHub() {
   const [saleComps,    setSaleComps]    = useState(null);
   const [rentComps,    setRentComps]    = useState(null);
   const [caComps,      setCaComps]      = useState(null);   // Realtor.ca Canadian data
+  const [cityData,     setCityData]     = useState(null);   // Municipal open data — zoning, permits, year built
   const [compsLoading, setCompsLoading] = useState(false);
   const inputRef = useRef(null);
 
@@ -260,6 +263,36 @@ export default function PropertyHub() {
     setXrayPrefill(xp);
     setQuery(prev => prev || xp.address);
   }, []);
+
+  // Deep-link support: /property?addr=<address> pre-fills the query field
+  // and auto-triggers the lookup. Used by the "▶ Try Live Demo" button on
+  // the landing page — one-click walkthrough for VCs and first-time visitors
+  // without needing to type an address in. Also accepts ?address= for
+  // backward compatibility with existing X-Ray flow URLs.
+  //
+  // Race-condition note: URL param takes precedence over stale localStorage
+  // prefill. Fires exactly once per mount — subsequent user edits behave normally.
+  const [autofired, setAutofired] = useState(false);
+  useEffect(() => {
+    if (autofired) return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const addr = params.get("addr") || params.get("address");
+      if (!addr) return;
+      setQuery(addr); // URL param always wins over stale state
+      setAutofired(true);
+      // Give React a tick to commit the query state, then fire search
+      // directly so we don't rely on effect chaining. search() reads from
+      // the query state, so a small delay is sufficient.
+      const t = setTimeout(() => {
+        try { search(); } catch (e) { console.warn("demo autofire failed", e); }
+      }, 100);
+      return () => clearTimeout(t);
+    } catch (e) {
+      console.warn("deep-link parse failed", e);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autofired]);
 
   // ── Building Grade — 4-dimension institutional read ──────────────────────
   // Auto-fires when property + zoning land. Cached in component state for
@@ -365,6 +398,7 @@ export default function PropertyHub() {
     setSaleComps(null);
     setRentComps(null);
     setCaComps(null);
+    setCityData(null);
 
     const isCA = isCanadianAddress(q);
 
@@ -377,11 +411,18 @@ export default function PropertyHub() {
         const provMatch = q.match(/\b(BC|AB|ON|QC|MB|SK|NS|NB|PE|NL)\b/i);
         const provForCMHC = provMatch ? provMatch[1].toUpperCase() : "";
 
-        const [propRes, caRes, cmhcRes] = await Promise.all([
+        const [propRes, caRes, cmhcRes, cityRes] = await Promise.all([
           fetch(`/api/property-lookup?address=${encodeURIComponent(q)}`),
           fetch(`/api/realtor-ca?address=${encodeURIComponent(q)}`),
           cityForCMHC ? fetch(`/api/cmhc-rental?city=${encodeURIComponent(cityForCMHC)}&province=${provForCMHC}`) : Promise.resolve(null),
+          fetch(`/api/city-data?address=${encodeURIComponent(q)}`).catch(() => null),
         ]);
+
+        // Municipal open data — zoning, permits, year-built. Soft-fail: a
+        // 404 here just means the city isn't supported yet, not an error.
+        if (cityRes?.ok) {
+          try { setCityData(await cityRes.json()); } catch {}
+        }
 
         if (propRes.ok) {
           const propJson = await propRes.json();
@@ -413,21 +454,33 @@ export default function PropertyHub() {
         if (!res.ok) throw new Error(json.error || "Lookup failed");
         setProperty({ ...json, searchQuery: q });
 
-        // Fire comps in parallel after property found
+        // Fire comps in parallel after property found.
+        // Critical: spinner state must reset whether the fetches succeed,
+        // fail, throw, or return non-OK status. Previously stayed stuck
+        // forever if either comp endpoint 500'd. allSettled + finally make
+        // the spinner reliably go away.
         setCompsLoading(true);
-        const enc = encodeURIComponent(json.address || q);
-        const [scRes, rcRes] = await Promise.all([
-          fetch(`/api/comps?type=sale&address=${enc}`),
-          fetch(`/api/comps?type=rental&address=${enc}`),
-        ]);
-        if (scRes.ok) setSaleComps(await scRes.json());
-        if (rcRes.ok) setRentComps(await rcRes.json());
-        setCompsLoading(false);
+        try {
+          const enc = encodeURIComponent(json.address || q);
+          const [scRes, rcRes] = await Promise.allSettled([
+            fetch(`/api/comps?type=sale&address=${enc}`),
+            fetch(`/api/comps?type=rental&address=${enc}`),
+          ]);
+          if (scRes.status === "fulfilled" && scRes.value.ok) {
+            try { setSaleComps(await scRes.value.json()); } catch {}
+          }
+          if (rcRes.status === "fulfilled" && rcRes.value.ok) {
+            try { setRentComps(await rcRes.value.json()); } catch {}
+          }
+        } finally {
+          setCompsLoading(false);
+        }
       }
 
     } catch(e) {
       setProperty({ searchQuery: q, notFound: true });
       setError(e.message || "Lookup failed — check your API key in Vercel");
+      setCompsLoading(false);
     }
     setLoading(false);
   }
@@ -456,7 +509,20 @@ export default function PropertyHub() {
       propertyType:  property?.propertyType   || null,
     };
     localStorage.setItem("rde_prefill", JSON.stringify(prefill));
-    navigate(s.route);
+
+    // Belt + suspenders: pass address/value via URL params too. Downstream
+    // calculators (BRRRR, Commercial, Rehab, Tax) already read these, but
+    // until now this navigate dropped them on the floor — so the user landed
+    // at a blank calc and re-typed the address they'd just searched for.
+    const params = new URLSearchParams();
+    if (prefill.address)        params.set("addr", prefill.address);
+    if (prefill.estimatedValue) params.set("purchase", String(Math.round(prefill.estimatedValue)));
+    if (prefill.rentEstimate)   params.set("rent", String(Math.round(prefill.rentEstimate)));
+    if (prefill.yearBuilt)      params.set("year", String(prefill.yearBuilt));
+    if (prefill.squareFootage)  params.set("sqft", String(prefill.squareFootage));
+    if (prefill.bedrooms)       params.set("beds", String(prefill.bedrooms));
+    const qs = params.toString();
+    navigate(qs ? `${s.route}?${qs}` : s.route);
   }
 
   const mapAddr  = encodeURIComponent(property?.searchQuery || query);
@@ -485,6 +551,11 @@ export default function PropertyHub() {
   return (
     <div className="ph-wrap">
       <style>{CSS}</style>
+
+      {/* First-signup onboarding tour — auto-shows once for new users,
+          dismissible via the X. Manual re-trigger via TopNav account menu's
+          "Take the tour" item. */}
+      <OnboardingTour />
 
       {/* Nav */}
       <nav className="ph-nav">
@@ -539,7 +610,7 @@ export default function PropertyHub() {
               onClear={() => { clearXrayPrefill(); setXrayPrefill(null); }}
             />
           )}
-          <div className="ph-search-box">
+          <div className="ph-search-box" data-tour="search">
             <span className="ph-search-icon">📍</span>
             <AddressAutocomplete
               className="ph-search-input"
@@ -586,6 +657,19 @@ export default function PropertyHub() {
               <div className="ph-prop-type">🏠 {property.propertyType}</div>
             )}
           </div>
+
+          {/* ── OVERALL VERDICT BANNER · pitch-week showcase ────────────
+              The one-answer synthesis a broker or investor wants BEFORE
+              seeing any detail. Derived from Building Grade + zoning +
+              CMHC + AVM. Displays the moment the property loads;
+              refines as async data lands. */}
+          {hasData && (
+            <OverallVerdictBanner
+              property={property}
+              cityData={cityData}
+              buildingGrade={buildingGrade}
+            />
+          )}
 
           {/* ── SELL · LEASE hero card — same headline answer the /property
               page surfaces. Auto-pulls the strongest available signals; no
@@ -792,6 +876,270 @@ export default function PropertyHub() {
                 </div>
               )}
             </>
+          )}
+
+          {/* ── MUNICIPAL OPEN DATA · zoning + permits + year built ──────
+              Free hyperlocal data from city open-data portals (Vancouver,
+              Calgary, Edmonton, Toronto). Different cut than the AI Building
+              Grade — this is the raw municipal record: zoning code, assessed
+              values, recent permits, nearby development apps. */}
+          {hasData && cityData && !cityData.error && (
+            <div style={{
+              margin: "16px 0",
+              padding: "18px 20px",
+              background: "linear-gradient(180deg,rgba(33,85,205,0.04) 0%,var(--card) 100%)",
+              border: "1px solid rgba(33,85,205,0.32)",
+              borderLeft: "3px solid #2155cd",
+              borderRadius: 8,
+            }}>
+              <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:12}}>
+                <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,letterSpacing:"1.3px",color:"#2155cd",textTransform:"uppercase"}}>
+                  ▸ Municipal Open Data · {cityData.city?.toUpperCase()}
+                </div>
+                <span style={{
+                  marginLeft:"auto",fontFamily:"'Geist Mono',ui-monospace,monospace",
+                  fontSize:10,fontWeight:600,color:"var(--dim)",
+                  border:"1px solid var(--borderf)",padding:"3px 8px",borderRadius:3,
+                }}>
+                  Source: {cityData.source?.split("(")[1]?.replace(")","") || cityData.source}
+                </span>
+              </div>
+              <div style={{
+                display:"grid",
+                gridTemplateColumns:"repeat(auto-fit, minmax(160px, 1fr))",
+                gap:10,
+                marginBottom: (cityData.nearbyPermits?.length || cityData.nearbyDevelopmentApplications?.length) ? 14 : 0,
+              }}>
+                {cityData.zoning && (
+                  <div style={{padding:10,background:"rgba(0,12,31,0.4)",borderRadius:6,border:"1px solid var(--borderf)"}}>
+                    <div style={{fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Zoning</div>
+                    <div style={{fontSize:14,fontWeight:700,color:"#2155cd"}}>{cityData.zoning}</div>
+                  </div>
+                )}
+                {cityData.propertyClass && (
+                  <div style={{padding:10,background:"rgba(0,12,31,0.4)",borderRadius:6,border:"1px solid var(--borderf)"}}>
+                    <div style={{fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Property Class</div>
+                    <div style={{fontSize:14,fontWeight:700,color:"var(--alabaster)"}}>{cityData.propertyClass}</div>
+                  </div>
+                )}
+                {cityData.yearBuilt && (
+                  <div style={{padding:10,background:"rgba(0,12,31,0.4)",borderRadius:6,border:"1px solid var(--borderf)"}}>
+                    <div style={{fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Year Built</div>
+                    <div style={{fontSize:14,fontWeight:700,color:"var(--alabaster)"}}>{cityData.yearBuilt}</div>
+                  </div>
+                )}
+                {cityData.assessedTotal && (
+                  <div style={{padding:10,background:"rgba(0,12,31,0.4)",borderRadius:6,border:"1px solid var(--borderf)"}}>
+                    <div style={{fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Assessed Total</div>
+                    <div style={{fontSize:14,fontWeight:700,color:"var(--green)"}}>${(cityData.assessedTotal || 0).toLocaleString()}</div>
+                  </div>
+                )}
+                {cityData.taxLevy && (
+                  <div style={{padding:10,background:"rgba(0,12,31,0.4)",borderRadius:6,border:"1px solid var(--borderf)"}}>
+                    <div style={{fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Annual Tax Levy</div>
+                    <div style={{fontSize:14,fontWeight:700,color:"var(--alabaster)"}}>${(cityData.taxLevy || 0).toLocaleString()}</div>
+                  </div>
+                )}
+              </div>
+              {(cityData.nearbyPermits?.length > 0 || cityData.nearbyDevelopmentApplications?.length > 0) && (
+                <div style={{
+                  display:"grid",
+                  gridTemplateColumns: cityData.nearbyPermits?.length && cityData.nearbyDevelopmentApplications?.length ? "1fr 1fr" : "1fr",
+                  gap:12,
+                }}>
+                  {cityData.nearbyPermits?.length > 0 && (
+                    <div style={{padding:12,background:"rgba(0,12,31,0.4)",borderRadius:6,border:"1px solid var(--borderf)"}}>
+                      <div style={{fontSize:10,color:"#2155cd",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:8,fontWeight:700}}>
+                        ▸ {cityData.nearbyPermits.length} Recent permit{cityData.nearbyPermits.length === 1 ? "" : "s"} nearby
+                      </div>
+                      <div style={{display:"flex",flexDirection:"column",gap:4,maxHeight:120,overflowY:"auto"}}>
+                        {cityData.nearbyPermits.slice(0, 5).map((p, i) => (
+                          <div key={i} style={{fontSize:11.5,color:"var(--sub)",lineHeight:1.4}}>
+                            <span style={{color:"var(--alabaster)",fontWeight:600}}>{p.type || p.workClass || "Permit"}</span>
+                            {p.value && <span style={{color:"var(--green)",marginLeft:6}}>${Number(p.value).toLocaleString()}</span>}
+                            {p.address && <div style={{fontSize:10.5,color:"var(--dim)"}}>{p.address}</div>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {cityData.nearbyDevelopmentApplications?.length > 0 && (
+                    <div style={{padding:12,background:"rgba(0,12,31,0.4)",borderRadius:6,border:"1px solid var(--borderf)"}}>
+                      <div style={{fontSize:10,color:"#d4af37",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:8,fontWeight:700}}>
+                        ▸ {cityData.nearbyDevelopmentApplications.length} Active dev application{cityData.nearbyDevelopmentApplications.length === 1 ? "" : "s"} nearby
+                      </div>
+                      <div style={{display:"flex",flexDirection:"column",gap:4,maxHeight:120,overflowY:"auto"}}>
+                        {cityData.nearbyDevelopmentApplications.slice(0, 5).map((d, i) => (
+                          <div key={i} style={{fontSize:11.5,color:"var(--sub)",lineHeight:1.4}}>
+                            <span style={{color:"var(--alabaster)",fontWeight:600}}>{d.type || d.status || "Application"}</span>
+                            {d.address && <div style={{fontSize:10.5,color:"var(--dim)"}}>{d.address}</div>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── NEIGHBORHOOD CONTEXT · Wikipedia ────────────────────────
+              Free public profile: population, boundaries, history.
+              Populated when property-lookup's assessment returns a
+              neighbourhood name AND Wikipedia has a "Name, City" page. */}
+          {property?.neighbourhoodProfile?.extract && (
+            <div style={{
+              margin: "16px 0",
+              padding: "18px 20px",
+              background: "linear-gradient(180deg,rgba(139,92,246,0.04) 0%,var(--card) 100%)",
+              border: "1px solid rgba(139,92,246,0.32)",
+              borderLeft: "3px solid #8b5cf6",
+              borderRadius: 8,
+            }}>
+              <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:12}}>
+                <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,letterSpacing:"1.3px",color:"#8b5cf6",textTransform:"uppercase"}}>
+                  ▸ Neighborhood · {property.neighbourhoodProfile.title || property.neighbourhood}
+                </div>
+                <span style={{
+                  marginLeft:"auto",fontFamily:"'Geist Mono',ui-monospace,monospace",
+                  fontSize:10,fontWeight:600,color:"var(--dim)",
+                  border:"1px solid var(--borderf)",padding:"3px 8px",borderRadius:3,
+                }}>
+                  Source: Wikipedia
+                </span>
+              </div>
+              <div style={{display:"flex",gap:14,alignItems:"flex-start"}}>
+                {property.neighbourhoodProfile.thumbnail && (
+                  <img
+                    src={property.neighbourhoodProfile.thumbnail}
+                    alt=""
+                    style={{width:100,height:100,objectFit:"cover",borderRadius:6,border:"1px solid var(--borderf)",flexShrink:0}}
+                  />
+                )}
+                <div style={{flex:1,fontSize:13,lineHeight:1.55,color:"var(--alabaster)"}}>
+                  {property.neighbourhoodProfile.extract}
+                  {property.neighbourhoodProfile.url && (
+                    <a
+                      href={property.neighbourhoodProfile.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{marginLeft:6,color:"#8b5cf6",textDecoration:"none",fontWeight:600}}
+                    >
+                      Read more →
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── NEARBY AMENITIES · OpenStreetMap ────────────────────────
+              Free, no key. Walkable schools/transit/grocery/restaurants/parks
+              within tuned radii (transit 500m, restaurants 500m, schools 1.2km).
+              Real estate value proxy — every walkable amenity moves the needle. */}
+          {property?.nearbyAmenities && (
+            <div style={{
+              margin: "16px 0",
+              padding: "18px 20px",
+              background: "linear-gradient(180deg,rgba(34,197,94,0.04) 0%,var(--card) 100%)",
+              border: "1px solid rgba(34,197,94,0.32)",
+              borderLeft: "3px solid #22c55e",
+              borderRadius: 8,
+            }}>
+              <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:12}}>
+                <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,letterSpacing:"1.3px",color:"#22c55e",textTransform:"uppercase"}}>
+                  ▸ Walkable Amenities · Within a Short Walk
+                </div>
+                <span style={{
+                  marginLeft:"auto",fontFamily:"'Geist Mono',ui-monospace,monospace",
+                  fontSize:10,fontWeight:600,color:"var(--dim)",
+                  border:"1px solid var(--borderf)",padding:"3px 8px",borderRadius:3,
+                }}>
+                  Source: OpenStreetMap
+                </span>
+              </div>
+              <div style={{
+                display:"grid",
+                gridTemplateColumns:"repeat(auto-fit, minmax(140px, 1fr))",
+                gap:10,
+              }}>
+                {[
+                  { key: "schools",     label: "Schools",     icon: "🎓", radius: "1.2km" },
+                  { key: "transit",     label: "Transit",     icon: "🚌", radius: "500m"  },
+                  { key: "grocery",     label: "Grocery",     icon: "🛒", radius: "800m"  },
+                  { key: "restaurants", label: "Restaurants", icon: "🍽️", radius: "500m"  },
+                  { key: "parks",       label: "Parks",       icon: "🌳", radius: "800m"  },
+                ].map(({ key, label, icon, radius }) => {
+                  const bucket = property.nearbyAmenities[key];
+                  if (!bucket) return null;
+                  return (
+                    <div key={key} style={{padding:10,background:"rgba(0,12,31,0.4)",borderRadius:6,border:"1px solid var(--borderf)"}}>
+                      <div style={{fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>
+                        {icon} {label} · {radius}
+                      </div>
+                      <div style={{fontSize:18,fontWeight:700,color:bucket.count > 0 ? "#22c55e" : "var(--dim)"}}>
+                        {bucket.count}
+                      </div>
+                      {bucket.nearest?.[0] && (
+                        <div style={{fontSize:10,color:"var(--sub)",marginTop:3,lineHeight:1.35}}>
+                          Closest: <span style={{color:"var(--alabaster)"}}>{bucket.nearest[0].name}</span> ({bucket.nearest[0].distance}m)
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ── FINANCING CONTEXT · Bank of Canada rates ────────────────
+              Current prime + 5yr conventional + overnight. Auto-fires on
+              every property lookup. Useful for underwriting sanity checks. */}
+          {property?.rates?.prime?.rate && (
+            <div style={{
+              margin: "16px 0",
+              padding: "14px 18px",
+              background: "linear-gradient(180deg,rgba(251,146,60,0.04) 0%,var(--card) 100%)",
+              border: "1px solid rgba(251,146,60,0.32)",
+              borderLeft: "3px solid #fb923c",
+              borderRadius: 8,
+            }}>
+              <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",marginBottom:10}}>
+                <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,letterSpacing:"1.3px",color:"#fb923c",textTransform:"uppercase"}}>
+                  ▸ Financing Context · Current Rates
+                </div>
+                <span style={{
+                  marginLeft:"auto",fontFamily:"'Geist Mono',ui-monospace,monospace",
+                  fontSize:10,fontWeight:600,color:"var(--dim)",
+                  border:"1px solid var(--borderf)",padding:"3px 8px",borderRadius:3,
+                }}>
+                  Source: Bank of Canada
+                </span>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(140px, 1fr))",gap:10}}>
+                {property.rates.prime?.rate && (
+                  <div style={{padding:10,background:"rgba(0,12,31,0.4)",borderRadius:6,border:"1px solid var(--borderf)"}}>
+                    <div style={{fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Prime rate</div>
+                    <div style={{fontSize:18,fontWeight:700,color:"#fb923c"}}>{property.rates.prime.rate.toFixed(2)}%</div>
+                    <div style={{fontSize:9,color:"var(--sub)",marginTop:3}}>as of {property.rates.prime.date}</div>
+                  </div>
+                )}
+                {property.rates.mortgage5yr?.rate && (
+                  <div style={{padding:10,background:"rgba(0,12,31,0.4)",borderRadius:6,border:"1px solid var(--borderf)"}}>
+                    <div style={{fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>5yr conventional</div>
+                    <div style={{fontSize:18,fontWeight:700,color:"var(--alabaster)"}}>{property.rates.mortgage5yr.rate.toFixed(2)}%</div>
+                    <div style={{fontSize:9,color:"var(--sub)",marginTop:3}}>as of {property.rates.mortgage5yr.date}</div>
+                  </div>
+                )}
+                {property.rates.overnight?.rate && (
+                  <div style={{padding:10,background:"rgba(0,12,31,0.4)",borderRadius:6,border:"1px solid var(--borderf)"}}>
+                    <div style={{fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>BoC overnight</div>
+                    <div style={{fontSize:18,fontWeight:700,color:"var(--alabaster)"}}>{property.rates.overnight.rate.toFixed(2)}%</div>
+                    <div style={{fontSize:9,color:"var(--sub)",marginTop:3}}>as of {property.rates.overnight.date}</div>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
 
           {/* ── BUILDING GRADE · 4-dimension institutional read ────────
@@ -1240,6 +1588,32 @@ export default function PropertyHub() {
                 </a>
               </div>
 
+              {/* Degraded-source banner — surfaces when Realtor.ca's bot
+                  detection blocks the scrape. Better to tell users the truth
+                  than fake "0 listings found." Cleared when Repliers is wired. */}
+              {caComps.degraded && (
+                <div style={{
+                  background:"rgba(212,175,55,0.06)",
+                  border:"1px solid rgba(212,175,55,0.28)",
+                  borderLeft:"3px solid #d4af37",
+                  borderRadius: 8,
+                  padding:"14px 16px",
+                  marginBottom:16,
+                  fontSize:13,
+                  color:"var(--text)",
+                  lineHeight:1.55,
+                }}>
+                  <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,letterSpacing:"1.3px",color:"#b8941f",textTransform:"uppercase",marginBottom:6}}>
+                    ⚠ Live MLS comps degraded
+                  </div>
+                  Realtor.ca is currently blocking automated lookups for this address.
+                  Sale and rental comps are temporarily unavailable for this listing.
+                  Other data (zoning, CMHC rent anchor, assessed values, AI Building Grade)
+                  is still flowing — see the cards above. Full MLS access returns when
+                  Repliers integration is enabled.
+                </div>
+              )}
+
               {/* CMHC Rental Market Data */}
               {caComps.cmhcData && (
                 <div style={{background:"rgba(52,217,138,0.04)",border:"1px solid rgba(52,217,138,0.15)",borderRadius: 16,padding:"16px 20px",marginBottom:16}}>
@@ -1427,13 +1801,71 @@ export default function PropertyHub() {
             </>
           )}
 
+          {/* ── PROPERTY-FIT BUDDY PANEL ── Smart recommendation based on
+              what we know about the property: zoning, year built, assessed
+              value, units. Names the best-fit strategy, surfaces the city's
+              key benchmarks, and gives an "open in calculator" CTA. */}
+          {hasData && (() => {
+            const citySlugLocal = detectCitySlug(property?.address || query);
+            const yr = property?.yearBuilt;
+            const av = property?.estimatedValue || property?.assessedValue;
+            const units = property?.unitCount || (caComps?.stats?.units);
+            const z = (property?.zoning?.code || property?.zoning || "").toString().toUpperCase();
+            // Best-fit strategy logic — multi-unit first, then flip if old + cheap, BRRRR default.
+            let fit = "brrrr", fitName = "BRRRR", fitWhy = "Default starting point for an income property.";
+            if (units && units >= 4) { fit = "multifamily"; fitName = "Multifamily Underwriter"; fitWhy = `${units}-unit building — institutional underwrite needed.`; }
+            else if (/RM|R-CG|R3|CR|MD|TOC/.test(z)) { fit = "multifamily"; fitName = "Multifamily Underwriter"; fitWhy = `Zoning code ${z} allows multi-unit — model the upside.`; }
+            else if (yr && yr < 1980 && av && av < 600000) { fit = "flip"; fitName = "Fix & Flip Analyzer"; fitWhy = "Older building, sub-$600K assessed — flip candidate."; }
+            const bench = getCapRateBenchmark(citySlugLocal, fit === "flip" ? "flip" : "multifamily");
+            const dscrT = getDscrThresholds();
+            const fitStrategyObj = STRATEGIES.find(s => s.id === fit) || STRATEGIES[0];
+            return (
+              <div style={{
+                margin:"12px 0 22px",
+                padding:"18px 20px",
+                background:"linear-gradient(180deg,rgba(212,175,55,0.05),rgba(0,12,31,0.02))",
+                border:"1px solid rgba(212,175,55,0.28)",
+                borderLeft:"3px solid var(--gold,#d4af37)",
+                borderRadius:8,
+              }}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,flexWrap:"wrap",marginBottom:10}}>
+                  <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,letterSpacing:"1.4px",color:"#d4af37",textTransform:"uppercase"}}>
+                    ▸ Buddy Read
+                  </div>
+                  {citySlugLocal !== "default" && (
+                    <span style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10,color:"var(--dim)",letterSpacing:"0.4px",textTransform:"uppercase"}}>
+                      {citySlugLocal} benchmarks loaded
+                    </span>
+                  )}
+                </div>
+                <div style={{fontSize:15,color:"var(--text)",lineHeight:1.55,marginBottom:14}}>
+                  Best fit looks like <strong style={{color:"#d4af37"}}>{fitName}</strong>. {fitWhy}
+                  {bench && bench.target > 0 && citySlugLocal !== "default" && (
+                    <> Expect cap rates in the <strong>{(bench.low*100).toFixed(1)}-{(bench.high*100).toFixed(1)}%</strong> range, DSCR floor <strong>{dscrT.lenderFloor.toFixed(2)}</strong> for lender approval.</>
+                  )}
+                </div>
+                <button
+                  onClick={() => goToStrategy(fitStrategyObj)}
+                  style={{
+                    background:"#d4af37",color:"#0a1128",border:"none",borderRadius:5,
+                    padding:"10px 18px",fontFamily:"'Geist Mono',ui-monospace,monospace",
+                    fontSize:11.5,fontWeight:800,letterSpacing:"0.5px",cursor:"pointer",
+                    textTransform:"uppercase",display:"inline-flex",alignItems:"center",gap:8,
+                  }}
+                >
+                  ▸ Open {fitName} with this address →
+                </button>
+              </div>
+            );
+          })()}
+
           {/* Strategy picker */}
           <div className="ph-strategy-title">
             {hasData || hasComps || hasCaComps
               ? "Pick your strategy — all numbers pre-fill automatically:"
               : "Pick your analysis strategy:"}
           </div>
-          <div className="ph-strategies">
+          <div className="ph-strategies" data-tour="hub-cards">
             {STRATEGIES.map(s => (
               <button key={s.id} className={`ph-strat ${s.cls}`} onClick={() => goToStrategy(s)}>
                 <span className="ph-strat-icon">{s.icon}</span>
@@ -1452,7 +1884,7 @@ export default function PropertyHub() {
 
       {/* Before search — show strategy cards */}
       {!loading && !property && (
-        <div className="ph-blank-strategies">
+        <div className="ph-blank-strategies" data-tour="hub-cards" style={{marginTop:24}}>
           {STRATEGIES.map(s => (
             <button key={s.id} className={`ph-strat ${s.cls}`} onClick={() => navigate(s.route)}>
               <span className="ph-strat-icon">{s.icon}</span>
@@ -1467,6 +1899,223 @@ export default function PropertyHub() {
         </div>
       )}
 
+    </div>
+  );
+}
+
+/**
+ * OverallVerdictBanner — the "one-answer" synthesis that shows before any
+ * detail cards. Pitch-critical: this is what a broker or investor wants
+ * BEFORE they scroll into 15 tables of numbers.
+ *
+ * Verdict logic (heuristic, guaranteed to compute from what's available):
+ *   1. Try Building Grade overall (A→STRONG, B→GO, C→CAUTION, D/F→PASS)
+ *   2. Best strategy inferred from zoning code + property size
+ *   3. Max offer = estimatedValue × (1 − 5% negotiation buffer)
+ *   4. Confidence: HIGH if grade + zoning + AVM all present, MED if 2/3, LOW otherwise
+ */
+function OverallVerdictBanner({ property, cityData, buildingGrade }) {
+  const gradeMap = { A: "STRONG", B: "GO", C: "CAUTION", D: "PASS", F: "PASS" };
+  const gradeLetter = (buildingGrade?.overall || "").toUpperCase().charAt(0);
+  const verdict = gradeMap[gradeLetter] || (buildingGrade?.overall ? "GO" : "PENDING");
+
+  const verdictStyle = {
+    STRONG:  { color: "#16a34a", bg: "rgba(22,163,74,0.10)",  border: "rgba(22,163,74,0.42)"  },
+    GO:      { color: "#22c55e", bg: "rgba(34,197,94,0.10)",  border: "rgba(34,197,94,0.42)"  },
+    CAUTION: { color: "#eab308", bg: "rgba(234,179,8,0.10)",  border: "rgba(234,179,8,0.42)"  },
+    PASS:    { color: "#dc2626", bg: "rgba(220,38,38,0.10)",  border: "rgba(220,38,38,0.42)"  },
+    PENDING: { color: "#94a3b8", bg: "rgba(148,163,184,0.10)",border: "rgba(148,163,184,0.42)"},
+  }[verdict];
+
+  const zoningCode = (property?.zoning?.code || property?.zoning || cityData?.zoning || "").toString().toUpperCase();
+  const lotSqft = Number(property?.lotSize || cityData?.lotSizeSqft || 0);
+
+  let bestStrategy = "Buy & Hold";
+  let strategyReason = "Default residential hold";
+
+  if (/RCG|R-CG|RG|RD|R-D|MULTIPLEX/i.test(zoningCode) && lotSqft >= 3000) {
+    bestStrategy = "Multiplex Build";
+    strategyReason = `${zoningCode} lot supports as-of-right density`;
+  } else if (/RS|R-S|RM|R1|R2/i.test(zoningCode) && lotSqft >= 5000) {
+    bestStrategy = "Multiplex Build";
+    strategyReason = `${zoningCode} lot supports multiplex under 2024 bylaws`;
+  } else if (property?.assessedValue && property?.estimatedValue && property.assessedValue < property.estimatedValue * 0.75) {
+    bestStrategy = "BRRRR";
+    strategyReason = "Assessed value gap suggests value-add path";
+  } else if (property?.estimatedValue && property?.estimatedValueHigh && (property.estimatedValueHigh - property.estimatedValue) / property.estimatedValue > 0.10) {
+    bestStrategy = "Fix & Flip";
+    strategyReason = "AVM range suggests renovation upside";
+  }
+
+  const val = property?.estimatedValue || property?.assessedValue || 0;
+  const maxOffer = val ? Math.round(val * 0.95 / 1000) * 1000 : null;
+
+  let confidence = "LOW";
+  const signals = [!!buildingGrade?.overall, !!zoningCode, !!val].filter(Boolean).length;
+  if (signals === 3) confidence = "HIGH";
+  else if (signals === 2) confidence = "MEDIUM";
+
+  const isCanadian = property?.currency === "CAD" || /[A-Z]\d[A-Z]/.test(property?.address || "");
+  const fmtLocal = n => new Intl.NumberFormat(isCanadian ? "en-CA" : "en-US", {
+    style: "currency", currency: isCanadian ? "CAD" : "USD", maximumFractionDigits: 0,
+  }).format(n || 0);
+
+  return (
+    <div style={{
+      margin: "20px 0 8px",
+      padding: "22px 26px",
+      background: `linear-gradient(135deg, ${verdictStyle.bg}, rgba(212,175,55,0.03))`,
+      border: `1px solid ${verdictStyle.border}`,
+      borderLeft: `4px solid ${verdictStyle.color}`,
+      borderRadius: 12,
+      boxShadow: "0 12px 40px -8px rgba(0,0,0,0.15)",
+    }}>
+      <div style={{ display: "flex", alignItems: "flex-start", gap: 20, marginBottom: 18, flexWrap: "wrap" }}>
+        <div style={{
+          padding: "10px 20px",
+          background: verdictStyle.color,
+          color: "#fff",
+          borderRadius: 6,
+          fontFamily: "'Geist Mono', monospace",
+          fontSize: 22,
+          fontWeight: 800,
+          letterSpacing: 2,
+          textAlign: "center",
+          minWidth: 140,
+          boxShadow: `0 4px 14px -2px ${verdictStyle.color}55`,
+        }}>
+          {verdict}
+        </div>
+        <div style={{ flex: 1, minWidth: 200 }}>
+          <div style={{
+            fontFamily: "'Geist Mono', monospace",
+            fontSize: 10.5,
+            fontWeight: 800,
+            letterSpacing: 1.4,
+            color: "#d4af37",
+            textTransform: "uppercase",
+            marginBottom: 4,
+          }}>
+            ▸ OVERALL VERDICT · {confidence} CONFIDENCE
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "var(--text)", letterSpacing: -0.4, lineHeight: 1.3 }}>
+            {verdict === "STRONG" && "Move on this deal."}
+            {verdict === "GO"      && "Worth a serious look."}
+            {verdict === "CAUTION" && "Numbers work only under specific conditions."}
+            {verdict === "PASS"    && "Not a fit at current pricing."}
+            {verdict === "PENDING" && "Loading full verdict…"}
+          </div>
+          {buildingGrade?.summary && (
+            <div style={{ fontSize: 12.5, color: "var(--sub)", lineHeight: 1.55, marginTop: 6, fontStyle: "italic" }}>
+              {buildingGrade.summary}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(3, 1fr)",
+        gap: 10,
+        padding: "14px 16px",
+        background: "rgba(255,255,255,0.55)",
+        border: "1px solid rgba(15,23,42,0.08)",
+        borderRadius: 8,
+      }}>
+        <VerdictCell label="Best strategy" value={bestStrategy} note={strategyReason} color="#d4af37" />
+        <VerdictCell
+          label="Max offer"
+          value={maxOffer ? fmtLocal(maxOffer) : "—"}
+          note={val ? `5% under ${fmtLocal(val)} AVM` : "AVM not available"}
+          color="#2155cd"
+        />
+        <VerdictCell
+          label="Zoning"
+          value={zoningCode || "—"}
+          note={cityData?.zoning_desc || (isCanadian ? "Canadian residential" : "Residential")}
+          color="#16a34a"
+        />
+      </div>
+
+      <div style={{
+        marginTop: 12,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 12,
+        flexWrap: "wrap",
+        fontFamily: "'Geist Mono', monospace",
+        fontSize: 11,
+        color: "var(--sub)",
+        letterSpacing: 0.3,
+      }}>
+        <span>
+          Signals: {buildingGrade?.overall ? "✓ Grade" : "○ Grade"} ·{" "}
+          {zoningCode ? "✓ Zoning" : "○ Zoning"} ·{" "}
+          {val ? "✓ AVM" : "○ AVM"} ·{" "}
+          {cityData?.permits?.length ? `✓ ${cityData.permits.length} permits` : "○ Permits"}
+        </span>
+        <a
+          href="#deep-analysis"
+          onClick={(e) => {
+            e.preventDefault();
+            const target = document.querySelector("#deep-analysis") || document.querySelector(".ph-results > div:nth-child(4)");
+            target?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
+          style={{
+            color: verdictStyle.color,
+            fontWeight: 800,
+            textDecoration: "none",
+            padding: "5px 10px",
+            border: `1px solid ${verdictStyle.border}`,
+            borderRadius: 4,
+            fontSize: 11,
+            letterSpacing: 0.5,
+          }}
+        >
+          See full analysis ↓
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function VerdictCell({ label, value, note, color }) {
+  return (
+    <div style={{ minWidth: 0 }}>
+      <div style={{
+        fontFamily: "'Geist Mono', monospace",
+        fontSize: 9.5,
+        fontWeight: 800,
+        color: "var(--sub)",
+        letterSpacing: 1,
+        textTransform: "uppercase",
+        marginBottom: 4,
+      }}>
+        {label}
+      </div>
+      <div style={{
+        fontSize: 16,
+        fontWeight: 800,
+        color,
+        letterSpacing: -0.3,
+        lineHeight: 1.2,
+        marginBottom: 2,
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+      }}>
+        {value}
+      </div>
+      <div style={{
+        fontFamily: "'Geist Mono', monospace",
+        fontSize: 10.5,
+        color: "var(--sub)",
+        letterSpacing: 0.2,
+        lineHeight: 1.4,
+      }}>
+        {note}
+      </div>
     </div>
   );
 }

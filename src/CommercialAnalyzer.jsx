@@ -5,6 +5,16 @@ import { irr as solveIRR, withCumulative } from "./lib/finance";
 import { useDocMeta } from "./lib/seo";
 import { celebrateFirstSave } from "./lib/celebrate";
 import DealCoach from "./components/DealCoach";
+import DealReadout from "./components/DealReadout";
+import { compareToHistory } from "./lib/dealHistory";
+import { getSmartDefaults } from "./lib/smartDefaults";
+import { useDraftSync } from "./lib/draftSync";
+import { useAddressAutoFill } from "./lib/addressAutoFill";
+import MetricTip from "./components/MetricTip";
+import MetricWarning from "./components/MetricWarning";
+import SimilarDealsHint from "./components/SimilarDealsHint";
+import AddressContextCard from "./components/AddressContextCard";
+import BuddyLoading from "./components/BuddyLoading";
 import PropertyIntelCard from "./components/PropertyIntelCard";
 import CrossLinkCTA from "./components/CrossLinkCTA";
 import TopNav from "./components/TopNav";
@@ -259,6 +269,31 @@ export default function CommercialAnalyzer() {
   const [xrayPrefill, setXrayPrefill] = useState(null);
 
   useEffect(() => {
+    // 0. Strategy Verdicts handoff (StrategyVerdicts.jsx → sessionStorage).
+    // Fires on /property → "Open in calculator" for the MF strategy card.
+    // Uses exact pre-computed purchase + unit count + rent per door — no
+    // heuristic. Consumed once then cleared.
+    try {
+      const raw = sessionStorage.getItem("rde_strategy_prefill");
+      if (raw) {
+        const pf = JSON.parse(raw);
+        const isFresh = pf.ts && Date.now() - pf.ts < 5 * 60 * 1000;
+        if (isFresh && pf.strategy === "mf") {
+          sessionStorage.removeItem("rde_strategy_prefill");
+          if (pf.address)       setPropertyAddress(pf.address);
+          if (pf.purchasePrice) setPurchasePrice(Math.round(pf.purchasePrice));
+          if (pf.units && pf.rentPerDoor) {
+            const units = Number(pf.units);
+            const rent  = Math.round(Number(pf.rentPerDoor));
+            // Seed a single-row unit-mix matching the estimated count/rent so
+            // the calculator boots with a real gross-rent basis instead of the
+            // default 12-unit sample.
+            setUnitMix([{ id: 1, label: `${units}-unit`, count: units, rent, sqft: 0 }]);
+          }
+          return; // Skip the rest of the prefill chain — this is authoritative.
+        }
+      }
+    } catch {}
     // 1. URL params first (cross-link from Flip / BRRRR / Chrome extension)
     try {
       const sp = new URLSearchParams(window.location.search);
@@ -311,6 +346,112 @@ export default function CommercialAnalyzer() {
   const [ltlData, setLtlData] = useState(null);
   const [ltlLoading, setLtlLoading] = useState(false);
   const [ltlError, setLtlError] = useState("");
+
+  // ── CMHC market rent anchor — auto-loads from the typed address ──────────
+  // Surfaces "here's what CMHC says rents are in your city by bedroom" so
+  // users without a rent roll can still fill the marketRent column with
+  // anchored numbers. Cached by city — no re-fetch on every keystroke.
+  const [cmhcAnchor, setCmhcAnchor] = useState(null);
+  useEffect(() => {
+    const addr = (propertyAddress || "").trim();
+    if (!addr) { setCmhcAnchor(null); return; }
+    const cityMatch = addr.match(/,\s*([^,]+?)\s*(?:,|BC|AB|ON|QC|MB|SK|NS|NB|PE|NL)/i);
+    const provMatch = addr.match(/\b(BC|AB|ON|QC|MB|SK|NS|NB|PE|NL)\b/i);
+    const city = cityMatch ? cityMatch[1].trim() : "";
+    const prov = provMatch ? provMatch[1].toUpperCase() : "";
+    if (!city || !prov) return;
+    const ctrl = new AbortController();
+    const t = setTimeout(() => {
+      fetch(`/api/cmhc-rental?city=${encodeURIComponent(city)}&province=${prov}`, { signal: ctrl.signal })
+        .then(r => r.ok ? r.json() : null)
+        .then(d => d && setCmhcAnchor(d))
+        .catch(() => {});
+    }, 600); // debounce while user is still typing
+    return () => { clearTimeout(t); ctrl.abort(); };
+  }, [propertyAddress]);
+
+  // ── DEMO MODE — auto-load sample 24-unit Calgary deal when ?demo=1 ──────
+  // Used by the /demo route + Loom recording. Pre-populates the LTL panel
+  // with realistic data so the parser surface is camera-ready without
+  // dragging an actual PDF mid-recording.
+  useEffect(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search);
+      if (sp.get("demo") !== "1") return;
+
+      // Match the deck's published demo numbers exactly: 24 units, $187K
+      // stranded annual upside, $708/door/mo, 38% below market, $460K 5-yr NPV.
+      const SAMPLE_UNITS = [
+        { unit: "101", bedrooms: 1, sqft: 620, actualRent: 1180, marketRent: 1850, deltaMonthly: 670, deltaPct: -0.362, status: "below" },
+        { unit: "102", bedrooms: 1, sqft: 620, actualRent: 1120, marketRent: 1850, deltaMonthly: 730, deltaPct: -0.395, status: "below" },
+        { unit: "103", bedrooms: 2, sqft: 880, actualRent: 1450, marketRent: 2300, deltaMonthly: 850, deltaPct: -0.370, status: "below" },
+        { unit: "104", bedrooms: 2, sqft: 880, actualRent: 1395, marketRent: 2300, deltaMonthly: 905, deltaPct: -0.393, status: "below" },
+        { unit: "105", bedrooms: 1, sqft: 620, actualRent: 1250, marketRent: 1850, deltaMonthly: 600, deltaPct: -0.324, status: "below" },
+        { unit: "106", bedrooms: 2, sqft: 880, actualRent: 1480, marketRent: 2300, deltaMonthly: 820, deltaPct: -0.357, status: "below" },
+        { unit: "201", bedrooms: 1, sqft: 620, actualRent: 1140, marketRent: 1850, deltaMonthly: 710, deltaPct: -0.384, status: "below" },
+        { unit: "202", bedrooms: 1, sqft: 620, actualRent: 1200, marketRent: 1850, deltaMonthly: 650, deltaPct: -0.351, status: "below" },
+        { unit: "203", bedrooms: 2, sqft: 880, actualRent: 1410, marketRent: 2300, deltaMonthly: 890, deltaPct: -0.387, status: "below" },
+        { unit: "204", bedrooms: 2, sqft: 880, actualRent: 1525, marketRent: 2300, deltaMonthly: 775, deltaPct: -0.337, status: "below" },
+        { unit: "205", bedrooms: 1, sqft: 620, actualRent: 1095, marketRent: 1850, deltaMonthly: 755, deltaPct: -0.408, status: "below" },
+        { unit: "206", bedrooms: 2, sqft: 880, actualRent: 1440, marketRent: 2300, deltaMonthly: 860, deltaPct: -0.374, status: "below" },
+        { unit: "301", bedrooms: 1, sqft: 620, actualRent: 1175, marketRent: 1850, deltaMonthly: 675, deltaPct: -0.365, status: "below" },
+        { unit: "302", bedrooms: 1, sqft: 620, actualRent: 1240, marketRent: 1850, deltaMonthly: 610, deltaPct: -0.330, status: "below" },
+        { unit: "303", bedrooms: 2, sqft: 880, actualRent: 1465, marketRent: 2300, deltaMonthly: 835, deltaPct: -0.363, status: "below" },
+        { unit: "304", bedrooms: 2, sqft: 880, actualRent: 1380, marketRent: 2300, deltaMonthly: 920, deltaPct: -0.400, status: "below" },
+        { unit: "305", bedrooms: 1, sqft: 620, actualRent: 1210, marketRent: 1850, deltaMonthly: 640, deltaPct: -0.346, status: "below" },
+        { unit: "306", bedrooms: 2, sqft: 880, actualRent: 1505, marketRent: 2300, deltaMonthly: 795, deltaPct: -0.346, status: "below" },
+        { unit: "401", bedrooms: 1, sqft: 620, actualRent: 1160, marketRent: 1850, deltaMonthly: 690, deltaPct: -0.373, status: "below" },
+        { unit: "402", bedrooms: 2, sqft: 880, actualRent: 1430, marketRent: 2300, deltaMonthly: 870, deltaPct: -0.378, status: "below" },
+        { unit: "403", bedrooms: 1, sqft: 620, actualRent: 1305, marketRent: 1850, deltaMonthly: 545, deltaPct: -0.295, status: "below" },
+        { unit: "404", bedrooms: 2, sqft: 880, actualRent: 1490, marketRent: 2300, deltaMonthly: 810, deltaPct: -0.352, status: "below" },
+        { unit: "501", bedrooms: 1, sqft: 620, actualRent: 1100, marketRent: 1850, deltaMonthly: 750, deltaPct: -0.405, status: "below" },
+        { unit: "502", bedrooms: 2, sqft: 880, actualRent: 1455, marketRent: 2300, deltaMonthly: 845, deltaPct: -0.367, status: "below" },
+      ];
+      setPropertyAddress("2424 Westmount Rd NW, Calgary AB");
+      setPurchasePrice(6_400_000);
+      setLtlData({
+        ok: true,
+        address: "2424 Westmount Rd NW, Calgary AB",
+        ltl: {
+          ok: true,
+          totals: {
+            deltaAnnual: 187_000,
+            perDoorMonthly: 708,
+            avgUpsidePct: 0.366,
+            stranded5YearNPV: 460_000,
+          },
+          units: SAMPLE_UNITS,
+          methodology: {
+            anchor: "CMHC Calgary Oct 2023 RMS",
+            discount: "5% capture lag on rollover",
+            captureCurve: "Linear · 5 years to full mark-to-market",
+          },
+        },
+        aiRead: {
+          text: "24-unit Class B walk-up in Westmount with substantial loss-to-lease. Rents are tracking 37% below CMHC market on 2BR doors and 36% below on 1BR doors. At a 5% annual capture rate against natural rollover, the building is leaving $187K/year on the table. 5-year NPV of the stranded upside discounted at 8% is $460K — meaningful relative to the assumed $6.4M purchase price (roughly 7.2% of basis recovered through marking-to-market alone).",
+        },
+      });
+    } catch {}
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // One-click: fill the marketRent column in the unit mix from the CMHC anchor.
+  function applyCmhcToUnitMix() {
+    if (!cmhcAnchor?.rents) return;
+    const r = cmhcAnchor.rents;
+    const guess = (type) => {
+      const t = (type || "").toLowerCase();
+      if (/bach|stud/.test(t))       return r.bachelor || r.studio || null;
+      if (/3\s*bed|3br|three/.test(t)) return r.threeBed || r.three || null;
+      if (/2\s*bed|2br|two/.test(t))   return r.twoBed   || r.two   || null;
+      if (/1\s*bed|1br|one/.test(t))   return r.oneBed   || r.one   || null;
+      return null;
+    };
+    setUnitMix(prev => prev.map(u => {
+      const mkt = guess(u.type);
+      return mkt ? { ...u, marketRent: Math.round(mkt) } : u;
+    }));
+  }
 
   async function runLossToLease(file) {
     if (!file) return;
@@ -406,6 +547,59 @@ export default function CommercialAnalyzer() {
   const [advertising, setAdvertising] = useState(2400);
   const [admin,       setAdmin]       = useState(3600);
   const [resPerUnit,  setResPerUnit]  = useState(400);
+
+  // Auto-fill from public records when address is typed
+  const mfAutoLookup = useAddressAutoFill(propertyAddress, { minLength: 8 });
+  const mfAutoPatch = useMemo(() => {
+    const d = mfAutoLookup.data;
+    if (!d) return {};
+    const p = {};
+    // Multifamily-specific mapping — different setter names, single-value each
+    if (d.propertyTaxes && !propTax) p.propTax = Math.round(d.propertyTaxes);
+    if (d.assessedValue && purchasePrice === 4500000) p.purchasePrice = Math.round(d.assessedValue);
+    return p;
+  }, [mfAutoLookup.data, propTax, purchasePrice]);
+  const applyMfPatch = () => {
+    if (mfAutoPatch.propTax != null) setPropTax(mfAutoPatch.propTax);
+    if (mfAutoPatch.purchasePrice != null) setPurchasePrice(mfAutoPatch.purchasePrice);
+  };
+
+  // ── Draft auto-save + cross-device resume ───────────────────────────────
+  // Commercial has ~20 separate useState hooks instead of one form object,
+  // so wrap them in a virtual form that useDraftSync can read + write.
+  // The setter destructures the saved payload back into individual setters.
+  const virtualForm = {
+    propertyAddress, purchasePrice, downPct, renoBudget, vacancyPct, otherIncome,
+    holdYears, rentGrowth, opexGrowth, entryCap, exitCap, interestRate, amortYears,
+    closingBuyPct, closingSellPct, propTax, insurance, mgmtPct, maintPerUnit,
+    utilities, landscape, advertising, admin, resPerUnit, unitMix,
+    simpleMonthlyIncome,
+  };
+  const SETTERS = {
+    propertyAddress: setPropertyAddress, purchasePrice: setPurchasePrice,
+    downPct: setDownPct, renoBudget: setRenoBudget, vacancyPct: setVacancyPct,
+    otherIncome: setOtherIncome, holdYears: setHoldYears, rentGrowth: setRentGrowth,
+    opexGrowth: setOpexGrowth, entryCap: setEntryCap, exitCap: setExitCap,
+    interestRate: setInterestRate, amortYears: setAmortYears,
+    closingBuyPct: setClosingBuyPct, closingSellPct: setClosingSellPct,
+    propTax: setPropTax, insurance: setInsurance, mgmtPct: setMgmtPct,
+    maintPerUnit: setMaintPerUnit, utilities: setUtilities, landscape: setLandscape,
+    advertising: setAdvertising, admin: setAdmin, resPerUnit: setResPerUnit,
+    unitMix: setUnitMix, simpleMonthlyIncome: setSimpleMonthlyIncome,
+  };
+  const setVirtualForm = (updater) => {
+    const next = typeof updater === "function" ? updater(virtualForm) : updater;
+    for (const k in next) {
+      if (SETTERS[k] && next[k] !== virtualForm[k]) {
+        SETTERS[k](next[k]);
+      }
+    }
+  };
+  const { restoredAt: mfDraftRestoredAt, clearDraft: clearMfDraft } = useDraftSync({
+    strategy: "multifamily",
+    form: virtualForm,
+    setForm: setVirtualForm,
+  });
 
   // Unit mix handlers
   function updateUnit(i, field, val) {
@@ -589,7 +783,7 @@ export default function CommercialAnalyzer() {
 
   const c = calc;
 
-  // ── Deal Thesis Hint (Haiku) — debounced fetch on metrics change ───────
+  // ── Deal Thesis Hint — debounced fetch on metrics change ───────
   useEffect(() => {
     if (!c) return;
     const handle = setTimeout(() => {
@@ -626,7 +820,7 @@ export default function CommercialAnalyzer() {
   }, [c?.NOI, c?.DSCR, c?.CoC, c?.irr, c?.eqMultiple, propertyAddress]);
 
   // ── Sensitivity AI Read — fires when the grids settle ────────────────────
-  // Pulls thresholds from sensDSCR/sensCoC/sensIRR and asks Claude where
+  // Pulls thresholds from sensDSCR/sensCoC/sensIRR and asks AI where
   // the deal breaks. Same 24h cached pattern as the other 7 surfaces.
   useEffect(() => {
     if (!c?.sensDSCR || !c?.sensCoC || !c?.sensIRR) return;
@@ -796,7 +990,7 @@ export default function CommercialAnalyzer() {
               <span style={{fontSize:18,lineHeight:1.4}}>🤖</span>
               <div style={{flex:1}}>
                 <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,color:"var(--green)",letterSpacing:"0.8px",marginBottom:5}}>
-                  AI THESIS{aiThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:8}}>· {aiThesis.source}</span>}
+                  BUDDY READ{aiThesis.source !== "template" && <span style={{color:"var(--dim)",fontWeight:500,marginLeft:8}}>· {aiThesis.source}</span>}
                 </div>
                 <div style={{fontSize:14,color:"var(--text)",lineHeight:1.55,letterSpacing:"-0.1px"}}>{aiThesis.thesis}</div>
               </div>
@@ -821,6 +1015,71 @@ export default function CommercialAnalyzer() {
             ))}
           </div>
         </div>
+
+        {/* ── CMHC MARKET RENT ANCHOR · auto-loaded from typed address ────
+            Surfaces dormant data — CMHC by-bedroom rents for the property's
+            metro — so users without a rent roll can fill Market Rent with
+            anchored numbers. One-click applies the anchor to the unit mix. */}
+        {cmhcAnchor?.rents && (
+          <div className="mf-card" style={{
+            borderLeft: "3px solid #d4af37",
+            background: "linear-gradient(180deg,rgba(212,175,55,0.04) 0%,var(--card) 100%)",
+          }}>
+            <div style={{padding:"14px 20px 6px",display:"flex",alignItems:"center",gap:10,flexWrap:"wrap"}}>
+              <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,letterSpacing:"1.3px",color:"#d4af37",textTransform:"uppercase"}}>
+                ▸ CMHC Market Rent · {cmhcAnchor.city || ""}{cmhcAnchor.province ? `, ${cmhcAnchor.province}` : ""}
+              </div>
+              <span style={{
+                fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10,
+                color:"var(--dim)",border:"1px solid var(--borderf)",
+                padding:"2px 7px",borderRadius:3,
+              }}>
+                {cmhcAnchor.surveyDate || cmhcAnchor.releaseDate || "Oct 2023"}
+              </span>
+              <button
+                onClick={applyCmhcToUnitMix}
+                style={{
+                  marginLeft:"auto",fontFamily:"'Geist Mono',ui-monospace,monospace",
+                  fontSize:11,fontWeight:700,letterSpacing:"0.5px",
+                  background:"#d4af37",color:"#0a1128",border:"none",
+                  padding:"6px 12px",borderRadius:3,cursor:"pointer",textTransform:"uppercase",
+                }}
+              >
+                ▸ Apply to Unit Mix
+              </button>
+            </div>
+            <div style={{
+              padding:"6px 20px 16px",
+              display:"grid",
+              gridTemplateColumns:"repeat(auto-fit, minmax(120px, 1fr))",
+              gap:10,
+            }}>
+              {[
+                ["Bachelor", cmhcAnchor.rents.bachelor || cmhcAnchor.rents.studio],
+                ["1 Bed",    cmhcAnchor.rents.oneBed   || cmhcAnchor.rents.one],
+                ["2 Bed",    cmhcAnchor.rents.twoBed   || cmhcAnchor.rents.two],
+                ["3+ Bed",   cmhcAnchor.rents.threeBed || cmhcAnchor.rents.three],
+              ].filter(([_, v]) => v).map(([label, val]) => (
+                <div key={label} style={{
+                  padding:10,background:"rgba(0,12,31,0.4)",borderRadius:6,
+                  border:"1px solid rgba(212,175,55,0.18)",
+                }}>
+                  <div style={{fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>{label}</div>
+                  <div style={{fontSize:14,fontWeight:700,color:"#d4af37"}}>${Math.round(val).toLocaleString()}/mo</div>
+                </div>
+              ))}
+              {cmhcAnchor.vacancyRate != null && (
+                <div style={{
+                  padding:10,background:"rgba(0,12,31,0.4)",borderRadius:6,
+                  border:"1px solid rgba(212,175,55,0.18)",
+                }}>
+                  <div style={{fontSize:10,color:"var(--dim)",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"1px",textTransform:"uppercase",marginBottom:3}}>Vacancy</div>
+                  <div style={{fontSize:14,fontWeight:700,color:"var(--alabaster)"}}>{(cmhcAnchor.vacancyRate * 100).toFixed(1)}%</div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* ── UNIT MIX ──────────────────────────────────────────────────────── */}
         <div className="mf-card">
@@ -891,6 +1150,76 @@ export default function CommercialAnalyzer() {
               onSelect={setPropertyAddress}
               style={{width:"100%"}}
             />
+            {/* Unified address-context card — replaces separate SmartDefaults
+                + AddressAutoFillBanner. One card, two clearly-labeled sources. */}
+            {propertyAddress && (() => {
+              const d = getSmartDefaults(propertyAddress, "multifamily");
+              const cityLabel = d._smartDefaults.city === "default"
+                ? "Canadian"
+                : d._smartDefaults.city.charAt(0).toUpperCase() + d._smartDefaults.city.slice(1);
+              return (
+                <AddressContextCard
+                  address={propertyAddress}
+                  strategy="multifamily"
+                  lookup={mfAutoLookup}
+                  patch={mfAutoPatch}
+                  onApplyLookup={applyMfPatch}
+                  defaults={{
+                    cityLabel,
+                    previewText: `${d.vacancyPct}% vacancy · ${d.expenseRatioPct}% expense ratio · ${d._smartDefaults.targetCapPct.toFixed(1)}% target cap`,
+                  }}
+                  onApplyDefaults={() => {
+                    if (typeof setEntryCap === "function") setEntryCap(d.targetCapRate * 100);
+                    if (typeof setExitCap === "function") setExitCap(d.exitCapRate * 100);
+                    if (typeof setVacancyPct === "function") setVacancyPct(Number(d.vacancyPct));
+                  }}
+                />
+              );
+            })()}
+          </div>
+          {mfDraftRestoredAt && (
+            <div style={{
+              margin:"0 20px 12px",padding:"9px 13px",
+              background:"rgba(33,85,205,0.06)",
+              border:"1px solid rgba(33,85,205,0.3)",
+              borderLeft:"3px solid #2155cd",
+              borderRadius:5,
+              display:"flex",alignItems:"center",justifyContent:"space-between",
+              gap:12,flexWrap:"wrap",
+            }}>
+              <div style={{fontSize:12.5,color:"var(--sub)",lineHeight:1.5,flex:1,minWidth:200}}>
+                <strong style={{color:"#2155cd",fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:"0.3px"}}>▸ RESUMED YOUR DRAFT</strong>{" "}
+                from {new Date(mfDraftRestoredAt).toLocaleString("en-CA", { month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" })} —
+                your changes auto-save as you go.
+              </div>
+              <button
+                onClick={() => { clearMfDraft(); window.location.reload(); }}
+                style={{
+                  background:"transparent",color:"var(--sub)",border:"1px solid var(--borderf)",
+                  borderRadius:4,padding:"6px 12px",
+                  fontFamily:"'Geist Mono',ui-monospace,monospace",
+                  fontSize:10.5,fontWeight:700,letterSpacing:"0.5px",cursor:"pointer",
+                  textTransform:"uppercase",flexShrink:0,
+                }}
+              >
+                ↻ Start fresh
+              </button>
+            </div>
+          )}
+          <div style={{padding:"0 20px 0"}}>
+            <SimilarDealsHint
+              address={propertyAddress}
+              strategy="multifamily"
+              purchasePrice={purchasePrice || null}
+              onApply={(deal) => {
+                const r = deal.results || {};
+                // Apply the deal's key inputs but preserve the current address
+                if (r.purchasePrice && typeof setPurchasePrice === "function") setPurchasePrice(r.purchasePrice);
+                if (r.entryCap && typeof setEntryCap === "function") setEntryCap(r.entryCap * 100);
+                if (r.exitCap && typeof setExitCap === "function") setExitCap(r.exitCap * 100);
+                if (r.downPct && typeof setDownPct === "function") setDownPct(r.downPct);
+              }}
+            />
           </div>
           <div style={{padding:"0 20px 14px"}}>
             <PropertyIntelCard address={propertyAddress} />
@@ -899,7 +1228,7 @@ export default function CommercialAnalyzer() {
             <TierGate
               tier="scale"
               feature="AI Document Drop"
-              description="Drop a rent roll, lease, or appraisal — Claude Sonnet 4.6 reads it and the calculator fills in. Saves 5-10 minutes of typing per deal."
+              description="Drop a rent roll, lease, or appraisal — our AI reads it and the calculator fills in. Saves 5-10 minutes of typing per deal."
             >
               <AIDocumentDrop
                 target="multifamily"
@@ -1160,11 +1489,12 @@ export default function CommercialAnalyzer() {
           <MetricRow label="Monthly Payment (PMT)" value={fmt(c.monthlyPMT)} bench="Principal & interest — standard PMT formula" indent/>
           <MetricRow label="Annual Debt Service (ADS)" value={fmt(c.ADS)} bench="Monthly PMT × 12" indent bold/>
           <div className="mf-metric-row total" style={{background:c.DSCR>=1.25?"rgba(52,217,138,0.05)":c.DSCR>=1.0?"rgba(240,160,48,0.05)":"rgba(242,92,92,0.05)"}}>
-            <span className="mf-metric-label bold" style={{fontSize:15}}>DSCR (Debt Service Coverage Ratio)</span>
+            <span className="mf-metric-label bold" style={{fontSize:15}}>DSCR (Debt Service Coverage Ratio) <MetricTip metric="dscr" /></span>
             <span className="mf-metric-val bold" style={{fontSize:18,color:c.DSCR>=1.25?"var(--green)":c.DSCR>=1.0?"var(--amber)":"var(--red)"}}>{fmtX(c.DSCR)}</span>
             <span className="mf-metric-bench">Lender minimum 1.20x — target 1.30x+</span>
             <span className="mf-metric-status"><Badge val={c.DSCR} good={1.25} warn={1.0}/></span>
           </div>
+          <MetricWarning metric="dscr" value={c.DSCR} compact />
         </div>
 
         {/* ── CASH FLOW & RETURNS ───────────────────────────────────────────── */}
@@ -1242,12 +1572,12 @@ export default function CommercialAnalyzer() {
                 })}
                 <tr className="proj-section"><td colSpan={c.proj.length + 2} style={{paddingLeft:20}}>Key Metrics by Year</td></tr>
                 <tr>
-                  <td style={{paddingLeft:20}}>DSCR</td>
+                  <td style={{paddingLeft:20}}>DSCR <MetricTip metric="dscr" /></td>
                   {c.proj.map((p,i)=><td key={i} style={{color:p.dscrYr>=1.25?"var(--green)":p.dscrYr>=1.0?"var(--amber)":"var(--red)"}}>{fmtX(p.dscrYr)}</td>)}
                   <td>—</td>
                 </tr>
                 <tr>
-                  <td style={{paddingLeft:20}}>Cash-on-Cash</td>
+                  <td style={{paddingLeft:20}}>Cash-on-Cash <MetricTip metric="coc" strategy="multifamily" /></td>
                   {c.proj.map((p,i)=><td key={i} style={{color:p.cocYr>=0.07?"var(--green)":p.cocYr>=0.05?"var(--amber)":"var(--red)"}}>{fmtPct(p.cocYr)}</td>)}
                   <td>—</td>
                 </tr>
@@ -1258,14 +1588,45 @@ export default function CommercialAnalyzer() {
 
         {/* ── VISUAL ANALYTICS (lazy-loaded) ─────────────────────────────────── */}
         <Suspense fallback={
-          <div className="mf-card" style={{borderRadius:6,padding:"40px 16px",textAlign:"center"}}>
-            <div style={{fontFamily:"'Geist Mono',monospace",fontSize:11,color:"var(--dim)",letterSpacing:"0.6px"}}>
-              ▸ LOADING CHARTS…
-            </div>
+          <div className="mf-card" style={{borderRadius:6,padding:"40px 16px",textAlign:"center",display:"flex",justifyContent:"center"}}>
+            <BuddyLoading label="loading charts" tone="sub" size="sm" />
           </div>
         }>
           <CommercialCharts c={c} holdYears={holdYears}/>
         </Suspense>
+
+        {/* ── DealReadout — buddy verdict + benchmarks + actions ────────── */}
+        {c && c.DSCR != null && (() => {
+          const currentMetrics = {
+            dscr:    c.DSCR,
+            capRate: c.capRate,
+            coc:     c.CoC,
+            irr:     c.irr,
+          };
+          const history = compareToHistory(currentMetrics, { strategy: "multifamily" });
+          return (
+          <div style={{margin:"18px 0"}}>
+            <DealReadout
+              strategy="multifamily"
+              address={propertyAddress || ""}
+              metrics={currentMetrics}
+              history={history}
+              compact={true}
+              actions={[
+                { label: "Generate IC memo PDF", icon: "📄", primary: true,
+                  onClick: () => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }) },
+                { label: "Drop a rent roll for LTL", icon: "📊",
+                  onClick: () => {
+                    const ltl = document.querySelector("[class*=ltl-dropzone],[data-ltl-panel]");
+                    if (ltl) ltl.scrollIntoView({ behavior: "smooth", block: "center" });
+                  } },
+                { label: "Compare to past deals", icon: "🔍",
+                  onClick: () => { window.location.href = "/compare"; } },
+              ]}
+            />
+          </div>
+          );
+        })()}
 
         {/* ── SENSITIVITY ANALYSIS ──────────────────────────────────────────── */}
         <div className="mf-card">
@@ -1308,7 +1669,7 @@ export default function CommercialAnalyzer() {
               </div>
               {sensThesisLoading && !sensThesis ? (
                 <div style={{ fontSize: 12.5, color: "var(--sub)", fontStyle: "italic" }}>
-                  Claude is stress-testing the deal…
+                  AI is stress-testing the deal…
                 </div>
               ) : (
                 <div style={{ fontSize: 13, color: "var(--text)", lineHeight: 1.6 }}>
@@ -1467,10 +1828,10 @@ export default function CommercialAnalyzer() {
       {/* PDF Export */}
       <div style={{padding:"0 20px 12px"}}>
         <button
-          onClick={() => {
+          onClick={async () => {
             const fmtM = n => n == null ? "—" : `$${Math.round(n).toLocaleString()}`;
             const fmtP = n => n == null || !isFinite(n) ? "—" : `${(n*100).toFixed(1)}%`;
-            const doc = generateTier1Memo({
+            const doc = await generateTier1Memo({
               type: "rental",
               deal: {
                 address: propertyAddress || "Multifamily Deal",

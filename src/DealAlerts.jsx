@@ -1,7 +1,43 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "./AuthContext";
+import { supabase } from "./supabase";
 import TopNav from "./components/TopNav";
+
+// Map the in-memory alert shape (camelCase) to/from the Supabase row shape
+// (snake_case). Keeps the rest of the component blissfully unaware of the
+// persistence layer.
+function rowToAlert(r) {
+  return {
+    id:          r.id,
+    name:        r.name,
+    country:     r.country || "CA",
+    city:        r.city,
+    maxPrice:    r.max_price,
+    minBeds:     r.min_beds || 3,
+    propType:    r.prop_type || "Any",
+    email:       r.email,
+    active:      r.enabled !== false,
+    createdAt:   (r.created_at || "").slice(0, 10),
+    lastChecked: r.last_checked_at || null,
+    lastResults: r.last_results || [],
+    _persisted:  true,
+  };
+}
+
+function alertToRow(a, userId) {
+  return {
+    user_id:   userId,
+    name:      a.name,
+    country:   a.country,
+    city:      a.city,
+    max_price: a.maxPrice,
+    min_beds:  typeof a.minBeds === "number" ? a.minBeds : 3,
+    prop_type: a.propType || "Any",
+    email:     a.email,
+    enabled:   a.active !== false,
+  };
+}
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const fmtCAD = (n) =>
@@ -211,10 +247,58 @@ export default function DealAlerts() {
     }
   }, [user]);
 
-  // Persist alerts
+  // ── Cloud-sync alerts to Supabase when authenticated ─────────────────────
+  // Guests stay on localStorage. Signed-in users get their alerts loaded
+  // from Supabase on mount (so they survive across devices + the cron can
+  // iterate them). Local-only alerts are migrated up to the cloud on first
+  // login so nothing is lost.
   useEffect(() => {
-    saveAlerts(alerts);
-  }, [alerts]);
+    if (!user) {
+      // Guest mode — keep persisting locally.
+      saveAlerts(alerts);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("deal_alerts")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
+        if (error) throw error;
+        if (cancelled) return;
+
+        const cloudAlerts = (data || []).map(rowToAlert);
+
+        // First-login migration: anything in localStorage that isn't yet
+        // persisted gets pushed up. Match by (name, city) since localStorage
+        // ids are timestamps that won't collide with cloud uuids.
+        const localPending = (loadAlerts() || []).filter(la => !la._persisted &&
+          !cloudAlerts.some(ca => ca.name === la.name && ca.city === la.city));
+        if (localPending.length) {
+          const rows = localPending.map(a => alertToRow(a, user.id));
+          const { data: inserted } = await supabase
+            .from("deal_alerts").insert(rows).select();
+          (inserted || []).forEach(r => cloudAlerts.push(rowToAlert(r)));
+        }
+
+        setAlerts(cloudAlerts);
+        saveAlerts([]); // clear localStorage now that cloud is canonical
+      } catch (e) {
+        console.warn("[DealAlerts] cloud sync failed, staying on localStorage:", e?.message);
+      }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  // Mirror in-memory changes to localStorage so guest mode survives reloads.
+  // (For signed-in users this is a no-op because the cloud is canonical and
+  // we cleared the local store above.)
+  useEffect(() => {
+    if (!user) saveAlerts(alerts);
+  }, [alerts, user]);
 
   function showToast(msg) {
     setToast(msg);
@@ -225,31 +309,63 @@ export default function DealAlerts() {
     setForm((f) => ({ ...f, [key]: val }));
   }
 
-  function handleCreate(e) {
+  async function handleCreate(e) {
     e.preventDefault();
     if (!form.name.trim()) { showToast("Give your alert a name"); return; }
     if (!form.city.trim()) { showToast("Enter a city"); return; }
     if (!form.email.trim()) { showToast("Enter an email address"); return; }
-    const newAlert = {
-      id: Date.now(),
-      name: form.name.trim(),
-      country: form.country,
-      city: form.city.trim(),
+
+    const draft = {
+      name:     form.name.trim(),
+      country:  form.country,
+      city:     form.city.trim(),
       maxPrice: form.maxPrice ? parseInt(form.maxPrice, 10) : null,
-      minBeds: form.minBeds,
+      minBeds:  form.minBeds,
       propType: form.propType,
-      email: form.email.trim(),
-      active: true,
+      email:    form.email.trim(),
+      active:   true,
+    };
+
+    // Cloud path: insert into Supabase, then mirror into local state.
+    if (user) {
+      setCreating(true);
+      try {
+        const { data, error } = await supabase
+          .from("deal_alerts")
+          .insert(alertToRow(draft, user.id))
+          .select()
+          .single();
+        if (error) throw error;
+        setAlerts(prev => [rowToAlert(data), ...prev]);
+        setForm({ ...BLANK_FORM, email: user?.email || "" });
+        showToast("Alert created — daily digest active");
+      } catch (err) {
+        showToast(`Couldn't save alert: ${err.message || "unknown error"}`);
+      } finally {
+        setCreating(false);
+      }
+      return;
+    }
+
+    // Guest path: stay on localStorage (no daily cron until they sign in).
+    const newAlert = {
+      ...draft,
+      id: Date.now(),
       createdAt: new Date().toISOString().slice(0, 10),
       lastChecked: null,
       lastResults: [],
     };
     setAlerts((prev) => [newAlert, ...prev]);
     setForm({ ...BLANK_FORM, email: user?.email || "" });
-    showToast("Alert created!");
+    showToast("Alert created locally — sign in for daily email digests");
   }
 
-  function handleDelete(id) {
+  async function handleDelete(id) {
+    if (user) {
+      try {
+        await supabase.from("deal_alerts").delete().eq("id", id).eq("user_id", user.id);
+      } catch (e) { console.warn("[DealAlerts] cloud delete failed:", e?.message); }
+    }
     setAlerts((prev) => prev.filter((a) => a.id !== id));
     setCheckState((s) => {
       const next = { ...s };
@@ -281,13 +397,24 @@ export default function DealAlerts() {
 
       // Update lastChecked + lastResults on the alert
       const checkedAt = data.checkedAt || new Date().toISOString();
+      const fresh = data.listings || [];
       setAlerts((prev) =>
         prev.map((a) =>
           a.id === alert.id
-            ? { ...a, lastChecked: checkedAt, lastResults: data.listings || [] }
+            ? { ...a, lastChecked: checkedAt, lastResults: fresh }
             : a
         )
       );
+      // Persist back to Supabase so the cron's "new since" diff stays in
+      // sync with what the user has already seen via Check Now.
+      if (user && alert._persisted) {
+        supabase
+          .from("deal_alerts")
+          .update({ last_checked_at: checkedAt, last_results: fresh })
+          .eq("id", alert.id)
+          .eq("user_id", user.id)
+          .then(() => {}, (e) => console.warn("[DealAlerts] update last_results failed:", e?.message));
+      }
       setCheckState((s) => ({
         ...s,
         [alert.id]: { loading: false, results: data, error: null },
@@ -327,9 +454,31 @@ export default function DealAlerts() {
           <div className="da-hero-tag">🔔 Daily Digest</div>
           <h1 className="da-hero-title">Deal Alerts</h1>
           <p className="da-hero-sub">
-            We check Realtor.ca and the MLS daily. When a new property matches
-            your criteria, you get an email.
+            We check Realtor.ca and the MLS every morning at 9 AM Eastern.
+            When a new property matches your criteria, you get an email.
           </p>
+          {user ? (
+            <div style={{
+              display:"inline-flex",alignItems:"center",gap:8,marginTop:14,
+              padding:"6px 12px",background:"rgba(34,197,94,0.08)",
+              border:"1px solid rgba(34,197,94,0.25)",borderRadius:4,
+              fontSize:11.5,fontWeight:700,color:"#16a34a",
+              fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:0.5,
+            }}>
+              <span style={{width:6,height:6,borderRadius:"50%",background:"#22c55e",boxShadow:"0 0 6px #22c55e"}} />
+              ▸ Daily digest active — synced to your account
+            </div>
+          ) : (
+            <div style={{
+              display:"inline-flex",alignItems:"center",gap:8,marginTop:14,
+              padding:"6px 12px",background:"rgba(212,175,55,0.08)",
+              border:"1px solid rgba(212,175,55,0.25)",borderRadius:4,
+              fontSize:11.5,fontWeight:700,color:"#d4af37",
+              fontFamily:"'Geist Mono',ui-monospace,monospace",letterSpacing:0.5,
+            }}>
+              ▸ Sign in to activate daily email digests
+            </div>
+          )}
         </div>
 
         {/* ── Create Alert form ── */}
@@ -517,7 +666,26 @@ export default function DealAlerts() {
                     </div>
                   )}
 
-                  {cs.results && !cs.loading && (
+                  {cs.results?.degraded && !cs.loading && (
+                    <div style={{
+                      padding: "12px 14px",
+                      background: "rgba(212,175,55,0.08)",
+                      border: "1px solid rgba(212,175,55,0.3)",
+                      borderLeft: "3px solid #d4af37",
+                      borderRadius: 4,
+                      marginBottom: 12,
+                      fontSize: 13,
+                      color: "var(--text)",
+                      lineHeight: 1.5,
+                    }}>
+                      <strong style={{ color: "#b8941f" }}>⚠️ Canadian MLS lookup degraded.</strong>{" "}
+                      Realtor.ca is currently blocking automated lookups for this query.
+                      We're working on official MLS access (Repliers integration coming soon).
+                      Your alert will resume sending automatically when comps return.
+                    </div>
+                  )}
+
+                  {cs.results && !cs.loading && !cs.results.degraded && (
                     <>
                       {cs.results.count > 0 ? (
                         <>

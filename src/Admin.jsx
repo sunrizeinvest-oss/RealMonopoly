@@ -45,6 +45,8 @@ export default function Admin() {
   const [err, setErr]         = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshAt, setRefreshAt] = useState(0);
+  const [userSearch, setUserSearch] = useState("");
+  const [planFilter, setPlanFilter] = useState("all");
 
   useEffect(() => {
     if (!user) {
@@ -84,7 +86,15 @@ export default function Admin() {
     return () => { cancelled = true; };
   }, [user, refreshAt, navigate]);
 
-  const sortedUsers = useMemo(() => data?.recentUsers || [], [data]);
+  const sortedUsers = useMemo(() => {
+    const list = data?.recentUsers || [];
+    const q = userSearch.trim().toLowerCase();
+    return list.filter(u => {
+      if (planFilter !== "all" && u.plan !== planFilter) return false;
+      if (q && !u.email?.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [data, userSearch, planFilter]);
 
   return (
     <>
@@ -156,7 +166,45 @@ export default function Admin() {
               <Kpi label="Signups · 7d"       value={fmtN(data.stats.signupsLast7d)}  accent="var(--green)" />
               <Kpi label="Active · 7d"        value={fmtN(data.stats.activeLast7d)}   accent="var(--blue)" />
               <Kpi label="Active · 30d"       value={fmtN(data.stats.activeLast30d)}  accent="var(--blue)" />
+              <Kpi label="Confirmed"          value={`${data.stats.confirmationRate ?? 0}%`} accent="var(--purple)" />
             </div>
+
+            {/* Signup trend sparkline — last 14 days */}
+            {data.stats.signupSparkline && (
+              <div style={{background:"var(--card)",border:"1px solid var(--borderf)",borderRadius:8,padding:"16px 18px 14px",marginBottom:18}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,gap:12,flexWrap:"wrap"}}>
+                  <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:"1.4px",color:"var(--sub)",textTransform:"uppercase"}}>
+                    Signups · last 14 days
+                  </div>
+                  <div style={{fontFamily:"'Geist Mono',monospace",fontSize:12,color:"var(--text)"}}>
+                    {fmtN(data.stats.signupsLast30d || 0)} <span style={{color:"var(--dim)"}}>over 30d</span>
+                  </div>
+                </div>
+                <Sparkline values={data.stats.signupSparkline} />
+              </div>
+            )}
+
+            {/* Churn signals — dormant + never-signed-in */}
+            {(data.churn?.dormantCount > 0 || data.churn?.neverSignedInCount > 0) && (
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:18}}>
+                <ChurnCard
+                  title="Dormant users"
+                  count={data.churn.dormantCount}
+                  subtitle="confirmed, signed in once, but quiet for 30d+"
+                  list={data.churn.dormantTop5}
+                  metaFmt={u => `last seen ${formatAge(u.lastSignInAt)}`}
+                  accent="var(--amber)"
+                />
+                <ChurnCard
+                  title="Never signed in"
+                  count={data.churn.neverSignedInCount}
+                  subtitle="confirmed email, but never logged in"
+                  list={data.churn.neverSignedInTop5}
+                  metaFmt={u => `signed up ${formatAge(u.signedUpAt)}`}
+                  accent="var(--red)"
+                />
+              </div>
+            )}
 
             {/* Plans + revenue + deals row */}
             <div className="admin-plans-row" style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:14,marginBottom:24}}>
@@ -182,11 +230,247 @@ export default function Admin() {
               </div>
             </div>
 
+            {/* Client-side error log — surfaces browser JS errors captured by
+                src/lib/errors.js. Silent when none = nice signal. Shows the
+                last 24h count + top 5 routes and up to 8 recent errors. */}
+            {data.errors && (data.errors.recent.length > 0 || data.errors.last24hCount > 0) && (
+              <div style={{background:"var(--card)",border:"1px solid var(--borderf)",borderRadius:8,padding:"16px 18px",marginBottom:18,borderLeft:"3px solid var(--red)"}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexWrap:"wrap",gap:10}}>
+                  <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:"1.4px",color:"var(--sub)",textTransform:"uppercase"}}>
+                    Client-side errors · browser JS
+                  </div>
+                  <div style={{display:"flex",gap:14,alignItems:"center",fontFamily:"'Geist Mono',monospace",fontSize:11}}>
+                    {data.errors.last24hCount > 0 && (
+                      <span style={{
+                        color:"var(--red)",fontWeight:800,
+                        background:"rgba(220,38,38,0.08)",border:"1px solid rgba(220,38,38,0.3)",
+                        padding:"3px 9px",borderRadius:3,
+                      }}>
+                        ▸ {data.errors.last24hCount} · 24H
+                      </span>
+                    )}
+                    <span style={{color:"var(--dim)"}}>{data.errors.recent.length} total shown</span>
+                  </div>
+                </div>
+                {data.errors.topRoutes.length > 0 && (
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+                    {data.errors.topRoutes.map(({route, count}) => (
+                      <span key={route} style={{
+                        fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:"0.4px",
+                        color:"var(--red)",background:"rgba(220,38,38,0.06)",
+                        border:"1px solid rgba(220,38,38,0.22)",
+                        padding:"3px 8px",borderRadius:3,
+                      }}>
+                        {route} · {count}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                  {data.errors.recent.slice(0, 8).map(e => (
+                    <div key={e.id} style={{
+                      padding:"8px 10px",background:"rgba(220,38,38,0.03)",
+                      border:"1px solid rgba(220,38,38,0.15)",borderLeft:"2px solid var(--red)",
+                      borderRadius:4,
+                    }}>
+                      <div style={{fontFamily:"'Geist Mono',monospace",fontSize:11,fontWeight:700,color:"var(--red)",letterSpacing:"0.2px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                        {e.message}
+                      </div>
+                      <div style={{fontSize:10.5,color:"var(--dim)",marginTop:3,fontFamily:"'Geist Mono',monospace"}}>
+                        {e.route} · {e.mechanism} · {formatAge(e.occurred_at)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Leads card — captured emails from the Landing design-partner
+                form (and future surfaces). Surfaces unread count + most-
+                recent submissions so the founder can act on them. */}
+            {data.leads && (
+              <div style={{background:"var(--card)",border:"1px solid var(--borderf)",borderRadius:8,padding:"16px 18px",marginBottom:18}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexWrap:"wrap",gap:10}}>
+                  <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:"1.4px",color:"var(--sub)",textTransform:"uppercase"}}>
+                    Leads · captured from landing forms
+                  </div>
+                  <div style={{display:"flex",gap:14,alignItems:"center",fontFamily:"'Geist Mono',monospace",fontSize:11}}>
+                    {data.leads.newCount > 0 && (
+                      <span style={{
+                        color:"var(--green)",fontWeight:800,
+                        background:"rgba(34,197,94,0.08)",border:"1px solid rgba(34,197,94,0.3)",
+                        padding:"3px 9px",borderRadius:3,
+                      }}>
+                        ▸ {data.leads.newCount} NEW
+                      </span>
+                    )}
+                    <span style={{color:"var(--dim)"}}>
+                      {data.leads.totalCount} total · last 25 shown
+                    </span>
+                  </div>
+                </div>
+                {Object.keys(data.leads.bySource).length > 0 && (
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:12}}>
+                    {Object.entries(data.leads.bySource).map(([src, n]) => (
+                      <span key={src} style={{
+                        fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:"0.6px",
+                        color:"var(--gold)",background:"rgba(212,175,55,0.08)",
+                        border:"1px solid rgba(212,175,55,0.25)",
+                        padding:"3px 8px",borderRadius:3,textTransform:"uppercase",
+                      }}>
+                        {src} · {n}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {data.leads.recent.length === 0 ? (
+                  <div style={{fontSize:12.5,color:"var(--dim)",fontStyle:"italic",padding:"14px 0"}}>
+                    No leads yet · the design-partner form on Landing will write here once visitors submit.
+                  </div>
+                ) : (
+                  <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                    {data.leads.recent.slice(0, 8).map(l => (
+                      <div key={l.id} style={{
+                        display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,
+                        padding:"8px 10px",background:"rgba(0,0,0,0.025)",
+                        border:"1px solid var(--borderf)",
+                        borderLeft: l.status === "new" ? "3px solid var(--green)" : "3px solid transparent",
+                        borderRadius:4,
+                      }}>
+                        <div style={{flex:1,minWidth:0,fontFamily:"'Geist Mono',monospace",fontSize:11.5}}>
+                          <div style={{color:"var(--text)",fontWeight:700,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>
+                            {l.email}{l.name && <span style={{color:"var(--sub)",fontWeight:500,marginLeft:6}}>· {l.name}</span>}
+                          </div>
+                          <div style={{color:"var(--dim)",fontSize:10.5,marginTop:2}}>
+                            {l.source}{l.intent && ` · ${l.intent}`} · {formatAge(l.created_at)}
+                          </div>
+                          {l.message && (
+                            <div style={{color:"var(--sub)",fontSize:11,marginTop:4,fontStyle:"italic",lineHeight:1.4}}>
+                              "{l.message.length > 110 ? l.message.slice(0, 110) + "…" : l.message}"
+                            </div>
+                          )}
+                        </div>
+                        <a
+                          href={`mailto:${l.email}?subject=Re%3A%20${encodeURIComponent(l.source)}%20application`}
+                          style={{
+                            fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:800,letterSpacing:"0.6px",
+                            color:"var(--gold)",textDecoration:"none",
+                            border:"1px solid var(--gold)",borderRadius:3,
+                            padding:"4px 9px",textTransform:"uppercase",flexShrink:0,
+                          }}
+                        >
+                          ▸ Reply
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Cron health — silent failure detector. Shows last run + duration
+                + status for each scheduled job. Empty if migration 004 hasn't
+                been run yet. */}
+            <div style={{background:"var(--card)",border:"1px solid var(--borderf)",borderRadius:8,padding:"16px 18px",marginBottom:18}}>
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12,flexWrap:"wrap",gap:10}}>
+                <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:"1.4px",color:"var(--sub)",textTransform:"uppercase"}}>
+                  Cron health · last run per job
+                </div>
+                <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10.5,color:"var(--dim)"}}>
+                  schedules → vercel.json
+                </div>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:10}}>
+                {[
+                  ["cron-digest",        "Weekly market triggers · Mon 16:00 UTC"],
+                  ["cron-market-brief",  "Daily RSS brief · 15:00 UTC"],
+                  ["cron-daily-alerts",  "Daily deal alerts · 13:00 UTC"],
+                ].map(([name, schedule]) => {
+                  const run = data.crons?.[name];
+                  const status = run?.status || "no-data";
+                  const color =
+                    status === "success" ? "var(--green)" :
+                    status === "error"   ? "var(--red)"   :
+                    status === "running" ? "var(--amber)" :
+                                           "var(--dim)";
+                  const lastRunAt = run?.started_at;
+                  return (
+                    <div key={name} style={{padding:"12px 14px",background:"rgba(0,0,0,0.04)",border:"1px solid var(--borderf)",borderLeft:`3px solid ${color}`,borderRadius:6}}>
+                      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,marginBottom:6}}>
+                        <div style={{fontFamily:"'Geist Mono',monospace",fontSize:11,fontWeight:700,color:"var(--text)",letterSpacing:"0.3px"}}>
+                          {name}
+                        </div>
+                        <div style={{
+                          fontFamily:"'Geist Mono',monospace",fontSize:9.5,fontWeight:700,letterSpacing:"1px",
+                          color,textTransform:"uppercase",padding:"2px 6px",border:`1px solid ${color}`,borderRadius:3,
+                        }}>
+                          {status}
+                        </div>
+                      </div>
+                      <div style={{fontSize:10.5,color:"var(--dim)",fontFamily:"'Geist Mono',monospace",marginBottom:6,letterSpacing:"0.2px"}}>
+                        {schedule}
+                      </div>
+                      {lastRunAt ? (
+                        <div style={{fontSize:11.5,color:"var(--sub)",fontFamily:"'Geist Mono',monospace"}}>
+                          <div>last: {formatDate(lastRunAt)} <span style={{color:"var(--dim)"}}>· {formatAge(lastRunAt)}</span></div>
+                          {run.duration_ms != null && (
+                            <div style={{marginTop:3}}>duration: <strong style={{color:"var(--text)"}}>{run.duration_ms}ms</strong></div>
+                          )}
+                          {run.result_summary && Object.keys(run.result_summary).length > 0 && (
+                            <div style={{marginTop:3,color:"var(--dim)",fontSize:10.5}}>
+                              {Object.entries(run.result_summary).map(([k, v]) => `${k}:${v}`).join(" · ")}
+                            </div>
+                          )}
+                          {run.error_msg && (
+                            <div style={{marginTop:4,color:"var(--red)",fontSize:10.5,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                              ⚠ {run.error_msg}
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div style={{fontSize:11,color:"var(--dim)",fontStyle:"italic"}}>
+                          no runs logged yet · run supabase/migrations/004_cron_runs.sql to enable
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Recent users */}
             <div style={{background:"var(--card)",border:"1px solid var(--borderf)",borderRadius:8,overflow:"hidden"}}>
-              <div style={{padding:"14px 18px",background:"var(--card2)",borderBottom:"1px solid var(--borderf)",fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:"1.4px",color:"var(--sub)",textTransform:"uppercase",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <span>Recent users (newest 50)</span>
-                <span style={{color:"var(--dim)"}}>{sortedUsers.length} shown</span>
+              <div style={{padding:"14px 18px",background:"var(--card2)",borderBottom:"1px solid var(--borderf)",display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,flexWrap:"wrap"}}>
+                <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:"1.4px",color:"var(--sub)",textTransform:"uppercase"}}>
+                  Recent users · {sortedUsers.length} shown{userSearch || planFilter !== "all" ? " (filtered)" : ""}
+                </div>
+                <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                  <input
+                    type="text"
+                    value={userSearch}
+                    onChange={e => setUserSearch(e.target.value)}
+                    placeholder="Search email…"
+                    style={{padding:"6px 10px",fontSize:12,fontFamily:"'Geist Mono',monospace",background:"var(--card)",border:"1px solid var(--borderf)",borderRadius:4,color:"var(--text)",outline:"none",minWidth:180}}
+                  />
+                  <select
+                    value={planFilter}
+                    onChange={e => setPlanFilter(e.target.value)}
+                    style={{padding:"6px 10px",fontSize:12,fontFamily:"'Geist Mono',monospace",background:"var(--card)",border:"1px solid var(--borderf)",borderRadius:4,color:"var(--text)",outline:"none",cursor:"pointer"}}
+                  >
+                    <option value="all">All plans</option>
+                    <option value="free">Free</option>
+                    <option value="pro">Pro</option>
+                    <option value="scale">Scale</option>
+                  </select>
+                  {(userSearch || planFilter !== "all") && (
+                    <button
+                      onClick={() => { setUserSearch(""); setPlanFilter("all"); }}
+                      style={{padding:"6px 10px",fontSize:11,fontFamily:"'Geist Mono',monospace",background:"transparent",border:"1px solid var(--borderf)",borderRadius:4,color:"var(--sub)",cursor:"pointer"}}
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="admin-table-wrap" style={{overflowX:"auto"}}>
                 <table className="admin-table" style={{width:"100%",borderCollapse:"collapse",fontSize:12.5,fontFamily:"'Geist Mono',monospace"}}>
@@ -272,3 +556,59 @@ function PlanPill({ plan }) {
 
 const th = { textAlign:"left", padding:"10px 14px", fontWeight:700, fontSize:10, letterSpacing:"1.2px", color:"var(--sub)", textTransform:"uppercase", borderBottom:"1px solid var(--borderf)" };
 const td = { padding:"10px 14px", color:"var(--text)" };
+
+// 14-day signup sparkline. SVG bars sized by max value so a single big
+// spike doesn't flatten the rest of the series.
+function Sparkline({ values = [] }) {
+  const max = Math.max(1, ...values);
+  const w = 100;
+  const h = 32;
+  const barW = w / values.length;
+  return (
+    <div style={{display:"flex",alignItems:"flex-end",gap:0,height:h+8}}>
+      <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{width:"100%",height:h,overflow:"visible"}}>
+        {values.map((v, i) => {
+          const barH = (v / max) * h;
+          const x = i * barW;
+          const y = h - barH;
+          return (
+            <g key={i}>
+              <rect
+                x={x + 0.5}
+                y={y}
+                width={Math.max(0.5, barW - 1)}
+                height={Math.max(barH, 0.5)}
+                fill={v > 0 ? "var(--gold)" : "var(--borderf)"}
+                rx={0.5}
+              />
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+function ChurnCard({ title, count, subtitle, list = [], metaFmt, accent }) {
+  return (
+    <div style={{background:"var(--card)",border:"1px solid var(--borderf)",borderLeft:`2px solid ${accent}`,borderRadius:8,padding:"16px 18px"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+        <div style={{fontFamily:"'Geist Mono',monospace",fontSize:10,fontWeight:700,letterSpacing:"1.4px",color:"var(--sub)",textTransform:"uppercase"}}>{title}</div>
+        <div style={{fontFamily:"'Geist Mono',monospace",fontSize:18,fontWeight:800,color:accent,letterSpacing:"-0.5px"}}>{count}</div>
+      </div>
+      <div style={{fontSize:11,color:"var(--dim)",marginBottom:10}}>{subtitle}</div>
+      {list.length === 0 ? (
+        <div style={{fontSize:11,color:"var(--dim)",fontStyle:"italic"}}>(empty — nice signal)</div>
+      ) : (
+        <div style={{display:"flex",flexDirection:"column",gap:5}}>
+          {list.map((u) => (
+            <div key={u.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:8,padding:"6px 8px",background:"rgba(0,0,0,0.02)",borderRadius:4,fontFamily:"'Geist Mono',monospace",fontSize:11}}>
+              <span style={{color:"var(--text)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",flex:1,minWidth:0}}>{u.email}</span>
+              <span style={{color:"var(--dim)",fontSize:10,flexShrink:0}}>{metaFmt(u)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}

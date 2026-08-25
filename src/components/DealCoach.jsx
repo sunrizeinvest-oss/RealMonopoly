@@ -105,9 +105,9 @@ export default function DealCoach({ property = {}, calcs = {} }) {
 
       {/* Floating launch button */}
       {!open && (
-        <button className="dc-fab" onClick={() => setOpen(true)} aria-label="Open deal coach">
+        <button className="dc-fab" data-tour="deal-coach-cue" onClick={() => setOpen(true)} aria-label="Ask Buddy">
           <span className="dc-fab-dot" />
-          <span className="dc-fab-label">DEAL COACH</span>
+          <span className="dc-fab-label">ASK BUDDY</span>
         </button>
       )}
 
@@ -118,7 +118,7 @@ export default function DealCoach({ property = {}, calcs = {} }) {
           <div className="dc-head">
             <div className="dc-head-left">
               <span className="dc-head-dot" />
-              <span className="dc-head-title">[ DEAL COACH · {activePersona?.label || "ADVISOR"} ]</span>
+              <span className="dc-head-title">[ ASK BUDDY · {activePersona?.label || "ADVISOR"} ]</span>
             </div>
             <button className="dc-close" onClick={() => setOpen(false)} aria-label="Close">×</button>
           </div>

@@ -1,6 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
+import MetricTip from "./components/MetricTip";
+import QuickAutoFillWidget from "./components/QuickAutoFillWidget";
 
 // ─── Utilities ────────────────────────────────────────────────────────────────
 const num = v => parseFloat(v) || 0;
@@ -187,6 +189,20 @@ export default function MortgageQualifier() {
 
   // ── Prefill from localStorage ──
   useEffect(() => {
+    // Priority 0: Strategy Verdicts handoff — /property "Tools" chip → /qualify
+    try {
+      const raw = sessionStorage.getItem("rde_strategy_prefill");
+      if (raw) {
+        const pf = JSON.parse(raw);
+        const isFresh = pf.ts && Date.now() - pf.ts < 5 * 60 * 1000;
+        if (isFresh && pf.strategy === "qualify") {
+          sessionStorage.removeItem("rde_strategy_prefill");
+          if (pf.purchasePrice) setPurchasePrice(String(Math.round(pf.purchasePrice)));
+          return; // authoritative
+        }
+      }
+    } catch {}
+
     try {
       const raw = localStorage.getItem("rde_prefill");
       if (raw) {
@@ -354,6 +370,19 @@ export default function MortgageQualifier() {
       <div className="mq-body">
         {/* ── LEFT: Inputs ── */}
         <div className="mq-inputs">
+
+          {/* Quick auto-fill from address */}
+          <QuickAutoFillWidget
+            hint="Paste an address and we'll fill in purchase price + property tax from public records."
+            computePatch={(d) => {
+              const p = {};
+              if (d.assessedValue && !purchasePrice)  p.purchasePrice = 1;
+              return p;
+            }}
+            onFill={(d) => {
+              if (d.assessedValue && !purchasePrice) setPurchasePrice(String(Math.round(d.assessedValue)));
+            }}
+          />
 
           {/* Income */}
           <div className="mq-section">
@@ -749,13 +778,13 @@ export default function MortgageQualifier() {
                   <span className="mq-brow-val red">{fmt(calcs.totalMonthlyDebt)}/mo</span>
                 </div>
                 <div className="mq-brow">
-                  <span className="mq-brow-key">GDS Ratio</span>
+                  <span className="mq-brow-key">GDS Ratio <MetricTip metric="gds" /></span>
                   <span className={`mq-brow-val ${calcs.GDS !== null && calcs.GDS > 0.39 ? "red" : "green"}`}>
                     {calcs.GDS !== null ? fmtPct(calcs.GDS, 2) : "—"} (limit 39%)
                   </span>
                 </div>
                 <div className="mq-brow">
-                  <span className="mq-brow-key">TDS Ratio</span>
+                  <span className="mq-brow-key">TDS Ratio <MetricTip metric="tds" /></span>
                   <span className={`mq-brow-val ${calcs.TDS !== null && calcs.TDS > 0.44 ? "red" : "green"}`}>
                     {calcs.TDS !== null ? fmtPct(calcs.TDS, 2) : "—"} (limit 44%)
                   </span>

@@ -30,7 +30,7 @@ const PRELOAD = {
   "/loans":      () => import("../LoanCompare.jsx"),
   "/qualify":    () => import("../MortgageQualifier.jsx"),
   "/property":   () => import("../PropertyIntelligence.jsx"),
-  "/worth":      () => import("../PropertyWorth.jsx"),
+  "/buybox":     () => import("../BuyBox.jsx"),
   "/screen":     () => import("../DealScreener.jsx"),
   "/distress":   () => import("../DistressChecker.jsx"),
   "/triggers":   () => import("../MarketTriggers.jsx"),
@@ -78,6 +78,7 @@ const TOOLS = [
     color: "var(--blue)",
     tools: [
       { icon: "🛰️", name: "Property Intel",      route: "/property" },
+      { icon: "📥", name: "Buy Box",             route: "/buybox" },
       { icon: "💎", name: "Property Worth",      route: "/worth" },
       { icon: "🔎", name: "Deal Screener",       route: "/screen" },
       { icon: "🚨", name: "Distress Checker",    route: "/distress" },
@@ -179,6 +180,47 @@ export default function TopNav({ section = null }) {
               <span className="tn-breadcrumb-name">{breadcrumb}</span>
             </div>
           )}
+
+          {/* Public-page quick-links — surfaced for all users. Hidden on
+              narrow screens (the mobile rule below collapses them). The
+              "active" pill highlights when you're already on that page. */}
+          <div className="tn-quicklinks">
+            <button
+              className={`tn-quicklink ${location.pathname === "/brokers" ? "active" : ""}`}
+              onClick={go("/brokers")}
+              onMouseEnter={() => preloaded.add("/brokers")}
+            >
+              For Brokers
+            </button>
+            <button
+              className={`tn-quicklink ${location.pathname === "/investors" ? "active" : ""}`}
+              onClick={go("/investors")}
+              onMouseEnter={() => preloaded.add("/investors")}
+            >
+              For Investors
+            </button>
+            <button
+              className={`tn-quicklink ${location.pathname === "/pricing" ? "active" : ""}`}
+              onClick={go("/pricing")}
+            >
+              Pricing
+            </button>
+            <button
+              className={`tn-quicklink ${location.pathname === "/case-studies" ? "active" : ""}`}
+              onClick={go("/case-studies")}
+              onMouseEnter={() => preloaded.add("/case-studies")}
+            >
+              Case Studies
+            </button>
+            <button
+              className={`tn-quicklink live ${location.pathname === "/live" ? "active" : ""}`}
+              onClick={go("/live")}
+              onMouseEnter={() => preloaded.add("/live")}
+              title="Real-time platform metrics"
+            >
+              <span className="tn-live-dot" /> Live
+            </button>
+          </div>
         </div>
 
         <div className="tn-right">
@@ -320,6 +362,24 @@ const css = `
 }
 .tn-link:hover{ color:var(--text); background:rgba(15,23,42,0.04); }
 
+/* Public-page quick-links between "Tools" and the right-side account area */
+.tn-quicklinks{ display:flex; align-items:center; gap:2px; margin-left:6px; }
+.tn-quicklink{
+  background:transparent; border:none;
+  color:var(--sub); font-family:'Geist',sans-serif; font-size:13px; font-weight:600;
+  padding:7px 12px; cursor:pointer; border-radius:5px; white-space:nowrap;
+  transition:color 0.15s, background 0.15s;
+}
+.tn-quicklink:hover{ color:var(--text); background:rgba(15,23,42,0.04); }
+.tn-quicklink.active{ color:var(--blue); background:rgba(59,158,255,0.08); }
+
+/* Live quicklink — pulsing green dot signals real-time data */
+.tn-quicklink.live{ display:inline-flex; align-items:center; gap:6px; color:var(--green); font-weight:700; }
+.tn-quicklink.live:hover{ background:rgba(22,163,74,0.08); color:var(--green); }
+.tn-quicklink.live.active{ background:rgba(22,163,74,0.10); color:var(--green); }
+.tn-live-dot{ width:6px; height:6px; border-radius:50%; background:#16a34a; box-shadow:0 0 6px #16a34a; animation:tn-blink 2s infinite; }
+@keyframes tn-blink{ 0%,50%{opacity:1} 51%,100%{opacity:0.4} }
+
 .tn-cta{
   background:var(--blue); border:none; color:#fff;
   font-family:'Geist',sans-serif; font-size:13px; font-weight:700;
@@ -436,8 +496,15 @@ const css = `
     overflow-y:auto;
   }
   .tn-link{ display:none; }
+  /* On narrow screens hide the "For Investors" and "Pricing" quick-links,
+     keep only "For Brokers" since that's the highest-yield audience for
+     outreach traffic landing here from LinkedIn. */
+  .tn-quicklink:not(:first-child){ display:none; }
+  .tn-quicklinks{ margin-left:2px; }
+  .tn-quicklink{ padding:6px 9px; font-size:12.5px; }
 }
 @media(max-width:480px){
   .tn-mega{ grid-template-columns:1fr; }
+  .tn-quicklinks{ display:none; }
 }
 `;

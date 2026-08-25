@@ -12,6 +12,8 @@ import { useMemo, useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useDocMeta } from "./lib/seo";
 import TopNav from "./components/TopNav";
+import MetricTip from "./components/MetricTip";
+import QuickAutoFillWidget from "./components/QuickAutoFillWidget";
 
 const num = v => parseFloat(String(v).replace(/,/g, "")) || 0;
 const fmt = n => new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(n || 0);
@@ -194,6 +196,15 @@ export default function LoanCompare() {
           <div className="lc-sub">Model three financing scenarios for the same deal. Winner highlights call out the best monthly payment, DSCR, cash-on-cash, total interest, and remaining loan balance at exit.</div>
         </div>
 
+        {/* Quick auto-fill from address */}
+        <QuickAutoFillWidget
+          hint="Paste an address and we'll fill in property value from public records."
+          computePatch={(d) => d.assessedValue && (propertyValue === "1500000" || !propertyValue) ? { propertyValue: 1 } : {}}
+          onFill={(d) => {
+            if (d.assessedValue) setPropertyValue(String(Math.round(d.assessedValue)));
+          }}
+        />
+
         {/* Deal context */}
         <div className="lc-deal">
           <div className="lc-deal-head">
@@ -290,7 +301,7 @@ export default function LoanCompare() {
                     <span className="lc-result-val">{fmt(r.annualDS)}</span>
                   </div>
                   <div className="lc-result-row">
-                    <span className="lc-result-lbl">DSCR</span>
+                    <span className="lc-result-lbl">DSCR <MetricTip metric="dscr" /></span>
                     <span className={`lc-result-val ${r.dscr >= 1.25 ? "win" : r.dscr >= 1.0 ? "warn" : "bad"}`}>
                       {fmtX(r.dscr)}
                       {i === winners.dscr && <span className="lc-win-badge">▲ HIGHEST</span>}
@@ -304,7 +315,7 @@ export default function LoanCompare() {
                     </span>
                   </div>
                   <div className="lc-result-row">
-                    <span className="lc-result-lbl">Cash-on-cash</span>
+                    <span className="lc-result-lbl">Cash-on-cash <MetricTip metric="coc" strategy="rental" /></span>
                     <span className={`lc-result-val ${r.coc >= 0.07 ? "win" : r.coc >= 0.04 ? "warn" : "bad"}`}>
                       {fmtPct(r.coc)}
                       {i === winners.coc && <span className="lc-win-badge">▲ HIGHEST</span>}

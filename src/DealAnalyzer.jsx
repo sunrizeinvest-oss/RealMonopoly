@@ -235,9 +235,42 @@ export default function DealAnalyzer() {
     }));
   }, []);
 
+  // ── Strategy Verdicts handoff (peek-once, consume-after-mount) ──
+  // Hoisted above the useState pair so BOTH `form` (which needs the values)
+  // and `analyzed` (which needs to know it should auto-jump to results) can
+  // read from the same source. The useEffect below actually removes the
+  // sessionStorage key after mount — keeping the peek pure so React's
+  // StrictMode double-invoke doesn't cause a spurious consumption.
+  const strategyPrefill = useMemo(() => {
+    try {
+      const raw = sessionStorage.getItem("rde_strategy_prefill");
+      if (!raw) return null;
+      const pf = JSON.parse(raw);
+      const isFresh = pf.ts && Date.now() - pf.ts < 5 * 60 * 1000;
+      if (isFresh && pf.strategy === "flip") return pf;
+    } catch {}
+    return null;
+  }, []);
+
+  useEffect(() => {
+    if (strategyPrefill) {
+      try { sessionStorage.removeItem("rde_strategy_prefill"); } catch {}
+    }
+  }, [strategyPrefill]);
+
   const [dealType, setDealType] = useState("flip");
   const [form, setForm] = useState(() => {
-    // Prefill from URL params — used by the Chrome extension + shareable deal links
+    if (strategyPrefill) {
+      return {
+        address:       strategyPrefill.address       || "",
+        purchasePrice: strategyPrefill.purchasePrice ? String(Math.round(strategyPrefill.purchasePrice)) : "",
+        repairCost:    strategyPrefill.repairCost    ? String(Math.round(strategyPrefill.repairCost))    : "",
+        sqft:          strategyPrefill.sqft          ? String(strategyPrefill.sqft) : "",
+        beds:          "",
+        baths:         "",
+      };
+    }
+    // URL params fallback — used by the Chrome extension + shareable deal links
     const sp = new URLSearchParams(window.location.search);
     return {
       address:       sp.get("addr")     || "",
@@ -249,7 +282,9 @@ export default function DealAnalyzer() {
     };
   });
   const [analyzed, setAnalyzed] = useState(() => {
-    // If we got prefill data, jump straight to the results view
+    // Auto-jump to results view when we have enough to compute (purchase + sqft).
+    // Fires for both flavours of prefill: Strategy Verdicts handoff AND URL params.
+    if (strategyPrefill?.purchasePrice && strategyPrefill?.sqft) return true;
     const sp = new URLSearchParams(window.location.search);
     return !!(sp.get("purchase") && sp.get("sqft"));
   });
@@ -294,7 +329,7 @@ export default function DealAnalyzer() {
     const allInCost = pp + rc;
     const profit = deal?.profit ?? (arv.mid - allInCost);
     const marginPct = arv.mid > 0 ? profit / arv.mid : 0;
-    const doc = generateTier1Memo({
+    const doc = await generateTier1Memo({
       type: "flip",
       deal: {
         address: form.address || "Flip Deal",
