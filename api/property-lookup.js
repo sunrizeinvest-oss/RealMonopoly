@@ -26,6 +26,7 @@ import { estimateYearBuilt } from "./_lib/yearBuiltEstimator.js";
 import { getNeighborhoodProfile } from "./_lib/enrich/wikipedia.js";
 import { getNearbyAmenities } from "./_lib/enrich/overpass.js";
 import { getBankOfCanadaRates } from "./_lib/enrich/bocRates.js";
+import { getStreetView } from "./_lib/enrich/streetView.js";
 
 // Canadian-address heuristic. Province code anywhere in the string, OR
 // a Canadian postal code anywhere.
@@ -132,7 +133,7 @@ async function lookupCanadian({ address, res }) {
     || null;
   const cityForWiki = geo.citySlug ? geo.citySlug.charAt(0).toUpperCase() + geo.citySlug.slice(1) : null;
 
-  const [yearBuiltR, wikiR, amenitiesR, ratesR] = await Promise.allSettled([
+  const [yearBuiltR, wikiR, amenitiesR, ratesR, streetR] = await Promise.allSettled([
     !assess?.yearBuilt && (zoning?.found || assess?.assessedValue)
       ? estimateYearBuilt({
           address,
@@ -149,12 +150,14 @@ async function lookupCanadian({ address, res }) {
       : Promise.resolve(null),
     getNearbyAmenities({ lat: geo.lat, lng: geo.lng }),
     getBankOfCanadaRates(),
+    getStreetView({ lat: geo.lat, lng: geo.lng }),
   ]);
 
   const yearBuiltEst         = yearBuiltR.status === "fulfilled" ? yearBuiltR.value : null;
   const neighbourhoodProfile = wikiR.status      === "fulfilled" ? wikiR.value      : null;
   const nearbyAmenities      = amenitiesR.status === "fulfilled" ? amenitiesR.value : null;
   const rates                = ratesR.status     === "fulfilled" ? ratesR.value     : null;
+  const streetView           = streetR.status    === "fulfilled" ? streetR.value    : null;
 
   const attribution = [];
   if (assess)              attribution.push(`${geo.citySlug} open data`);
@@ -165,6 +168,7 @@ async function lookupCanadian({ address, res }) {
   if (neighbourhoodProfile) attribution.push("Wikipedia neighborhood profile");
   if (nearbyAmenities)      attribution.push("OpenStreetMap amenities");
   if (rates?.prime?.rate)   attribution.push("Bank of Canada rates");
+  if (streetView?.available) attribution.push("Google Street View");
 
   // Calgary's lot size is sqm — convert to sqft for the unified shape.
   const sqmToSqft = sm => (sm == null ? null : Math.round(sm * 10.7639));
@@ -228,6 +232,7 @@ async function lookupCanadian({ address, res }) {
     neighbourhoodProfile: neighbourhoodProfile || null,
     nearbyAmenities: nearbyAmenities || null,
     rates: rates || null,
+    streetView: streetView || null,
 
     geocode: { lat: geo.lat, lng: geo.lng, citySlug: geo.citySlug, province: geo.province },
     attribution,

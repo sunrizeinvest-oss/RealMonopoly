@@ -87,13 +87,93 @@ export async function getZoning({ lat, lng, address }) {
   }
 }
 
-// MPAC restricts open access to per-property assessed values in Ottawa.
-// Return null cleanly — the card silently omits the assessment section.
-export async function getAssessment() { return null; }
+// MPAC restricts open access to per-property assessed values across Ontario
+// (except Toronto, which has its own city feed). Instead of returning null
+// silently, we return an explicit "unavailable" object so the UI can render
+// a clear "MPAC-restricted — enter manually" nudge rather than an empty card.
+export async function getAssessment() {
+  return {
+    assessedValue: null,
+    assessmentYear: null,
+    yearBuilt: null,
+    unavailable: true,
+    unavailableReason: "MPAC does not publish per-property values via open data for Ottawa. Look up your roll number at aboutmyproperty.ca (MPAC login required) or enter the assessed value manually.",
+    source: "ottawa-mpac-restricted",
+  };
+}
 
 // Permits: Ottawa publishes building permits via CKAN but the endpoint
 // requires per-request keys. Deferred until there's a real user ask.
-export async function getPermits() { return []; }
+/**
+ * Ottawa permits — actually Development Applications, which are a stronger
+ * broker signal than issued building permits (they precede the permit; they
+ * cover rezonings, site plan control, subdivision applications, minor
+ * variances, etc.). We keep the `nearbyPermits` field name for UI parity.
+ *
+ * Data source: Ottawa's own ArcGIS map service at maps.ottawa.ca — the same
+ * infra that serves their public parcel/zoning maps. Coverage begins Feb 1,
+ * 2008 (per service description).
+ *
+ * Rows include LATITUDE + LONGITUDE + APPLICATION_DATE + APPLICATION_TYPE_EN
+ * as attributes, so we filter server-side by lat/lng bbox and client-side
+ * by date (ArcGIS Date-field BETWEEN + epoch millis rejected upstream).
+ */
+const OTTAWA_DEVAPPS_SERVICE =
+  "https://maps.ottawa.ca/arcgis/rest/services/Development_Applications/MapServer/0";
+
+export async function getPermits({ lat, lng, radiusMeters = 1000, sinceYears = 2 }) {
+  try {
+    const dlat = radiusMeters / 111000;
+    const dlng = radiusMeters / (111000 * Math.cos(lat * Math.PI / 180));
+
+    // Server-side WHERE on LATITUDE/LONGITUDE is reliable (Double fields).
+    // Date filter happens client-side after the fetch.
+    const where = `LATITUDE BETWEEN ${lat - dlat} AND ${lat + dlat} `
+                + `AND LONGITUDE BETWEEN ${lng - dlng} AND ${lng + dlng}`;
+    const sinceMs = Date.now() - sinceYears * 365 * 24 * 3600 * 1000;
+
+    const data = await fetchArcGIS(`${OTTAWA_DEVAPPS_SERVICE}/query`, {
+      f: "json",
+      where,
+      outFields: "APPLICATION_DATE,APPLICATION_NUMBER,APPLICATION_TYPE_EN,OBJECT_CURRENT_STATUS_EN,OBJECT_CURRENT_STATUS_DATE,ADDRESS_NUMBER_ROAD_NAME,WARD_NUMBER_EN,LATITUDE,LONGITUDE",
+      returnGeometry: false,
+      resultRecordCount: 50,
+      orderByFields: "APPLICATION_DATE DESC",
+    });
+
+    const features = data?.features || [];
+    return features
+      .map(f => {
+        const a = f.attributes || {};
+        const appDateMs = a.APPLICATION_DATE || 0;
+        const iso = appDateMs ? new Date(appDateMs).toISOString() : null;
+        return {
+          permit_date:        iso,
+          issue_date:         iso,
+          application_date:   iso,
+          application_number: a.APPLICATION_NUMBER ? String(a.APPLICATION_NUMBER).trim() : null,
+          work_type:          a.APPLICATION_TYPE_EN ? String(a.APPLICATION_TYPE_EN).trim() : null,
+          job_description:    a.OBJECT_CURRENT_STATUS_EN ? String(a.OBJECT_CURRENT_STATUS_EN).trim() : null,
+          status:             a.OBJECT_CURRENT_STATUS_EN ? String(a.OBJECT_CURRENT_STATUS_EN).trim() : null,
+          address:            a.ADDRESS_NUMBER_ROAD_NAME ? String(a.ADDRESS_NUMBER_ROAD_NAME).trim() : null,
+          ward:               a.WARD_NUMBER_EN ? String(a.WARD_NUMBER_EN).trim() : null,
+          latitude:           a.LATITUDE || null,
+          longitude:          a.LONGITUDE || null,
+          _dateMs:            appDateMs,
+          source:             "ottawa",
+          record_type:        "development_application",  // signal to UI: this isn't a building permit
+        };
+      })
+      // Client-side recency filter
+      .filter(p => !p._dateMs || p._dateMs >= sinceMs)
+      .sort((a, b) => (b._dateMs || 0) - (a._dateMs || 0))
+      .slice(0, 20)
+      .map(p => { const { _dateMs, ...rest } = p; return rest; });
+  } catch (e) {
+    console.warn("[ottawa/permits]", e.message);
+    return [];
+  }
+}
 
 function matchPrefix(zone) {
   if (!zone) return null;

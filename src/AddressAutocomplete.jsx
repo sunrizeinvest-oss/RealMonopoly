@@ -93,6 +93,7 @@ export default function AddressAutocomplete({
   const [open,        setOpen]        = useState(false);
   const [loading,     setLoading]     = useState(false);
   const [hovered,     setHovered]     = useState(-1);
+  const [error,       setError]       = useState(null);
   const debounceRef   = useRef(null);
   const wrapRef       = useRef(null);
   const abortRef      = useRef(null);
@@ -109,11 +110,15 @@ export default function AddressAutocomplete({
       if (abortRef.current) abortRef.current.abort();
       abortRef.current = new AbortController();
 
+      setError(null);
       try {
         let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=6&lang=en`;
         if (countryCode) url += `&location_bias_scale=0.2`;
 
         const res  = await fetch(url, { signal: abortRef.current.signal });
+        if (!res.ok) {
+          throw new Error(`Address lookup failed (HTTP ${res.status}). Try again in a moment.`);
+        }
         const data = await res.json();
 
         let features = (data.features || []);
@@ -145,7 +150,14 @@ export default function AddressAutocomplete({
         setOpen(unique.length > 0);
         setHovered(-1);
       } catch (e) {
-        if (e.name !== "AbortError") console.error("Autocomplete error:", e.message);
+        if (e.name !== "AbortError") {
+          console.error("Autocomplete error:", e.message);
+          // Surface transient errors — network hiccups, Photon rate-limiting,
+          // etc — so the user knows to retry instead of assuming the input is broken.
+          setError(e.message || "Address suggestions unavailable — type the full address and continue.");
+          setSuggestions([]);
+          setOpen(false);
+        }
       }
 
       setLoading(false);
@@ -229,6 +241,19 @@ export default function AddressAutocomplete({
           borderTopColor: "var(--blue)", borderRadius: "50%",
           animation: "ac-spin 0.7s linear infinite", pointerEvents: "none",
         }} />
+      )}
+
+      {/* Error state — Photon down, rate-limited, offline, etc. */}
+      {error && !loading && (
+        <div style={{
+          position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0, zIndex: 9998,
+          padding: "8px 12px", background: "rgba(251,146,60,0.12)",
+          border: "1px solid rgba(251,146,60,0.4)", borderRadius: 6,
+          color: "#fb923c", fontSize: 12,
+          fontFamily: "'Geist Mono',ui-monospace,monospace",
+        }}>
+          ▸ {error}
+        </div>
       )}
 
       {/* Dropdown */}

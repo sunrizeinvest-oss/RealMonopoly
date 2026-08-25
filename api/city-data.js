@@ -56,7 +56,19 @@ export default async function handler(req, res) {
       case "calgary":   result = await getCalgaryData(address, lat, lon);   break;
       case "edmonton":  result = await getEdmontonData(address, lat, lon);  break;
       case "toronto":   result = await getTorontoData(address, lat, lon);   break;
-      default: result = { error: "City handler not implemented" };
+      default:
+        // Explicit "unsupported city" signal — was previously { error: "..." }
+        // which the UI silently swallowed. Now returns HTTP 404 + a structured
+        // payload so PropertyHub can render "we don't have municipal data for
+        // this city yet" rather than empty-state.
+        return res.status(404).json({
+          city,
+          source: null,
+          error: `Municipal open data not yet supported for "${city}"`,
+          supportedCities: ["vancouver", "calgary", "edmonton", "toronto"],
+          note: "Zoning, assessment, and permits require a per-city adapter. Property lookup (values, rent estimate, CMHC) still works for all Canadian cities via the /api/property-lookup endpoint.",
+          geocoded: lat ? { lat, lon } : null,
+        });
     }
 
     return res.status(200).json({

@@ -479,7 +479,22 @@ export default function PropertyHub() {
 
     } catch(e) {
       setProperty({ searchQuery: q, notFound: true });
-      setError(e.message || "Lookup failed — check your API key in Vercel");
+      // Distinguish geocode failures (user can fix by adding city/province)
+      // from API/config failures (needs Vercel intervention). Also handle
+      // network errors distinctly so a 30s TCP timeout doesn't look like
+      // "your API key is bad."
+      const msg = e.message || "";
+      let friendly;
+      if (/could not geocode|no geocode result|geocode failed/i.test(msg)) {
+        friendly = `Couldn't locate "${q}". Add the city and province — e.g. "6408 106 St NW, Edmonton, AB".`;
+      } else if (/network|fetch failed|typeerror.*fetch/i.test(msg)) {
+        friendly = "Network hiccup reaching the property database. Try again in a moment.";
+      } else if (/api key|rentcast|configure/i.test(msg)) {
+        friendly = msg;  // These are already clear, come from the API layer
+      } else {
+        friendly = msg || "Lookup failed. Try adding the city and province to your address.";
+      }
+      setError(friendly);
       setCompsLoading(false);
     }
     setLoading(false);
@@ -876,6 +891,83 @@ export default function PropertyHub() {
                 </div>
               )}
             </>
+          )}
+
+          {/* ── STREET VIEW · Google ─────────────────────────────────
+              Hero visual card. Renders only when GOOGLE_MAPS_API_KEY is
+              configured AND Street View has coverage at (or within 100m of)
+              the property's coordinates. Card image is 800x400; hover to
+              inspect. Fail-open — hidden when no coverage. */}
+          {property?.streetView?.available && (
+            <div style={{
+              margin: "16px 0",
+              padding: 0,
+              background: "var(--card)",
+              border: "1px solid rgba(66,133,244,0.32)",
+              borderLeft: "3px solid #4285f4",
+              borderRadius: 8,
+              overflow: "hidden",
+            }}>
+              <div style={{
+                position: "relative",
+                background: "#000",
+                lineHeight: 0,
+              }}>
+                <img
+                  src={property.streetView.cardUrl}
+                  alt={`Street View of ${property.address}`}
+                  style={{
+                    width: "100%",
+                    height: "auto",
+                    display: "block",
+                    maxHeight: 420,
+                    objectFit: "cover",
+                  }}
+                  loading="lazy"
+                />
+                <div style={{
+                  position: "absolute",
+                  top: 10, left: 12,
+                  padding: "4px 10px",
+                  background: "rgba(0,0,0,0.72)",
+                  color: "#fff",
+                  fontFamily: "'Geist Mono',ui-monospace,monospace",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: "1.2px",
+                  borderRadius: 3,
+                  textTransform: "uppercase",
+                }}>
+                  ▸ Street View
+                </div>
+                {property.streetView.panoDate && (
+                  <div style={{
+                    position: "absolute",
+                    top: 10, right: 12,
+                    padding: "3px 8px",
+                    background: "rgba(0,0,0,0.72)",
+                    color: "#fff",
+                    fontFamily: "'Geist Mono',ui-monospace,monospace",
+                    fontSize: 9.5,
+                    fontWeight: 600,
+                    letterSpacing: "1px",
+                    borderRadius: 3,
+                  }}>
+                    Imagery: {property.streetView.panoDate}
+                  </div>
+                )}
+                <div style={{
+                  position: "absolute",
+                  bottom: 8, right: 12,
+                  fontSize: 9,
+                  color: "rgba(255,255,255,0.7)",
+                  fontFamily: "'Geist Mono',ui-monospace,monospace",
+                  letterSpacing: "0.5px",
+                }}>
+                  © Google
+                </div>
+              </div>
+            </div>
           )}
 
           {/* ── MUNICIPAL OPEN DATA · zoning + permits + year built ──────
