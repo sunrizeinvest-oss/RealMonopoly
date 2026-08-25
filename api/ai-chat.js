@@ -1448,15 +1448,16 @@ function escapeHtml(s) {
 //     ANTHROPIC_API_KEY          (same as find-triggers)
 // ──────────────────────────────────────────────────────────────────────
 async function handleCronDigest(req, res) {
-  const { recordCronStart, recordCronEnd } = await import("./_lib/cron-track.js");
-  const runId = await recordCronStart("cron-digest");
-  // 1. Auth: Vercel cron sends Authorization: Bearer <CRON_SECRET>.
+  // Auth check FIRST — before writing a runs row. Otherwise every unauthorized
+  // probe (there are many from bots + accidental /api hits) pollutes the
+  // cron_runs table with "error" rows that dilute uptime signal.
   const expected = process.env.CRON_SECRET;
   const auth = req.headers.authorization || "";
   if (!expected || auth !== `Bearer ${expected}`) {
-    await recordCronEnd(runId, "error", null, "Unauthorized");
     return res.status(401).json({ error: "Unauthorized" });
   }
+  const { recordCronStart, recordCronEnd } = await import("./_lib/cron-track.js");
+  const runId = await recordCronStart("cron-digest");
 
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -1873,13 +1874,14 @@ async function deliverMarketBrief({ to, market, items, userId }) {
 //   then per (user, market) sends one email.
 // ──────────────────────────────────────────────────────────────────────
 async function handleCronMarketBrief(req, res) {
-  const { recordCronStart, recordCronEnd } = await import("./_lib/cron-track.js");
-  const runId = await recordCronStart("cron-market-brief");
+  // Auth check FIRST — see handleCronDigest for rationale.
   const expected = process.env.CRON_SECRET;
   const auth = req.headers.authorization || "";
   if (!expected || auth !== `Bearer ${expected}`) {
     return res.status(401).json({ error: "Unauthorized" });
   }
+  const { recordCronStart, recordCronEnd } = await import("./_lib/cron-track.js");
+  const runId = await recordCronStart("cron-market-brief");
 
   const supabaseUrl = process.env.SUPABASE_URL;
   const serviceKey  = process.env.SUPABASE_SERVICE_ROLE_KEY;

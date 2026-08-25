@@ -94,6 +94,21 @@ export default async function handler(req, res) {
         .eq('stripe_subscription_id', invoice.subscription);
       break;
     }
+    // Stripe fires invoice.payment_succeeded for every successful renewal AND
+    // for the first payment on a new subscription. If a customer paid via a
+    // saved card, the checkout.session.completed handler above may not have
+    // fired (or the metadata is missing), so we backstop the "subscription
+    // is now active" transition here too. Also flips past_due → active on
+    // dunning recovery.
+    case 'invoice.payment_succeeded': {
+      const invoice = event.data.object;
+      if (invoice.subscription) {
+        await supabase.from('subscriptions')
+          .update({ status: 'active', updated_at: new Date().toISOString() })
+          .eq('stripe_subscription_id', invoice.subscription);
+      }
+      break;
+    }
   }
 
   return res.status(200).json({ received: true });

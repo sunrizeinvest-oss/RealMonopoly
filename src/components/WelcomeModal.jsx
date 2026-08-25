@@ -31,9 +31,19 @@ export default function WelcomeModal({ onDemoAddress }) {
   useEffect(() => {
     try {
       const shown = localStorage.getItem("rde_onboarding_shown") === "1";
-      const hasQuery = typeof window !== "undefined"
-        && new URLSearchParams(window.location.search).has("addr");
-      if (!shown && !hasQuery) {
+      if (typeof window === "undefined") return;
+      const params = new URLSearchParams(window.location.search);
+      const hasQuery = params.has("addr");
+      // Also suppress on referral / campaign traffic — those users landed
+      // with intent (share link, paid ad, email); interrupting them with a
+      // welcome modal tanks conversion. Also skip when a share hash is set
+      // (e.g. /verdict#deal-xxx).
+      const isReferral = params.has("utm_source")
+        || params.has("utm_campaign")
+        || params.has("ref")
+        || (document.referrer && !document.referrer.includes(window.location.host));
+      const hasHash = window.location.hash && window.location.hash.length > 1;
+      if (!shown && !hasQuery && !isReferral && !hasHash) {
         setOpen(true);
         trackWelcomeModalAction("shown");
       }

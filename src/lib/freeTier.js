@@ -90,10 +90,15 @@ export function useFreeTier() {
 
   const incrementLookup = useCallback(() => {
     if (isPaid) return;                    // don't burn counter for paid users
-    const next = { month: monthKey(), count: Math.min(usage.count + 1, 999) };
+    // Re-read from storage rather than trusting React state. If the tab has
+    // been open across a month boundary the state's `usage.month` is stale and
+    // we'd wrongly increment last-month's count. readUsage() checks month
+    // rollover on every call and resets to { count: 0 } when the month flips.
+    const current = readUsage();
+    const next = { month: monthKey(), count: Math.min(current.count + 1, 999) };
     writeUsage(next);
     setUsage(next);
-  }, [isPaid, usage.count]);
+  }, [isPaid]);
 
   return useMemo(() => {
     const limit = isPaid ? Infinity : FREE_LIMIT;
