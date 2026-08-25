@@ -39,14 +39,19 @@ const fmtX   = n => (isNaN(n)||!isFinite(n)||Math.abs(n)>999) ? "—" : `${n.toF
 
 function calcMortgage(principal, annualRate, amortYears) {
   const p = num(principal), r = num(annualRate)/100/12, n = num(amortYears)*12;
-  if (!p||!r||!n) return 0;
+  // NB: a valid 0% rate would make the standard mortgage formula divide-by-zero.
+  // Rate === 0 is a legit (if rare) input — return p/n rather than "no payment".
+  if (!p || !n) return 0;
+  if (r === 0) return p / n;
   return p*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
 }
 
 function loanBalance(principal, annualRate, amortYears, yearsElapsed) {
   const p = num(principal), r = num(annualRate)/100/12;
   const n = num(amortYears)*12, k = num(yearsElapsed)*12;
-  if (!p||!r||!n) return p;
+  // Same 0%-rate correctness fix: with r=0 the balance is p - (p/n)*k.
+  if (!p || !n) return p;
+  if (r === 0) return Math.max(0, p - (p / n) * k);
   return p*(Math.pow(1+r,n)-Math.pow(1+r,k))/(Math.pow(1+r,n)-1);
 }
 
@@ -608,9 +613,12 @@ export default function BRRRRCalculator() {
           },
         }),
       })
-        .then(r => r.ok ? r.json() : null)
+        .then(r => {
+          if (!r.ok) { console.warn("[brrrr/ai-thesis] fetch failed:", r.status); return null; }
+          return r.json();
+        })
         .then(t => { if (t?.thesis) setAiThesis(t); })
-        .catch(() => {});
+        .catch(e => { if (e.name !== "AbortError") console.warn("[brrrr/ai-thesis] error:", e.message); });
     }, 600);
     return () => clearTimeout(handle);
   }, [calc?.totalCashIn, calc?.dscr, calc?.cashLeftInDeal, calc?.isTrueBRRRR, calc?.monthlyCF, calc?.irr, verdict?.title, form.address]);

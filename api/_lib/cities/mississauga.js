@@ -80,13 +80,94 @@ export async function getZoning({ lat, lng, address }) {
   }
 }
 
-// MPAC restricts per-property assessed values in Ontario open data. Return
-// null cleanly so the property card silently omits the assessment section.
-export async function getAssessment() { return null; }
+// MPAC restricts open access to per-property assessed values across Ontario
+// (except Toronto, which has its own feed). Return an explicit "unavailable"
+// signal so the UI can render a "MPAC-restricted — enter manually" nudge
+// rather than empty state. Matches the ottawa.js + hamilton.js pattern.
+export async function getAssessment() {
+  return {
+    assessedValue: null,
+    assessmentYear: null,
+    yearBuilt: null,
+    unavailable: true,
+    unavailableReason: "MPAC does not publish per-property values via open data for Mississauga. Look up your roll number at aboutmyproperty.ca (MPAC login required) or enter the assessed value manually.",
+    source: "mississauga-mpac-restricted",
+  };
+}
 
 // Permits deferred until a user asks for them. Mississauga's permit data
 // is on a separate CKAN endpoint that requires keyed queries.
-export async function getPermits() { return []; }
+/**
+ * Mississauga permits — Building Permits as ArcGIS Feature Service.
+ *
+ * Same bbox-filter pattern as Ottawa. Fail-open with empty array.
+ * Endpoint URL is a best-guess from data.mississauga.ca's ArcGIS catalog.
+ */
+// Confirmed via services6 catalog enumeration: "Issued_Building_Permits" is the
+// canonical current dataset. There's also "GrowthManagement_IssuedBuildingPermits"
+// which is a filtered variant (residential intensification only).
+const MISSISSAUGA_PERMITS_SERVICE =
+  "https://services6.arcgis.com/hM5ymMLbxIyWTjn2/arcgis/rest/services/Issued_Building_Permits/FeatureServer/0";
+
+export async function getPermits({ lat, lng, radiusMeters = 1000, sinceYears = 2 }) {
+  try {
+    // Attribute-based filter — Mississauga's geometry field is in Web Mercator
+    // (wkid 102100) and their spatialRel query rejects our envelope format.
+    // Fortunately every row has `LATITUDE` + `LONGITUDE` attributes in WGS84,
+    // so we can filter with a plain WHERE clause. Simpler AND more reliable.
+    const dlat = radiusMeters / 111000;
+    const dlng = radiusMeters / (111000 * Math.cos(lat * Math.PI / 180));
+
+    // Confirmed fields (via probe): OBJECTID, BP_NO, STATUS, ADDRESS, UNIT_NO,
+    // DESCRIPTION, SCOPE, FILE_TYPE, BLDG_TYPE, APPL_AREA, STOREYS,
+    // EST_CON_VALUE, RES_UNITS, DEMO, POSTAL_CODE, WARD, LATITUDE, ISSUE_DATE.
+    // ISSUE_DATE is epoch millis (Unix timestamp × 1000).
+    // Server-side WHERE only filters by lat/lng — ArcGIS Date fields reject
+    // raw millisecond comparisons in a BETWEEN clause. We filter recency
+    // client-side after fetching (fine since we only pull 50 rows).
+    const sinceMs = Date.now() - sinceYears * 365 * 24 * 3600 * 1000;
+    const where = `LATITUDE BETWEEN ${lat - dlat} AND ${lat + dlat} `
+                + `AND LONGITUDE BETWEEN ${lng - dlng} AND ${lng + dlng}`;
+
+    const data = await fetchArcGIS(`${MISSISSAUGA_PERMITS_SERVICE}/query`, {
+      f: "json",
+      where,
+      outFields: "ADDRESS,ISSUE_DATE,STATUS,BLDG_TYPE,DESCRIPTION,SCOPE,EST_CON_VALUE,RES_UNITS,LATITUDE,LONGITUDE",
+      returnGeometry: false,
+      resultRecordCount: 50,
+      orderByFields: "ISSUE_DATE DESC",
+    });
+
+    const features = data?.features || [];
+    return features
+      .map(f => {
+        const a = f.attributes || {};
+        const iso = a.ISSUE_DATE ? new Date(a.ISSUE_DATE).toISOString() : null;
+        return {
+          permit_date:        iso,
+          issue_date:         iso,
+          issue_date_ms:      a.ISSUE_DATE || 0,
+          work_type:          a.BLDG_TYPE || a.SCOPE || null,
+          job_description:    a.DESCRIPTION || null,
+          construction_value: parseFloat(a.EST_CON_VALUE) || null,
+          units_added:        parseInt(a.RES_UNITS, 10) || null,
+          address:            a.ADDRESS || null,
+          latitude:           a.LATITUDE || null,
+          longitude:          a.LONGITUDE || null,
+          status:             a.STATUS || null,
+          source:             "mississauga",
+        };
+      })
+      // Client-side recency filter (server-side date syntax on ArcGIS is fragile)
+      .filter(p => !p.issue_date_ms || p.issue_date_ms >= sinceMs)
+      .sort((a, b) => (b.issue_date_ms || 0) - (a.issue_date_ms || 0))
+      .slice(0, 20)
+      .map(p => { const { issue_date_ms, ...rest } = p; return rest; });
+  } catch (e) {
+    console.warn("[mississauga/permits]", e.message);
+    return [];
+  }
+}
 
 function matchPrefix(zone) {
   if (!zone) return null;

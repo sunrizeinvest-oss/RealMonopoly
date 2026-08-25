@@ -196,6 +196,12 @@ async function lookupCanadian({ address, res }) {
 
     assessedValue:  assess?.assessedValue ?? null,
     assessmentYear: assess?.assessmentYear ?? null,
+    // Assessment-unavailable signal (Ontario MPAC-restricted cities). When true,
+    // the UI should render a "manual entry required" nudge instead of an empty
+    // assessed-value cell. All fields fall back to null so downstream code that
+    // reads assessedValue keeps working the way it did before.
+    assessmentUnavailable:       assess?.unavailable       || false,
+    assessmentUnavailableReason: assess?.unavailableReason || null,
     propertyTaxes:  null,
 
     lastSalePrice: null,

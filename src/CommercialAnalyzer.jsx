@@ -40,14 +40,17 @@ const safe   = (n,d="—") => (isNaN(n)||!isFinite(n)) ? d : n;
 
 function pmt(principal, annualRate, amortYears) {
   const p=num(principal), r=num(annualRate)/100/12, n=num(amortYears)*12;
-  if(!p||!r||!n) return 0;
+  // NB: 0% is a valid rate — treat it separately so we return p/n rather than 0.
+  if(!p||!n) return 0;
+  if(r === 0) return p / n;
   return p*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
 }
 
 function loanBalance(principal, annualRate, amortYears, yearsElapsed) {
   const p=num(principal), r=num(annualRate)/100/12;
   const n=num(amortYears)*12, k=num(yearsElapsed)*12;
-  if(!p||!r||!n) return p;
+  if(!p||!n) return p;
+  if(r === 0) return Math.max(0, p - (p / n) * k);
   return p*(Math.pow(1+r,n)-Math.pow(1+r,k))/(Math.pow(1+r,n)-1);
 }
 
@@ -363,9 +366,12 @@ export default function CommercialAnalyzer() {
     const ctrl = new AbortController();
     const t = setTimeout(() => {
       fetch(`/api/cmhc-rental?city=${encodeURIComponent(city)}&province=${prov}`, { signal: ctrl.signal })
-        .then(r => r.ok ? r.json() : null)
+        .then(r => {
+          if (!r.ok) { console.warn("[commercial/cmhc-rental] fetch failed:", r.status, "city:", city, "prov:", prov); return null; }
+          return r.json();
+        })
         .then(d => d && setCmhcAnchor(d))
-        .catch(() => {});
+        .catch(e => { if (e.name !== "AbortError") console.warn("[commercial/cmhc-rental] error:", e.message); });
     }, 600); // debounce while user is still typing
     return () => { clearTimeout(t); ctrl.abort(); };
   }, [propertyAddress]);

@@ -92,12 +92,107 @@ export async function getZoning({ lat, lng, address }) {
   }
 }
 
-// MPAC restricts per-property assessed values in Ontario. Card silently
-// omits the assessment section.
-export async function getAssessment() { return null; }
+// MPAC restricts open access to per-property assessed values across Ontario
+// (except Toronto, which has its own feed). Return an explicit "unavailable"
+// signal so the UI can render a "MPAC-restricted — enter manually" nudge
+// rather than empty state. Matches the ottawa.js + mississauga.js pattern.
+export async function getAssessment() {
+  return {
+    assessedValue: null,
+    assessmentYear: null,
+    yearBuilt: null,
+    unavailable: true,
+    unavailableReason: "MPAC does not publish per-property values via open data for Hamilton. Look up your roll number at aboutmyproperty.ca (MPAC login required) or enter the assessed value manually.",
+    source: "hamilton-mpac-restricted",
+  };
+}
 
-// Permits: deferred. Hamilton has a CKAN endpoint but it's keyed.
-export async function getPermits() { return []; }
+// ─── Permits — street-name LIKE match ─────────────────────────────────────
+// Hamilton's permit data is table-only (no geometry), so we can't bbox-filter
+// like the other cities. Instead we extract the street name from the target
+// address, LIKE-match against ORIGINALADDRESS1, then re-filter client-side
+// by direction + house-number window (±40) for on-street relevance.
+const HAMILTON_PERMITS_SERVICE =
+  "https://services.arcgis.com/rYz782eMbySr2srL/arcgis/rest/services/Building_and_Demolition_Permits_2017_to_Present/FeatureServer/6";
+
+function parseHamiltonAddress(addr) {
+  if (!addr) return { number: null, streetKey: null };
+  const s = String(addr).replace(/^\s*(unit\s+[#\d]+,?\s+)/i, "").trim();
+  const m = s.match(/^\s*(\d+)\s+(.+?)(?:,|$)/);
+  if (!m) return { number: null, streetKey: null };
+  const number = parseInt(m[1], 10);
+  let street = m[2].toUpperCase();
+  // Strip common street-type suffixes but preserve cardinal direction
+  street = street.replace(/\b(AVENUE|AVE|STREET|ST|ROAD|RD|DRIVE|DR|BOULEVARD|BLVD|COURT|CT|CRESCENT|CRES|CIRCLE|CIR|LANE|LN|PLACE|PL|TERRACE|TERR|PARKWAY|PKWY|HIGHWAY|HWY|WAY)\b/g, "");
+  street = street.replace(/\s+/g, " ").trim();
+  return { number, streetKey: street };
+}
+
+// Hamilton's `Building_and_Demolition_Permits_2017_to_Present` dataset stopped
+// receiving new records in Dec 2023 (city hasn't refreshed the feed). Default
+// window is stretched to 5 years so brokers still see historical context —
+// otherwise every Hamilton lookup would return empty. When the city resumes
+// publishing, drop back to `sinceYears = 2` in line with other adapters.
+export async function getPermits({ address, sinceYears = 5 } = {}) {
+  try {
+    const { number, streetKey } = parseHamiltonAddress(address);
+    if (!streetKey) return [];
+    const roadName = streetKey.split(" ")[0].replace(/'/g, "''");
+    if (roadName.length < 3) return [];
+
+    const sinceMs = Date.now() - sinceYears * 365 * 24 * 3600 * 1000;
+    const wantDirection = /\b([NSEW])\b/.exec(streetKey)?.[1] || null;
+    const NUMBER_WINDOW = 40;
+
+    const data = await fetchArcGISJson(`${HAMILTON_PERMITS_SERVICE}/query`, {
+      f: "json",
+      where: `UPPER(ORIGINALADDRESS1) LIKE '%${roadName}%'`,
+      outFields: "PERMITNUMBER,ORIGINALADDRESS1,APPLIEDDATE,ISSUEDDATE,STATUSCURRENT,PERMITCLASS,WORKCLASS,DESCRIPTION",
+      orderByFields: "ISSUEDDATE DESC",
+      resultRecordCount: 200,
+    });
+
+    const features = data?.features || [];
+    return features
+      .map(f => {
+        const a = f.attributes || {};
+        const raw = String(a.ORIGINALADDRESS1 || "").toUpperCase().trim();
+        const issue = a.ISSUEDDATE || a.APPLIEDDATE || 0;
+        const iso = issue ? new Date(issue).toISOString() : null;
+        const nm = raw.match(/^(\d+)\s+(.+?)$/);
+        const permitNumber = nm ? parseInt(nm[1], 10) : null;
+        const permitTail = nm ? nm[2] : raw;
+        const permitDir = /\b([NSEW])\b/.exec(permitTail)?.[1] || null;
+        return {
+          permit_date:        iso,
+          issue_date:         iso,
+          _issueMs:           issue,
+          _permitNumber:      permitNumber,
+          _permitDir:         permitDir,
+          permit_number:      a.PERMITNUMBER || null,
+          work_type:          a.WORKCLASS || a.PERMITCLASS || null,
+          job_description:    a.DESCRIPTION || null,
+          status:             a.STATUSCURRENT || null,
+          address:            raw || null,
+          latitude:           null,
+          longitude:          null,
+          source:             "hamilton",
+        };
+      })
+      .filter(p => !p._issueMs || p._issueMs >= sinceMs)
+      .filter(p => !wantDirection || !p._permitDir || p._permitDir === wantDirection)
+      .filter(p => {
+        if (!number || !p._permitNumber) return true;
+        return Math.abs(p._permitNumber - number) <= NUMBER_WINDOW;
+      })
+      .sort((a, b) => (b._issueMs || 0) - (a._issueMs || 0))
+      .slice(0, 20)
+      .map(p => { const { _issueMs, _permitNumber, _permitDir, ...rest } = p; return rest; });
+  } catch (e) {
+    console.warn("[hamilton/permits]", e.message);
+    return [];
+  }
+}
 
 function matchPrefix(zone) {
   if (!zone) return null;

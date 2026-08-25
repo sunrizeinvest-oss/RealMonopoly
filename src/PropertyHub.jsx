@@ -871,6 +871,26 @@ export default function PropertyHub() {
                 )}
               </div>
 
+              {/* Canadian open-data hint — bed/bath/sqft never come from
+                  city assessment datasets, so users need to know these
+                  are manual-entry fields in the underwriter. */}
+              {property.country === "CA" && !property.bedrooms && !property.bathrooms && !property.squareFootage && (
+                <div style={{
+                  margin: "8px 0 16px",
+                  padding: "10px 14px",
+                  background: "rgba(59,158,255,0.06)",
+                  border: "1px solid rgba(59,158,255,0.25)",
+                  borderLeft: "3px solid #3b9eff",
+                  borderRadius: 6,
+                  fontSize: 12,
+                  color: "var(--alabaster)",
+                  lineHeight: 1.5,
+                }}>
+                  <span style={{color:"#3b9eff",fontWeight:600,marginRight:6}}>ℹ</span>
+                  Bedrooms, bathrooms, and square footage aren't published by Canadian city assessment datasets. Enter them in the underwriter to sharpen the rent estimate and comps.
+                </div>
+              )}
+
               {/* Rent estimate */}
               {property.rentEstimate && (
                 <div className="ph-rent-bar">
@@ -966,6 +986,40 @@ export default function PropertyHub() {
                 }}>
                   © Google
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── ASSESSMENT-UNAVAILABLE NUDGE · Ontario MPAC-restricted cities ──
+              Ottawa / Hamilton / Mississauga assessment data is behind MPAC.
+              We can't fetch the assessed value, so instead of showing empty
+              cells, we tell the user why and where to look. */}
+          {property?.assessmentUnavailable && property?.assessmentUnavailableReason && (
+            <div style={{
+              margin: "16px 0",
+              padding: "14px 18px",
+              background: "linear-gradient(180deg,rgba(148,163,184,0.06) 0%,var(--card) 100%)",
+              border: "1px solid rgba(148,163,184,0.32)",
+              borderLeft: "3px solid #94a3b8",
+              borderRadius: 8,
+            }}>
+              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:8}}>
+                <div style={{fontFamily:"'Geist Mono',ui-monospace,monospace",fontSize:10.5,fontWeight:700,letterSpacing:"1.3px",color:"#94a3b8",textTransform:"uppercase"}}>
+                  ▸ Assessment · MPAC-restricted
+                </div>
+              </div>
+              <div style={{fontSize:13,lineHeight:1.55,color:"var(--alabaster)"}}>
+                {property.assessmentUnavailableReason}
+              </div>
+              <div style={{marginTop:8}}>
+                <a
+                  href="https://www.aboutmyproperty.ca/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{fontSize:12,color:"#94a3b8",textDecoration:"none",fontWeight:600}}
+                >
+                  Open aboutmyproperty.ca →
+                </a>
               </div>
             </div>
           )}

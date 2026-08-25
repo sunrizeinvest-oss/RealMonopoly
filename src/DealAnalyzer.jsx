@@ -587,7 +587,11 @@ export default function DealAnalyzer() {
                 // so the chart shows the REAL economics, not the simplified profit.
                 const sellingCosts = arv.mid * 0.085;   // 8.5% — agent + closing + title
                 const acquisitionCosts = pp * 0.02;     // 2% — closing on buy side
-                const holdingCosts = pp * 0.0012 * 4;   // ~0.12%/mo × 4mo typical flip
+                // Use the user's hold-period input when they've entered one; fall
+                // back to 4 months (typical flip). Previously hard-coded × 4 which
+                // silently ignored the form value and misled users on true ROI.
+                const holdMonths = num(form.holdMonths) || 4;
+                const holdingCosts = pp * 0.0012 * holdMonths;  // ~0.12%/mo carry
                 const realProfit = arv.mid - pp - rc - sellingCosts - acquisitionCosts - holdingCosts;
                 const segments = [
                   {lbl:"PURCHASE",   val: pp,                color:"var(--blue)", pct: arv.mid ? pp/arv.mid : 0},
