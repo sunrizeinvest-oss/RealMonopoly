@@ -419,6 +419,7 @@ export default function MarketTriggers() {
             <input
               type="number"
               placeholder="any"
+              min="0"
               value={maxPrice}
               onChange={e => setMaxPrice(e.target.value)}
               style={inputStyle}

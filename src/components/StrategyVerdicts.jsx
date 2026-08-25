@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { runAllStrategies } from "../lib/strategyMath.js";
 import { useFreeTier } from "../lib/freeTier.js";
 import { FreeTierUpgradeModal } from "./FreeTierBanner.jsx";
+import { authedFetch } from "../lib/authedFetch";
 import {
   trackVerdictCardClick, trackToolClick, trackSaveToDashboard, trackUpgradeModalOpen, track,
 } from "../lib/analytics.js";
@@ -85,7 +86,8 @@ export default function StrategyVerdicts({ property }) {
     setMemoState("loading");
     track("verdict_memo_click", { city: merged.city || "" });
     try {
-      const r = await fetch("/api/ai-chat", {
+      // authedFetch attaches Supabase JWT — server gates this mode to Pro tier.
+      const r = await authedFetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

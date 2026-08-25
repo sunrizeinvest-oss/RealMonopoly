@@ -158,7 +158,11 @@ function calcDepreciation(v) {
   const combinedRate = federalRate + stateRate;
   const schedule = v.propertyType === "residential" ? 27.5 : 39;
 
-  const depreciableBasis = purchasePrice - landValue + improvementCosts;
+  // Clamp at 0 — if user's landValue exceeds purchasePrice (bad input, or
+  // rare cases like paying below tax-assessed land value), we'd otherwise
+  // display "Depreciable basis: -$50,000" and feed negatives into buildingValue.
+  // annualDepreciation already guards, but the raw basis renders in the UI too.
+  const depreciableBasis = Math.max(0, purchasePrice - landValue + improvementCosts);
   const annualDepreciation = depreciableBasis > 0 ? depreciableBasis / schedule : 0;
   const monthlyDepreciation = annualDepreciation / 12;
   const annualTaxSavings = annualDepreciation * combinedRate;

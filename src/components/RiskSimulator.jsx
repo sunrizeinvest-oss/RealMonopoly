@@ -3,6 +3,7 @@ import { runMonteCarlo, DEFAULT_DISTRIBUTIONS } from "../lib/monteCarlo";
 import { generateTier2Report } from "../lib/tier2Report";
 import { cachedThesisFetch } from "../lib/aiReadCache";
 import AIReadShareButton from "./AIReadShareButton";
+import { authedFetch } from "../lib/authedFetch";
 
 // Institutional-style preset scenarios. Each maps to a delta from DEFAULT_DISTRIBUTIONS.
 // Bull = optimistic priors, Bear = stressed priors. Base = the defaults.
@@ -222,7 +223,8 @@ export default function RiskSimulator({ deal, calcSummary, comps, persistKey }) 
     setMemoLoading(true);
     setMemoError(null);
     try {
-      const r = await fetch("/api/ai-chat", {
+      // authedFetch attaches Supabase JWT — server gates this mode to Pro tier.
+      const r = await authedFetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

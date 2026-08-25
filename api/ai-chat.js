@@ -832,6 +832,16 @@ ${transcript.slice(0, 3000)}
 // results. Output is Markdown-ish plain text that the client turns into a
 // branded PDF via jsPDF. Pro-gated on the client via freeTier.canExportPDF.
 async function handleVerdictMemo(req, res) {
+  // Pro-tier gate — verdict-memo generates a full institutional PDF (~$0.002
+  // per call, generates a shareable investor artifact). Was client-only via
+  // freeTier.js canExportPDF; now enforced server-side.
+  try {
+    const { requireTier } = await import("./_lib/auth.js");
+    await requireTier(req, "pro");
+  } catch (e) {
+    return res.status(e.status || 401).json({ error: e.message });
+  }
+
   const { property, strategyResults, buyBoxContext } = req.body || {};
   if (!property || !property.address) {
     return res.status(400).json({ error: "Missing property + address." });
@@ -1189,7 +1199,15 @@ These are directional signals for analyst review. Make them plausible, not perfe
 //   or as standalone correspondence to LPs / lenders.
 // ──────────────────────────────────────────────────────────────────────
 async function handleDealMemo(req, res) {
-  // Most expensive mode (~$0.003/call, 2500 tokens, 60s high-tier AI). Tightest cap.
+  // Pro-tier gate — deal-memo is our most expensive backend mode
+  // (~$0.003/call, 2500 tokens, 60s high-tier AI). The anon limit below
+  // stays as a belt-and-suspenders backstop for the free-tier signup nudge.
+  try {
+    const { requireTier } = await import("./_lib/auth.js");
+    await requireTier(req, "pro");
+  } catch (e) {
+    return res.status(e.status || 401).json({ error: e.message });
+  }
   if (!(await enforceAnonLimit(req, res, { limit: 3, name: "deal-memo" }))) return;
 
   const { deal = {}, calc = {}, monteCarlo = {}, comps = [] } = req.body || {};

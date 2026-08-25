@@ -106,9 +106,21 @@ export async function getZoning({ lat, lng, address }) {
   }
 }
 
-// Toronto's MPAC assessment is not on open data; only city tax roll is.
-// Return null cleanly — the card silently omits the assessment section.
-export async function getAssessment() { return null; }
+// MPAC restricts open access to per-property assessed values across Ontario
+// (Toronto included — only the city tax roll is public, not the assessed
+// value). Return an explicit "unavailable" signal so the UI can render a
+// "MPAC-restricted — enter manually" nudge. Same pattern as ottawa.js /
+// hamilton.js / mississauga.js.
+export async function getAssessment() {
+  return {
+    assessedValue: null,
+    assessmentYear: null,
+    yearBuilt: null,
+    unavailable: true,
+    unavailableReason: "MPAC does not publish per-property values via open data for Toronto (only the city tax roll is public). Look up your roll number at aboutmyproperty.ca (MPAC login required) or enter the assessed value manually.",
+    source: "toronto-mpac-restricted",
+  };
+}
 
 export async function getPermits({ lat, lng, radiusMeters = 1000 }) {
   try {
