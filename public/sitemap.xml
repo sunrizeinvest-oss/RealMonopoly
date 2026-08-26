@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Core product surfaces -->
   <url>
     <loc>https://www.realdealestate.app/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/property</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.realdealestate.app/analyze</loc>
@@ -26,11 +32,6 @@
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.realdealestate.app/property</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://www.realdealestate.app/loans</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -46,10 +47,181 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.realdealestate.app/buybox</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/vs-biggerpockets</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/vs-costar</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/vs-dealcheck</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/blog</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/blog/toronto-multiplex-bylaw-2023</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/blog/edmonton-bylaw-20001-8plex</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/blog/canadian-brrrr-strategy-2026</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Story + raise-adjacent surfaces (public, unlisted from gated /pitch) -->
+  <url>
+    <loc>https://www.realdealestate.app/story</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/roadmap</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/case-studies</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/case-studies/calgary-rcg-fourplex</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/case-studies/toronto-rd-multiplex</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/case-studies/edmonton-rs-8plex</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/live</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/updates</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/press</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/community</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/for-firms</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/careers</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/legal</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/testimonials</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/founder</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/refer</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/angel</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/api-docs</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.realdealestate.app/learn</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
+
+  <!-- City landing pages (SEO capture) -->
+  <url>
+    <loc>https://www.realdealestate.app/canada/calgary-property-analysis</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/canada/edmonton-multiplex-analyzer</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/canada/vancouver-r1-1-underwriter</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/canada/toronto-multiplex-analyzer</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/canada/ottawa-property-analysis</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/canada/mississauga-property-analysis</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://www.realdealestate.app/canada/hamilton-property-analysis</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Compliance -->
   <url>
     <loc>https://www.realdealestate.app/login</loc>
     <changefreq>yearly</changefreq>
@@ -65,4 +237,31 @@
     <changefreq>yearly</changefreq>
     <priority>0.2</priority>
   </url>
+
+  <!-- Product tools (added 2026-08-25) — under-indexed until now -->
+  <url><loc>https://www.realdealestate.app/flip</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.realdealestate.app/rehab</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.realdealestate.app/tax</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.realdealestate.app/qualify</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.realdealestate.app/budget</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.realdealestate.app/distress</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.realdealestate.app/screen</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.realdealestate.app/alerts</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.realdealestate.app/triggers</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.realdealestate.app/market-brief</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.realdealestate.app/compare-deals</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.realdealestate.app/voice</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://www.realdealestate.app/quiz</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://www.realdealestate.app/metrics</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+
+  <!-- Content + credibility pages -->
+  <url><loc>https://www.realdealestate.app/about</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.realdealestate.app/brokers</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.realdealestate.app/investors</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.realdealestate.app/firms</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.realdealestate.app/jobs</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://www.realdealestate.app/demo</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.realdealestate.app/changelog</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://www.realdealestate.app/docs</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://www.realdealestate.app/branding</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>

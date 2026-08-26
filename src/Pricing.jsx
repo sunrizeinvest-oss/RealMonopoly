@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
 import TopNav from "./components/TopNav";
+import { useDocMeta } from "./lib/seo";
 
 const CSS = `
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -78,6 +79,23 @@ export default function Pricing() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(null); // null | "pro" | "scale"
+
+  useDocMeta({
+    title: "Pricing",
+    description: "Free tier: 5 property lookups / month. Pro $99/mo: unlimited lookups, deal memos, PDF export, saved pipeline. Scale $299/mo: rent-roll parsing, API access, priority support.",
+    jsonld: {
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": "RizeAI",
+      "description": "Institutional-grade real estate underwriting for Canadian brokers and investors.",
+      "offers": [
+        { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "CAD" },
+        { "@type": "Offer", "name": "Pro", "price": "99", "priceCurrency": "CAD", "priceSpecification": { "@type": "UnitPriceSpecification", "billingIncrement": "P1M" } },
+        { "@type": "Offer", "name": "Scale", "price": "299", "priceCurrency": "CAD", "priceSpecification": { "@type": "UnitPriceSpecification", "billingIncrement": "P1M" } },
+      ],
+    },
+  });
+
 
   async function handleUpgrade(plan = "pro") {
     if (!user) { navigate("/login"); return; }

@@ -8,6 +8,7 @@ import { detectCitySlug, getCapRateBenchmark, getDscrThresholds } from "./lib/be
 import OnboardingTour from "./components/OnboardingTour";
 import LossToLeasePanel from "./components/LossToLeasePanel";
 import { authedFetch } from "./lib/authedFetch";
+import { useDocMeta } from "./lib/seo";
 
 const num = v => parseFloat(v) || 0;
 const fmt = (n, cur = "USD") => new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(n || 0);
@@ -243,6 +244,11 @@ const STRATEGIES = [
 export default function PropertyHub() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+
+  useDocMeta({
+    title: "Property Intelligence",
+    description: "Type any Canadian address for institutional-grade underwriting: zoning specs, assessed value, CMHC rent anchors, comps, walkable amenities, and neighborhood context — in seconds.",
+  });
 
   const [query,        setQuery]        = useState("");
   const [loading,      setLoading]      = useState(false);

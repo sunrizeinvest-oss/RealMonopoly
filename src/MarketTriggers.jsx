@@ -6,6 +6,7 @@ import { useAuth } from "./AuthContext";
 import { supabase } from "./supabase";
 import { cachedThesisFetch } from "./lib/aiReadCache";
 import AIReadShareButton from "./components/AIReadShareButton";
+import { authedFetch } from "./lib/authedFetch";
 
 /**
  * MarketTriggers — distressed-listing radar.
@@ -184,7 +185,8 @@ export default function MarketTriggers() {
     setRunning(true);
     setError(null);
     try {
-      const r = await fetch("/api/ai-chat", {
+      // find-triggers is Pro-gated server-side.
+      const r = await authedFetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -300,7 +302,8 @@ export default function MarketTriggers() {
     setRunning(true);
     setError(null);
     try {
-      const r = await fetch("/api/ai-chat", {
+      // find-triggers is Pro-gated server-side.
+      const r = await authedFetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

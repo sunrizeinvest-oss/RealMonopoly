@@ -556,6 +556,16 @@ function buildDealTemplateThesis({ strategy, metrics, verdict }) {
 //                  monthlyRent, propertyTaxes, unitCount, bedrooms,
 //                  bathrooms, sqft, yearBuilt, notes }, source: "ai-thesis" }
 async function handleParseDocument(req, res) {
+  // Pro-tier gate — parse-document uses AI Sonnet 4.6 for PDF OCR extraction
+  // (~$0.02/call, our second-most-expensive mode after rent-roll). Was open to
+  // any client; now requires an authenticated Pro (or Scale) subscription.
+  try {
+    const { requireTier } = await import("./_lib/auth.js");
+    await requireTier(req, "pro");
+  } catch (e) {
+    return res.status(e.status || 401).json({ error: e.message });
+  }
+
   const { document, mediaType = "application/pdf", target = "residential" } = req.body || {};
   if (!document || typeof document !== "string") {
     return res.status(400).json({ error: "Missing 'document' (base64 string)." });
@@ -1074,6 +1084,14 @@ Output STRICT JSON only — no preamble, no markdown fences. Format:
 // directional signal layer the user reviews; replace the AI call with a
 // real feed when the data deal lands.
 async function handleFindTriggers(req, res) {
+  // Pro-tier gate — find-triggers fires the AI @ ~3000 tokens (~$0.004/call).
+  // Anon limit stays as belt-and-suspenders for the free-tier signup nudge.
+  try {
+    const { requireTier } = await import("./_lib/auth.js");
+    await requireTier(req, "pro");
+  } catch (e) {
+    return res.status(e.status || 401).json({ error: e.message });
+  }
   // AI @ 3000 tokens is ~$0.004/call — pricier than find-comps. Tighter cap.
   if (!(await enforceAnonLimit(req, res, { limit: 5, name: "find-triggers" }))) return;
 

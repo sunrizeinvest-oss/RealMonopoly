@@ -20,11 +20,14 @@
     "model:financial": "node scripts/generate-financial-model.mjs",
     "fundraise:all": "npm run guide:raise && npm run deck:pdf && npm run onepager:pdf && npm run model:financial && npm run memo:sample && npm run crm:template",
     "onepager:pdf": "node scripts/generate-one-pager.mjs",
-    "crm:template": "node scripts/generate-investor-crm.mjs"
+    "crm:template": "node scripts/generate-investor-crm.mjs",
+    "playbook:pdf": "node scripts/generate-playbook.mjs"
   },
   "dependencies": {
     "@stripe/stripe-js": "^9.0.0",
     "@supabase/supabase-js": "^2.100.1",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "jspdf": "^2.5.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

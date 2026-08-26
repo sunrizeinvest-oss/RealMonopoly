@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { authedFetch } from "../lib/authedFetch";
 
 /**
  * AIDocumentDrop — drop a PDF (listing sheet, rent roll, lease, MLS export,
@@ -136,7 +137,8 @@ export default function AIDocumentDrop({ target = "residential", onApply, maxSiz
       const b64 = await fileToBase64(file);
       setFiles(curr => curr.map(r => r.id === id ? { ...r, stage: "parsing" } : r));
 
-      const r = await fetch("/api/ai-chat", {
+      // parse-document is Pro-gated server-side.
+      const r = await authedFetch("/api/ai-chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

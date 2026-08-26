@@ -2,6 +2,7 @@ import { StrictMode, lazy, Suspense } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/react'
 import { AuthProvider, useAuth } from './AuthContext'
 import ErrorBoundary from './ErrorBoundary.jsx'
 import './index.css'
@@ -277,6 +278,9 @@ createRoot(document.getElementById('root')).render(
       {/* Vercel Analytics — auto-tracks page views per route. Free 2.5k events/mo
           on Hobby. View at vercel.com → flip-analyzer → Analytics tab. */}
       <Analytics />
+      {/* Speed Insights — Core Web Vitals (LCP / INP / CLS) per page. Free
+          on Hobby. Data appears at vercel.com → flip-analyzer → Speed Insights. */}
+      <SpeedInsights />
     </BrowserRouter>
     </ErrorBoundary>
   </StrictMode>,
