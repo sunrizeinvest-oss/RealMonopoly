@@ -296,7 +296,11 @@ export default function Pipeline() {
     const withProfit = active.filter(d => num(d.projectedProfit) > 0);
     const avgProfit = withProfit.length ? totalProjected / withProfit.length : 0;
     const closedDeals = deals.filter(d => d.stage === "closed").length;
-    const convRate = deals.length > 0 ? closedDeals / deals.filter(d => d.stage !== "dead").length : 0;
+    // Guard against all-dead pipelines (nonDeadCount === 0 → Infinity).
+    // Outer deals.length check wasn't sufficient — a pipeline of only
+    // dead deals still has length > 0 but nonDeadCount === 0.
+    const nonDeadCount = deals.filter(d => d.stage !== "dead").length;
+    const convRate = nonDeadCount > 0 ? closedDeals / nonDeadCount : 0;
     return { active: active.length, total: deals.length, totalProjected, avgProfit, closedDeals, convRate };
   }, [deals]);
 

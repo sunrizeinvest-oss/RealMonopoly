@@ -152,17 +152,27 @@ export default function LoanCompare() {
     });
   }, [loans, propertyValue, annualNOI, holdYears, downCashExtras]);
 
-  // Determine winners per metric (best value across the 3 columns)
+  // Determine winners per metric (best value across the 3 columns).
+  // NaN comparisons always return false, so without an isFinite guard a
+  // row with NaN in the seed slot pinned best=0 permanently regardless of
+  // the other rows. The isFinite check also filters Infinity from any
+  // division-by-zero edge case in the metric computation upstream.
   const winners = useMemo(() => {
     const minIdx = (key) => {
-      let best = 0;
-      rows.forEach((r, i) => { if (r[key] < rows[best][key]) best = i; });
-      return best;
+      let best = -1;
+      rows.forEach((r, i) => {
+        if (!isFinite(r[key])) return;
+        if (best === -1 || r[key] < rows[best][key]) best = i;
+      });
+      return best === -1 ? 0 : best;
     };
     const maxIdx = (key) => {
-      let best = 0;
-      rows.forEach((r, i) => { if (r[key] > rows[best][key]) best = i; });
-      return best;
+      let best = -1;
+      rows.forEach((r, i) => {
+        if (!isFinite(r[key])) return;
+        if (best === -1 || r[key] > rows[best][key]) best = i;
+      });
+      return best === -1 ? 0 : best;
     };
     return {
       monthly:      minIdx("monthly"),

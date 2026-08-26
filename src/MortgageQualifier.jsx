@@ -375,8 +375,12 @@ export default function MortgageQualifier() {
           <QuickAutoFillWidget
             hint="Paste an address and we'll fill in purchase price + property tax from public records."
             computePatch={(d) => {
+              // Previously hardcoded `p.purchasePrice = 1` — a stub that
+              // was never replaced. onFill below has the correct value;
+              // computePatch is what the widget uses to preview / diff
+              // before applying, so it must return the real number too.
               const p = {};
-              if (d.assessedValue && !purchasePrice)  p.purchasePrice = 1;
+              if (d.assessedValue && !purchasePrice) p.purchasePrice = Math.round(d.assessedValue);
               return p;
             }}
             onFill={(d) => {
