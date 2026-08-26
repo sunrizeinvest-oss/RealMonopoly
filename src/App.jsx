@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
-import * as XLSX from "xlsx";
+// XLSX (~500KB) is heavy and only used by exportDeal/importDeal below.
+// Loaded dynamically inside those handlers so it doesn't ship in the
+// main /app bundle — saves ~500KB from every visit that never exports.
 import DealReadout from "./components/DealReadout";
 import MetricWarning from "./components/MetricWarning";
 import MetricTip from "./components/MetricTip";
@@ -1222,7 +1224,9 @@ export default function FlipCalc() {
   const reset = () => setV(DEFAULTS);
   const isProfit = c.netProfit >= 0;
 
-  const exportDeal = () => {
+  const exportDeal = async () => {
+    // Dynamic import — XLSX chunk (~500KB) fetches on click, not on route load.
+    const XLSX = await import("xlsx");
     const dealName = v.address ? v.address.replace(/[^a-z0-9]/gi, "_").toLowerCase() : "deal";
     const cc = calcAll(v);
 
@@ -1379,8 +1383,10 @@ export default function FlipCalc() {
     if (!file) return;
     setImportError("");
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       try {
+        // Dynamic import — same reason as exportDeal above.
+        const XLSX = await import("xlsx");
         const wb = XLSX.read(ev.target.result, { type: "array" });
         const ws = wb.Sheets["Full Inputs"];
         if (!ws) {
